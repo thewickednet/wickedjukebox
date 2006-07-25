@@ -7,6 +7,9 @@
  * @copyright 2006
  */
 
+  $path = ini_get("include_path");
+  ini_set("include_path", sprintf("%s;%s", $path, dirname( __FILE__ ) . '/../phpdata'));
+
   $display = 1;
   $debug = 0;
 
@@ -59,11 +62,20 @@
     $smarty->debugging = false;
 
 
+  switch($_GET['section']){
+    case "browse":
+      include "modules/browse/index.php";
+      break;
+    case "search":
+      include "modules/search/index.php";
+      break;
+    default:
+      include "modules/browse/index.php";
+  } // switch
+
 
   $queue = Queue::getAll();
   $smarty->assign("QUEUE", $queue);
-
-
 
   // assign the $body_template to the base layout
   $smarty->assign("BODY_TEMPLATE", $body_template);

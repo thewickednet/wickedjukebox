@@ -67,7 +67,7 @@ li {
 	padding:10px;
 	padding-top:20px;
 	padding-bottom:20px;
-	
+
 }
 #menu a:hover {
 	border-bottom:1px solid #ffffff;
@@ -128,7 +128,7 @@ li {
 	padding-bottom:35px;
 	padding-top:0;
 	background-repeat:no-repeat;
-	
+
 }
 .logo {
 	float:right;
@@ -215,4 +215,14 @@ li {
 }
 #footer a:hover {
 	color:#009900;
+}
+
+#results table {
+  width: 550px;
+  border: 0px solid black;
+
+}
+#results td {
+	font-family:"Trebuchet MS", Arial, Verdana;
+	font-size:0.74em;
 }
