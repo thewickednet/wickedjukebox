@@ -52,8 +52,13 @@
 
 					<h1>Search</h1>
 					<form>
-					<input type="text" value="" name="pattern" />
-					<br />
+					<input type="text" value="" name="pattern" /><br />
+					<select name="context">
+            <option value="any">Any</option>
+            <option value="any">Artist</option>
+            <option value="any">Album</option>
+            <option value="any">Song</option>
+          </select>
 					<input type="submit" value="Find!" />
           </form>
 <!--

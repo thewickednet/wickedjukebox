@@ -8,10 +8,10 @@
  */
 
   $path = ini_get("include_path");
-  ini_set("include_path", sprintf("%s:%s", $path, dirname( __FILE__ ) . '/../phpdata'));
+  ini_set("include_path", sprintf("%s;%s", $path, dirname( __FILE__ ) . '/../phpdata'));
 
   $display = 1;
-  $debug = 1;
+  $debug = 0;
 
 
   if ($debug)
@@ -61,6 +61,8 @@
   else
     $smarty->debugging = false;
 
+  require_once "libs/smarty_functions.php";
+
 
   switch($_GET['section']){
     case "browse":
@@ -74,6 +76,9 @@
       break;
     case "details":
       include "modules/details/index.php";
+      break;
+    case "download":
+      include "modules/download/index.php";
       break;
     default:
       include "modules/browse/index.php";

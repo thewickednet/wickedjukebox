@@ -38,7 +38,7 @@
                 <td width="20%">Added to DB:</td>
                 <td width="30%">{$SONG.added|date_format:"%d.%m.%Y@%H:%M:%S"}</td>
                 <td width="20%">Filesize:</td>
-                <td width="30%">{$SONG.filesize}</td>
+                <td width="30%">{$SONG.filesize|bytesToHumanReadable}</td>
               </tr>
               <tr>
                 <td width="20%">Played:</td>
