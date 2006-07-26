@@ -10,20 +10,17 @@
 
 
   switch($_GET['module']){
-    case "artists":
-      include "modules/browse/artists.php";
+    case "artist":
+      include "modules/details/artist.php";
       break;
-    case "genres":
-      include "modules/browse/genres.php";
+    case "song":
+      include "modules/details/song.php";
       break;
-    case "latest":
-      include "modules/browse/latest.php";
-      break;
-    case "albums":
-      include "modules/browse/albums.php";
+    case "album":
+      include "modules/details/album.php";
       break;
     default:
-      include "modules/browse/artists.php";
+      header("Location: index.php");
   } // switch
 
 
