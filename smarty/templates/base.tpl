@@ -7,15 +7,23 @@
 
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta http-equiv="refresh" content="150;url={$URL}">
 <title>Wicked Jukebox</title>
 <link href="/css/1.css" rel="stylesheet" type="text/css" />
+{literal}
+  <script type="text/javascript" src="/javascript/prototype.js"></script>
+  <script type="text/javascript" src="/javascript/ajax.js"></script>
+  <script type="text/javascript" src="/javascript/jukebox.js"></script>
+{/literal}
 </head>
 
 <body>
+<div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000"></div>
+<div id="container">
 <a name="top" id="top"></a>
 <center>
 		<div id="menu">
-				<a href="/browse/albums/">albums</a> <a href="/browse/artists/">artists</a> <a href="/browse/genres/">genres</a> <a href="/browse/latest/">latest additions</a> <a href="/admin/">admin</a>
+				<a href="/browse/artists/">artists</a> <a href="/browse/albums/">albums</a> <a href="/browse/genres/">genres</a> <a href="/browse/latest/">latest additions</a> <a href="/stats/">statistics</a> <a href="/admin/">admin</a>
 		</div>
 
 		<div id="header">
@@ -31,27 +39,35 @@
 						Hello and welcome to Plain version 1.0. This is a simple web site template maximising the use of css and xhtml. Whitespace is used in abundance to really push its importance in web design. Navigate the page via the menu at the top of the page, or the links underneath this paragraph.
 				</p>
 -->
+
 				<div id="sidebar">
+
+          <img src="/images/c_prev.gif" border="0" />
+          <img src="/images/c_rw.gif" border="0" />
+          <img src="/images/c_stop.gif" border="0" />
+          <img src="/images/c_pause.gif" border="0" />
+          <img src="/images/c_play.gif" border="0" />
+          <img src="/images/c_ff.gif" border="0" />
+          <img src="/images/c_next.gif" border="0" />
+
 					<h1>Search</h1>
 					<form>
 					<input type="text" value="" name="pattern" />
 					<br />
 					<input type="submit" value="Find!" />
           </form>
-
+<!--
 					<h1>Log In</h1>
-					<input type="text" value="Username" />
+					<input type="text" name="username" value="Username" />
 					<br />
-					<input name="" type="password" value="Password" />
+					<input name="password" type="password" value="Password" />
 					<br />
 					<input type="button" value="Log In" />
-
+-->
 
 						<h1>Queue</h1>
-						<div class="submenu">
-            {foreach from=$QUEUE item=QUEUE_SONG}
-								<a href="#top">{$QUEUE_SONG}</a>
-            {/foreach}
+						<div class="submenu" id="queue">
+						{include file='queue.tpl'}
 						</div>
 
 
@@ -69,9 +85,12 @@
 		  </div>
 
   </div>
+  <div style="height: 50px;">&nbsp;</div>
   <div id="footer">
-  		wicked jukebox 1.0<br />
+ 		wicked jukebox 1.0<br />
   Designed by <a href="http://www.jameskoster.co.uk">James Koster</a>, all the rest &copy; The Wicked Net</div>
-</center>
+ </center>
+
+</div>
 </body>
 </html>

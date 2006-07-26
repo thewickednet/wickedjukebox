@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 2.8.1
+-- version 2.8.2
 -- http://www.phpmyadmin.net
 -- 
 -- Host: localhost
--- Generation Time: Jul 24, 2006 at 06:02 PM
--- Server version: 5.0.21
--- PHP Version: 5.1.4
+-- Generation Time: Jul 26, 2006 at 02:09 AM
+-- Server version: 5.0.22
+-- PHP Version: 5.1.4-pl4-gentoo
 -- 
 -- Database: `wickedjukebox`
 -- 
@@ -173,7 +173,7 @@ INSERT INTO `genres` (`genre_id`, `name`) VALUES (148, 'Vocal');
 -- Dumping data for table `groups`
 -- 
 
-INSERT INTO `groups` (`group_id`, `title`, `admin`, `nocredits`, `queue_skip`, `queue_remove`, `queue_add`) VALUES (0, 'anonymous', 0, 0, 0, 0, 0);
+INSERT INTO `groups` (`group_id`, `title`, `admin`, `nocredits`, `queue_skip`, `queue_remove`, `queue_add`) VALUES (6, 'anonymous', 0, 0, 0, 0, 0);
 INSERT INTO `groups` (`group_id`, `title`, `admin`, `nocredits`, `queue_skip`, `queue_remove`, `queue_add`) VALUES (2, 'user', 0, 0, 0, 0, 1);
 INSERT INTO `groups` (`group_id`, `title`, `admin`, `nocredits`, `queue_skip`, `queue_remove`, `queue_add`) VALUES (3, 'VIP', 0, 0, 1, 1, 1);
 INSERT INTO `groups` (`group_id`, `title`, `admin`, `nocredits`, `queue_skip`, `queue_remove`, `queue_add`) VALUES (4, 'DJ', 0, 1, 1, 1, 1);

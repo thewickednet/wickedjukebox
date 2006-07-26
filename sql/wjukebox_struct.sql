@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 2.8.1
+-- version 2.8.2
 -- http://www.phpmyadmin.net
 -- 
 -- Host: localhost
--- Generation Time: Jul 24, 2006 at 06:01 PM
--- Server version: 5.0.21
--- PHP Version: 5.1.4
+-- Generation Time: Jul 26, 2006 at 02:08 AM
+-- Server version: 5.0.22
+-- PHP Version: 5.1.4-pl4-gentoo
 -- 
 -- Database: `wickedjukebox`
 -- 
@@ -23,7 +23,7 @@ CREATE TABLE `albums` (
   `added` datetime NOT NULL,
   `artist_id` int(11) unsigned NOT NULL,
   PRIMARY KEY  (`album_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=5 ;
 
 -- --------------------------------------------------------
 
@@ -36,7 +36,7 @@ CREATE TABLE `artists` (
   `artist_id` int(11) unsigned NOT NULL auto_increment,
   `name` varchar(128) NOT NULL,
   PRIMARY KEY  (`artist_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=5 ;
 
 -- --------------------------------------------------------
 
@@ -83,7 +83,7 @@ CREATE TABLE `groups` (
   `queue_remove` tinyint(1) NOT NULL default '0',
   `queue_add` tinyint(1) NOT NULL default '0',
   PRIMARY KEY  (`group_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=6 ;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=7 ;
 
 -- --------------------------------------------------------
 
@@ -131,7 +131,7 @@ CREATE TABLE `queue` (
   `position` smallint(3) unsigned NOT NULL default '0',
   `added` datetime NOT NULL,
   PRIMARY KEY  (`queue_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=83 ;
 
 -- --------------------------------------------------------
 
@@ -178,7 +178,7 @@ CREATE TABLE `songs` (
   KEY `title` (`title`),
   KEY `album_id` (`album_id`),
   KEY `track_no` (`track_no`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=14 ;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=20 ;
 
 -- --------------------------------------------------------
 
@@ -197,4 +197,4 @@ CREATE TABLE `users` (
   `group_id` smallint(2) NOT NULL,
   PRIMARY KEY  (`user_id`),
   KEY `group_id` (`group_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;

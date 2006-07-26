@@ -8,10 +8,10 @@
  */
 
   $path = ini_get("include_path");
-  ini_set("include_path", sprintf("%s;%s", $path, dirname( __FILE__ ) . '/../phpdata'));
+  ini_set("include_path", sprintf("%s:%s", $path, dirname( __FILE__ ) . '/../phpdata'));
 
   $display = 1;
-  $debug = 0;
+  $debug = 1;
 
 
   if ($debug)
@@ -40,7 +40,7 @@
   $db_settings = $cfg->getSettings( 'config', 'Database', array( 'Type', 'Host', 'User', 'Pass', 'Base' ) );
 
   // initialize database connection and set $db instance as default
-  $dsn = sprintf("%s://%s%s@%s/%s", $db_settings['Type'], $db_settings['User'], $db_settings['Password'], $db_settings['Host'], $db_settings['Base']);
+  $dsn = sprintf("%s://%s%s@%s/%s", $db_settings['Type'], $db_settings['User'], $db_settings['Pass'], $db_settings['Host'], $db_settings['Base']);
   $db = ezcDbFactory::create( $dsn );
   ezcDbInstance::set( $db );
 
@@ -69,16 +69,23 @@
     case "search":
       include "modules/search/index.php";
       break;
+    case "queue":
+      include "modules/queue/index.php";
+      break;
+    case "details":
+      include "modules/details/index.php";
+      break;
     default:
       include "modules/browse/index.php";
   } // switch
 
 
-  $queue = Queue::getAll();
-  $smarty->assign("QUEUE", $queue);
+  $smarty->assign("QUEUE", Queue::getAll());
+  $smarty->assign("QUEUE_TOTAL", Queue::getTotal());
 
   // assign the $body_template to the base layout
   $smarty->assign("BODY_TEMPLATE", $body_template);
+  $smarty->assign("URL", $_SERVER['REQUEST_URI']);
 
   // display the default template
   if ($display) {

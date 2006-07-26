@@ -12,12 +12,24 @@
   $smarty->assign("ALPHA_INDEX", $alpha);
 
   switch($_GET['mode']){
+    case "cover":
+
+      $cover = Artist::hasCover($_GET['param']);
+
+      if (!empty($cover))
+        Artist::showCover($cover);
+      else
+        echo "no cover found";
+      exit();
+
+      break;
     case "byid":
 
       $artist = Artist::getById($_GET['param']);
 
       $results = Artist::getSongs($_GET['param']);
 
+      $smarty->assign("COVER", Artist::hasCover($_GET['param']));
       $smarty->assign("ARTIST", $artist[0]);
       $smarty->assign("SONGS", $results);
 
