@@ -11,16 +11,13 @@
 
   switch($_GET['module']){
     case "artist":
-      include "modules/details/artist.php";
+      include "modules/browse/artists.php";
       break;
-    case "song":
-      include "modules/details/song.php";
-      break;
-    case "album":
-      include "modules/details/album.php";
+    case "albums":
+      include "modules/browse/albums.php";
       break;
     default:
-      header("Location: index.php");
+      include "modules/browse/artists.php";
   } // switch
 
 

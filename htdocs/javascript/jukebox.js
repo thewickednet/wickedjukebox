@@ -28,4 +28,9 @@ function delalbum(id) {
 
 }
 
+function cleanqueue() {
 
+  new Ajax.Updater('queue', '/index.php?section=queue&module=queue&mode=clean&ajax=1', {asynchronous:true, evalScripts:true });
+  return false;
+
+}

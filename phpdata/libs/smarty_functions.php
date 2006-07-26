@@ -8,8 +8,10 @@
  */
 
 
-function bytesToHumanReadable($bytes)
-{
+function bytesToHumanReadable($bytes) {
+
+  $precision = 2;
+
    if (!is_numeric($bytes) || $bytes < 0) {
        return false;
    }

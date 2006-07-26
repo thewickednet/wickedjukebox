@@ -64,6 +64,19 @@ class Queue {
 
   }
 
+  function clean() {
+    $db = ezcDbInstance::get();
+
+    $q = $db->createDeleteQuery();
+    $e = $q->expr;
+    $q->deleteFrom( 'queue' )
+      ->where( $e->eq( 'channel_id', $q->bindValue( $this->channel_id ) ) );
+
+    $stmt = $q->prepare();
+    $stmt->execute();
+
+  }
+  
 
 }
 

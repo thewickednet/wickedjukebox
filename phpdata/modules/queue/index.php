@@ -17,6 +17,9 @@
     case "album":
       include "modules/queue/album.php";
       break;
+    case "queue":
+      include "modules/queue/queue.php";
+      break;
     default:
       header("Location: index.php");
   } // switch

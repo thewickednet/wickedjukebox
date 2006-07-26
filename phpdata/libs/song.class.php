@@ -25,10 +25,10 @@ class Song {
     $song = $song[0];
 
     $filename = basename($song['localpath']);
-    $extension = split(".", $filename);
+    $extension = split("\.", $filename);
     $extension = $extension[count($extension)-1];
 
-    $filename = sprintf("%s - %s.%s", $song['name'], $song['name'], $extension );
+    $filename = sprintf("%s - %s.%s", $song['name'], $song['title'], $extension );
     $filename = str_replace(" ", "_", $filename);
 
 
