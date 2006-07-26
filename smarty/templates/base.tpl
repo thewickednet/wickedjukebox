@@ -18,7 +18,7 @@
 </head>
 
 <body>
-<div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000"></div>
+<div id="hiddenDiv" style="position:absolute; visibility:hidden; z-index:1000"></div>
 <div id="container">
 <a name="top" id="top"></a>
 <center>
@@ -42,23 +42,24 @@
 
 				<div id="sidebar">
 
-          <img src="/images/c_prev.gif" border="0" />
-          <img src="/images/c_rw.gif" border="0" />
-          <img src="/images/c_stop.gif" border="0" />
-          <img src="/images/c_pause.gif" border="0" />
-          <img src="/images/c_play.gif" border="0" />
-          <img src="/images/c_ff.gif" border="0" />
-          <img src="/images/c_next.gif" border="0" />
+          <a href="#" onclick="javascript:control('prev');"><img src="/images/c_prev.gif" border="0" /></a>
+          <a href="#" onclick="javascript:control('rewind');"><img src="/images/c_rw.gif" border="0" /></a>
+          <a href="#" onclick="javascript:control('stop');"><img src="/images/c_stop.gif" border="0" /></a>
+          <a href="#" onclick="javascript:control('pause');"><img src="/images/c_pause.gif" border="0" /></a>
+          <a href="#" onclick="javascript:control('play');"><img src="/images/c_play.gif" border="0" /></a>
+          <a href="#" onclick="javascript:control('forward');"><img src="/images/c_ff.gif" border="0" /></a>
+          <a href="#" onclick="javascript:control('next');"><img src="/images/c_next.gif" border="0" /></a>
 
 					<h1>Search</h1>
-					<form>
-					<input type="text" value="" name="pattern" /><br />
-					<select name="context">
-            <option value="any">Any</option>
-            <option value="any">Artist</option>
-            <option value="any">Album</option>
-            <option value="any">Song</option>
+					<form action="/index.php">
+					<input type="text" value="{$SEARCH_PATTERN}" name="pattern" /><br />
+					<select name="mode">
+            <option value="any" {if $SEARCH_MODE eq 'any'}selected{/if}>Any</option>
+            <option value="artist" {if $SEARCH_MODE eq 'artist'}selected{/if}>Artist</option>
+            <option value="album" {if $SEARCH_MODE eq 'album'}selected{/if}>Album</option>
+            <option value="song" {if $SEARCH_MODE eq 'song'}selected{/if}>Song</option>
           </select>
+          <input type="hidden" name="section" value="search">
 					<input type="submit" value="Find!" />
           </form>
 <!--

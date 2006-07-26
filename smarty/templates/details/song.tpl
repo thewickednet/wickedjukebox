@@ -17,39 +17,39 @@
                 </td>
               </tr>
               <tr>
-                <td width="20%">Artist:</td>
+                <td width="20%"><b>Artist:</b></td>
                 <td width="30%"><a href="/browse/artists/byid/{$SONG.artist_id}/">{$SONG.name}</a></td>
-                <td width="20%">Album:</td>
+                <td width="20%"><b>Album:</b></td>
                 <td width="30%"><a href="/browse/albums/byid/{$ALBUM.0.album_id}/">{$ALBUM.0.title}</a></td>
               </tr>
               <tr>
-                <td width="20%">Genre:</td>
+                <td width="20%"><b>Genre:</b></td>
                 <td width="30%">{$SONG.genre_id}</td>
-                <td width="20%">Year:</td>
+                <td width="20%"><b>Year:</b></td>
                 <td width="30%">{$SONG.year}</td>
               </tr>
               <tr>
-                <td width="20%">Bitrate:</td>
+                <td width="20%"><b>Bitrate:</b></td>
                 <td width="30%">{$SONG.bitrate}</td>
-                <td width="20%">Duration:</td>
+                <td width="20%"><b>Duration:</b></td>
                 <td width="30%">{$SONG.duration}</td>
               </tr>
               <tr>
-                <td width="20%">Added to DB:</td>
+                <td width="20%"><b>Added to DB:</b></td>
                 <td width="30%">{$SONG.added|date_format:"%d.%m.%Y@%H:%M:%S"}</td>
-                <td width="20%">Filesize:</td>
+                <td width="20%"><b>Filesize:</b></td>
                 <td width="30%">{$SONG.filesize|bytesToHumanReadable}</td>
               </tr>
               <tr>
-                <td width="20%">Played:</td>
+                <td width="20%"><b>Played:</b></td>
                 <td width="30%">{$SONG.played}</td>
-                <td width="20%">Skipped:</td>
+                <td width="20%"><b>Skipped:</b></td>
                 <td width="30%">{$SONG.skipped}</td>
               </tr>
               <tr>
-                <td width="20%">Downloaded:</td>
+                <td width="20%"><b>Downloaded:</b></td>
                 <td width="30%">{$SONG.downloaded}</td>
-                <td width="20%">Voted:</td>
+                <td width="20%"><b>Voted:</b></td>
                 <td width="30%">{$SONG.voted}</td>
               </tr>
               <tr>

@@ -80,6 +80,9 @@
     case "download":
       include "modules/download/index.php";
       break;
+    case "backend":
+      include "modules/backend/index.php";
+      break;
     default:
       include "modules/browse/index.php";
   } // switch

@@ -34,3 +34,8 @@ function cleanqueue() {
   return false;
 
 }
+
+function control(what){
+  new Ajax.Updater('queue', '/index.php?section=backend&param='+what, {asynchronous:true, evalScripts:true });
+  return false;
+}
