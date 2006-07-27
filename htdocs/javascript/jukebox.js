@@ -39,3 +39,19 @@ function control(what){
   new Ajax.Updater('queue', '/index.php?section=backend&param='+what, {asynchronous:true, evalScripts:true });
   return false;
 }
+
+
+
+function refreshQueue(){
+  new Ajax.Updater('queue', '/index.php?section=queue&ajax=1', {asynchronous:true, evalScripts:true });
+  return false;
+}
+
+function search(){
+  var pattern = document.searchform.pattern.value;
+  var mode = document.searchform.mode.value;
+
+  new Ajax.Updater('mainbar', '/index.php?section=search&pattern='+pattern+'&mode='+mode, {asynchronous:true, evalScripts:true });
+  return false;
+
+}

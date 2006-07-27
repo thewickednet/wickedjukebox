@@ -1,23 +1,24 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 
-
 <!-- Web Page Design by James Koster - http://www.jameskoster.co.uk -->
-
 
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-<meta http-equiv="refresh" content="150;url={$URL}">
 <title>Wicked Jukebox</title>
 <link href="/css/1.css" rel="stylesheet" type="text/css" />
 {literal}
   <script type="text/javascript" src="/javascript/prototype.js"></script>
   <script type="text/javascript" src="/javascript/ajax.js"></script>
   <script type="text/javascript" src="/javascript/jukebox.js"></script>
+  <script>
+  setInterval('refreshQueue()', 15000);
+  </script>
+
 {/literal}
 </head>
 
-<body>
+<body onload="refreshQueue();">
 <div id="hiddenDiv" style="position:absolute; visibility:hidden; z-index:1000"></div>
 <div id="container">
 <a name="top" id="top"></a>
@@ -51,16 +52,15 @@
           <a href="#" onclick="javascript:control('next');"><img src="/images/c_next.gif" border="0" /></a>
 
 					<h1>Search</h1>
-					<form action="/index.php">
-					<input type="text" value="{$SEARCH_PATTERN}" name="pattern" /><br />
+					<form name="searchform" onsubmit="return search();">
+					<input type="text" name="pattern" /><br />
 					<select name="mode">
-            <option value="any" {if $SEARCH_MODE eq 'any'}selected{/if}>Any</option>
-            <option value="artist" {if $SEARCH_MODE eq 'artist'}selected{/if}>Artist</option>
-            <option value="album" {if $SEARCH_MODE eq 'album'}selected{/if}>Album</option>
-            <option value="song" {if $SEARCH_MODE eq 'song'}selected{/if}>Song</option>
+            <option value="any">Any</option>
+            <option value="artist">Artist</option>
+            <option value="album">Album</option>
+            <option value="song">Song</option>
           </select>
-          <input type="hidden" name="section" value="search">
-					<input type="submit" value="Find!" />
+					<input type="submit" value="Find!"  />
           </form>
 <!--
 					<h1>Log In</h1>
@@ -94,7 +94,7 @@
   <div style="height: 50px;">&nbsp;</div>
   <div id="footer">
  		wicked jukebox 1.0<br />
-  Designed by <a href="http://www.jameskoster.co.uk">James Koster</a>, all the rest &copy; The Wicked Net</div>
+  Designed by <a href="http://www.jameskoster.co.uk">James Koster</a>, all the rest by exhuma.twn & doc.twn - The Wicked Net</div>
  </center>
 
 </div>

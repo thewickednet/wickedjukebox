@@ -10,6 +10,8 @@
   $path = ini_get("include_path");
   ini_set("include_path", sprintf("%s:%s", $path, dirname( __FILE__ ) . '/../phpdata'));
 
+  $temp_path = dirname( __FILE__ ) . '/../tmp';
+
   $display = 1;
   $debug = 0;
 

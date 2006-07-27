@@ -20,8 +20,6 @@
     case "queue":
       include "modules/queue/queue.php";
       break;
-    default:
-      header("Location: index.php");
   } // switch
 
   if ($_GET['ajax']) {

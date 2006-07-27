@@ -28,7 +28,7 @@
 
 
   $smarty->assign("RESULTS", $results);
-
-  $body_template = 'search.tpl';
+  $smarty->display('search.tpl');
+  $display = 0;
 
 ?>

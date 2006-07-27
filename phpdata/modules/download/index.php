@@ -7,7 +7,7 @@
  * @copyright 2006
  */
 
-
+  set_time_limit(180);
 
   switch($_GET['module']){
     case "song":
