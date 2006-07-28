@@ -6,9 +6,17 @@ import time
 import socket, logging, logging.handlers
 from model import *
 import os, sys
+from sqlobject.main import SQLObjectNotFound
 
 def getSetting(param_in):
-   return Settings.byParam(param_in).value
+   try:
+      return Settings.byParam(param_in).value
+   except SQLObjectNotFound, ex:
+      words = str(ex).split()
+      print
+      print "Required parameter %s was not found in the settings table!" % words[6]
+      print
+      sys.exit(0)
 
 class Player:
 
