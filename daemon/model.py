@@ -1,5 +1,34 @@
 from sqlobject import *
-sqlhub.processConnection = connectionForURI('mysql://wjb:wjb@localhost/wjb')
+
+import ConfigParser
+import string
+
+def LoadConfig(file, config={}):
+    """
+    returns a dictionary with key's of the form
+    <section>.<option> and the values 
+
+    from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/65334
+    """
+    config = config.copy()
+    cp = ConfigParser.ConfigParser()
+    cp.read(file)
+    for sec in cp.sections():
+        name = string.lower(sec)
+        for opt in cp.options(sec):
+            config[name + "." + string.lower(opt)] = string.strip(cp.get(sec, opt))
+    return config
+
+_ConfigDefault = {
+   "database.dbms":     "mysql",
+   "database.name":     "wjukebox",
+   "database.user":     "wjb",
+   "database.password": "wjb",
+   "database.host":     "127.0.0.1"
+}
+
+config = LoadConfig("db.ini", _ConfigDefault)
+
 class CommandQueue(SQLObject):
    timeStamp = DateTimeCol()
    actor   = StringCol(length=64)
@@ -17,7 +46,7 @@ class Songs(SQLObject):
 
    artist_id  = IntCol()
    title      = StringCol(length=128)
-   ##duration   time     No    00:00:00                       
+   ##duration   time     No    00:00:00
    genre_id   = IntCol()
    year       = StringCol(length=4)
    localpath  = StringCol()
@@ -31,3 +60,13 @@ class Songs(SQLObject):
    checksum   = StringCol(length=32)
    lyrics     = StringCol()
    dirty      = BoolCol()
+
+dburi = "%s://%s:%s@%s/%s" % (
+      config['database.dbms'],
+      config['database.user'],
+      config['database.password'],
+      config['database.host'],
+      config['database.name'],
+      )
+
+sqlhub.processConnection = connectionForURI(dburi)

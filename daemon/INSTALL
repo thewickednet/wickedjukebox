@@ -4,3 +4,9 @@ You need:
 
 If yout don't have it, try running "easy_install sqlobject" as root.
 If you don't have easy_install, go to the support folder and run "python ez_setup.py" then try again.
+
+
+DATABASE CONFIGURATION
+======================
+
+Copy the file named "db.ini.dist" to "db.ini" and make the appropriate changes.

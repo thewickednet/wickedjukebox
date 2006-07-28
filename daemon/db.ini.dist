@@ -1,0 +1,6 @@
+[database]
+dbms     = mysql
+name     = wjukebox
+user     = wjb
+password = wjb
+host     = localhost
