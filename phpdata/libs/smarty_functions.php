@@ -8,6 +8,7 @@
  */
 
 
+
 function bytesToHumanReadable($bytes) {
 
   $precision = 2;
@@ -50,7 +51,17 @@ function bytesToHumanReadable($bytes) {
    return round($bytes, $precision) . ' ' . $suffix;
 }
 
+function smarty_genre($id) {
+    global $genre_index;
+
+    return $genre_index[$id];
+
+}
+
+
 $smarty->register_modifier('bytesToHumanReadable', 'bytesToHumanReadable');
+
+$smarty->register_modifier('genre', 'smarty_genre');
 
 
 ?>

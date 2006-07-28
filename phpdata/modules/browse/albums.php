@@ -30,8 +30,8 @@
       $results = Album::getSongs($_GET['param']);
 
       $smarty->assign("COVER", Album::hasCover($_GET['param']));
-      $smarty->assign("ARTIST", Artist::getById($album[0]['artist_id']));
-      $smarty->assign("ALBUM", $album[0]);
+      $smarty->assign("ARTIST", Artist::getById($album['artist_id']));
+      $smarty->assign("ALBUM", $album);
       $smarty->assign("SONGS", $results);
 
       $body_template = 'browse/album_songs.tpl';

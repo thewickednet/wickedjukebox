@@ -5,6 +5,7 @@
 
             <h3>Results</h3>
             <div id="results">
+            {if count($RESULTS) ne '0'}
             <table>
             {foreach from=$RESULTS item=RESULT}
               <tr>
@@ -17,4 +18,7 @@
               </tr>
             {/foreach}
             </table>
+            {else}
+            <p>no results found</p>
+            {/if}
             </div>

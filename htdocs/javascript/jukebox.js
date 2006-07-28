@@ -55,3 +55,18 @@ function search(){
   return false;
 
 }
+
+function login() {
+  var username = document.loginform.username.value;
+  var password = document.loginform.password.value;
+
+  new Ajax.Updater('login', '/index.php?section=login&ajax=1&username='+username+'&password='+password, {asynchronous:true, evalScripts:true });
+  return false;
+
+}
+
+function logout() {
+  new Ajax.Updater('login', '/index.php?section=login&ajax=1&mode=logout', {asynchronous:true, evalScripts:true });
+  return false;
+
+}

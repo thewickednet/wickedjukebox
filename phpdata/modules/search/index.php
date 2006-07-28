@@ -26,9 +26,7 @@
       break;
   } // switch
 
-
   $smarty->assign("RESULTS", $results);
-  $smarty->display('search.tpl');
-  $display = 0;
+  $base_template = 'search.tpl';
 
 ?>

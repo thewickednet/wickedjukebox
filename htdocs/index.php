@@ -7,22 +7,24 @@
  * @copyright 2006
  */
 
+  session_start();
+
   $path = ini_get("include_path");
   ini_set("include_path", sprintf("%s:%s", $path, dirname( __FILE__ ) . '/../phpdata'));
 
   $temp_path = dirname( __FILE__ ) . '/../tmp';
 
+  $base_template = 'base.tpl';
   $display = 1;
   $debug = 0;
+
+  $genre_index = array();
 
 
   if ($debug)
     error_reporting(E_ALL);
   else
     error_reporting(0);
-
-  // PEAR Authentification module
-  require_once "Auth.php";
 
   // Smarty Template Engine
   require_once "smarty/Smarty.class.php";
@@ -52,6 +54,12 @@
     require_once($class);
   }
 
+  // Authentification module
+  if (User::isAuthed())
+    $userinfo = User::getByCookie($_SESSION['wjukebox_auth']);
+  else
+    $userinfo = array();
+
   // Setup Smarty Template Engine Envirnoment
   $smarty = new Smarty();
 
@@ -65,6 +73,8 @@
 
   require_once "libs/smarty_functions.php";
 
+  $genre_index = Genre::getAll();
+  $smarty->assign("GENRE_INDEX", $genre_index);
 
   switch($_GET['section']){
     case "browse":
@@ -85,11 +95,15 @@
     case "backend":
       include "modules/backend/index.php";
       break;
+    case "login":
+      include "modules/login/index.php";
+      break;
     default:
       include "modules/browse/index.php";
   } // switch
 
 
+  $smarty->assign("USERINFO", $userinfo);
   $smarty->assign("QUEUE", Queue::getAll());
   $smarty->assign("QUEUE_TOTAL", Queue::getTotal());
 
@@ -99,7 +113,7 @@
 
   // display the default template
   if ($display) {
-    $smarty->display('base.tpl');
+    $smarty->display($base_template);
   }
 
 ?>

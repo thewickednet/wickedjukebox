@@ -62,15 +62,14 @@
           </select>
 					<input type="submit" value="Find!"  />
           </form>
-<!--
-					<h1>Log In</h1>
-					<input type="text" name="username" value="Username" />
-					<br />
-					<input name="password" type="password" value="Password" />
-					<br />
-					<input type="button" value="Log In" />
--->
 
+          <div id="login">
+          {if count($USERINFO) eq '0'}
+          {include file='login.tpl'}
+          {else}
+          {include file='profile.tpl'}
+          {/if}
+          </div>
 						<h1>Queue</h1>
 						<div class="submenu" id="queue">
 						{include file='queue.tpl'}

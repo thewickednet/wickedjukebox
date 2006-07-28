@@ -31,10 +31,11 @@ class Artist {
 
     $db = ezcDbInstance::get();
 
-    $stmt = $db->prepare("SELECT * FROM artists WHERE artist_id = ?");
+    $stmt = $db->prepare("SELECT * FROM artists WHERE artist_id = ? LIMIT 1");
     $stmt->execute(array("$id"));
+    $result = $stmt->fetchAll();
 
-    return $stmt->fetchAll();
+    return $result[0];
   }
 
   function getSongs($id = 0){

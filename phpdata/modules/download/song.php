@@ -9,7 +9,6 @@
 
 
   $song = Song::getById($_GET['param']);
-  $song = $song[0];
 
   $filename = basename($song['localpath']);
   $extension = split("\.", $filename);

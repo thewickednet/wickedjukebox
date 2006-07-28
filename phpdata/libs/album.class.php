@@ -34,10 +34,11 @@ class Album {
 
     $db = ezcDbInstance::get();
 
-    $stmt = $db->prepare("SELECT * FROM albums WHERE album_id = ?");
+    $stmt = $db->prepare("SELECT * FROM albums WHERE album_id = ? LIMIT 1");
     $stmt->execute(array("$id"));
+    $result = $stmt->fetchAll();
 
-    return $stmt->fetchAll();
+    return $result[0];
   }
 
   function getSongs($id = 0){
@@ -96,50 +97,6 @@ class Album {
     imagejpeg($image_p, "", 80);
     exit();
   }
-
-
-
-  function download($id = 0){
-
-    // Archive Creation for Album Downloads
-    require_once "Archive/Zip.php";
-
-    $songs = Album::getSongs($id);
-
-    $filename = sprintf("%s - %s.zip");
-    $filename = str_replace(" ", "_", $filename);
-    $files = array();
-
-
-    foreach($songs as $song){
-      array_push($files, $song['localpath']);
-    }
-
-    $zipfile = New Archive_Zip($filename);
-
-    $zipfile->create($files);
-    exit();
-
-/*
-    $filename = basename($song['localpath']);
-    $extension = split(".", $filename);
-    $extension = $extension[count($extension)-1];
-
-    $filename = sprintf("%s - %s.%s", $song['name'], $song['name'], $extension );
-    $filename = str_replace(" ", "_", $filename);
-
-
-    $mime = mime_content_type($song['localpath']);
-    header('Content-type: ' . $mime);
-    header("Content-length: ".filesize($song['localpath']));
-    header('Content-Disposition: attachment; filename="'.$filename.'"');
-    $fp = fopen($song['localpath'], "r");
-    fpassthru($fp);
-    fclose($fp);
-    exit();
-*/
-  }
-
 
 
 }

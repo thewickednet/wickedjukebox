@@ -10,7 +10,6 @@
 
 
   $song = Song::getById($_GET['param']);
-  $song = $song[0];
 
   if (isset($song['album_id'])) {
     $smarty->assign("ALBUM_COVER", Album::hasCover($song['album_id']));

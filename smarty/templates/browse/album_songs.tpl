@@ -10,7 +10,7 @@
 
             <table cellspacing="6" width="750">
             <tr>
-              <td>Artist: <a href="/browse/artist/byid/{$ARTIST.0.artist_id}/">{$ARTIST.0.name}</a></td>
+              <td>Artist: <a href="/browse/artist/byid/{$ARTIST.artist_id}/">{$ARTIST.name}</a></td>
               <td rowspan="3" align="right">
               {if $COVER ne ''}
               <img src="/browse/albums/cover/{$ALBUM.album_id}/" border="0" />

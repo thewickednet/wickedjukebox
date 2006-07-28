@@ -23,10 +23,8 @@
   } // switch
 
   if ($_GET['ajax']) {
-    $display = 0;
-    $smarty->assign("QUEUE", Queue::getAll());
-    $smarty->assign("QUEUE_TOTAL", Queue::getTotal());
-    $smarty->display('queue.tpl');
+    $smarty->debugging = false;
+    $base_template = 'queue.tpl';
   }
 
 ?>

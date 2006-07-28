@@ -10,12 +10,8 @@
 
 
   $album = Album::getById($_GET['param']);
-  $album = $album[0];
-
   $songs = Album::getSongs($_GET['param']);
-
   $artist = Artist::getById($songs[0]['artist_id']);
-  $artist = $artist[0];
 
   $file_zip = sprintf("%s - %s.zip", $artist['name'], $album['title']);
   $file_zip = str_replace(" ", "_", $file_zip);

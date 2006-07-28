@@ -24,6 +24,25 @@ class Setting {
     return $rows[0];
   }
 
+  function getAll() {
+
+    $db = ezcDbInstance::get();
+
+    $q = $db->createSelectQuery();
+    $e = $q->expr;
+    $q->select( '*' )->from( 'settings' )
+      ->orderBy( 'name' );
+    $stmt = $q->prepare();
+    $stmt->execute();
+ 
+   $results = array();
+
+    while ($row = $stmt->fetch())
+      $results[$row['param']] = $row['value'];
+
+    return $results;
+
+  }
 
 
 }
