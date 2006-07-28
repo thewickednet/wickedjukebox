@@ -1,0 +1,6 @@
+You need:
+   - Python >= 2.4
+   - SQLObject
+
+If yout don't have it, try running "easy_install sqlobject" as root.
+If you don't have easy_install, go to the support folder and run "python ez_setup.py" then try again.
