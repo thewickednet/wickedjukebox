@@ -2,7 +2,7 @@
 
 import threading
 import time
-## import tagpy
+import kaa.metadata
 import socket, logging, logging.handlers
 from model import *
 import os, sys
@@ -123,7 +123,13 @@ class Librarian(threading.Thread):
          for name in files:
             if name.split('.')[-1] in recognizedTypes:
                # we have a valid file
-               print os.path.join(root, name)
+               metadata = kaa.metadata.parse(os.path.join(root, name))
+               print '%s - %s - %s %s' % (
+                     metadata.get('artist'),
+                     metadata.get('album'),
+                     metadata.get('trackno'),
+                     metadata.get('title'),
+                     )
 ##               try:
 ##                  track = Track.getBy(Track.q.filename=filename)
 ##               except:
@@ -263,7 +269,7 @@ class Arbitrator(threading.Thread):
 
 if __name__ == "__main__":
 
-   logging.basicConfig(level=logging.DEBUG,
+   logging.basicConfig(level=logging.INFO,
                     format='[%(asctime)s] %(levelname)-8s %(threadName)-15s %(message)s')
    formatter = logging.Formatter('[%(asctime)s] %(levelname)-8s %(threadName)-15s %(message)s')
    rotfile = logging.handlers.RotatingFileHandler('wjb.log', maxBytes=100*1024, backupCount=3)
@@ -282,7 +288,7 @@ if __name__ == "__main__":
          logging.error(ex)
          raise
 
-   host = getSetting('daemon_iface')
+   host = getSetting('daemon_boundHost')
    port = int(getSetting('daemon_port'))
 
    # Start the agents
