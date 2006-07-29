@@ -67,7 +67,10 @@ def getAlbum(artistName, albumName):
 class Player:
 
    def queue(self, filename):
-      raise NotImplementedError, "Mus override this method"
+      raise NotImplementedError, "Must override this method"
+
+   def getSong(self):
+      raise NotImplementedError, "Must override this method"
 
 class MPD(Player):
 
@@ -157,9 +160,13 @@ class DJ(threading.Thread):
          self.populatePlaylist()
          if (currentPosition[1] - currentPosition[0]) == 3:
             try:
-               currentSong = QueueItem.selectBy(position=0)[0].song
-               currentSong.lastPlayed = datetime.datetime.now()
-               currentSong.syncUpdate()
+               cArtist = Artists.selectBy(name=self.__player.getSong().artist)[0]
+               cAlbum  = Albums.selectBy(title=self.__player.getSong().album)[0]
+               cTitle  = self.__player.getSong().title
+               for song in list(Songs.selectBy(artist=cArtist, title=cTitle)):
+                  if cAlbum in song.albums:
+                     song.lastPlayed = datetime.datetime.now()
+                     song.syncUpdate()
             except IndexError, ex:
                # no song on the queue. We can ignore this error
                pass
