@@ -14,3 +14,5 @@ ALTER TABLE `songs` CHANGE `genre_id` `genre_id` TINYINT( 2 ) UNSIGNED NULL DEFA
 ALTER TABLE `songs` CHANGE `artist_id` `artist_id` INT( 11 ) UNSIGNED NULL DEFAULT '0';
 
 ALTER TABLE `songs` ADD `lastPlayed` DATETIME AFTER `added` ;
+
+ALTER TABLE `queue` CHANGE `position` `position` SMALLINT( 3 ) NOT NULL DEFAULT '0'
