@@ -229,9 +229,12 @@ class DJ(threading.Thread):
       """determine a song that would be best to play next"""
 
       query = """
-         SELECT localpath
+         SELECT
+            localpath,
+            %(playratio)s AS playratio
          FROM songs
-      """
+         WHERE %(playratio)s IS NULL OR %(playratio)s > 0.3
+      """ % {'playratio': "( played / ( played + skipped ) )"}
       import random
       random.seed()
       conn = Songs._connection
