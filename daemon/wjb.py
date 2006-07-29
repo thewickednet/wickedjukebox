@@ -74,29 +74,30 @@ class MPD(Player):
    __connection = None
 
    def __init__(self):
+      import mpdclient
       # set up the connection to the daemon
-      self.__connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-      self.__connection.connect(
-            ( getSetting('mpd_host'),int(getSetting('mpd_port')))
+      self.__connection = mpdclient.MpdController(
+            host=getSetting('mpd_host'),
+            port=int(getSetting('mpd_port'))
             )
 
-   def __del__(self):
-      if self.__connection is not None:
-         self.__connection.close()
+   def getPosition(self):
+      "Returns the current song position. (currentSec, totalSec)"
+      pos = self.__connection.getSongPosition()
+      return (pos[0], pos[1])
+
+   def getSong(self):
+      return self.__connection.getCurrentSong()
 
    def queue(self, filename):
       #note#
       # with MPD, filenames are relative to the path specified in the mpd
       # config!! This should be handled here.
-      try:
-         self.__connection.send(u'add %s' % filename)
-         status = self.__connection.recv(1024)
-         if status.startswith('ACK'):
-            logging.info('Got error from MPD: %s' % status)
-      except Exception, ex:
-         import traceback
-         logging.critical("Unexpected error:\n%s" % traceback.format_exc())
-         raise
+      for folder in getSetting('folders').split():
+         if filename.startswith(folder):
+            filename = filename[len(folder)+1:]
+      logging.info("queuing %s" % filename)
+      self.__connection.add([filename])
 
 class DJ(threading.Thread):
 
@@ -132,8 +133,43 @@ class DJ(threading.Thread):
       logging.info('Started DJ')
       cycle = int(getSetting('dj_cycle'))
       while self.__keepRunning:
+
+         currentPosition = self.__player.getPosition()
+         if (currentPosition[1] - currentPosition[0]) == 3:
+            try:
+               # song is soon finished. Add the next one to the playlist
+               nextSong = self.__dequeue()
+               self.__player.queue(nextSong)
+            except IndexError:
+               # no song in the queue run smartDj
+               nextSong = self.__smartGet(1)
+               print "add next (smart)", nextSong
+
          time.sleep(cycle)
       logging.info('Stopped DJ')
+
+   def __dequeue(self):
+      filename = QueueItem.selectBy(position=0)[0].song.localpath
+
+      # ok, we got the top of the queue. We can now shift the queue
+      conn = QueueItem._connection
+      posCol = QueueItem.q.position.fieldName
+      updatePosition = conn.sqlrepr(
+            Update(QueueItem.q,
+               {posCol: QueueItem.q.position - 1} ))
+      conn.query(updatePosition)
+      conn.cache.clear()
+
+      # ok. queue is shifted. now drop all items having a position smaller than
+      # -5
+      delquery = conn.sqlrepr(Delete(QueueItem.q, where=(QueueItem.q.position < -5)))
+      conn.query(delquery)
+
+      return filename
+
+
+   def __smartGet(self, amount):
+      raise NotImplementedError, "smartget is not yet implemented"
 
    def stop(self):
       self.__keepRunning = False
@@ -182,6 +218,7 @@ class Librarian(threading.Thread):
                         skipped=0,
                         downloaded=0,
                         added=datetime.datetime.now(),
+                        lastPlayed=None,
                         bitrate='',
                         filesize=0,
                         checksum='',

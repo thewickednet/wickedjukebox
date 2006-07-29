@@ -63,6 +63,7 @@ class Songs(SQLObject):
    skipped    = IntCol()
    downloaded = IntCol()
    added      = DateTimeCol()
+   lastPlayed = DateTimeCol(dbName='lastPlayed')
    bitrate    = StringCol(length=8)
    filesize   = IntCol()
    checksum   = StringCol(length=32)
