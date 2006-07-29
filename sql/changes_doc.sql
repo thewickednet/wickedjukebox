@@ -12,3 +12,5 @@ ALTER TABLE `settings` CHANGE `id` `setting_id` INT( 10 ) UNSIGNED NOT NULL AUTO
 
 ALTER TABLE `songs` CHANGE `genre_id` `genre_id` TINYINT( 2 ) UNSIGNED NULL DEFAULT '0';
 ALTER TABLE `songs` CHANGE `artist_id` `artist_id` INT( 11 ) UNSIGNED NULL DEFAULT '0';
+
+ALTER TABLE `songs` ADD `lastPlayed` DATETIME NOT NULL AFTER `added` ;
