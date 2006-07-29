@@ -85,7 +85,7 @@ class DJ(threading.Thread):
    def run(self):
       logging.info('Started DJ')
       while self.__keepRunning:
-         time.sleep(int(Settings.byParam('dj_cycle').value))
+         time.sleep(int(getSetting('dj_cycle')))
       logging.info('Stopped DJ')
 
    def stop(self):
@@ -145,17 +145,15 @@ class Librarian(threading.Thread):
    def run(self):
       logging.info('Started Librarian')
       while self.__keepRunning:
-         time.sleep(int(Settings.byParam('librarian_cycle').value))
+         time.sleep(int(getSetting('librarian_cycle')))
       logging.info('Stopped Librarian')
 
    def stop(self):
       self.__keepRunning = False
 
    def rescan(self):
-      for mediaFolder in list(list(Settings.selectBy(param='folder'))):
-         print mediaFolder.value
-         threading.Thread(target=self.__crawl_directory, kwargs={'dir': mediaFolder.value}).start()
-         ##self.__crawl_directory(mediaFolder.value)
+      for mediaFolder in getSetting('folders').split():
+         threading.Thread(target=self.__crawl_directory, kwargs={'dir': mediaFolder}).start()
 
    def detect_moves(self):
       logging.debug("detecting moves")
@@ -276,17 +274,6 @@ if __name__ == "__main__":
    rotfile.setLevel(logging.DEBUG)
    rotfile.setFormatter(formatter)
    logging.getLogger('').addHandler(rotfile)
-
-   # if the table does not exist, create it.
-   try:
-      CommandQueue.createTable()
-      pass
-   except Exception, ex:
-      if ex[0] == 1050: # table exists
-         pass
-      else:
-         logging.error(ex)
-         raise
 
    host = getSetting('daemon_boundHost')
    port = int(getSetting('daemon_port'))

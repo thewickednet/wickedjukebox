@@ -29,11 +29,6 @@ _ConfigDefault = {
 
 config = LoadConfig("db.ini", _ConfigDefault)
 
-class CommandQueue(SQLObject):
-   timeStamp = DateTimeCol()
-   actor   = StringCol(length=64)
-   command = StringCol(length=64)
-
 class Settings(SQLObject):
 
    param = StringCol(length=16, alternateID=True)
@@ -44,7 +39,7 @@ class Songs(SQLObject):
    class sqlmeta:
       idName = 'song_id'
 
-   artist_id  = IntCol()
+   artist     = ForeignKey('artists')
    title      = StringCol(length=128)
    ##duration   time     No    00:00:00
    genre_id   = IntCol()
