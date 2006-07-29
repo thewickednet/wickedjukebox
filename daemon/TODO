@@ -1,0 +1,11 @@
+* The deamon does not exit if there is still a client connected. It should
+  instead send the client a notification that it's going down and exit
+  gracefully.
+
+* "kaa" pollutes the logging messages severely. Log messages from kaa should be
+  suppressed
+
+* When a job is delegated to another thread, the connected client should get a
+  reference number for that job. In parallel, the working thread should post
+  status messages for that job into a database table. Once the job is finished,
+  it should be removed from that table.
