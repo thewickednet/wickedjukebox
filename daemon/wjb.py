@@ -84,8 +84,9 @@ class DJ(threading.Thread):
 
    def run(self):
       logging.info('Started DJ')
+      cycle = int(getSetting('dj_cycle'))
       while self.__keepRunning:
-         time.sleep(int(getSetting('dj_cycle')))
+         time.sleep(cycle)
       logging.info('Stopped DJ')
 
    def stop(self):
@@ -144,8 +145,9 @@ class Librarian(threading.Thread):
 
    def run(self):
       logging.info('Started Librarian')
+      cycle = int(getSetting('librarian_cycle'))
       while self.__keepRunning:
-         time.sleep(int(getSetting('librarian_cycle')))
+         time.sleep(cycle)
       logging.info('Stopped Librarian')
 
    def stop(self):
