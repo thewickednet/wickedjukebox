@@ -156,7 +156,7 @@ class Artists(SQLObject):
 
 # ----------------------------------------------------------------------------
 
-dburi = "%s://%s:%s@%s/%s?debug=1" % (
+dburi = "%s://%s:%s@%s/%s" % (
       config['database.dbms'],
       config['database.user'],
       config['database.password'],
