@@ -37,17 +37,25 @@ class Settings(SQLObject):
    param = StringCol(length=16, alternateID=True)
    value = StringCol()
 
+class AlbumSong(SQLObject):
+   class sqlmeta:
+      table='album_song'
+   track    = IntCol()
+   song_id  = IntCol()
+   album_id = IntCol()
+
 class Songs(SQLObject):
 
    class sqlmeta:
-      idName = 'song_id'
+      idName      = 'song_id'
+      lazyUpdates = True # only save changes when calling "sync"
 
    albums     = RelatedJoin('Albums', intermediateTable='album_song', joinColumn='song_id', otherColumn='album_id')
 
-   artist     = MultipleJoin('Artists', joinColumn='artist_id')
+   artist     = ForeignKey('Artists', dbName='artist_id')
    title      = StringCol(length=128)
    #duration   time     No    00:00:00
-   genre      = MultipleJoin('Genres', joinColumn='genre_id')
+   genre      = ForeignKey('Genres', dbName='genre_id')
    year       = StringCol(length=4)
    localpath  = StringCol()
    played     = IntCol()
@@ -60,6 +68,7 @@ class Songs(SQLObject):
    checksum   = StringCol(length=32)
    lyrics     = StringCol()
    isDirty    = BoolCol(dbName='dirty')
+   queues     = MultipleJoin('QueueItem', joinColumn='song_id')
 
 class Albums(SQLObject):
 
@@ -69,7 +78,7 @@ class Albums(SQLObject):
    songs   = RelatedJoin('Songs', intermediateTable='album_song', joinColumn='album_id', otherColumn='song_id')
    title   = StringCol(length=128)
    added   = DateTimeCol()
-   artists = MultipleJoin('Artists', joinColumn='artist_id')
+   artist  = ForeignKey('Artists', dbName='artist_id')
 
 class Channels(SQLObject):
 
@@ -80,13 +89,15 @@ class Channels(SQLObject):
    public         = BoolCol()
    backend        = StringCol(length=32)
    backend_params = StringCol()
+   queues      = MultipleJoin('QueueItem', joinColumn='channel_id')
 
 class Genres(SQLObject):
 
    class sqlmeta:
       idName = 'genre_id'
 
-   name = StringCol(length=64)
+   name  = StringCol(length=64)
+   songs = MultipleJoin('Songs', joinColumn='genre_id')
 
 class Groups(SQLObject):
 
@@ -105,18 +116,19 @@ class Playlist(SQLObject):
       idName = 'playlist_id'
 
    title    = StringCol(length=64)
-   user     = MultipleJoin('Users', joinColumn='user_id')
+   user     = ForeignKey('Users', dbName='user_id')
    public   = BoolCol()
    added    = DateTimeCol()
 
-class Queue(SQLObject):
+class QueueItem(SQLObject):
 
    class sqlmeta:
+      table  = 'queue'
       idName = 'queue_id'
 
-   songs      = MultipleJoin('Songs', joinColumn='song_id')
-   users      = MultipleJoin('Users', joinColumn='user_id')
-   channel    = MultipleJoin('Channels', joinColumn='channel_id')
+   song       = ForeignKey('Songs', dbName='song_id')
+   user       = ForeignKey('Users', dbName='user_id')
+   channel    = ForeignKey('Channels', dbName='channel_id')
    position   = IntCol()
    added      = DateTimeCol()
 
@@ -130,10 +142,21 @@ class Users(SQLObject):
    fullname    = StringCol(length=64)
    added       = DateTimeCol()
    credits     = IntCol()
+   playlists   = MultipleJoin('Playlist', joinColumn='user_id')
+   queues      = MultipleJoin('QueueItem', joinColumn='user_id')
+
+class Artists(SQLObject):
+
+   class sqlmeta:
+      idName = 'artist_id'
+
+   name   = StringCol(length=128)
+   albums = MultipleJoin('Albums', joinColumn='artist_id')
+   songs  = MultipleJoin('Songs', joinColumn='artist_id')
 
 # ----------------------------------------------------------------------------
 
-dburi = "%s://%s:%s@%s/%s" % (
+dburi = "%s://%s:%s@%s/%s?debug=1" % (
       config['database.dbms'],
       config['database.user'],
       config['database.password'],
