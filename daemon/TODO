@@ -9,3 +9,8 @@
   reference number for that job. In parallel, the working thread should post
   status messages for that job into a database table. Once the job is finished,
   it should be removed from that table.
+
+* more metadata
+  - bitrate
+  - filesize
+  - checksum
