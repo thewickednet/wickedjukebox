@@ -99,10 +99,9 @@ class MPD(Player):
       return self.__connection.status().song
 
    def queue(self, filename):
-      #note#
-      # with MPD, filenames are relative to the path specified in the mpd
-      # config!! This should be handled here.
       for folder in getSetting('folders').split():
+         # with MPD, filenames are relative to the path specified in the mpd
+         # config!! This is handled here.
          if filename.startswith(folder):
             filename = filename[len(folder)+1:]
       logging.info("queuing %s" % filename)
@@ -119,6 +118,16 @@ class MPD(Player):
       if self.__connection.getStatus().playlistLength > length:
          self.__connection.delete(range(0,
             self.__connection.getStatus().playlistLength - length))
+
+   def skipSong(self):
+      self.__connection.next()
+
+   def stopPlayback(self):
+      self.__connection.stop()
+
+   def startPlayback(self):
+      self.__connection.play()
+
 
 class DJ(threading.Thread):
 
@@ -176,7 +185,9 @@ class DJ(threading.Thread):
                cTitle  = self.__player.getSong().title
                for song in list(Songs.selectBy(artist=cArtist, title=cTitle)):
                   if cAlbum in song.albums:
+                     logging.debug('updating song stats')
                      song.lastPlayed = datetime.datetime.now()
+                     song.played = song.played + 1
                      song.syncUpdate()
             except IndexError, ex:
                # no song on the queue. We can ignore this error
@@ -233,15 +244,27 @@ class DJ(threading.Thread):
       self.__keepRunning = False
 
    def startPlayback(self):
-      logging.debug('starting playback')
+      self.__player.startPlayback()
       return ('OK', 'OK')
 
    def stopPlayback(self):
-      logging.debug('stopping playback')
+      self.__player.stopPlayback()
       return ('OK', 'OK')
 
    def nextSong(self):
-      logging.debug('skipping to next song')
+      try:
+         cArtist = Artists.selectBy(name=self.__player.getSong().artist)[0]
+         cAlbum  = Albums.selectBy(title=self.__player.getSong().album)[0]
+         cTitle  = self.__player.getSong().title
+         for song in list(Songs.selectBy(artist=cArtist, title=cTitle)):
+            if cAlbum in song.albums:
+               logging.debug('updating song stats')
+               song.skipped = song.skipped + 1
+               song.syncUpdate()
+      except IndexError, ex:
+         # no song on the queue. We can ignore this error
+         pass
+      self.__player.skipSong()
       return ('OK', 'OK')
 
    def pausePlayback(self):
