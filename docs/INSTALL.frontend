@@ -1,0 +1,85 @@
+Wicked Jukebox - Frontend Install
+=================================
+
+Requirements:
+		- Apache with mod_rewrite
+    - MySQL >= 4.1
+    - PHP >= 5.1
+		- eZComponents >= 1.1
+		- PEAR::Pager
+		- PEAR::File_Archive
+		- Smarty Template Engine
+
+
+
+
+PEAR MODULES
+============
+
+PEAR::Pager
+-----------
+
+just use the pear package manager to install this page using the following command:
+
+pear install Pager
+
+
+PEAR::File_Archive
+------------------
+
+like the PEAR::Pager package you can simply install this one using the following command:
+
+pear install File_Archive
+
+
+eZComponents
+============
+
+The eZComponents are used for Database operations and for Data Caching
+
+it's actually very easy to install them using the pear command line tool:
+
+After you have installed PHP 5.1.1 or a higher version, you will have the PEAR Installer available automatically. Simply issue the following commands in the shell:
+
+pear channel-discover components.ez.no
+
+This will let PEAR Installer connect to the server components.ez.no where the eZ components are stored for distribution.
+
+pear config-set preferred_state beta
+
+By issuing this command, you tell PEAR Installer that it should download the eZ components which are of beta status. Currently, this needs to be done because the eZ components are available as beta only. For the forthcoming stable releases, this command can be ommitted.
+
+pear install -a ezc/eZComponents
+
+This final command will download and typically extract all eZ components to the directory where also the PEAR packages reside, but beneath the ezc/ subdirectory, with the absolute path being: /path/to/pear/ezc/
+
+In case you already have installed the components before, you can simply do:
+
+pear upgrade ezc/eZComponents
+
+
+
+DATABASE CONFIGURATION
+======================
+
+In the "phpdata" directory, copy the file named "config.ini.dist"
+to "config.ini" and make the appropriate changes.
+
+
+
+APACHE MOD_REWRITE RULES
+========================
+
+Add the following rewrite rules to your virtual host:
+
+RewriteEngine On
+
+RewriteRule ^/browse/(.*)/(.*)/(.*)/bypage/(.*)/$ /index.php?section=browse&module=$1&mode=$2&param=$3&pagenum=$4 [L]
+RewriteRule ^/browse/(.*)/(.*)/(.*)/$ /index.php?section=browse&module=$1&mode=$2&param=$3 [L]
+RewriteRule ^/browse/(.*)/$ /index.php?section=browse&module=$1 [L]
+
+RewriteRule ^/details/(.*)/(.*)/$ /index.php?section=details&module=$1&param=$2 [L]
+
+RewriteRule ^/download/(.*)/(.*)/$ /index.php?section=download&module=$1&param=$2 [L]
+RewriteRule ^/stats/$ /index.php?section=stats [L]
+
