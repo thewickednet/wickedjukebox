@@ -1,0 +1,67 @@
+You need:
+   - Python >= 2.4
+   - SQLObject
+   - kaa
+
+Installation of Python
+======================
+
+Most Linux distribution already ship with python. If you don't have it yet, use
+your favourite package manager (apt, emerge, yum, yast, .... ) to install it 
+
+Installation of SQLObject
+=========================
+
+If you are lucky, you can find it in your distribution's package directory.
+
+If not, there are several methods to install SQLObject:
+
+Installation using setuptools
+-----------------------------
+This is (next to the distribution package manager) the easiest way.
+
+Of course, you need setuptools. This can be found in your distribution's
+package directory, or you can fetch it by running the supplied
+'support/ez_setup.py' as root.
+
+easy_install is like a package manager for python (like cpan for perl or pear
+for php).
+
+Once you have setuptools, you can simply run "easy_install sqlobject" as root.
+About any python module can be installed this way!
+
+Manual installation
+-------------------
+
+Go to http://www.sqlobject.org, download the latest source version, unpack it
+(tar xzf <filename>.tar.gz) and chane to the folder it then created. Then
+execute the following commands:
+
+$ python setup.py build
+# python setup.py install (as root)
+
+Installation of kaa
+===================
+
+Kaa is currently only available from SVN. For users that don't have SVN, I included a snapshot in the "support" folder. Either grab it from svn:
+
+$ svn co svn://svn.freevo.org/kaa/trunk kaa
+
+or unpack it from the snapshot
+
+$ tar xzf kaa_snapshot_yyyy-mm-dd-hh-mm.tar.gz
+
+
+Then go to the created directory "kaa" and run
+
+$ python setup.py build
+
+Once that is finished it will show you what packages it will build. Make sure it contains "metadata". If that is the case, you can go ahead and install the module:
+
+# python setup.py install
+
+
+DATABASE CONFIGURATION
+======================
+
+Copy the file named "db.ini.dist" to "db.ini" and make the appropriate changes.
