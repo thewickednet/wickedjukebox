@@ -31,6 +31,9 @@ config = LoadConfig("db.ini", _ConfigDefault)
 
 class Settings(SQLObject):
 
+   class sqlmeta:
+      idName = 'setting_id'
+
    param = StringCol(length=16, alternateID=True)
    value = StringCol()
 
@@ -56,7 +59,7 @@ class Songs(SQLObject):
    filesize   = IntCol()
    checksum   = StringCol(length=32)
    lyrics     = StringCol()
-   dirty      = BoolCol()
+   isDirty    = BoolCol(dbName='dirty')
 
 class Albums(SQLObject):
 
