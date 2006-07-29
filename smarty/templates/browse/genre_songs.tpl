@@ -1,22 +1,14 @@
 
-						<h1><a name="intro" id="intro"></a>Browse by artists</h1>
+						<h1><a name="intro" id="intro"></a>Browse by genre</h1>
 
-						<p>
-            {foreach from=$ALPHA_INDEX item=ALPHA}
-            <a href="/browse/artists/byalpha/{$ALPHA.alpha|lower}/">{$ALPHA.alpha}</a>
-            {/foreach}
-            </p>
-            <h2>{$ARTIST.name}</h2>
+            <h2>{$GENRE.name}</h2>
 
-            {if $COVER ne ''}
-            <img src="/browse/artists/cover/{$ARTIST.artist_id}/" border="0" />
-            {/if}
-
-            <h3>Songs by this artist</h3>
+            <h3>Songs of this genre</h3>
             <div id="results">
             <table>
             {foreach from=$SONGS item=SONG}
               <tr>
+                <td><a href="/browse/artists/{$SONG.artist_id}/">{$SONG.name}</a></td>
                 <td width="24">{if $PERMISSIONS.queue_add eq '1'}<a href="#" onclick="javascript:addsong({$SONG.song_id});"><img src="/images/add.gif" border="0" /></a>{/if}</td>
                 <td><a href="/details/song/{$SONG.song_id}/">{$SONG.song}</a></td>
                 <td width="24">{if $PERMISSIONS.queue_add eq '1'}<a href="#" onclick="javascript:addalbum({$SONG.album_id});"><img src="/images/add.gif" border="0" /></a>{/if}</td>
@@ -25,7 +17,8 @@
               </tr>
             {/foreach}
             <tr>
-            <td colspan="5" align="center">{$LINKS}</td>
+            <td colspan="6" align="center">{$LINKS}</td>
             </tr>
             </table>
             </div>
+            {debug}

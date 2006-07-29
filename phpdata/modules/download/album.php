@@ -62,6 +62,8 @@
 
   }
 
+  Album::countDownload($_GET['param']);
+  User::countDownload($userinfo['user_id']);
 
   header('Content-type: ' . mime_content_type($full_path));
   header("Content-length: ".filesize($full_path));

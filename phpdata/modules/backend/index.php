@@ -22,8 +22,8 @@
     case "pause":
       $command = "pause";
       break;
-    case "next":
-      $command = "next";
+    case "skip":
+      $command = "skip";
       break;
     default:
       exit();

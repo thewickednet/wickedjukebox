@@ -43,7 +43,7 @@ class User {
 
     $q = $db->createSelectQuery();
     $e = $q->expr;
-    $q->select( '*' )->from( 'groups' )->where( $e->eq( 'user_id', $q->bindValue( $id ) ) );
+    $q->select( '*' )->from( 'groups' )->where( $e->eq( 'group_id', $q->bindValue( $id ) ) );
 
     $stmt = $q->prepare();
     $stmt->execute();
@@ -88,7 +88,7 @@ class User {
   function newCookie($id = 1) {
     $db = ezcDbInstance::get();
 
-    $cookie = md5("sdkaghdig");
+    $cookie = md5(time());
 
     $q = $db->createUpdateQuery();
     $e = $q->expr;
@@ -131,6 +131,97 @@ class User {
       return true;
 
   }
+
+  function countSkips($id) {
+    $db = ezcDbInstance::get();
+
+    $q = $db->createUpdateQuery();
+    $e = $q->expr;
+    $q->update( 'users' )
+      ->set( 'skips', 'skips+1' )
+      ->where( $e->eq( 'user_id', $q->bindValue( $id ) ) );
+    $stmt = $q->prepare();
+    $stmt->execute();
+
+  }
+
+  function countPlay($id) {
+    $db = ezcDbInstance::get();
+
+    $q = $db->createUpdateQuery();
+    $e = $q->expr;
+    $q->update( 'users' )
+      ->set( 'selects', 'selects+1' )
+      ->where( $e->eq( 'user_id', $q->bindValue( $id ) ) );
+    $stmt = $q->prepare();
+    $stmt->execute();
+
+  }
+
+  function countDownload($id) {
+    $db = ezcDbInstance::get();
+
+    $q = $db->createUpdateQuery();
+    $e = $q->expr;
+    $q->update( 'users' )
+      ->set( 'downloads', 'downloads+1' )
+      ->where( $e->eq( 'user_id', $q->bindValue( $id ) ) );
+    $stmt = $q->prepare();
+    $stmt->execute();
+
+  }
+
+  function getPlays(){
+    $db = ezcDbInstance::get();
+
+    $q = $db->createSelectQuery();
+    $e = $q->expr;
+    $q->select( '*' )
+      ->from( 'users' )
+      ->orderBy('selects', ezcQuerySelect::DESC)
+      ->limit( '10' );
+
+    $stmt = $q->prepare();
+    $stmt->execute();
+
+    $rows = $stmt->fetchAll();
+    return $rows;
+  }
+
+  function getDownloads(){
+    $db = ezcDbInstance::get();
+
+    $q = $db->createSelectQuery();
+    $e = $q->expr;
+    $q->select( '*' )
+      ->from( 'users' )
+      ->orderBy('downloads', ezcQuerySelect::DESC)
+      ->limit( '10' );
+
+    $stmt = $q->prepare();
+    $stmt->execute();
+
+    $rows = $stmt->fetchAll();
+    return $rows;
+  }
+
+  function getSkips(){
+    $db = ezcDbInstance::get();
+
+    $q = $db->createSelectQuery();
+    $e = $q->expr;
+    $q->select( '*' )
+      ->from( 'users' )
+      ->orderBy('skips', ezcQuerySelect::DESC)
+      ->limit( '10' );
+
+    $stmt = $q->prepare();
+    $stmt->execute();
+
+    $rows = $stmt->fetchAll();
+    return $rows;
+  }
+
 
 }
 

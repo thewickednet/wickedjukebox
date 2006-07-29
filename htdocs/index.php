@@ -43,11 +43,15 @@
   // read database configuration from config.ini file and store in $db_settings
   $db_settings = $cfg->getSettings( 'config', 'Database', array( 'Type', 'Host', 'User', 'Pass', 'Base' ) );
 
+  $cache_settings = $cfg->getSettings( 'config', 'Cache', array( 'DirectoryShort', 'DirectoryLong', 'Type', 'TTLShort', 'TTLLong' ) );
+
   // initialize database connection and set $db instance as default
   $dsn = sprintf("%s://%s%s@%s/%s", $db_settings['Type'], $db_settings['User'], $db_settings['Pass'], $db_settings['Host'], $db_settings['Base']);
   $db = ezcDbFactory::create( $dsn );
   ezcDbInstance::set( $db );
 
+  ezcCacheManager::createCache( 'short', dirname( __FILE__ ) . '/../'. $cache_settings['DirectoryShort'], $cache_settings['Type'], array('ttl' => $cache_settings['TTLShort']) );
+  ezcCacheManager::createCache( 'long', dirname( __FILE__ ) . '/../'. $cache_settings['DirectoryLong'], $cache_settings['Type'], array('ttl' => $cache_settings['TTLLong']) );
 
   // Include the classes into our application
   foreach(glob('../phpdata/libs/*.class.php') as $class){
@@ -55,16 +59,21 @@
   }
 
   // Authentification module
-  if (User::isAuthed())
+  if (User::isAuthed()) {
     $userinfo = User::getByCookie($_SESSION['wjukebox_auth']);
-  else
+    $permissions = User::getPermissions($userinfo['group_id']);
+  } else{
     $userinfo = array();
-
+    $permissions = array();
+  }
   // Setup Smarty Template Engine Envirnoment
   $smarty = new Smarty();
 
   $smarty->template_dir = dirname( __FILE__ ) . '/../smarty/templates/';
   $smarty->compile_dir = dirname( __FILE__ ) . '/../smarty/templates_c/';
+
+  $smarty->compile_check = true;
+  $smarty->caching = false;
 
   if ($debug)
     $smarty->debugging = true;
@@ -92,6 +101,9 @@
     case "download":
       include "modules/download/index.php";
       break;
+    case "stats":
+      include "modules/stats/index.php";
+      break;
     case "backend":
       include "modules/backend/index.php";
       break;
@@ -104,6 +116,8 @@
 
 
   $smarty->assign("USERINFO", $userinfo);
+  $smarty->assign("PERMISSIONS", $permissions);
+  $smarty->assign("PLAYER_STATUS", Player::getStatus());
   $smarty->assign("QUEUE", Queue::getAll());
   $smarty->assign("QUEUE_TOTAL", Queue::getTotal());
 

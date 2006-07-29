@@ -1,6 +1,6 @@
 						<h1><a name="intro" id="intro"></a>Song Details</h1>
 
-            <h2>{$SONG.title}&nbsp;&nbsp;<a href="#" onclick="javascript:addsong({$SONG.song_id});"><img src="/images/add.gif" border="0" /></a></h2>
+            <h2>{$SONG.title}{if $PERMISSIONS.queue_add eq '1'}&nbsp;&nbsp;<a href="#" onclick="javascript:addsong({$SONG.song_id});"><img src="/images/add.gif" border="0" /></a>{/if}</h2>
 
 
             <table width="750" cellspacing="8">

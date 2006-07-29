@@ -11,20 +11,42 @@ class Artist {
 
   function getAlphaIndex(){
 
-    $db = ezcDbInstance::get();
+    $cache = ezcCacheManager::getCache('long');
 
-    $res = $db->query("SELECT DISTINCT SUBSTRING(name,1,1) AS alpha FROM artists ORDER BY alpha");
-    return $res->fetchAll();
+    $cache_id = "artist_alpha_index";
+
+    if ( ( $results = $cache->restore( $cache_id ) ) === false ) {
+
+      $db = ezcDbInstance::get();
+
+      $res = $db->query("SELECT DISTINCT SUBSTRING(name,1,1) AS alpha FROM artists ORDER BY alpha");
+      $results = $res->fetchAll();
+      $cache->store( $cache_id, $results );
+
+    }
+
+
+    return $results;
   }
 
   function getByAlpha($alpha = "A"){
 
-    $db = ezcDbInstance::get();
+    $cache = ezcCacheManager::getCache('short');
 
-    $stmt = $db->prepare("SELECT * FROM artists WHERE name LIKE ? ORDER BY name");
-    $stmt->execute(array("$alpha%"));
+    $cache_id = sprintf("artist_alpha_index_%s", $alpha);
 
-    return $stmt->fetchAll();
+    if ( ( $results = $cache->restore( $cache_id ) ) === false ) {
+
+      $db = ezcDbInstance::get();
+
+      $stmt = $db->prepare("SELECT * FROM artists WHERE name LIKE ? ORDER BY name");
+      $stmt->execute(array("$alpha%"));
+      $results = $stmt->fetchAll();
+      $cache->store( $cache_id, $results );
+
+    }
+
+    return $results;
   }
 
   function getById($id = ""){
@@ -40,13 +62,26 @@ class Artist {
 
   function getSongs($id = 0){
 
-    $db = ezcDbInstance::get();
+    $cache = ezcCacheManager::getCache('short');
 
-    $results = array();
+    $cache_id = sprintf("browse_artists_%s", $id);
 
-    $stmt = $db->prepare("SELECT *, songs.title AS song, albums.title AS album FROM songs, albums WHERE songs.album_id = albums.album_id AND songs.artist_id = ? ORDER BY albums.title, track_no, song");
-    $stmt->execute(array("$id"));
-    return $stmt->fetchAll();
+    if ( ( $results = $cache->restore( $cache_id ) ) === false ) {
+
+      $db = ezcDbInstance::get();
+
+      $results = array();
+
+      $stmt = $db->prepare("SELECT *, songs.title AS song, albums.title AS album FROM songs, albums WHERE songs.album_id = albums.album_id AND songs.artist_id = ? ORDER BY albums.title, track_no, song");
+      $stmt->execute(array("$id"));
+      $results = $stmt->fetchAll();
+
+      $cache->store( $cache_id, $results );
+
+    }
+
+
+    return $results;
   }
 
 

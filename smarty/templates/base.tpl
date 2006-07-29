@@ -10,6 +10,7 @@
 {literal}
   <script type="text/javascript" src="/javascript/prototype.js"></script>
   <script type="text/javascript" src="/javascript/ajax.js"></script>
+  <script type="text/javascript" src="/javascript/md5.js"></script>
   <script type="text/javascript" src="/javascript/jukebox.js"></script>
   <script>
   setInterval('refreshQueue()', 15000);
@@ -24,7 +25,7 @@
 <a name="top" id="top"></a>
 <center>
 		<div id="menu">
-				<a href="/browse/artists/">artists</a> <a href="/browse/albums/">albums</a> <a href="/browse/genres/">genres</a> <a href="/browse/latest/">latest additions</a> <a href="/stats/">statistics</a> <a href="/admin/">admin</a>
+				<a href="/browse/artists/">artists</a> <a href="/browse/albums/">albums</a> <a href="/browse/genres/">genres</a> <a href="/browse/latest/">latest additions</a> <a href="/stats/">statistics</a>
 		</div>
 
 		<div id="header">
@@ -42,14 +43,12 @@
 -->
 
 				<div id="sidebar">
-
-          <a href="#" onclick="javascript:control('prev');"><img src="/images/c_prev.gif" border="0" /></a>
-          <a href="#" onclick="javascript:control('rewind');"><img src="/images/c_rw.gif" border="0" /></a>
+          <center>
           <a href="#" onclick="javascript:control('stop');"><img src="/images/c_stop.gif" border="0" /></a>
           <a href="#" onclick="javascript:control('pause');"><img src="/images/c_pause.gif" border="0" /></a>
           <a href="#" onclick="javascript:control('play');"><img src="/images/c_play.gif" border="0" /></a>
-          <a href="#" onclick="javascript:control('forward');"><img src="/images/c_ff.gif" border="0" /></a>
-          <a href="#" onclick="javascript:control('next');"><img src="/images/c_next.gif" border="0" /></a>
+          <a href="#" onclick="javascript:control('skip');"><img src="/images/c_next.gif" border="0" /></a>
+          </center>
 
 					<h1>Search</h1>
 					<form name="searchform" onsubmit="return search();">
@@ -70,10 +69,10 @@
           {include file='profile.tpl'}
           {/if}
           </div>
-						<h1>Queue</h1>
-						<div class="submenu" id="queue">
-						{include file='queue.tpl'}
-						</div>
+					<h1>Queue</h1>
+					<div class="submenu" id="queue">
+					{include file='queue.tpl'}
+					</div>
 
 
 				</div>

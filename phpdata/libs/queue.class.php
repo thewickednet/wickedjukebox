@@ -76,7 +76,7 @@ class Queue {
     $stmt->execute();
 
   }
-  
+
 
 }
 

@@ -10,8 +10,6 @@
 
 class Album {
 
-
-
   function getAlphaIndex(){
 
     $db = ezcDbInstance::get();
@@ -50,6 +48,67 @@ class Album {
     $stmt = $db->prepare("SELECT *, songs.title AS song, albums.title AS album FROM songs, albums WHERE songs.album_id = albums.album_id AND albums.album_id = ? ORDER BY albums.title, track_no, song");
     $stmt->execute(array("$id"));
     return $stmt->fetchAll();
+  }
+
+  function countPlay($id) {
+    $db = ezcDbInstance::get();
+
+    $q = $db->createUpdateQuery();
+    $e = $q->expr;
+    $q->update( 'albums' )
+      ->set( 'played', 'played+1' )
+      ->where( $e->eq( 'album_id', $q->bindValue( $id ) ) );
+    $stmt = $q->prepare();
+    $stmt->execute();
+
+  }
+
+  function countDownload($id) {
+    $db = ezcDbInstance::get();
+
+    $q = $db->createUpdateQuery();
+    $e = $q->expr;
+    $q->update( 'albums' )
+      ->set( 'downloaded', 'downloaded+1' )
+      ->where( $e->eq( 'album_id', $q->bindValue( $id ) ) );
+    $stmt = $q->prepare();
+    $stmt->execute();
+
+  }
+
+
+    function getPlays(){
+    $db = ezcDbInstance::get();
+
+    $q = $db->createSelectQuery();
+    $e = $q->expr;
+    $q->select( '*' )
+      ->from( 'albums' )
+      ->orderBy('played', ezcQuerySelect::DESC)
+      ->limit( '10' );
+
+    $stmt = $q->prepare();
+    $stmt->execute();
+
+    $rows = $stmt->fetchAll();
+    return $rows;
+  }
+
+  function getDownloads(){
+    $db = ezcDbInstance::get();
+
+    $q = $db->createSelectQuery();
+    $e = $q->expr;
+    $q->select( '*' )
+      ->from( 'albums' )
+      ->orderBy('downloaded', ezcQuerySelect::DESC)
+      ->limit( '10' );
+
+    $stmt = $q->prepare();
+    $stmt->execute();
+
+    $rows = $stmt->fetchAll();
+    return $rows;
   }
 
   function hasCover($id = 0){

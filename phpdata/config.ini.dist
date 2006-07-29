@@ -4,3 +4,10 @@ Host=localhost
 User=root
 Pass=
 Base=wickedjukebox
+
+[Cache]
+Type=ezcCacheStorageFileArray
+DirectoryShort=cache/short
+DirectoryLong=cache/long
+TTLShort=600
+TTLLong=7200

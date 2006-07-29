@@ -9,6 +9,7 @@
 
 
   $queue = new Queue();
+  $queue->user_id = $userinfo['user_id'];
 
   switch($_GET['module']){
     case "song":

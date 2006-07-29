@@ -7,13 +7,13 @@
  * @copyright 2006
  */
 
+  $smarty->debugging = false;
 
   if ($_GET['mode'] == 'logout') {
 
     unset($_SESSION['wjukebox_auth']);
     User::delCookie($userinfo['auth_id']);
-    header("Location: /");
-
+    $base_template = 'reload.tpl';
 
   } else {
 
@@ -29,16 +29,15 @@
         if (count($auth_user) == 0) {
           $smarty->assign("AUTH_ERROR", "username does not exist!");
         } else {
-          if ($auth_user['password'] != md5($password)) {
+          if ($auth_user['password'] != $password) {
             $smarty->assign("AUTH_ERROR", "incorrect password");
             $smarty->assign("AUTH_USER", $username);
           } else {
-
             $cookie = User::newCookie($auth_user['user_id']);
             setcookie("wjukebox_auth", $cookie);
             $_SESSION['wjukebox_auth'] = $cookie;
             $userinfo = $auth_user;
-            header("Location: /");
+            $base_template = 'reload.tpl';
           }
 
         }
@@ -46,7 +45,7 @@
       } else {
         $smarty->assign("AUTH_ERROR", "Please specify username and password!");
       }
-  
+
     }
   }
 

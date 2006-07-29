@@ -10,7 +10,6 @@
 
 class Setting {
 
-
   function get($name){
     $db = ezcDbInstance::get();
 
@@ -34,7 +33,7 @@ class Setting {
       ->orderBy( 'name' );
     $stmt = $q->prepare();
     $stmt->execute();
- 
+
    $results = array();
 
     while ($row = $stmt->fetch())
