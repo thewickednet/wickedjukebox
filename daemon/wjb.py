@@ -95,6 +95,9 @@ class MPD(Player):
    def getSong(self):
       return self.__connection.getCurrentSong()
 
+   def playlistPosition(self):
+      return self.__connection.status().song
+
    def queue(self, filename):
       #note#
       # with MPD, filenames are relative to the path specified in the mpd
@@ -111,6 +114,11 @@ class MPD(Player):
 
    def playlistSize(self):
       return self.__connection.getStatus().playlistLength
+
+   def cropPlaylist(self, length=10):
+      if self.__connection.getStatus().playlistLength > length:
+         self.__connection.delete(range(0,
+            self.__connection.getStatus().playlistLength - length))
 
 class DJ(threading.Thread):
 
@@ -146,7 +154,10 @@ class DJ(threading.Thread):
             pass
 
    def populatePlaylist(self):
-      while self.__player.playlistSize() < 10:
+
+      self.__player.cropPlaylist()
+      if self.__player.playlistPosition() == self.__player.playlistSize()-1 \
+            or self.__player.playlistSize() == 0:
          nextSong = self.__smartGet()
          self.__player.queue(nextSong)
 
