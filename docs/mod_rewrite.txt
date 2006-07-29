@@ -1,8 +1,0 @@
-		RewriteEngine On
-
-		RewriteRule ^/browse/(.*)/(.*)/(.*)/$ /index.php?section=browse&module=$1&mode=$2&param=$3 [L]
-		RewriteRule ^/browse/(.*)/$ /index.php?section=browse&module=$1 [L]
-
-
-		RewriteLog "C:\apache\xampp\apache\logs\wickedjukebox-rewrite_log"
-		RewriteLogLevel 8
