@@ -84,7 +84,10 @@ class MPD(Player):
    def getPosition(self):
       "Returns the current song position. (currentSec, totalSec)"
       pos = self.__connection.getSongPosition()
-      return (pos[0], pos[1])
+      if pos:
+         return (pos[0], pos[1])
+      else:
+         return (0,0)
 
    def getSong(self):
       return self.__connection.getCurrentSong()
@@ -98,6 +101,13 @@ class MPD(Player):
             filename = filename[len(folder)+1:]
       logging.info("queuing %s" % filename)
       self.__connection.add([filename])
+
+      # keep the playlist clean
+      if self.__connection.getStatus().playlistLength > 10:
+         self.__connection.delete([0])
+
+   def playlistSize(self):
+      return self.__connection.getStatus().playlistLength
 
 class DJ(threading.Thread):
 
@@ -114,13 +124,16 @@ class DJ(threading.Thread):
       else:
          raise ValueError, 'unknown player backend'
 
+      self.populatePlaylist()
+
    def __connectMPD(self):
+      import mpdclient
       try:
          self.__player = MPD()
-      except socket.error, ex:
+      except mpdclient.MpdConnectionPortError, ex:
          try:
             self.__player = None
-            logging.error('%s, retry in 5s' % ex[1])
+            logging.error('%s, retry in 5s' % ex)
             time.sleep(5)
             self.__connectMPD()
          except KeyboardInterrupt:
@@ -129,27 +142,42 @@ class DJ(threading.Thread):
             logging.info('interrupted')
             pass
 
+   def populatePlaylist(self):
+      while self.__player.playlistSize() < 10:
+         nextSong = self.__smartGet()
+         self.__player.queue(nextSong)
+
    def run(self):
       logging.info('Started DJ')
       cycle = int(getSetting('dj_cycle'))
+
       while self.__keepRunning:
 
          currentPosition = self.__player.getPosition()
+         self.populatePlaylist()
          if (currentPosition[1] - currentPosition[0]) == 3:
+            try:
+               currentSong = QueueItem.selectBy(position=0)[0].song
+               currentSong.lastPlayed = datetime.datetime.now()
+               currentSong.syncUpdate()
+            except IndexError, ex:
+               # no song on the queue. We can ignore this error
+               pass
+
             try:
                # song is soon finished. Add the next one to the playlist
                nextSong = self.__dequeue()
                self.__player.queue(nextSong)
             except IndexError:
                # no song in the queue run smartDj
-               nextSong = self.__smartGet(1)
-               print "add next (smart)", nextSong
+               nextSong = self.__smartGet()
+               self.__player.queue(nextSong)
 
          time.sleep(cycle)
       logging.info('Stopped DJ')
 
    def __dequeue(self):
-      filename = QueueItem.selectBy(position=0)[0].song.localpath
+      filename = QueueItem.selectBy(position=1)[0].song.localpath
 
       # ok, we got the top of the queue. We can now shift the queue
       conn = QueueItem._connection
@@ -161,15 +189,27 @@ class DJ(threading.Thread):
       conn.cache.clear()
 
       # ok. queue is shifted. now drop all items having a position smaller than
-      # -5
-      delquery = conn.sqlrepr(Delete(QueueItem.q, where=(QueueItem.q.position < -5)))
+      # -6
+      delquery = conn.sqlrepr(Delete(QueueItem.q, where=(QueueItem.q.position < -6)))
       conn.query(delquery)
 
       return filename
 
 
-   def __smartGet(self, amount):
-      raise NotImplementedError, "smartget is not yet implemented"
+   def __smartGet(self):
+      """determine a song that would be best to play next"""
+
+      query = """
+         SELECT localpath
+         FROM songs
+      """
+      import random
+      random.seed()
+      conn = Songs._connection
+      res = conn.queryAll(query)
+      out = res[random.randint(0, len(res))][0]
+      logging.info("Selected song %s at random. However, this feature is not yet fully implemented" % out)
+      return out
 
    def stop(self):
       self.__keepRunning = False
