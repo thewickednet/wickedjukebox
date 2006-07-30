@@ -52,6 +52,9 @@ By issuing this command, you tell PEAR Installer that it should download the eZ 
 pear install -a ezc/eZComponents
 
 This final command will download and typically extract all eZ components to the directory where also the PEAR packages reside, but beneath the ezc/ subdirectory, with the absolute path being: /path/to/pear/ezc/
+For this you might need to increase you maximum memory size for PHP. In your php.ini change the line
+   memory_limit = 8M      ; Maximum amount of memory a script may consume (8MB)
+to a higher value. 12M should be enough.
 
 In case you already have installed the components before, you can simply do:
 
