@@ -50,6 +50,7 @@ pear config-set preferred_state beta
 By issuing this command, you tell PEAR Installer that it should download the eZ components which are of beta status. Currently, this needs to be done because the eZ components are available as beta only. For the forthcoming stable releases, this command can be ommitted.
 
 pear install -a ezc/eZComponents
+pear install -a ezc/Base
 
 This final command will download and typically extract all eZ components to the directory where also the PEAR packages reside, but beneath the ezc/ subdirectory, with the absolute path being: /path/to/pear/ezc/
 For this you might need to increase you maximum memory size for PHP. In your php.ini change the line
