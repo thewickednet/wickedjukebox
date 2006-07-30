@@ -60,8 +60,3 @@ Once that is finished it will show you what packages it will build. Make sure it
 
 # python setup.py install
 
-
-DATABASE CONFIGURATION
-======================
-
-Copy the file named "db.ini.dist" to "db.ini" and make the appropriate changes.

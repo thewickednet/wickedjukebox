@@ -1,7 +1,7 @@
 from sqlobject import *
 
 import ConfigParser
-import string, datetime
+import string, datetime, os
 
 def LoadConfig(file, config={}):
     """
@@ -20,14 +20,14 @@ def LoadConfig(file, config={}):
     return config
 
 _ConfigDefault = {
-   "database.dbms":     "mysql",
-   "database.name":     "wjukebox",
-   "database.user":     "wjb",
-   "database.password": "wjb",
-   "database.host":     "127.0.0.1"
+   "Database.Type":     "mysql",
+   "Database.Base":     "wjukebox",
+   "Database.User":     "wjb",
+   "Database.Pass":     "wjb",
+   "Database.Host":     "127.0.0.1"
 }
 
-config = LoadConfig("db.ini", _ConfigDefault)
+config = LoadConfig(os.path.join("..", "phpdata", "config.ini"), _ConfigDefault)
 
 class Settings(SQLObject):
 
@@ -158,11 +158,11 @@ class Artists(SQLObject):
 # ----------------------------------------------------------------------------
 
 dburi = "%s://%s:%s@%s/%s" % (
-      config['database.dbms'],
-      config['database.user'],
-      config['database.password'],
-      config['database.host'],
-      config['database.name'],
+      config['Database.Type'],
+      config['Database.User'],
+      config['Database.Pass'],
+      config['Database.Host'],
+      config['Database.Base'],
       )
 
 sqlhub.processConnection = connectionForURI(dburi)
