@@ -1,3 +1,13 @@
+# ----------------------------------------------------------------------------
+#  $Id$
+# ----------------------------------------------------------------------------
+#  This file contains the database model for the wicked jukebox. The data
+#  definitions are based on SQLObject (www.swlobject.org). When it comes to
+#  manually creating SQL queries, the documentation of SQLObject does not tell
+#  you very much. A good complementary source is
+#  http://www.groovie.org/articles/2005/11/01/how-to-use-database-agnostic-sql-in-sqlobject
+# ----------------------------------------------------------------------------
+
 from sqlobject import *
 
 import ConfigParser
@@ -19,6 +29,7 @@ def LoadConfig(file, config={}):
             config[name + "." + string.lower(opt)] = string.strip(cp.get(sec, opt))
     return config
 
+# default values for the configuration
 _ConfigDefault = {
    "Database.Type":     "mysql",
    "Database.Base":     "wjukebox",
@@ -27,9 +38,10 @@ _ConfigDefault = {
    "Database.Host":     "127.0.0.1"
 }
 
-config = LoadConfig(os.path.join("..", "phpdata", "config.ini"), _ConfigDefault)
-
 class Settings(SQLObject):
+   """
+   Maps to the settings table. Nothing fancy here
+   """
 
    class sqlmeta:
       idName = 'setting_id'
@@ -38,6 +50,10 @@ class Settings(SQLObject):
    value = StringCol()
 
 class AlbumSong(SQLObject):
+   """
+   Maps to the album_song relation.
+   This is needed so we can update the track number
+   """
    class sqlmeta:
       table='album_song'
    track    = IntCol()
@@ -45,6 +61,11 @@ class AlbumSong(SQLObject):
    album_id = IntCol()
 
 class Songs(SQLObject):
+   """
+   The songs table.
+   TODO: The duration field needs some work. No clue how to implement a "time"
+         field in SQLObject yet
+   """
 
    class sqlmeta:
       idName      = 'song_id'
@@ -72,6 +93,9 @@ class Songs(SQLObject):
    queues     = MultipleJoin('QueueItem', joinColumn='song_id')
 
 class Albums(SQLObject):
+   """
+   The albums table
+   """
 
    class sqlmeta:
       idName = 'album_id'
@@ -82,6 +106,9 @@ class Albums(SQLObject):
    artist  = ForeignKey('Artists', dbName='artist_id')
 
 class Channels(SQLObject):
+   """
+   The channels table
+   """
 
    class sqlmeta:
       idName = 'channel_id'
@@ -90,9 +117,12 @@ class Channels(SQLObject):
    public         = BoolCol()
    backend        = StringCol(length=32)
    backend_params = StringCol()
-   queues      = MultipleJoin('QueueItem', joinColumn='channel_id')
+   queues         = MultipleJoin('QueueItem', joinColumn='channel_id')
 
 class Genres(SQLObject):
+   """
+   The genres table
+   """
 
    class sqlmeta:
       idName = 'genre_id'
@@ -101,6 +131,9 @@ class Genres(SQLObject):
    songs = MultipleJoin('Songs', joinColumn='genre_id')
 
 class Groups(SQLObject):
+   """
+   The groups table
+   """
 
    class sqlmeta:
       idName = 'group_id'
@@ -112,6 +145,9 @@ class Groups(SQLObject):
    queue_remove  = BoolCol()
 
 class Playlist(SQLObject):
+   """
+   The playlist table
+   """
 
    class sqlmeta:
       idName = 'playlist_id'
@@ -122,6 +158,9 @@ class Playlist(SQLObject):
    added    = DateTimeCol()
 
 class QueueItem(SQLObject):
+   """
+   The queue table. I renamed it to QueueItem for clarity in the code.
+   """
 
    class sqlmeta:
       table  = 'queue'
@@ -134,6 +173,9 @@ class QueueItem(SQLObject):
    added      = DateTimeCol()
 
 class Users(SQLObject):
+   """
+   The users table
+   """
 
    class sqlmeta:
       idName = 'user_id'
@@ -147,6 +189,9 @@ class Users(SQLObject):
    queues      = MultipleJoin('QueueItem', joinColumn='user_id')
 
 class Artists(SQLObject):
+   """
+   The artists table
+   """
 
    class sqlmeta:
       idName = 'artist_id'
@@ -156,6 +201,10 @@ class Artists(SQLObject):
    songs  = MultipleJoin('Songs', joinColumn='artist_id')
 
 # ----------------------------------------------------------------------------
+
+# load the configuration file, and set up the DB-conenction
+config = LoadConfig(os.path.join("..", "phpdata", "config.ini"),
+   _ConfigDefault)
 
 dburi = "%s://%s:%s@%s/%s" % (
       config['Database.Type'],
@@ -167,3 +216,4 @@ dburi = "%s://%s:%s@%s/%s" % (
 
 sqlhub.processConnection = connectionForURI(dburi)
 
+# vim: set ts=3 sw=3 ts ai :

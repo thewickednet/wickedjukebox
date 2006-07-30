@@ -1,4 +1,12 @@
 #!/usr/bin/python
+#
+# -----------------------------------------------------------------------------
+#  $Id$
+# -----------------------------------------------------------------------------
+#  This file contains all the agents and the main program. It is executable.
+#  Once it's executed it will start up two worker threads and listen for
+#  network connections. No daemon mode is available yet to simplify debugging.
+# -----------------------------------------------------------------------------
 
 import threading
 import time
@@ -9,7 +17,15 @@ import os, sys
 from sqlobject.main import SQLObjectNotFound
 from sqlobject.sqlbuilder import *
 
+# ---- Global support functions ----------------------------------------------
+
 def getSetting(param_in):
+   """
+   Retrieves a setting from the database.
+
+   PARAMETERS
+      param_in - The name of the setting as string
+   """
    try:
       return Settings.byParam(param_in).value
    except SQLObjectNotFound, ex:
@@ -23,6 +39,12 @@ def getArtist(artistName):
    """
    If the artist does not yet exist, create it. Otherwise get the database
    reference.
+
+   PARAMETERS
+      artistName - The name of the artist to create/retrieve
+
+   RETURNS
+      an Artists sql-object
    """
 
    if Artists.selectBy(name=artistName).count() == 0:
@@ -34,6 +56,12 @@ def getGenre(genreName):
    """
    If the genre does not yet exist, create it. Otherwise get the database
    reference.
+
+   PARAMETERS
+      genreName - The name of the genre to create/retrieve
+
+   RETURNS
+      an Genres ssql-object
    """
 
    if Genres.selectBy(name=genreName).count() == 0:
@@ -45,6 +73,13 @@ def getAlbum(artistName, albumName):
    """
    If the album does not yet exist, create it. Otherwise get the database
    reference.
+
+   PARAMETERS
+      artistName - The name of the artist of that album
+      albumName  - The name of the album to create/retrieve
+
+   RETURNS
+      an Albums sql-object
    """
 
    dbArtist = getArtist(artistName)
@@ -65,6 +100,9 @@ def getAlbum(artistName, albumName):
 # ----------------------------------------------------------------------------
 
 class Player:
+   """
+   An abstract class that each player should inherit.
+   """
 
    def queue(self, filename):
       raise NotImplementedError, "Must override this method"
@@ -73,10 +111,20 @@ class Player:
       raise NotImplementedError, "Must override this method"
 
 class MPD(Player):
+   """
+   An interface to the music player daemon (mpd).
+   mpd is a client-server based audio player. It offers easy bindings to python
+   and hence it's a simple implementation
+   http://www.musicpd.org
+   """
 
-   __connection = None
+   __connection = None  # The interface to mpd
 
    def __init__(self):
+      """
+      Constructor
+      Connects to the mpd-daemon.
+      """
       import mpdclient
       # set up the connection to the daemon
       self.__connection = mpdclient.MpdController(
@@ -85,7 +133,9 @@ class MPD(Player):
             )
 
    def getPosition(self):
-      "Returns the current song position. (currentSec, totalSec)"
+      """
+      Returns the current position in the song. (currentSec, totalSec)
+      """
       pos = self.__connection.getSongPosition()
       if pos:
          return (pos[0], pos[1])
@@ -93,12 +143,26 @@ class MPD(Player):
          return (0,0)
 
    def getSong(self):
+      """
+      Returns the currently running song
+      """
       return self.__connection.getCurrentSong()
 
    def playlistPosition(self):
+      """
+      Returns the position in the playlist as integer
+      """
       return self.__connection.status().song
 
    def queue(self, filename):
+      """
+      Appends a new song to the playlist, and removes the first entry in the
+      playlist if it's becoming too large. This prevents having huge playlists
+      after a while playing. 
+
+      PARAMETERS
+         filename -  The full path of the file
+      """
       for folder in getSetting('folders').split():
          # with MPD, filenames are relative to the path specified in the mpd
          # config!! This is handled here.
@@ -112,28 +176,59 @@ class MPD(Player):
          self.__connection.delete([0])
 
    def playlistSize(self):
+      """
+      Returns the complete size of the playlist
+      """
       return self.__connection.getStatus().playlistLength
 
    def cropPlaylist(self, length=10):
+      """
+      Removes items from the *beginning* of the playlist to ensure it has only
+      a fixed number of entries.
+
+      PARAMETERS
+         length - The new size of the playlist (optional, default=10)
+      """
       if self.__connection.getStatus().playlistLength > length:
          self.__connection.delete(range(0,
             self.__connection.getStatus().playlistLength - length))
 
    def skipSong(self):
+      """
+      Skips the current song
+      """
       self.__connection.next()
 
    def stopPlayback(self):
+      """
+      Stops playback
+      """
       self.__connection.stop()
 
    def startPlayback(self):
+      """
+      Starts playback
+      """
       self.__connection.play()
 
-
 class DJ(threading.Thread):
+   """
+   The DJ is responsible for music playback. All changes of the playback (play,
+   pause, skip, ...) have to be passed to the DJ. The DJ handles updating of
+   the play statistics, and continuous playback. It manages the queue from the
+   database and automatically adds new songs to the playlist. In case something
+   is on the queue it takes off the next item, otherwise it picks a song at
+   random.
+   """
 
-   __keepRunning = True
+   __keepRunning = True  # While this is true, the DJ is alive
 
    def __init__(self):
+      """
+      Constructor
+
+      Connects to the player and prepares the playlist
+      """
       threading.Thread.__init__(self)
       self.setName( '%s (%s)' % (self.getName(), 'DJ') )
 
@@ -147,6 +242,10 @@ class DJ(threading.Thread):
       self.populatePlaylist()
 
    def __connectMPD(self):
+      """
+      A helper method to connect to the mpd-player. It will retry until it
+      get's a connection.
+      """
       import mpdclient
       try:
          self.__player = MPD()
@@ -163,6 +262,11 @@ class DJ(threading.Thread):
             pass
 
    def populatePlaylist(self):
+      """
+      First, this ensures the playlist does not grow too large. Then it checks
+      if the current song is the last one playing. If that is the case, it will
+      add a new song to the playlist.
+      """
 
       self.__player.cropPlaylist()
       if self.__player.playlistPosition() == self.__player.playlistSize()-1 \
@@ -171,24 +275,46 @@ class DJ(threading.Thread):
          self.__player.queue(nextSong)
 
    def run(self):
+      """
+      The control loop of the DJ
+      Every x seconds (can be customised in the settings) it will check the
+      position in the current song. If the song is nearly finished, it will
+      take appropriate actions to ensure continuous playback (pick a song from
+      the queue, or at random)
+      """
+
       logging.info('Started DJ')
       cycle = int(getSetting('dj_cycle'))
 
+      # while we are alive, do the loop
       while self.__keepRunning:
-
-         currentPosition = self.__player.getPosition()
+         
+         # ensure that there is a song on the playlist
          self.populatePlaylist()
+
+         # if the song is soon finished, update stats and pick the next one
+         currentPosition = self.__player.getPosition()
          if (currentPosition[1] - currentPosition[0]) == 3:
             try:
+
+               # retrieve info from the currently playing song
+               # TODO: This is hardcoded for mpd. It HAS to be abstracted by
+               #       the MPD class.
                cArtist = Artists.selectBy(name=self.__player.getSong().artist)[0]
                cAlbum  = Albums.selectBy(title=self.__player.getSong().album)[0]
                cTitle  = self.__player.getSong().title
+
+               # I haven't figured out the way to add the album to the select
+               # query. That's why I loop through all songs from a given artist
+               # and title. It's highly unlikely though that there is more than
+               # one entry.
                for song in list(Songs.selectBy(artist=cArtist, title=cTitle)):
                   if cAlbum in song.albums:
                      logging.debug('updating song stats')
                      song.lastPlayed = datetime.datetime.now()
                      song.played = song.played + 1
-                     song.syncUpdate()
+                     song.syncUpdate() # the song table needs to be synced!
+
             except IndexError, ex:
                # no song on the queue. We can ignore this error
                pass
@@ -202,18 +328,26 @@ class DJ(threading.Thread):
                nextSong = self.__smartGet()
                self.__player.queue(nextSong)
 
+         # wait for x seconds
          time.sleep(cycle)
+
+      # self.__keepRunning became false. We should quit
       logging.info('Stopped DJ')
 
    def __dequeue(self):
+      """
+      Return the filename of the next item on the queue
+      """
       filename = QueueItem.selectBy(position=1)[0].song.localpath
 
-      # ok, we got the top of the queue. We can now shift the queue
+      # ok, we got the top of the queue. We can now shift the queue by 1
+      # This is a custom query. This is badly documented by SQLObject. Refer to
+      # the top comment in model.py for a reference
       conn = QueueItem._connection
       posCol = QueueItem.q.position.fieldName
       updatePosition = conn.sqlrepr(
             Update(QueueItem.q,
-               {posCol: QueueItem.q.position - 1} ))
+               {posCol: QueueItem.q.position - 1} )) # this shifts
       conn.query(updatePosition)
       conn.cache.clear()
 
@@ -224,9 +358,14 @@ class DJ(threading.Thread):
 
       return filename
 
-
    def __smartGet(self):
-      """determine a song that would be best to play next"""
+      """
+      determine a song that would be best to play next and return it's filename
+
+      TODO The current query completely ignores songs that have only been
+           played once and skipped once. A minimum play cound should be
+           required before it starts calculating the score.
+      """
 
       query = """
          SELECT
@@ -235,6 +374,8 @@ class DJ(threading.Thread):
          FROM songs
          WHERE %(playratio)s IS NULL OR %(playratio)s > 0.3
       """ % {'playratio': "( played / ( played + skipped ) )"}
+
+      # I won't use ORDER BY RAND() as it is way too dependent on the dbms!
       import random
       random.seed()
       conn = Songs._connection
@@ -244,17 +385,29 @@ class DJ(threading.Thread):
       return out
 
    def stop(self):
+      """
+      Requests the DJ to cease operation and quit
+      """
       self.__keepRunning = False
 
    def startPlayback(self):
+      """
+      Sends a "play" command to the player backend
+      """
       self.__player.startPlayback()
       return ('OK', 'OK')
 
    def stopPlayback(self):
+      """
+      Sends a "stop" command to the player backend
+      """
       self.__player.stopPlayback()
       return ('OK', 'OK')
 
    def nextSong(self):
+      """
+      Updates play statistics and sends a "next" command to the player backend
+      """
       try:
          cArtist = Artists.selectBy(name=self.__player.getSong().artist)[0]
          cAlbum  = Albums.selectBy(title=self.__player.getSong().album)[0]
@@ -271,21 +424,38 @@ class DJ(threading.Thread):
       return ('OK', 'OK')
 
    def pausePlayback(self):
+      """
+      Sends a "pause" command to the player backend
+      """
       logging.debug('pausing playback')
       return ('OK', 'OK')
 
 class Librarian(threading.Thread):
+   """
+   The librarian is a worker thread that manages the music library
+   """
 
-   __keepRunning = True
+   __keepRunning = True  # While this is true, the librarian is alive
 
    def __init__(self):
+      """
+      Constructor
+      """
       threading.Thread.__init__(self)
       self.setName( '%s (%s)' % (self.getName(), 'Lib') )
 
    def __crawl_directory(self, dir):
-      file_id = 0
+      """
+      Scans a directory and all its subfolders for media files and stores their
+      metadata into the library (DB)
+      """
+
       logging.debug("scanning %s" % (dir))
+
+      # Only scan the files specified in the settings table
       recognizedTypes = getSetting('recognizedTypes').split()
+
+      # walk through the directories
       for root, dirs, files in os.walk(dir):
          for name in files:
             if name.split('.')[-1] in recognizedTypes:
@@ -293,6 +463,8 @@ class Librarian(threading.Thread):
 
                # check if it is already in the database
                if Songs.selectBy(localpath=os.path.join(root, name)).count() == 0:
+
+                  # it was not in the DB, create a skeleton entry
                   song = Songs(
                         localpath = os.path.join(root, name),
                         title='',
@@ -312,11 +484,20 @@ class Librarian(threading.Thread):
                         genre=None
                         )
                else:
+
+                  # we found the song in the DB. Load it so we can update it's
+                  # metadata
                   song = Songs.selectBy(localpath=os.path.join(root, name))[0]
 
                try:
+                  # parse the metadata
                   metadata = kaa.metadata.parse(os.path.join(root, name))
 
+                  # if we have an artist, set the artist field.
+                  # then, if we *also* have an album, store the album from this
+                  # artist and set the song's metadata accordingly.
+                  # Finally, the song needs a track position on that album. So
+                  # we set it.
                   if metadata.get('artist') is not None:
                      song.artist = getArtist(metadata.get('artist'))
 
@@ -329,13 +510,25 @@ class Librarian(threading.Thread):
                            song.addAlbums(dbAlbum)
                         except Exception, ex:
                            if str(ex).upper().find("DUPLICATE") < 0:
-                              # if the word duplicate did not appear we have a
-                              # problem
+                              # The word "duplicate" did not appear in the
+                              # exception message. This means, some other error
+                              # happened, so we simply raise that exception
+                              # again so it can be caught separately.
                               raise
+                           else:
+                              # The word "duplicate" was found. We silently
+                              # ignore this error, but keep a log
+                              logging.debug('Duplicate album %s - %s' % (
+                                 metadata.get('artist'),
+                                 metadata.get('album')))
+                              pass
 
-                        # we determined an artist _and_ album. So what position
+                        # we determined an artist *and* album. So what position
                         # does the track have on that album?
                         if metadata.get('trackno') is not None:
+                           # This is a custom query. This is badly documented
+                           # by SQLObject. Refer to the top comment in model.py
+                           # for a reference
                            song.syncUpdate()
                            conn = AlbumSong._connection
                            trackCol = AlbumSong.q.track.fieldName
@@ -348,19 +541,33 @@ class Librarian(threading.Thread):
                            conn.query(updateTrack)
                            conn.cache.clear()
 
+                  # Artist, album and track number have been dealt with. Now
+                  # for the rest of the metadata
+
                   if metadata.get('title') is not None:
                      song.title = metadata.get('title')
 
                   if metadata.get('genre') is not None:
                      song.genre = getGenre(metadata.get('genre'))
 
+                  # TODO bitrate
+                  # TODO filesize
+                  # TODO checksum
+
+                  # The Songs table is lazily updated. Wee need to sync it to
+                  # the database
                   song.syncUpdate()
 
                except ValueError:
                   print "unknown metadata for %s" % os.path.join(root, name)
+
       logging.debug("done scanning")
 
    def run(self):
+      """
+      The control loop for the librarian.
+      For now it does not much more than sitting there and wait. Ook!
+      """
       logging.info('Started Librarian')
       cycle = int(getSetting('librarian_cycle'))
       while self.__keepRunning:
@@ -368,36 +575,67 @@ class Librarian(threading.Thread):
       logging.info('Stopped Librarian')
 
    def stop(self):
+      """
+      Requests that the librarian should end it's execution and exit
+      """
       self.__keepRunning = False
 
    def rescan(self):
+      """
+      Spawns a slave thread to rescan the library for each filder specified in
+      the settings table
+      """
       for mediaFolder in getSetting('folders').split():
          threading.Thread(target=self.__crawl_directory, kwargs={'dir': mediaFolder}).start()
 
    def detect_moves(self):
+      """
+      Detects files that moved on the file system and updates the reference in
+      the DB
+      """
       logging.debug("detecting moves")
 
    def detect_orphans(self):
+      """
+      Detects files that do not exist anymore on the file system and marks them
+      as orphaned in the database
+      """
       logging.debug("detecting orphans")
       pass
 
    def find_duplicates(self):
+      """
+      Detects duplicate entries.
+      """
       logging.debug("searching for duplicates")
       pass
 
    def add_file(self, filename):
+      """
+      Adds a new file to the library
+      """
       logging.debug("adding file %s" % (filename))
       pass
 
    def read_metadata(self, filename):
+      """
+      Reads the metadata of a file and stores the info
+      """
       logging.debug("reading metadata from %s" % (filename))
       pass
 
    def find_cover_art(self, artist, album):
+      """
+      Tries to locate the cover art of an album on the net and copies it into
+      the album's directory
+      """
       logging.debug("finding cover art for %s %s" % (artist, album))
       pass
 
    def mark_dirty(self, songID):
+      """
+      Flags a song as dirty, meaning that the metadata is incomplete
+      """
       logging.info("marking %s as dirty" % (songID))
       try:
          Songs.get(int(songID)).dirty = True
@@ -407,15 +645,34 @@ class Librarian(threading.Thread):
 
 class Arbitrator(threading.Thread):
 
-   global lib
+   """
+   Each remote connection get's its own arbitrator that routes user requests to
+   the appropriate worker-threads. This simplifies client interaction greatly
+   as the complicated stuff all happens under the hood
+   """
+
+   global lib        # a reference to the librarian
 
    def __init__(self, connection, address):
+      """
+      Constructor
+
+      PARAMETERS
+         connection - A reference to the client connection object
+         address    - The address of the connected client
+      """
       self.__connection = connection
       self.__address    = address
       threading.Thread.__init__(self)
       self.setName( '%s (%s)' % (self.getName(), 'Arb') )
 
    def dispatch(self, command):
+      """
+      Routes a command to the appropriate worker thread
+
+      PARAMETERS
+         command  - The command received from the client
+      """
 
       try:
          #
@@ -424,7 +681,9 @@ class Arbitrator(threading.Thread):
          if command == 'rescanlib':
             lib.rescan()
             lib.detect_moves()    # after importing, we can detect moves
-            lib.detect_orphans()  # everything in the db that has no file on HD and did not move is orphanded and should be removed from the DB
+            lib.detect_orphans()  # everything in the db that has no file on HD
+                                  # and did not move is orphanded and should be
+                                  # removed from the DB
             lib.find_duplicates() # Now we can search for duplicates
             return 'OK:DEFERRED\n'
 ##         elif command.split()[0] == 'addfile':
@@ -471,6 +730,11 @@ class Arbitrator(threading.Thread):
          return "ER:%s\n" % ex
 
    def run(self):
+      """
+      The main control loop of the Arbitrator. It sends a simple "HELLO" to the
+      connected client and then starts listening for commands. Before the
+      connection ends it sends "BYE"
+      """
       logging.debug( "Arbitrator awaiting your commands" )
       self.__connection.send('HELLO\n')
       while True:
@@ -485,7 +749,12 @@ class Arbitrator(threading.Thread):
       logging.debug( "Arbitrator quit" )
 
 if __name__ == "__main__":
+   # The main loop of the daemon.
 
+   # Setting up logging
+   # TODO: kaa.metadata send loads of DEBUG logs. These pollute the wjb logs
+   # greatly. It should be possible to connect a different logger to
+   # kaa.metadata to fix that. Need to figure that one out though.
    logging.basicConfig(level=logging.INFO,
                     format='[%(asctime)s] %(levelname)-8s %(threadName)-15s %(message)s')
    formatter = logging.Formatter('[%(asctime)s] %(levelname)-8s %(threadName)-15s %(message)s')
@@ -494,12 +763,14 @@ if __name__ == "__main__":
    rotfile.setFormatter(formatter)
    logging.getLogger('').addHandler(rotfile)
 
+   # Retrieve settings from the DB
    host = getSetting('daemon_boundHost')
    port = int(getSetting('daemon_port'))
 
-   # Start the agents
+   # Start the librarian
    lib = Librarian(); lib.start()
 
+   # start the DJ
    dj = None
    try:
       dj = DJ()
@@ -511,7 +782,7 @@ if __name__ == "__main__":
    else:
       dj.start()
 
-
+   # Prepare and open up the server-socket
    sock = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
    sock.bind((host, port))
@@ -519,6 +790,7 @@ if __name__ == "__main__":
    logging.info( "===== WJB Deamon started up ===============" )
    logging.info( "listening on %s:%s" % (host, port) )
 
+   # wait for incoming connections until interrupted
    while True:
       try:
          # wait for next client to connect
@@ -532,4 +804,12 @@ if __name__ == "__main__":
          dj.stop();  dj.join()
          logging.info( "===== WJB Deamon shutdown =================" )
          break
+      except:
+         import traceback
+         logging.critical("Uncaught exception!!! Bailing out!\n%s" % traceback.format_exc())
+         lib.stop(); lib.join()
+         dj.stop();  dj.join()
+         logging.info( "===== WJB Deamon shutdown =================" )
+         break
 
+# vim: set ts=3 sw=3 et ai :

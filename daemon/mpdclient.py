@@ -25,7 +25,7 @@ __version__ = "$Revision: 1.22 $"[11:-2]
 __author__ = "Nick Welch aka mackstann"
 __email__ = "mack at incise dot org"
 __revision__ = __cvsid__ = \
-"$Id: mpdclient.py,v 1.22 2004/02/23 21:36:19 mackstann Exp $"
+"$Id$"
 
 __license__ = """
 py-libmpdclient, a Python client library for mpd (Music Player Daemon)
