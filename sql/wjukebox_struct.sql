@@ -108,7 +108,7 @@ CREATE TABLE `players` (
 
 DROP TABLE IF EXISTS `playlist_song`;
 CREATE TABLE `playlist_song` (
-  `playlist_id` int(11) unsigned NOT NULL,
+  `playlist_id` int(11) unsigned NOT NULL auto_increment,
   `song_id` int(11) unsigned NOT NULL,
   `position` int(11) unsigned NOT NULL,
   PRIMARY KEY  (`playlist_id`,`song_id`),
@@ -121,7 +121,7 @@ CREATE TABLE `playlist_song` (
 
 DROP TABLE IF EXISTS `playlists`;
 CREATE TABLE `playlists` (
-  `playlist_id` int(11) unsigned NOT NULL,
+  `playlist_id` int(11) unsigned NOT NULL auto_increment,
   `title` varchar(64) NOT NULL,
   `user_id` int(11) NOT NULL default '1',
   `public` tinyint(1) NOT NULL default '1',
@@ -137,7 +137,7 @@ CREATE TABLE `playlists` (
 
 DROP TABLE IF EXISTS `queue`;
 CREATE TABLE `queue` (
-  `queue_id` int(11) unsigned NOT NULL,
+  `queue_id` int(11) unsigned NOT NULL auto_increment,
   `song_id` int(11) unsigned NOT NULL,
   `user_id` int(11) default NULL,
   `channel_id` smallint(5) unsigned NOT NULL default '1',
@@ -153,7 +153,7 @@ CREATE TABLE `queue` (
 
 DROP TABLE IF EXISTS `settings`;
 CREATE TABLE `settings` (
-  `setting_id` tinyint(3) unsigned NOT NULL,
+  `setting_id` tinyint(3) unsigned NOT NULL auto_increment,
   `param` varchar(16) NOT NULL,
   `value` text NOT NULL,
   `user_id` int(11) unsigned NOT NULL default '0',
@@ -168,7 +168,7 @@ CREATE TABLE `settings` (
 
 DROP TABLE IF EXISTS `songs`;
 CREATE TABLE `songs` (
-  `song_id` int(11) unsigned NOT NULL,
+  `song_id` int(11) unsigned NOT NULL auto_increment,
   `artist_id` int(11) unsigned NOT NULL default '0',
   `album_id` int(11) unsigned NOT NULL,
   `track_no` tinyint(2) NOT NULL default '0',
@@ -203,7 +203,7 @@ CREATE TABLE `songs` (
 
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
-  `user_id` int(11) unsigned NOT NULL,
+  `user_id` int(11) unsigned NOT NULL auto_increment,
   `username` varchar(32) NOT NULL,
   `password` varchar(32) NOT NULL,
   `fullname` varchar(64) NOT NULL,
