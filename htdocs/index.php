@@ -46,7 +46,7 @@
   $cache_settings = $cfg->getSettings( 'config', 'Cache', array( 'DirectoryShort', 'DirectoryLong', 'Type', 'TTLShort', 'TTLLong' ) );
 
   // initialize database connection and set $db instance as default
-  $dsn = sprintf("%s://%s%s@%s/%s", $db_settings['Type'], $db_settings['User'], $db_settings['Pass'], $db_settings['Host'], $db_settings['Base']);
+  $dsn = sprintf("%s://%s:%s@%s/%s", $db_settings['Type'], $db_settings['User'], $db_settings['Pass'], $db_settings['Host'], $db_settings['Base']);
   $db = ezcDbFactory::create( $dsn );
   ezcDbInstance::set( $db );
 
@@ -131,3 +131,4 @@
   }
 
 ?>
+
