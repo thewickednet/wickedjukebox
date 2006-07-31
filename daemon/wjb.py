@@ -382,11 +382,11 @@ class DJ(threading.Thread):
       res = conn.queryAll(query)
       try:
          out = res[random.randint(0, len(res))][0]
+         logging.info("Selected song %s at random. However, this feature is not yet fully implemented" % out)
+         return out
       except IndexError:
          logging.error('No song returned from query. Is the database empty?')
          pass
-      logging.info("Selected song %s at random. However, this feature is not yet fully implemented" % out)
-      return out
 
    def stop(self):
       """
