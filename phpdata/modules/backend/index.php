@@ -33,6 +33,10 @@
 
   socket_write($sock, $command);
 
+  if (substr_count(socket_listen($sock), "OK") == 0) {
+     echo "socket_listen() failed: reason: " . socket_strerror($ret) . "\n";
+  }
+
   socket_close($sock);
 
 

@@ -16,7 +16,7 @@
 
   $base_template = 'base.tpl';
   $display = 1;
-  $debug = 1;
+  $debug = 0;
 
   $genre_index = array();
 

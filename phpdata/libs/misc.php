@@ -6,7 +6,7 @@
  * @copyright 2006
  */
 
-  function traverseDirTree($base, $fileFunc, $dirFunc = null, $afterDirFunc = null) {}
+  function traverseDirTree($base, $fileFunc, $dirFunc = null, $afterDirFunc = null) {
     $subdirectories = opendir($base);
     while (($subdirectory = readdir($subdirectories)) !== false) {
         $path = $base . $subdirectory;
@@ -45,9 +45,5 @@
     }
 
   }
-
-
-
-
 
 ?>

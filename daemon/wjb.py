@@ -272,6 +272,8 @@ class DJ(threading.Thread):
       if self.__player.playlistPosition() == self.__player.playlistSize()-1 \
             or self.__player.playlistSize() == 0:
          nextSong = self.__smartGet()
+	 # FIXME: I've added this check to prevent crashes
+	 #if nextSong != None:
          self.__player.queue(nextSong)
 
    def run(self):
@@ -380,8 +382,10 @@ class DJ(threading.Thread):
       random.seed()
       conn = Songs._connection
       res = conn.queryAll(query)
+      randindex = random.randint(1, len(res)) -1
+      #print "Result set size: %i\tRandIndex: %i\tResultSet: %s" % (len(res), randindex, res)
       try:
-         out = res[random.randint(0, len(res))][0]
+         out = res[randindex][0]
          logging.info("Selected song %s at random. However, this feature is not yet fully implemented" % out)
          return out
       except IndexError:

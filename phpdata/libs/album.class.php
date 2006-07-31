@@ -143,13 +143,16 @@ class Album {
 
     $result = "";
 
+    $filemasks = array('folder.jpg', 'Folder.jpg', 'cover.jpg');
+
     $songs = self::getSongs($id);
     foreach($songs as $song) {
-
-      $check = dirname($song['localpath']) . '/folder.jpg';
-      if (file_exists($check)) {
-        return $check;
+      foreach($filemasks as $filemask){
+        $check = dirname($song['localpath']) . '/' . $filemask;
+        if (file_exists($check))
+          return $check;
       }
+
     }
 
     return "";
