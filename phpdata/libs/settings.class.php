@@ -16,7 +16,7 @@ class Setting {
     $q = $db->createSelectQuery();
     $e = $q->expr;
     $q->select( '*' )->from( 'settings' )
-      ->where( $e->eq( 'name', $q->bindValue( $name ) ) );
+      ->where( $e->eq( 'param', $q->bindValue( $name ) ) );
     $stmt = $q->prepare();
     $stmt->execute();
     $rows = $stmt->fetchAll();
@@ -30,7 +30,7 @@ class Setting {
     $q = $db->createSelectQuery();
     $e = $q->expr;
     $q->select( '*' )->from( 'settings' )
-      ->orderBy( 'name' );
+      ->orderBy( 'param' );
     $stmt = $q->prepare();
     $stmt->execute();
 

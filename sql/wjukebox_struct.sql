@@ -42,6 +42,7 @@ DROP TABLE IF EXISTS `artists`;
 CREATE TABLE `artists` (
   `artist_id` int(11) unsigned NOT NULL auto_increment,
   `name` varchar(128) NOT NULL,
+  `added` datetime NOT NULL,
   PRIMARY KEY  (`artist_id`),
   KEY `name` (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
@@ -158,7 +159,7 @@ CREATE TABLE `settings` (
   `value` text NOT NULL,
   `user_id` int(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`setting_id`),
-  KEY `param` (`param`),
+  UNIQUE KEY `param` (`param`),
   KEY `user_id` (`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
@@ -188,6 +189,7 @@ CREATE TABLE `songs` (
   `checksum` varchar(32) NOT NULL,
   `lyrics` longtext NOT NULL,
   `cost` tinyint(2) NOT NULL default '5',
+  `dirty` tinyint(1) NOT NULL default '0',
   PRIMARY KEY  (`song_id`),
   UNIQUE KEY `localpath` (`localpath`),
   KEY `artist_id` (`artist_id`),

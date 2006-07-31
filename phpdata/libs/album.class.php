@@ -111,6 +111,34 @@ class Album {
     return $rows;
   }
 
+
+  function getByTitle($title){
+
+    $db = ezcDbInstance::get();
+
+    $stmt = $db->prepare("SELECT * FROM albums WHERE title = ? LIMIT 1");
+    $stmt->execute(array("$title"));
+    $result = $stmt->fetchAll();
+
+    return $result[0];
+  }
+
+
+  function add($data){
+
+    $db = ezcDbInstance::get();
+
+    $q = $db->createInsertQuery();
+    $q->insertInto( 'albums' )
+      ->set( 'title', $q->bindValue( $data['title'] ) )
+      ->set( 'added', $q->bindValue(  strftime("%Y-%m-%d %H:%M:%S") ) );
+    $stmt = $q->prepare();
+    $stmt->execute();
+
+    return $db->lastInsertId();
+
+  }
+
   function hasCover($id = 0){
 
     $result = "";

@@ -39,23 +39,29 @@ The eZComponents are used for Database operations and for Data Caching
 
 it's actually very easy to install them using the pear command line tool:
 
-After you have installed PHP 5.1.1 or a higher version, you will have the PEAR Installer available automatically. Simply issue the following commands in the shell:
+After you have installed PHP 5.1.1 or a higher version, you will have the PEAR Installer available automatically. 
+Simply issue the following commands in the shell:
 
 pear channel-discover components.ez.no
+
 
 This will let PEAR Installer connect to the server components.ez.no where the eZ components are stored for distribution.
 
 pear config-set preferred_state beta
 
-By issuing this command, you tell PEAR Installer that it should download the eZ components which are of beta status. Currently, this needs to be done because the eZ components are available as beta only. For the forthcoming stable releases, this command can be ommitted.
+
+By issuing this command, you tell PEAR Installer that it should download the eZ components which are of beta status.
+Currently, this needs to be done because the eZ components are available as beta only. For the forthcoming stable releases, this command can be ommitted.
 
 pear install -a ezc/eZComponents
 pear install -a ezc/Base
 
-This final command will download and typically extract all eZ components to the directory where also the PEAR packages reside, but beneath the ezc/ subdirectory, with the absolute path being: /path/to/pear/ezc/
 For this you might need to increase you maximum memory size for PHP. In your php.ini change the line
    memory_limit = 8M      ; Maximum amount of memory a script may consume (8MB)
 to a higher value. 12M should be enough.
+
+This final command will download and typically extract all eZ components to the directory where also
+the PEAR packages reside, but beneath the ezc/ subdirectory, with the absolute path being: /path/to/pear/ezc/
 
 In case you already have installed the components before, you can simply do:
 
@@ -68,6 +74,20 @@ DATABASE CONFIGURATION
 
 In the "phpdata" directory, copy the file named "config.ini.dist"
 to "config.ini" and make the appropriate changes.
+
+
+
+DIRECTORY PERMISSIONS
+=====================
+
+There are several directories which apache has to write to. so please verify that apache has write permissions to the following directories:
+
+/tmp
+/cache
+/cache/short
+/cache/long
+/smarty/templates_c
+
 
 
 
@@ -86,4 +106,13 @@ RewriteRule ^/details/(.*)/(.*)/$ /index.php?section=details&module=$1&param=$2 
 
 RewriteRule ^/download/(.*)/(.*)/$ /index.php?section=download&module=$1&param=$2 [L]
 RewriteRule ^/stats/$ /index.php?section=stats [L]
+
+
+
+PROBLEM TROUBLESHOOTING
+=======================
+
+in case you run into some problems, just switch the $debug = 0 flag in the index.php file to 1
+it might help you locate the problem.
+
 

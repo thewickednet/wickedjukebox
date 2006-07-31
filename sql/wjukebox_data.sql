@@ -190,3 +190,18 @@ INSERT INTO `groups` (`group_id`, `title`, `admin`, `nocredits`, `queue_skip`, `
 
 INSERT INTO `users` (`user_id`, `username`, `password`, `fullname`, `added`, `credits`, `group_id`, `cookie`, `downloads`, `votes`, `skips`, `selects`) VALUES (1, 'anonymous', '', 'anonymous', '2006-07-24 17:08:34', 0, 0, '', 0, 0, 0, 0);
 INSERT INTO `users` (`user_id`, `username`, `password`, `fullname`, `added`, `credits`, `group_id`, `cookie`, `downloads`, `votes`, `skips`, `selects`) VALUES (2, 'demo', 'fe01ce2a7fbac8fafaed7c982a04e229', 'demo', '2006-07-28 19:45:49', 0, 2, 'e3c82cb3efdeb7f0ca1b8291320bacdf', 0, 0, 0, 28);
+
+
+-- 
+-- Dumping data for table `settings`
+-- 
+
+INSERT IGNORE INTO `settings` (`param`, `value`) VALUES ('mpd_host',         'localhost');
+INSERT IGNORE INTO `settings` (`param`, `value`) VALUES ('mpd_port',         '6600');
+INSERT IGNORE INTO `settings` (`param`, `value`) VALUES ('player',           'mpd');
+INSERT IGNORE INTO `settings` (`param`, `value`) VALUES ('recognizedTypes',  'mp3 ogg flac');
+INSERT IGNORE INTO `settings` (`param`, `value`) VALUES ('daemon_boundHost', 'localhost');
+INSERT IGNORE INTO `settings` (`param`, `value`) VALUES ('daemon_port',      '64000');
+INSERT IGNORE INTO `settings` (`param`, `value`) VALUES ('folders',          '/mnt/mp3s/Tagged');
+INSERT IGNORE INTO `settings` (`param`, `value`) VALUES ('librarian_cycle',  '1');
+INSERT IGNORE INTO `settings` (`param`, `value`) VALUES ('dj_cycle',         '1');

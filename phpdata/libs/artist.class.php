@@ -60,6 +60,32 @@ class Artist {
     return $result[0];
   }
 
+  function getByName($name){
+
+    $db = ezcDbInstance::get();
+
+    $stmt = $db->prepare("SELECT * FROM artists WHERE name = ? LIMIT 1");
+    $stmt->execute(array("$name"));
+    $result = $stmt->fetchAll();
+
+    return $result[0];
+  }
+
+  function add($name){
+
+    $db = ezcDbInstance::get();
+
+    $q = $db->createInsertQuery();
+    $q->insertInto( 'artists' )
+      ->set( 'name', $q->bindValue( $name ) )
+      ->set( 'added', $q->bindValue(  strftime("%Y-%m-%d %H:%M:%S") ) );
+    $stmt = $q->prepare();
+    $stmt->execute();
+
+    return $db->lastInsertId();
+
+  }
+
   function getSongs($id = 0){
 
     $cache = ezcCacheManager::getCache('short');

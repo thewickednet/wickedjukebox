@@ -21,6 +21,51 @@ class Song {
     return $result[0];
   }
 
+  function getByTitle($title){
+
+    $db = ezcDbInstance::get();
+
+    $stmt = $db->prepare("SELECT * FROM songs WHERE title = ? LIMIT 1");
+    $stmt->execute(array("$title"));
+    $result = $stmt->fetchAll();
+
+    return $result[0];
+  }
+
+  function getByLocalPath($filename){
+
+    $db = ezcDbInstance::get();
+
+    $stmt = $db->prepare("SELECT * FROM songs WHERE localpath = ? LIMIT 1");
+    $stmt->execute(array("$filename"));
+    $result = $stmt->fetchAll();
+
+    return $result[0];
+  }
+
+  function add($data){
+
+    $db = ezcDbInstance::get();
+
+    $q = $db->createInsertQuery();
+    $q->insertInto( 'songs' )
+      ->set( 'title', $q->bindValue( $data['title'] ) )
+      ->set( 'artist_id', $q->bindValue( $data['artist_id'] ) )
+      ->set( 'album_id', $q->bindValue( $data['album_id'] ) )
+      ->set( 'track_no', $q->bindValue( $data['track_no'] ) )
+      ->set( 'year', $q->bindValue( $data['year'] ) )
+      ->set( 'bitrate', $q->bindValue( $data['bitrate'] ) )
+      ->set( 'localpath', $q->bindValue( $data['localpath'] ) )
+      ->set( 'filesize', $q->bindValue( $data['filesize'] ) )
+      ->set( 'checksum', $q->bindValue( $data['checksum'] ) )
+      ->set( 'added', $q->bindValue(  strftime("%Y-%m-%d %H:%M:%S") ) );
+    $stmt = $q->prepare();
+    $stmt->execute();
+
+    return $db->lastInsertId();
+
+  }
+
   function countDownload($id) {
     $db = ezcDbInstance::get();
 
