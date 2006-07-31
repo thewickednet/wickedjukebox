@@ -383,7 +383,7 @@ class DJ(threading.Thread):
       try:
          out = res[random.randint(0, len(res))][0]
       except IndexError:
-         logger.error('No song returned from query. Is the database empty?')
+         logging.error('No song returned from query. Is the database empty?')
          pass
       logging.info("Selected song %s at random. However, this feature is not yet fully implemented" % out)
       return out
