@@ -7,6 +7,6 @@
             </p>
             <div id="results">
             {foreach from=$ARTISTS item=ARTIST}
-            <a href="/browse/artists/byid/{$ARTIST.artist_id|lower}/">{$ARTIST.name}</a>
+            <a href="/browse/artists/byid/{$ARTIST.artist_id|lower}/">{$ARTIST.name}</a><br />
             {/foreach}
             </div>

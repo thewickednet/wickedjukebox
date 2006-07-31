@@ -2,6 +2,6 @@
 
             <div id="results">
             {foreach from=$GENRES item=GENRE}
-            <a href="/browse/genres/byid/{$GENRE.genre_id|lower}/">{$GENRE.name}</a>
+            <a href="/browse/genres/byid/{$GENRE.genre_id|lower}/">{$GENRE.name}</a><br />
             {/foreach}
             </div>
