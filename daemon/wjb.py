@@ -268,6 +268,12 @@ class MPD(Player):
       """
       self.__connection.stop()
 
+   def pausePlayback(self):
+      """
+      Pauses playback
+      """
+      self.__connection.pause()
+
    def startPlayback(self):
       """
       Starts playback
@@ -494,6 +500,17 @@ class DJ(threading.Thread):
       self.__player.stopPlayback()
       return ('OK', 'OK')
 
+   def pausePlayback(self):
+      """
+      Sends a "pause" command to the player backend
+      """
+      if self.__playStatus == 'pause':
+         self.__playStatus = 'play'
+      else:
+         self.__playStatus = 'pause'
+      self.__player.pausePlayback()
+      return ('OK', 'OK')
+
    def nextSong(self):
       """
       Updates play statistics and sends a "next" command to the player backend
@@ -508,14 +525,6 @@ class DJ(threading.Thread):
          # no song on the queue. We can ignore this error
          pass
       self.__player.skipSong()
-      return ('OK', 'OK')
-
-   def pausePlayback(self):
-      """
-      Sends a "pause" command to the player backend
-      """
-      self.__playStatus = 'pause'
-      logging.debug('pausing playback')
       return ('OK', 'OK')
 
 class Librarian(threading.Thread):
