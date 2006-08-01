@@ -375,12 +375,8 @@ class DJ(threading.Thread):
          if self.__player.status() == 'play' and self.__playStatus == 'stop':
             self.__player.stopPlayback()
 
-         
          # only queue new songs if we are in play-mode
          if self.__playStatus == 'play':
-
-            # ensure that there is a song on the playlist
-            self.populatePlaylist()
 
             # if the song is soon finished, update stats and pick the next one
             currentPosition = self.__player.getPosition()
