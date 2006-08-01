@@ -22,8 +22,14 @@ class Album {
 
     $db = ezcDbInstance::get();
 
-    $stmt = $db->prepare("SELECT * FROM albums WHERE title LIKE ? ORDER BY title");
-    $stmt->execute(array("$alpha%"));
+      if ($alpha == 'num') {
+        $stmt = $db->prepare("SELECT * FROM albums WHERE SUBSTRING(title,1,1) >= 0 AND  SUBSTRING(title,1,1) <= 9 ORDER BY title");
+        $stmt->execute();
+      } else {
+        $stmt = $db->prepare("SELECT * FROM albums WHERE title LIKE ? ORDER BY title");
+        $stmt->execute(array("$alpha%"));
+      }
+
 
     return $stmt->fetchAll();
   }

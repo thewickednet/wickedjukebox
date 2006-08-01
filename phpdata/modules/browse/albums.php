@@ -8,9 +8,6 @@
  */
 
 
-  $alpha = Album::getAlphaIndex();
-  $smarty->assign("ALPHA_INDEX", $alpha);
-
   switch($_GET['mode']){
     case "cover":
 
@@ -43,7 +40,7 @@
       if (!empty($_GET['param']))
         $alpha = $_GET['param'];
       else
-        $alpha = $alpha[0]['alpha'];
+        $alpha = "A";
 
 
       $results = Album::getByAlpha($alpha);

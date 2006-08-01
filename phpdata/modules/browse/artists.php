@@ -8,10 +8,6 @@
  */
 
 
-  $alpha = Artist::getAlphaIndex();
-  $smarty->assign("ALPHA_INDEX", $alpha);
-
-
   switch($_GET['mode']){
     case "cover":
 
@@ -30,21 +26,6 @@
 
       $results = Artist::getSongs($_GET['param']);
 
-      $pager_params = array(
-          'mode'      => 'Sliding',
-          'append'    => false,
-          'urlVar'    => 'pagenum',
-          'path'      => sprintf("http://%s/browse/artists/byid/%d/bypage/", $_SERVER["HTTP_HOST"], $_GET['param']),
-          'fileName'  => '%d'.'/',  //Pager replaces "%d" with page number...
-          'itemData'  => $results,
-          'perPage'   => 25
-      );
-
-      $pager = & Pager::factory($pager_params);
-      $data  = $pager->getPageData();
-      $links = $pager->getLinks();
-
-
       $smarty->assign("LINKS", $links['all']);
       $smarty->assign("COVER", Artist::hasCover($_GET['param']));
       $smarty->assign("ARTIST", $artist);
@@ -59,14 +40,52 @@
       if (!empty($_GET['param']))
         $alpha = $_GET['param'];
       else
-        $alpha = $alpha[0]['alpha'];
+        $alpha = "A";
+
+      if ($alpha != 'various' && $alpha != 'ost' && $alpha != 'videogame') {
+        $results = Artist::getByAlpha($alpha);
+        $smarty->assign("ARTISTS", $results);
+
+        $body_template = 'browse/artists.tpl';
+      } else {
+        $results = Artist::getByType($alpha);
 
 
-      $results = Artist::getByAlpha($alpha);
+        $pager_params = array(
+            'mode'      => 'Sliding',
+            'append'    => false,
+            'urlVar'    => 'pagenum',
+            'path'      => sprintf("http://%s/browse/artists/byid/%d/bypage/", $_SERVER["HTTP_HOST"], $_GET['param']),
+            'fileName'  => '%d'.'/',  //Pager replaces "%d" with page number...
+            'itemData'  => $results,
+            'perPage'   => 25
+        );
 
-      $smarty->assign("ARTISTS", $results);
+        $pager = & Pager::factory($pager_params);
+        $data  = $pager->getPageData();
+        $links = $pager->getLinks();
 
-      $body_template = 'browse/artists.tpl';
+
+
+        switch($alpha){
+          case "various":
+            $artist = array('name' => 'Various Artists');
+            break;
+          case "ost":
+            $artist = array('name' => 'Soundtracks');
+            break;
+          case "videogame":
+            $artist = array('name' => 'Video Games');
+            break;
+        } // switch
+
+        $smarty->assign("ARTIST", $artist);
+        $smarty->assign("SONGS", $results);
+        $smarty->assign("LINKS", $links['all']);
+
+        $body_template = 'browse/artist_songs.tpl';
+      }
+
 
       break;
   } // switch

@@ -39,8 +39,33 @@ class Artist {
 
       $db = ezcDbInstance::get();
 
-      $stmt = $db->prepare("SELECT * FROM artists WHERE name LIKE ? ORDER BY name");
-      $stmt->execute(array("$alpha%"));
+      if ($alpha == 'num') {
+        $stmt = $db->prepare("SELECT * FROM artists WHERE SUBSTRING(name,1,1) >= 0 AND  SUBSTRING(name,1,1) <= 9 ORDER BY name");
+        $stmt->execute();
+      } else {
+        $stmt = $db->prepare("SELECT * FROM artists WHERE name LIKE ? ORDER BY name");
+        $stmt->execute(array("$alpha%"));
+      }
+      $results = $stmt->fetchAll();
+      $cache->store( $cache_id, $results );
+
+    }
+
+    return $results;
+  }
+
+  function getByType($type = "various"){
+
+    $cache = ezcCacheManager::getCache('short');
+
+    $cache_id = sprintf("artist_alpha_index_%s", $type);
+
+    if ( ( $results = $cache->restore( $cache_id ) ) === false ) {
+
+      $db = ezcDbInstance::get();
+
+      $stmt = $db->prepare("SELECT *, songs.title AS song, albums.title AS album, SEC_TO_TIME(duration) AS duration FROM artists, albums, songs  WHERE songs.artist_id = artists.artist_id AND songs.album_id = albums.album_id AND albums.type = ? ORDER BY albums.title, songs.track_no, artists.name");
+      $stmt->execute(array("$type"));
       $results = $stmt->fetchAll();
       $cache->store( $cache_id, $results );
 
