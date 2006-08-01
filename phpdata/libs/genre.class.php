@@ -19,6 +19,19 @@ class Genre {
     return $result[0];
   }
 
+  function getByName($name = ""){
+
+    if (empty($name))
+      return 0;
+
+    $db = ezcDbInstance::get();
+
+    $stmt = $db->prepare("SELECT genre_id FROM genres WHERE name = ? LIMIT 1");
+    $stmt->execute(array("$name"));
+    $result = $stmt->fetchAll();
+    return $result[0]['genre_id'];
+  }
+
   function getAll() {
 
 

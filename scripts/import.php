@@ -20,6 +20,8 @@
 
   require_once "base.php";
 
+  require_once "libs/getid3/getid3.php";
+
   $base_folder = Setting::get("folders");
   $base_folder = $base_folder['value'];
 

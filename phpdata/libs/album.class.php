@@ -39,6 +39,17 @@ class Album {
     return $result[0];
   }
 
+  function countArtists($id = ""){
+
+    $db = ezcDbInstance::get();
+
+    $stmt = $db->prepare("SELECT COUNT(DISTINCT artist_id) AS artists FROM songs WHERE album_id = ?");
+    $stmt->execute(array("$id"));
+    $result = $stmt->fetchAll();
+
+    return $result[0]['artists'];
+  }
+
   function getSongs($id = 0){
 
     $db = ezcDbInstance::get();
@@ -48,6 +59,25 @@ class Album {
     $stmt = $db->prepare("SELECT *, songs.title AS song, albums.title AS album FROM songs, albums WHERE songs.album_id = albums.album_id AND albums.album_id = ? ORDER BY albums.title, track_no, song");
     $stmt->execute(array("$id"));
     return $stmt->fetchAll();
+  }
+
+  function setType($id = 0, $type = "album") {
+    $db = ezcDbInstance::get();
+
+    $cookie = md5(time());
+
+    $q = $db->createUpdateQuery();
+    $e = $q->expr;
+    $q->update( 'albums' )
+      ->set( 'type', $q->bindValue( $type ) )
+      ->where( $e->eq( 'album_id', $q->bindValue( $id ) ) );
+
+    if ($type != "album")
+      $q->set('artist_id', null);
+
+    $stmt = $q->prepare();
+    $stmt->execute();
+
   }
 
   function countPlay($id) {
@@ -131,6 +161,7 @@ class Album {
     $q = $db->createInsertQuery();
     $q->insertInto( 'albums' )
       ->set( 'title', $q->bindValue( $data['title'] ) )
+      ->set( 'artist_id', $q->bindValue( $data['artist_id'] ) )
       ->set( 'added', $q->bindValue(  strftime("%Y-%m-%d %H:%M:%S") ) );
     $stmt = $q->prepare();
     $stmt->execute();
