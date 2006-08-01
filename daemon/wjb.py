@@ -238,7 +238,7 @@ class MPD(Player):
       """
       return self.__connection.getStatus().playlistLength
 
-   def cropPlaylist(self, length=1):
+   def cropPlaylist(self, length=2):
       """
       Removes items from the *beginning* of the playlist to ensure it has only
       a fixed number of entries.
