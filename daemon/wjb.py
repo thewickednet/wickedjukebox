@@ -43,6 +43,9 @@ def getSetting(param_in, default=None):
          print
          sys.exit(0)
    except Exception, ex:
+      if str(ex).lower().find('connect') > 0:
+         logging.critical('Unable to connect to the database. Error was: \n%s' % ex)
+         sys.exit(0)
       if str(ex).lower().find('exist') > 0:
          logging.critical('Settings table not found. Did you create the database tables?')
          sys.exit(0)
@@ -265,16 +268,9 @@ class DJ(threading.Thread):
       try:
          self.__player = MPD()
       except mpdclient.MpdConnectionPortError, ex:
-         try:
-            self.__player = None
-            logging.error('%s, retry in 5s' % ex)
-            time.sleep(5)
-            self.__connectMPD()
-         except KeyboardInterrupt:
-            #todo# This only stops the connection attempt. Application will
-            #todo# start up cleanly after that, but without working player
-            logging.info('interrupted')
-            pass
+         import traceback
+         logging.critical("Error connecting to the player:\n%s" % traceback.format_exc())
+         sys.exit(0)
 
    def populatePlaylist(self):
       """
@@ -305,6 +301,8 @@ class DJ(threading.Thread):
 
       # while we are alive, do the loop
       while self.__keepRunning:
+
+         print "test dj" #debug#
          
          # ensure that there is a song on the playlist
          self.populatePlaylist()
@@ -594,6 +592,7 @@ class Librarian(threading.Thread):
       logging.info('Started Librarian')
       cycle = int(getSetting('librarian_cycle', '1'))
       while self.__keepRunning:
+         print "test lib" #debug#
          time.sleep(cycle)
       logging.info('Stopped Librarian')
 
@@ -760,13 +759,19 @@ class Arbitrator(threading.Thread):
       """
       logging.debug( "Arbitrator awaiting your commands" )
       self.__connection.send('HELLO\n')
-      while True:
-         data = self.__connection.recv(1024)[0:-1]
-         if data:
-            logging.info( "command from %s: %s" % (self.__address[0], data) )
-            self.__connection.send(self.dispatch(data))
-         else:
-            break
+      try:
+         while True:
+            print "test arb" #debug#
+            data = self.__connection.recv(1024)[0:-1]
+            if data:
+               logging.info( "command from %s: %s" % (self.__address[0], data) )
+               self.__connection.send(self.dispatch(data))
+            else:
+               break
+      except Exception, ex:
+         import traceback
+         logging.critical("Unexpected error:\n%s" % traceback.format_exc())
+         sys.exit(0)
       self.__connection.send('BYE\n')
       self.__connection.close()
       logging.debug( "Arbitrator quit" )
@@ -790,49 +795,65 @@ if __name__ == "__main__":
    host = getSetting('daemon_boundHost', 'localhost')
    port = int(getSetting('daemon_port', '61111'))
 
-   # Start the librarian
-   lib = Librarian(); lib.start()
-
-   # start the DJ
-   dj = None
+   # set up a safety net to kill all the threads in case of an uncaught
+   # exception
+   dj  = None # initialise the thread variables
+   lib = None
+   t   = None
    try:
-      dj = DJ()
-   except ValueError, ex:
-      if str(ex) == 'unknown player backend':
-         logging.error('Unknown player specified in the config')
-         lib.stop(); lib.join()
-         sys.exit(0)
-   else:
-      dj.start()
+      # Start the librarian
+      lib = Librarian(); lib.start()
 
-   # Prepare and open up the server-socket
-   sock = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
-   sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-   sock.bind((host, port))
-   sock.listen(5)
-   logging.info( "===== WJB Deamon started up ===============" )
-   logging.info( "listening on %s:%s" % (host, port) )
-
-   # wait for incoming connections until interrupted
-   while True:
+      # start the DJ
+      dj = None
       try:
-         # wait for next client to connect
-         connection, address = sock.accept()
-         logging.info( "accepting incoming connection from %s" % (address[0]) )
-         t = Arbitrator(connection, address)
-         t.start()
-      except KeyboardInterrupt:
-         logging.info( "----- Waiting for agents to stop ----------" )
-         lib.stop(); lib.join()
-         dj.stop();  dj.join()
-         logging.info( "===== WJB Deamon shutdown =================" )
-         break
-      except:
-         import traceback
-         logging.critical("Uncaught exception!!! Bailing out!\n%s" % traceback.format_exc())
-         lib.stop(); lib.join()
-         dj.stop();  dj.join()
-         logging.info( "===== WJB Deamon shutdown =================" )
-         break
+         dj = DJ()
+      except ValueError, ex:
+         if str(ex) == 'unknown player backend':
+            logging.error('Unknown player specified in the config')
+            lib.stop(); lib.join()
+            sys.exit(0)
+      else:
+         dj.start()
+
+      # Prepare and open up the server-socket
+      sock = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
+      sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+      sock.bind((host, port))
+      sock.listen(5)
+      logging.info( "===== WJB Deamon started up ===============" )
+      logging.info( "listening on %s:%s" % (host, port) )
+
+      # wait for incoming connections until interrupted
+      while True:
+         try:
+            # wait for next client to connect
+            connection, address = sock.accept()
+            logging.info( "accepting incoming connection from %s" % (address[0]) )
+            t = Arbitrator(connection, address)
+            t.start()
+         except KeyboardInterrupt:
+            logging.info( "----- Waiting for agents to stop ----------" )
+            lib.stop(); lib.join()
+            dj.stop();  dj.join()
+            logging.info( "===== WJB Deamon shutdown =================" )
+            break
+         except:
+            import traceback
+            logging.critical("Uncaught exception!!! Bailing out!\n%s" % traceback.format_exc())
+            lib.stop(); lib.join()
+            dj.stop();  dj.join()
+            logging.info( "===== WJB Deamon shutdown =================" )
+            break
+   except Exception, ex:
+      # The safety net: Stop all threads and print out the stack trace to the
+      # log and exit
+      if lib is not None: lib.stop()
+      if dj is not None:  dj.stop()
+      if t is not None:   t.stop()
+      import traceback
+      logging.critical("Unexpected error:\n%s" % traceback.format_exc())
+      sys.stderr.write('WJB Daemon exited unexpectedly. Check the log for details!')
+      sys.exit(0)
 
 # vim: set ts=3 sw=3 et ai :
