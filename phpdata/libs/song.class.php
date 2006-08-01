@@ -13,7 +13,7 @@ class Song {
 
     $db = ezcDbInstance::get();
 
-    $stmt = $db->prepare("SELECT * FROM songs, artists WHERE songs.artist_id = artists.artist_id AND songs.song_id = ? LIMIT 1");
+    $stmt = $db->prepare("SELECT *, SEC_TO_TIME(duration) AS duration FROM songs, artists WHERE songs.artist_id = artists.artist_id AND songs.song_id = ? LIMIT 1");
     $stmt->execute(array("$id"));
 
     $result = $stmt->fetchAll();
@@ -25,7 +25,7 @@ class Song {
 
     $db = ezcDbInstance::get();
 
-    $stmt = $db->prepare("SELECT * FROM songs WHERE title = ? LIMIT 1");
+    $stmt = $db->prepare("SELECT *, SEC_TO_TIME(duration) AS duration FROM songs WHERE title = ? LIMIT 1");
     $stmt->execute(array("$title"));
     $result = $stmt->fetchAll();
 
@@ -36,7 +36,7 @@ class Song {
 
     $db = ezcDbInstance::get();
 
-    $stmt = $db->prepare("SELECT * FROM songs WHERE localpath = ? LIMIT 1");
+    $stmt = $db->prepare("SELECT *, SEC_TO_TIME(duration) AS duration FROM songs WHERE localpath = ? LIMIT 1");
     $stmt->execute(array("$filename"));
     $result = $stmt->fetchAll();
 
@@ -69,6 +69,31 @@ class Song {
     return $db->lastInsertId();
 
   }
+
+  function getLatest($id = 0){
+
+    $cache = ezcCacheManager::getCache('short');
+
+    $cache_id = sprintf("latest_additions");
+
+    if ( ( $results = $cache->restore( $cache_id ) ) === false ) {
+
+      $db = ezcDbInstance::get();
+
+      $results = array();
+
+      $stmt = $db->prepare("SELECT *, songs.title AS song, albums.title AS album, songs.added AS added_song, SEC_TO_TIME(duration) AS duration FROM songs, albums, artists WHERE artists.artist_id = songs.artist_id AND songs.album_id = albums.album_id ORDER BY songs.added DESC LIMIT 25");
+      $stmt->execute(array());
+      $results = $stmt->fetchAll();
+
+      $cache->store( $cache_id, $results );
+
+    }
+
+
+    return $results;
+  }
+
 
   function countDownload($id) {
     $db = ezcDbInstance::get();
@@ -160,6 +185,19 @@ class Song {
     $rows = $stmt->fetchAll();
     return $rows;
   }
+
+  function getTotalCount(){
+
+    $db = ezcDbInstance::get();
+
+    $stmt = $db->prepare("SELECT COUNT(*) FROM songs LIMIT 1");
+    $stmt->execute(array());
+    $result = $stmt->fetchAll();
+
+    return $result[0];
+  }
+
+
 
 }
 

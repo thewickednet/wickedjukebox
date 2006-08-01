@@ -6,8 +6,6 @@
  * @copyright 2006
  */
 
-  error_reporting(0);
-
   function traverseDirTree($base, $fileFunc, $dirFunc = null, $afterDirFunc = null) {
     $subdirectories = opendir($base);
     while (($subdirectory = readdir($subdirectories)) !== false) {
@@ -37,7 +35,7 @@
       if (finfo_file($finfo, $file) == "audio/mpeg") {
         printf("file found: %s\n", $file);
         $tag = $getID3->analyze($file);
-        //print_r($tag);
+        print_r($tag);
 
         if (isset($tag['tags']['id3v2']))
           $tags = $tag['tags']['id3v2'];
@@ -68,7 +66,7 @@
           else
             $data['bitrate'] = "VBR";
 
-          $data['duration'] = secondsToMinutes($tag['playtime_seconds']);
+          $data['duration'] = floor($tag['playtime_seconds']);
 
           $data['genre_id'] = Genre::getByName(rtrim($tags['genre'][0]));
 
@@ -121,13 +119,5 @@
 
   }
 
-
-  function secondsToMinutes($seconds) {
-    $seconds = round($seconds);
-    $minutes = floor($seconds / 60);
-    $seconds = $seconds - $minutes * 60;
-    return sprintf("00:%02d:%02d", $minutes, $seconds);
-
-  }
 
 ?>

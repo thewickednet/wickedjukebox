@@ -174,7 +174,7 @@ CREATE TABLE `songs` (
   `album_id` int(11) unsigned NULL,
   `track_no` tinyint(2) NOT NULL default '0',
   `title` varchar(128) NOT NULL,
-  `duration` time NULL default '00:00:00',
+  `duration` mediumint(5) NOT NULL default '0',
   `genre_id` tinyint(3) unsigned NULL default '0',
   `year` year(4) NULL,
   `localpath` varchar(255) NOT NULL,

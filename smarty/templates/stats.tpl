@@ -1,6 +1,31 @@
 						<h1><a name="intro" id="intro"></a>Statistics</h1>
             <div id="results">
 
+            <h3>Total</h3>
+            <table cellspacing="6">
+              <tr>
+                <td width="15">&nbsp;</td>
+                <td>Users</td>
+                <td align="right">{$USER_TOTAL.0}</td>
+              </tr>
+              <tr>
+                <td width="15">&nbsp;</td>
+                <td>Artists</td>
+                <td align="right">{$ARTIST_TOTAL.0}</td>
+              </tr>
+              <tr>
+                <td width="15">&nbsp;</td>
+                <td>Albums</td>
+                <td align="right">{$ALBUM_TOTAL.0}</td>
+              </tr>
+              <tr>
+                <td width="15">&nbsp;</td>
+                <td>Songs</td>
+                <td align="right">{$SONG_TOTAL.0}</td>
+              </tr>
+            </table>
+
+
             <h3>Albums - Queued</h3>
             <table cellspacing="6">
             {counter start=0 print=false}

@@ -65,7 +65,7 @@ class Genre {
 
     $db = ezcDbInstance::get();
 
-    $stmt = $db->prepare("SELECT * FROM genres WHERE genre_id = (SELECT DISTINCT genre_id FROM songs) ORDER BY name");
+    $stmt = $db->prepare("SELECT * FROM genres WHERE genre_id IN (SELECT DISTINCT genre_id FROM songs) ORDER BY name");
     $stmt->execute();
 
     return $stmt->fetchAll();

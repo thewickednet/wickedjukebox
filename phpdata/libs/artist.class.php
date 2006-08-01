@@ -98,7 +98,7 @@ class Artist {
 
       $results = array();
 
-      $stmt = $db->prepare("SELECT *, songs.title AS song, albums.title AS album FROM songs, albums WHERE songs.album_id = albums.album_id AND songs.artist_id = ? ORDER BY albums.title, track_no, song");
+      $stmt = $db->prepare("SELECT *, songs.title AS song, albums.title AS album, SEC_TO_TIME(duration) AS duration FROM songs, albums WHERE songs.album_id = albums.album_id AND songs.artist_id = ? ORDER BY albums.title, track_no, song");
       $stmt->execute(array("$id"));
       $results = $stmt->fetchAll();
 
@@ -158,6 +158,17 @@ class Artist {
     header("Content-type: image/jpeg");
     imagejpeg($image_p, "", 80);
     exit();
+  }
+
+  function getTotalCount(){
+
+    $db = ezcDbInstance::get();
+
+    $stmt = $db->prepare("SELECT COUNT(*) FROM artists LIMIT 1");
+    $stmt->execute(array());
+    $result = $stmt->fetchAll();
+
+    return $result[0];
   }
 
 

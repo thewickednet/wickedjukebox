@@ -11,17 +11,6 @@
   $genres = Genre::getAvailable();
 
   switch($_GET['mode']){
-    case "cover":
-
-      $cover = Artist::hasCover($_GET['param']);
-
-      if (!empty($cover))
-        Artist::showCover($cover);
-      else
-        echo "no cover found";
-      exit();
-
-      break;
     case "byid":
 
       $genre = Genre::getById($_GET['param']);

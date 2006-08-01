@@ -222,6 +222,16 @@ class User {
     return $rows;
   }
 
+  function getTotalCount(){
+
+    $db = ezcDbInstance::get();
+
+    $stmt = $db->prepare("SELECT COUNT(*)-1 FROM users LIMIT 1");
+    $stmt->execute(array());
+    $result = $stmt->fetchAll();
+
+    return $result[0];
+  }
 
 }
 
