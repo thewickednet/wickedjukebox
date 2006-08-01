@@ -817,13 +817,16 @@ class Arbitrator(threading.Thread):
                self.__connection.send(self.dispatch(data))
             else:
                break
+         self.__connection.send('BYE\n')
+         self.__connection.close()
       except Exception, ex:
-         import traceback
-         logging.critical("Unexpected error:\n%s" % traceback.format_exc())
-         killAgents()
-         sys.exit(0)
-      self.__connection.send('BYE\n')
-      self.__connection.close()
+         if str(ex).lower().find('broken pipe') > 0:
+            # the client exited, fair enough. let's do the same
+            self.__connection.close()
+            pass
+         else:
+            import traceback
+            logging.critical("Unexpected error:\n%s" % traceback.format_exc())
       logging.debug( "Arbitrator quit" )
 
    def stop(self):
