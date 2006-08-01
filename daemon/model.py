@@ -29,15 +29,6 @@ def LoadConfig(file, config={}):
             config[name + "." + string.lower(opt)] = string.strip(cp.get(sec, opt))
     return config
 
-# default values for the configuration
-_ConfigDefault = {
-   "Database.Type":     "mysql",
-   "Database.Base":     "wjukebox",
-   "Database.User":     "wjb",
-   "Database.Pass":     "wjb",
-   "Database.Host":     "127.0.0.1"
-}
-
 class Settings(SQLObject):
    """
    Maps to the settings table. Nothing fancy here
@@ -203,15 +194,15 @@ class Artists(SQLObject):
 # ----------------------------------------------------------------------------
 
 # load the configuration file, and set up the DB-conenction
-config = LoadConfig(os.path.join("..", "phpdata", "config.ini"),
-   _ConfigDefault)
+config = LoadConfig(os.path.join("..", "phpdata", "config.ini"))
+   
 
 dburi = "%s://%s:%s@%s/%s" % (
-      config['Database.Type'],
-      config['Database.User'],
-      config['Database.Pass'],
-      config['Database.Host'],
-      config['Database.Base'],
+      config['database.type'],
+      config['database.user'],
+      config['database.pass'],
+      config['database.host'],
+      config['database.base'],
       )
 
 sqlhub.processConnection = connectionForURI(dburi)
