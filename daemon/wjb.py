@@ -19,6 +19,16 @@ from sqlobject.sqlbuilder import *
 
 # ---- Global support functions ----------------------------------------------
 
+def killAgents():
+   """
+   Tries to stop all the agents
+   """
+   
+   if lib is not None: lib.stop(); lib.join()
+   if dj is not None:  dj.stop();  dj.join()
+   if t is not None:   t.stop();
+
+
 def getSetting(param_in, default=None):
    """
    Retrieves a setting from the database.
@@ -41,13 +51,16 @@ def getSetting(param_in, default=None):
          print
          print "Required parameter %s was not found in the settings table!" % words[6]
          print
+         killAgents()
          sys.exit(0)
    except Exception, ex:
       if str(ex).lower().find('connect') > 0:
          logging.critical('Unable to connect to the database. Error was: \n%s' % ex)
+         killAgents()
          sys.exit(0)
       if str(ex).lower().find('exist') > 0:
          logging.critical('Settings table not found. Did you create the database tables?')
+         killAgents()
          sys.exit(0)
       else:
          # An unknown error occured. We raise it again
@@ -270,6 +283,7 @@ class DJ(threading.Thread):
       except mpdclient.MpdConnectionPortError, ex:
          import traceback
          logging.critical("Error connecting to the player:\n%s" % traceback.format_exc())
+         killAgents()
          sys.exit(0)
 
    def populatePlaylist(self):
@@ -302,8 +316,6 @@ class DJ(threading.Thread):
       # while we are alive, do the loop
       while self.__keepRunning:
 
-         print "test dj" #debug#
-         
          # ensure that there is a song on the playlist
          self.populatePlaylist()
 
@@ -592,7 +604,6 @@ class Librarian(threading.Thread):
       logging.info('Started Librarian')
       cycle = int(getSetting('librarian_cycle', '1'))
       while self.__keepRunning:
-         print "test lib" #debug#
          time.sleep(cycle)
       logging.info('Stopped Librarian')
 
@@ -674,6 +685,7 @@ class Arbitrator(threading.Thread):
    """
 
    global lib        # a reference to the librarian
+   __keepRunning = True
 
    def __init__(self, connection, address):
       """
@@ -760,8 +772,7 @@ class Arbitrator(threading.Thread):
       logging.debug( "Arbitrator awaiting your commands" )
       self.__connection.send('HELLO\n')
       try:
-         while True:
-            print "test arb" #debug#
+         while self.__keepRunning:
             data = self.__connection.recv(1024)[0:-1]
             if data:
                logging.info( "command from %s: %s" % (self.__address[0], data) )
@@ -771,10 +782,14 @@ class Arbitrator(threading.Thread):
       except Exception, ex:
          import traceback
          logging.critical("Unexpected error:\n%s" % traceback.format_exc())
+         killAgents()
          sys.exit(0)
       self.__connection.send('BYE\n')
       self.__connection.close()
       logging.debug( "Arbitrator quit" )
+
+   def stop(self):
+      self.__keepRunning = False
 
 if __name__ == "__main__":
    # The main loop of the daemon.
@@ -811,7 +826,7 @@ if __name__ == "__main__":
       except ValueError, ex:
          if str(ex) == 'unknown player backend':
             logging.error('Unknown player specified in the config')
-            lib.stop(); lib.join()
+            killAgents()
             sys.exit(0)
       else:
          dj.start()
@@ -834,26 +849,23 @@ if __name__ == "__main__":
             t.start()
          except KeyboardInterrupt:
             logging.info( "----- Waiting for agents to stop ----------" )
-            lib.stop(); lib.join()
-            dj.stop();  dj.join()
+            killAgents()
             logging.info( "===== WJB Deamon shutdown =================" )
             break
          except:
             import traceback
             logging.critical("Uncaught exception!!! Bailing out!\n%s" % traceback.format_exc())
-            lib.stop(); lib.join()
-            dj.stop();  dj.join()
+            killAgents()
             logging.info( "===== WJB Deamon shutdown =================" )
             break
    except Exception, ex:
       # The safety net: Stop all threads and print out the stack trace to the
       # log and exit
-      if lib is not None: lib.stop()
-      if dj is not None:  dj.stop()
-      if t is not None:   t.stop()
+      killAgents()
       import traceback
       logging.critical("Unexpected error:\n%s" % traceback.format_exc())
       sys.stderr.write('WJB Daemon exited unexpectedly. Check the log for details!')
+      killAgents()
       sys.exit(0)
 
 # vim: set ts=3 sw=3 et ai :
