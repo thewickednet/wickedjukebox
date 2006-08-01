@@ -19,21 +19,36 @@ from sqlobject.sqlbuilder import *
 
 # ---- Global support functions ----------------------------------------------
 
-def getSetting(param_in):
+def getSetting(param_in, default=None):
    """
    Retrieves a setting from the database.
 
    PARAMETERS
       param_in - The name of the setting as string
+      default  - (optional) If it's set, it provides the default value in case
+                 the value was not found in the database.
    """
    try:
       return Settings.byParam(param_in).value
    except SQLObjectNotFound, ex:
-      words = str(ex).split()
-      print
-      print "Required parameter %s was not found in the settings table!" % words[6]
-      print
-      sys.exit(0)
+      # The parameter was not found in the database. Do we have a default?
+      if default is not None:
+         # yes, we have a default. Return that instead the database value.
+         return default
+      else:
+         # no, no default specified. This won't work so we tell the user
+         words = str(ex).split()
+         print
+         print "Required parameter %s was not found in the settings table!" % words[6]
+         print
+         sys.exit(0)
+   except Exception, ex:
+      if str(ex).lower().find('exist') > 0:
+         logging.critical('Settings table not found. Did you create the database tables?')
+         sys.exit(0)
+      else:
+         # An unknown error occured. We raise it again
+         raise
 
 def getArtist(artistName):
    """
@@ -128,8 +143,8 @@ class MPD(Player):
       import mpdclient
       # set up the connection to the daemon
       self.__connection = mpdclient.MpdController(
-            host=getSetting('mpd_host'),
-            port=int(getSetting('mpd_port'))
+            host=getSetting('mpd_host', 'localhost'),
+            port=int(getSetting('mpd_port', '6600'))
             )
 
    def getPosition(self):
@@ -163,7 +178,7 @@ class MPD(Player):
       PARAMETERS
          filename -  The full path of the file
       """
-      for folder in getSetting('folders').split():
+      for folder in getSetting('folders').split(','):
          # with MPD, filenames are relative to the path specified in the mpd
          # config!! This is handled here.
          if filename.startswith(folder):
@@ -233,7 +248,7 @@ class DJ(threading.Thread):
       self.setName( '%s (%s)' % (self.getName(), 'DJ') )
 
       # initialise the player
-      playerBackend = getSetting('player')
+      playerBackend = getSetting('player', 'mpd')
       if playerBackend == 'mpd':
          self.__connectMPD()
       else:
@@ -286,7 +301,7 @@ class DJ(threading.Thread):
       """
 
       logging.info('Started DJ')
-      cycle = int(getSetting('dj_cycle'))
+      cycle = int(getSetting('dj_cycle', '1'))
 
       # while we are alive, do the loop
       while self.__keepRunning:
@@ -461,7 +476,7 @@ class Librarian(threading.Thread):
       logging.debug("scanning %s" % (dir))
 
       # Only scan the files specified in the settings table
-      recognizedTypes = getSetting('recognizedTypes').split()
+      recognizedTypes = getSetting('recognizedTypes', 'mp3 ogg flac').split()
 
       # walk through the directories
       for root, dirs, files in os.walk(dir):
@@ -577,7 +592,7 @@ class Librarian(threading.Thread):
       For now it does not much more than sitting there and wait. Ook!
       """
       logging.info('Started Librarian')
-      cycle = int(getSetting('librarian_cycle'))
+      cycle = int(getSetting('librarian_cycle', '1'))
       while self.__keepRunning:
          time.sleep(cycle)
       logging.info('Stopped Librarian')
@@ -593,7 +608,7 @@ class Librarian(threading.Thread):
       Spawns a slave thread to rescan the library for each filder specified in
       the settings table
       """
-      for mediaFolder in getSetting('folders').split():
+      for mediaFolder in getSetting('folders').split(','):
          threading.Thread(target=self.__crawl_directory, kwargs={'dir': mediaFolder}).start()
 
    def detect_moves(self):
@@ -772,8 +787,8 @@ if __name__ == "__main__":
    logging.getLogger('').addHandler(rotfile)
 
    # Retrieve settings from the DB
-   host = getSetting('daemon_boundHost')
-   port = int(getSetting('daemon_port'))
+   host = getSetting('daemon_boundHost', 'localhost')
+   port = int(getSetting('daemon_port', '61111'))
 
    # Start the librarian
    lib = Librarian(); lib.start()
