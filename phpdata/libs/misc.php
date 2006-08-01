@@ -29,14 +29,15 @@
   function importSong($file){
     $finfo = finfo_open(FILEINFO_MIME);
     if (count(Song::getByLocalPath($file)) > 0) {
-      echo "file exists already in database. skipping.";
+      echo "file exists already in database. skipping: $file\n";
     } else {
       $getID3 = new getID3;
       $tags = array();
 
       if (finfo_file($finfo, $file) == "audio/mpeg") {
+        printf("file found: %s\n", $file);
         $tag = $getID3->analyze($file);
-        print_r($tag);
+        //print_r($tag);
 
         if (isset($tag['tags']['id3v2']))
           $tags = $tag['tags']['id3v2'];
@@ -52,7 +53,7 @@
                         'artist'    => rtrim($tags['artist'][0]),
                         'album'     => rtrim($tags['album'][0]),
                         'year'      => $tags['year'][0],
-                        'track_no'  => $tags['track'][0],
+                        'track_no'  => sprintf("%02d",$tags['track'][0]),
                         'title'     => rtrim($tags['title'][0]),
                         'filesize'  => $tag['filesize'],
                         'localpath' => $file,
@@ -71,7 +72,7 @@
 
           $data['genre_id'] = Genre::getByName(rtrim($tags['genre'][0]));
 
-          print_r($data);
+          //print_r($data);
 
 
           $artist = Artist::getByName($data['artist']);
@@ -83,17 +84,17 @@
 
           if (!empty($data['album'])) {
             $album = Album::getByTitle($data['album']);
-    
+
             $album_data = array(
                                 'title' => $data['album'],
                                 'artist_id' => $artist['artist_id']
                               );
-    
+
             if (count($album) == 0) {
               $album = Album::add($album_data);
               $album = Album::getById($album);
             }
-  
+
             $data['album_id'] = $album['album_id'];
           } else {
             $data['album_id'] = null;
@@ -101,10 +102,17 @@
 
           $data['artist_id'] = $artist['artist_id'];
 
-          Song::add($data);
+          print_r($data);
+          if (empty($data['artist']) || empty($data['title']))
+            printf(" ! not adding to DB, missing info, check the ID3 tag please!!!!\n");
+          else {
+            printf(" + adding to DB: [Artist: %s] / [Song: %s] / %02d [Album: %s]\n", $data['artist'], $data['title'], $data['track_no'], $data['album']);
+            Song::add($data);
+          }
 
-          if (Album::countArtists($data['album_id']) > 1) 
-            Album::setType($data['album_id'], "various");
+          if (isset($data['album_id']))
+            if (Album::countArtists($data['album_id']) > 1)
+              Album::setType($data['album_id'], "various");
 
         }
 

@@ -64,6 +64,8 @@ class Song {
     $stmt = $q->prepare();
     $stmt->execute();
 
+    $arr = $stmt->errorInfo();
+    //print_r($arr);
     return $db->lastInsertId();
 
   }

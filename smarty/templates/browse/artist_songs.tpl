@@ -3,7 +3,7 @@
 
 						<p>
             {foreach from=$ALPHA_INDEX item=ALPHA}
-            <a href="/browse/artists/byalpha/{$ALPHA.alpha|lower}/">{$ALPHA.alpha}</a>
+            <a href="/browse/artists/byalpha/{$ALPHA.alpha|lower}/">{$ALPHA.alpha}</a>&nbsp;&nbsp;
             {/foreach}
             </p>
             <h2>{$ARTIST.name}</h2>
