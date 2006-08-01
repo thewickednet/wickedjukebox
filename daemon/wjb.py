@@ -342,10 +342,14 @@ class DJ(threading.Thread):
       self.__player.cropPlaylist()
       if self.__player.playlistPosition() == self.__player.playlistSize()-1 \
             or self.__player.playlistSize() == 0:
-         nextSong = self.__smartGet()
-	 # FIXME: I've added this check to prevent crashes
-	 #if nextSong != None:
-         self.__player.queue(nextSong)
+         try:
+            # song is soon finished. Add the next one to the playlist
+            nextSong = self.__dequeue()
+            self.__player.queue(nextSong)
+         except IndexError:
+            # no song in the queue run smartDj
+            nextSong = self.__smartGet()
+            self.__player.queue(nextSong)
 
    def run(self):
       """
@@ -362,9 +366,6 @@ class DJ(threading.Thread):
       # while we are alive, do the loop
       while self.__keepRunning:
 
-         # ensure that there is a song on the playlist
-         self.populatePlaylist()
-
          # check if the player accidentally went into the "stop" state
          if self.__player.status() == 'stop' and self.__playStatus == 'play':
             self.__player.clearPlaylist()
@@ -377,6 +378,9 @@ class DJ(threading.Thread):
          
          # only queue new songs if we are in play-mode
          if self.__playStatus == 'play':
+
+            # ensure that there is a song on the playlist
+            self.populatePlaylist()
 
             # if the song is soon finished, update stats and pick the next one
             currentPosition = self.__player.getPosition()
@@ -395,24 +399,15 @@ class DJ(threading.Thread):
                      # query. That's why I loop through all songs from a given artist
                      # and title. It's highly unlikely though that there is more than
                      # one entry.
-                     for song in list(Songs.selectBy(artist=cArtist, title=cTitle)):
-                        if cAlbum in song.albums:
-                           logging.debug('updating song stats')
-                           song.lastPlayed = datetime.datetime.now()
-                           song.played = song.played + 1
+                     song = list(Songs.selectBy(artist=cArtist, title=cTitle, album=cAlbum))[0]
+                     song.lastPlayed = datetime.datetime.now()
+                     song.played = song.played + 1
 
                   except IndexError, ex:
                      # no song on the queue. We can ignore this error
                      pass
 
-               try:
-                  # song is soon finished. Add the next one to the playlist
-                  nextSong = self.__dequeue()
-                  self.__player.queue(nextSong)
-               except IndexError:
-                  # no song in the queue run smartDj
-                  nextSong = self.__smartGet()
-                  self.__player.queue(nextSong)
+               self.populatePlaylist()
 
          # wait for x seconds
          time.sleep(cycle)
@@ -424,23 +419,29 @@ class DJ(threading.Thread):
       """
       Return the filename of the next item on the queue
       """
-      filename = QueueItem.selectBy(position=1)[0].song.localpath
 
-      # ok, we got the top of the queue. We can now shift the queue by 1
-      # This is a custom query. This is badly documented by SQLObject. Refer to
-      # the top comment in model.py for a reference
-      conn = QueueItem._connection
-      posCol = QueueItem.q.position.fieldName
-      updatePosition = conn.sqlrepr(
-            Update(QueueItem.q,
-               {posCol: QueueItem.q.position - 1} )) # this shifts
-      conn.query(updatePosition)
-      conn.cache.clear()
+      nextSong = list(QueueItem.select(orderBy=['added', 'position']))[0]
+      filename = nextSong.song.localpath
+      nextSong.destroySelf()
 
-      # ok. queue is shifted. now drop all items having a position smaller than
-      # -6
-      delquery = conn.sqlrepr(Delete(QueueItem.q, where=(QueueItem.q.position < -6)))
-      conn.query(delquery)
+
+      #TODO# The following is based on a wrong assumption of the "position" field.
+      # This needs to be discussed!
+      ## ok, we got the top of the queue. We can now shift the queue by 1
+      ## This is a custom query. This is badly documented by SQLObject. Refer to
+      ## the top comment in model.py for a reference
+      #conn = QueueItem._connection
+      #posCol = QueueItem.q.position.fieldName
+      #updatePosition = conn.sqlrepr(
+      #      Update(QueueItem.q,
+      #         {posCol: QueueItem.q.position - 1} )) # this shifts
+      #conn.query(updatePosition)
+      #conn.cache.clear()
+      #
+      ## ok. queue is shifted. now drop all items having a position smaller than
+      ## -6
+      #delquery = conn.sqlrepr(Delete(QueueItem.q, where=(QueueItem.q.position < -6)))
+      #conn.query(delquery)
 
       return filename
 
@@ -505,10 +506,8 @@ class DJ(threading.Thread):
          cArtist = Artists.selectBy(name=self.__player.getSong().artist)[0]
          cAlbum  = Albums.selectBy(title=self.__player.getSong().album)[0]
          cTitle  = self.__player.getSong().title
-         for song in list(Songs.selectBy(artist=cArtist, title=cTitle)):
-            if cAlbum in song.albums:
-               logging.debug('updating song stats')
-               song.skipped = song.skipped + 1
+         song = list(Songs.selectBy(artist=cArtist, title=cTitle, album=cAlbum))[0]
+         song.skipped = song.skipped + 1
       except IndexError, ex:
          # no song on the queue. We can ignore this error
          pass
