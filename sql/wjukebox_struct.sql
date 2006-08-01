@@ -27,7 +27,7 @@ CREATE TABLE `albums` (
   `artist_id` int(11) unsigned NULL,
   `played` int(11) unsigned NULL default '0',
   `downloaded` int(11) unsigned NULL default '0',
-  `type` enum('album','various','soundtrack') NOT NULL default 'album',
+  `type` enum('album','various','ost','videogame') NOT NULL default 'album',
   PRIMARY KEY  (`album_id`),
   KEY `artist_id` (`artist_id`),
   KEY `type` (`type`),
