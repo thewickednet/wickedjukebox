@@ -176,7 +176,7 @@ CREATE TABLE `songs` (
   `title` varchar(128) NOT NULL,
   `duration` time NULL default '00:00:00',
   `genre_id` tinyint(3) unsigned NULL default '0',
-  `year` year(4) NOT NULL,
+  `year` year(4) NULL,
   `localpath` varchar(255) NOT NULL,
   `played` int(11) unsigned NULL default '0',
   `voted` int(11) unsigned NULL default '0',
