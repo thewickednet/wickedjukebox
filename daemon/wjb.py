@@ -16,6 +16,7 @@ from model import *
 import os, sys
 from sqlobject.main import SQLObjectNotFound
 from sqlobject.sqlbuilder import *
+from MySQLdb import OperationalError
 
 # ---- Global support functions ----------------------------------------------
 
@@ -51,8 +52,7 @@ def getSetting(param_in, default=None):
          print
          print "Required parameter %s was not found in the settings table!" % words[6]
          print
-         killAgents()
-         sys.exit(0)
+         raise
    except Exception, ex:
       if str(ex).lower().find('connect') > 0:
          logging.critical('Unable to connect to the database. Error was: \n%s' % ex)
@@ -78,8 +78,14 @@ def getArtist(artistName):
       an Artists sql-object
    """
 
+   if artistName is None or artistName == '':
+      return None
+
    if Artists.selectBy(name=artistName).count() == 0:
-      return Artists( name = artistName)
+      return Artists( 
+         name = artistName,
+         added = datetime.datetime.now()
+         )
    else:
       return Artists.selectBy(name=artistName)[0]
 
@@ -94,6 +100,9 @@ def getGenre(genreName):
    RETURNS
       an Genres ssql-object
    """
+
+   if genreName is None or genreName == '':
+      return None
 
    if Genres.selectBy(name=genreName).count() == 0:
       return Genres( name = genreName)
@@ -115,8 +124,18 @@ def getAlbum(artistName, albumName):
 
    dbArtist = getArtist(artistName)
 
+   if albumName is None or albumName == '' or dbArtist is None:
+      return None
+
    if Albums.selectBy(title=albumName).count() == 0:
-      album = Albums( title = albumName, added=datetime.datetime.now(), artist=dbArtist )
+      album = Albums( 
+         title = albumName,
+         added=datetime.datetime.now(),
+         played = 0,
+         downloaded = 0,
+         type = 'album',
+         artist=dbArtist
+         )
       return album
    else:
       # check if we have the album with the matching artist
@@ -125,7 +144,14 @@ def getAlbum(artistName, albumName):
             return album
       # aha! we have an album with a matching name, but not the artist. that
       # means this is a new album, so we create it
-      album = Albums( title = albumName, added=datetime.datetime.now(), artist=dbArtist )
+      album = Albums( 
+         title = albumName,
+         added=datetime.datetime.now(),
+         played = 0,
+         downloaded = 0,
+         type = 'album',
+         artist=dbArtist
+         )
       return album
 
 # ----------------------------------------------------------------------------
@@ -340,7 +366,6 @@ class DJ(threading.Thread):
                      logging.debug('updating song stats')
                      song.lastPlayed = datetime.datetime.now()
                      song.played = song.played + 1
-                     song.syncUpdate() # the song table needs to be synced!
 
             except IndexError, ex:
                # no song on the queue. We can ignore this error
@@ -449,7 +474,6 @@ class DJ(threading.Thread):
             if cAlbum in song.albums:
                logging.debug('updating song stats')
                song.skipped = song.skipped + 1
-               song.syncUpdate()
       except IndexError, ex:
          # no song on the queue. We can ignore this error
          pass
@@ -489,38 +513,12 @@ class Librarian(threading.Thread):
       recognizedTypes = getSetting('recognizedTypes', 'mp3 ogg flac').split()
 
       # walk through the directories
+      scancount  = 0
+      errorCount = 0
       for root, dirs, files in os.walk(dir):
          for name in files:
             if name.split('.')[-1] in recognizedTypes:
                # we have a valid file
-
-               # check if it is already in the database
-               if Songs.selectBy(localpath=os.path.join(root, name)).count() == 0:
-
-                  # it was not in the DB, create a skeleton entry
-                  song = Songs(
-                        localpath = os.path.join(root, name),
-                        title='',
-                        year='',
-                        played=0,
-                        voted=0,
-                        skipped=0,
-                        downloaded=0,
-                        added=datetime.datetime.now(),
-                        lastPlayed=None,
-                        bitrate='',
-                        filesize=0,
-                        checksum='',
-                        lyrics='',
-                        isDirty=True,
-                        artist=None,
-                        genre=None
-                        )
-               else:
-
-                  # we found the song in the DB. Load it so we can update it's
-                  # metadata
-                  song = Songs.selectBy(localpath=os.path.join(root, name))[0]
 
                try:
                   # parse the metadata
@@ -531,8 +529,10 @@ class Librarian(threading.Thread):
                   # artist and set the song's metadata accordingly.
                   # Finally, the song needs a track position on that album. So
                   # we set it.
+                  dbArtist = None
+                  dbAlbum  = None
                   if metadata.get('artist') is not None:
-                     song.artist = getArtist(metadata.get('artist'))
+                     dbArtist = getArtist(metadata.get('artist'))
 
                      if metadata.get('album') is not None:
                         try:
@@ -540,7 +540,6 @@ class Librarian(threading.Thread):
                                        metadata.get('artist'),
                                        metadata.get('album')
                                     )
-                           song.addAlbums(dbAlbum)
                         except Exception, ex:
                            if str(ex).upper().find("DUPLICATE") < 0:
                               # The word "duplicate" did not appear in the
@@ -556,45 +555,53 @@ class Librarian(threading.Thread):
                                  metadata.get('album')))
                               pass
 
-                        # we determined an artist *and* album. So what position
-                        # does the track have on that album?
-                        if metadata.get('trackno') is not None:
-                           # This is a custom query. This is badly documented
-                           # by SQLObject. Refer to the top comment in model.py
-                           # for a reference
-                           song.syncUpdate()
-                           conn = AlbumSong._connection
-                           trackCol = AlbumSong.q.track.fieldName
-                           updateTrack = conn.sqlrepr(
-                                 Update(AlbumSong.q,
-                                    {trackCol: metadata.get('trackno')},
-                                    where=AND(
-                                       AlbumSong.q.album_id == dbAlbum.id,
-                                       AlbumSong.q.song_id == song.id)))
-                           conn.query(updateTrack)
-                           conn.cache.clear()
-
-                  # Artist, album and track number have been dealt with. Now
-                  # for the rest of the metadata
-
-                  if metadata.get('title') is not None:
-                     song.title = metadata.get('title')
-
-                  if metadata.get('genre') is not None:
-                     song.genre = getGenre(metadata.get('genre'))
-
                   # TODO bitrate
                   # TODO filesize
                   # TODO checksum
 
-                  # The Songs table is lazily updated. Wee need to sync it to
-                  # the database
-                  song.syncUpdate()
+                  if metadata.get('trackno') is not None:
+                     trackNo = int(metadata.get('trackno'))
+                  else:
+                     trackNo = 0
+
+                  if metadata.get('title') is not None:
+                     title = metadata.get('title')
+                  else:
+                     title = ''
+
+                  # check if it is already in the database
+                  if Songs.selectBy(localpath=os.path.join(root, name)).count() == 0:
+
+                     # it was not in the DB, create a skeleton entry
+                     song = Songs(
+                           trackNo = trackNo,
+                           title   = title,
+                           localpath = os.path.join(root, name),
+                           artist  = dbArtist,
+                           album   = dbAlbum,
+                           genre   = getGenre(metadata.get('genre'))
+                           )
+                  else:
+
+                     # we found the song in the DB. Load it so we can update it's
+                     # metadata
+                     song = Songs.selectBy(localpath=os.path.join(root, name))[0]
+                     song.trackNo = trackNo
+                     song.title   = title
+                     song.artist  = dbArtist
+                     song.album   = dbAlbum
+                     song.genre   = getGenre(metadata.get('genre'))
+                  scancount += 1
 
                except ValueError:
                   print "unknown metadata for %s" % os.path.join(root, name)
+                  errorCount += 1
+               except OperationalError, ex:
+                  logging.critical(ex)
+                  errorCount += 1
+                  pass
 
-      logging.debug("done scanning")
+      logging.info("done scanning (%7d songs scanned, %7d errors)" % (scancount, errorCount))
 
    def run(self):
       """

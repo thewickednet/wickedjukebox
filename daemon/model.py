@@ -37,19 +37,12 @@ class Settings(SQLObject):
    class sqlmeta:
       idName = 'setting_id'
 
+   #--- Fields ---------------------------------
    param = StringCol(length=16, alternateID=True)
    value = StringCol()
 
-class AlbumSong(SQLObject):
-   """
-   Maps to the album_song relation.
-   This is needed so we can update the track number
-   """
-   class sqlmeta:
-      table='album_song'
-   track    = IntCol()
-   song_id  = IntCol()
-   album_id = IntCol()
+   #--- Foreign Keys ---------------------------
+   user  = ForeignKey('Users', dbName='user_id')
 
 class Songs(SQLObject):
    """
@@ -60,27 +53,32 @@ class Songs(SQLObject):
 
    class sqlmeta:
       idName      = 'song_id'
-      lazyUpdates = True # only save changes when calling "sync"
 
-   albums     = RelatedJoin('Albums', intermediateTable='album_song', joinColumn='song_id', otherColumn='album_id')
-
-   artist     = ForeignKey('Artists', dbName='artist_id')
+   #--- Fields ---------------------------------
+   trackNo    = IntCol(default=0)
    title      = StringCol(length=128)
-   #duration   time     No    00:00:00
+   duration   = IntCol(default=0)
+   year       = StringCol(length=4, default=None)
+   localpath  = StringCol(length=255)
+   played     = IntCol(default=0)
+   voted      = IntCol(default=0)
+   skipped    = IntCol(default=0)
+   downloaded = IntCol(default=0)
+   added      = DateTimeCol(default=datetime.datetime.now())
+   lastPlayed = DateTimeCol(dbName='lastPlayed', default=None)
+   bitrate    = StringCol(length=8, default='')
+   filesize   = IntCol(default=0)
+   checksum   = StringCol(length=32, default='')
+   lyrics     = StringCol(default='')
+   cost       = IntCol(default=5)
+   isDirty    = BoolCol(dbName='dirty', default=True)
+
+   #--- Foreign Keys ---------------------------
+   artist     = ForeignKey('Artists', dbName='artist_id')
+   album      = ForeignKey('Albums', dbName='album_id')
    genre      = ForeignKey('Genres', dbName='genre_id')
-   year       = StringCol(length=4)
-   localpath  = StringCol()
-   played     = IntCol()
-   voted      = IntCol()
-   skipped    = IntCol()
-   downloaded = IntCol()
-   added      = DateTimeCol()
-   lastPlayed = DateTimeCol(dbName='lastPlayed')
-   bitrate    = StringCol(length=8)
-   filesize   = IntCol()
-   checksum   = StringCol(length=32)
-   lyrics     = StringCol()
-   isDirty    = BoolCol(dbName='dirty')
+
+   #--- Joins ----------------------------------
    queues     = MultipleJoin('QueueItem', joinColumn='song_id')
 
 class Albums(SQLObject):
@@ -91,10 +89,18 @@ class Albums(SQLObject):
    class sqlmeta:
       idName = 'album_id'
 
-   songs   = RelatedJoin('Songs', intermediateTable='album_song', joinColumn='album_id', otherColumn='song_id')
-   title   = StringCol(length=128)
-   added   = DateTimeCol()
-   artist  = ForeignKey('Artists', dbName='artist_id')
+   #--- Fields ---------------------------------
+   title      = StringCol(length=128)
+   added      = DateTimeCol()
+   played     = IntCol()
+   downloaded = IntCol()
+   type       = StringCol(length=19)
+
+   #--- Foreign Keys ---------------------------
+   artist     = ForeignKey('Artists', dbName='artist_id')
+
+   #--- Joins ----------------------------------
+   songs      = MultipleJoin('Songs', joinColumn='album_id')
 
 class Channels(SQLObject):
    """
@@ -104,10 +110,13 @@ class Channels(SQLObject):
    class sqlmeta:
       idName = 'channel_id'
 
+   #--- Fields ---------------------------------
    name           = StringCol(length=32)
    public         = BoolCol()
    backend        = StringCol(length=32)
    backend_params = StringCol()
+
+   #--- Joins ----------------------------------
    queues         = MultipleJoin('QueueItem', joinColumn='channel_id')
 
 class Genres(SQLObject):
@@ -118,7 +127,10 @@ class Genres(SQLObject):
    class sqlmeta:
       idName = 'genre_id'
 
+   #--- Fields ---------------------------------
    name  = StringCol(length=64)
+
+   #--- Joins ----------------------------------
    songs = MultipleJoin('Songs', joinColumn='genre_id')
 
 class Groups(SQLObject):
@@ -129,24 +141,16 @@ class Groups(SQLObject):
    class sqlmeta:
       idName = 'group_id'
 
+   #--- Fields ---------------------------------
    title         = StringCol(length=32)
    admin         = BoolCol()
    nocredits     = BoolCol()
-   queue_skip    = BoolCol()
+   queue_add     = BoolCol()
    queue_remove  = BoolCol()
+   queue_skip    = BoolCol()
 
-class Playlist(SQLObject):
-   """
-   The playlist table
-   """
-
-   class sqlmeta:
-      idName = 'playlist_id'
-
-   title    = StringCol(length=64)
-   user     = ForeignKey('Users', dbName='user_id')
-   public   = BoolCol()
-   added    = DateTimeCol()
+   #--- Joins ----------------------------------
+   users         = MultipleJoin('Users', joinColumn='group_id')
 
 class QueueItem(SQLObject):
    """
@@ -157,11 +161,14 @@ class QueueItem(SQLObject):
       table  = 'queue'
       idName = 'queue_id'
 
+   #--- Fields ---------------------------------
+   position   = IntCol()
+   added      = DateTimeCol()
+
+   #--- Foreign Keys ---------------------------
    song       = ForeignKey('Songs', dbName='song_id')
    user       = ForeignKey('Users', dbName='user_id')
    channel    = ForeignKey('Channels', dbName='channel_id')
-   position   = IntCol()
-   added      = DateTimeCol()
 
 class Users(SQLObject):
    """
@@ -171,13 +178,24 @@ class Users(SQLObject):
    class sqlmeta:
       idName = 'user_id'
 
+   #--- Fields ---------------------------------
    username    = StringCol(length=32)
    password    = StringCol(length=32)
    fullname    = StringCol(length=64)
    added       = DateTimeCol()
    credits     = IntCol()
-   playlists   = MultipleJoin('Playlist', joinColumn='user_id')
+   cookie      = StringCol(length=32)
+   downloads   = IntCol()
+   votes       = IntCol()
+   skips       = IntCol()
+   selects     = IntCol()
+
+   #--- Foreign Keys ---------------------------
+   group       = ForeignKey('Groups', dbName='group_id')
+
+   #--- Joins ----------------------------------
    queues      = MultipleJoin('QueueItem', joinColumn='user_id')
+   settings    = MultipleJoin('Settings',  joinColumn='user_id')
 
 class Artists(SQLObject):
    """
@@ -187,7 +205,11 @@ class Artists(SQLObject):
    class sqlmeta:
       idName = 'artist_id'
 
+   #--- Fields ---------------------------------
    name   = StringCol(length=128)
+   added  = DateTimeCol()
+
+   #--- Joins ----------------------------------
    albums = MultipleJoin('Albums', joinColumn='artist_id')
    songs  = MultipleJoin('Songs', joinColumn='artist_id')
 
