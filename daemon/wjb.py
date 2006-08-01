@@ -238,7 +238,7 @@ class MPD(Player):
       """
       return self.__connection.getStatus().playlistLength
 
-   def cropPlaylist(self, length=10):
+   def cropPlaylist(self, length=1):
       """
       Removes items from the *beginning* of the playlist to ensure it has only
       a fixed number of entries.
@@ -249,6 +249,12 @@ class MPD(Player):
       if self.__connection.getStatus().playlistLength > length:
          self.__connection.delete(range(0,
             self.__connection.getStatus().playlistLength - length))
+
+   def clearPlaylist(self):
+      """
+      Clears the player's playlist
+      """
+      self.cropPlaylist(0)
 
    def skipSong(self):
       """
@@ -268,6 +274,19 @@ class MPD(Player):
       """
       self.__connection.play()
 
+   def status(self):
+      """
+      Returns the status of the player (play, stop, pause)
+      """
+      if self.__connection.getStatus().state == 1:
+         return 'stop'
+      elif self.__connection.getStatus().state == 2:
+         return 'play'
+      elif self.__connection.getStatus().state == 3:
+         return 'pause'
+      else:
+         return 'unknown (%s)' % self.__connection.getStatus().state
+
 class DJ(threading.Thread):
    """
    The DJ is responsible for music playback. All changes of the playback (play,
@@ -279,6 +298,7 @@ class DJ(threading.Thread):
    """
 
    __keepRunning = True  # While this is true, the DJ is alive
+   __playStatus  = 'play'
 
    def __init__(self):
       """
@@ -345,40 +365,54 @@ class DJ(threading.Thread):
          # ensure that there is a song on the playlist
          self.populatePlaylist()
 
-         # if the song is soon finished, update stats and pick the next one
-         currentPosition = self.__player.getPosition()
-         if (currentPosition[1] - currentPosition[0]) == 3:
-            try:
+         # check if the player accidentally went into the "stop" state
+         if self.__player.status() == 'stop' and self.__playStatus == 'play':
+            self.__player.clearPlaylist()
+            self.populatePlaylist()
+            self.__player.startPlayback()
 
-               # retrieve info from the currently playing song
-               # TODO: This is hardcoded for mpd. It HAS to be abstracted by
-               #       the MPD class.
-               cArtist = Artists.selectBy(name=self.__player.getSong().artist)[0]
-               cAlbum  = Albums.selectBy(title=self.__player.getSong().album)[0]
-               cTitle  = self.__player.getSong().title
+         if self.__player.status() == 'play' and self.__playStatus == 'stop':
+            self.__player.stopPlayback()
 
-               # I haven't figured out the way to add the album to the select
-               # query. That's why I loop through all songs from a given artist
-               # and title. It's highly unlikely though that there is more than
-               # one entry.
-               for song in list(Songs.selectBy(artist=cArtist, title=cTitle)):
-                  if cAlbum in song.albums:
-                     logging.debug('updating song stats')
-                     song.lastPlayed = datetime.datetime.now()
-                     song.played = song.played + 1
+         
+         # only queue new songs if we are in play-mode
+         if self.__playStatus == 'play':
 
-            except IndexError, ex:
-               # no song on the queue. We can ignore this error
-               pass
+            # if the song is soon finished, update stats and pick the next one
+            currentPosition = self.__player.getPosition()
+            if (currentPosition[1] - currentPosition[0]) == 3 or currentPosition == (0,0):
+               if self.__player.getSong():
+                  try:
 
-            try:
-               # song is soon finished. Add the next one to the playlist
-               nextSong = self.__dequeue()
-               self.__player.queue(nextSong)
-            except IndexError:
-               # no song in the queue run smartDj
-               nextSong = self.__smartGet()
-               self.__player.queue(nextSong)
+                     # retrieve info from the currently playing song
+                     # TODO: This is hardcoded for mpd. It HAS to be abstracted by
+                     #       the MPD class.
+                     cArtist = Artists.selectBy(name=self.__player.getSong().artist)[0]
+                     cAlbum  = Albums.selectBy(title=self.__player.getSong().album)[0]
+                     cTitle  = self.__player.getSong().title
+
+                     # I haven't figured out the way to add the album to the select
+                     # query. That's why I loop through all songs from a given artist
+                     # and title. It's highly unlikely though that there is more than
+                     # one entry.
+                     for song in list(Songs.selectBy(artist=cArtist, title=cTitle)):
+                        if cAlbum in song.albums:
+                           logging.debug('updating song stats')
+                           song.lastPlayed = datetime.datetime.now()
+                           song.played = song.played + 1
+
+                  except IndexError, ex:
+                     # no song on the queue. We can ignore this error
+                     pass
+
+               try:
+                  # song is soon finished. Add the next one to the playlist
+                  nextSong = self.__dequeue()
+                  self.__player.queue(nextSong)
+               except IndexError:
+                  # no song in the queue run smartDj
+                  nextSong = self.__smartGet()
+                  self.__player.queue(nextSong)
 
          # wait for x seconds
          time.sleep(cycle)
@@ -433,7 +467,6 @@ class DJ(threading.Thread):
       conn = Songs._connection
       res = conn.queryAll(query)
       randindex = random.randint(1, len(res)) -1
-      #print "Result set size: %i\tRandIndex: %i\tResultSet: %s" % (len(res), randindex, res)
       try:
          out = res[randindex][0]
          logging.info("Selected song %s at random. However, this feature is not yet fully implemented" % out)
@@ -452,6 +485,7 @@ class DJ(threading.Thread):
       """
       Sends a "play" command to the player backend
       """
+      self.__playStatus = 'play'
       self.__player.startPlayback()
       return ('OK', 'OK')
 
@@ -459,6 +493,7 @@ class DJ(threading.Thread):
       """
       Sends a "stop" command to the player backend
       """
+      self.__playStatus = 'stop'
       self.__player.stopPlayback()
       return ('OK', 'OK')
 
@@ -484,6 +519,7 @@ class DJ(threading.Thread):
       """
       Sends a "pause" command to the player backend
       """
+      self.__playStatus = 'pause'
       logging.debug('pausing playback')
       return ('OK', 'OK')
 
