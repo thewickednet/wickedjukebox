@@ -3,7 +3,7 @@
             {if $PLAYER_STATUS.cover ne ''}
             <img src="/browse/albums/thumb/{$PLAYER_STATUS.album_id}/" border="0" />
             {/if}
-            <p><a href="/details/song/{$PLAYER_STATUS.song_id}/">{$PLAYER_STATUS.name} - {$PLAYER_STATUS.title} ({$PLAYER_STATUS.duration|date_format:"%M:%S"})</a></p>
+            <p class="nowplaying"><a href="/details/song/{$PLAYER_STATUS.song_id}/">{$PLAYER_STATUS.name}<br />{$PLAYER_STATUS.title} ({$PLAYER_STATUS.duration|date_format:"%M:%S"})</a></p>
             {else}
             <p>Status: not available</p>
             {/if}

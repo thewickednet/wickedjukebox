@@ -245,6 +245,10 @@ li {
 	margin-bottom:20px;
 }
 
+#queue .nowplaying {
+  font-size:1.2em;
+}
+
 #footer {
 	width:100%;
 	background-color:#b6cf84;
