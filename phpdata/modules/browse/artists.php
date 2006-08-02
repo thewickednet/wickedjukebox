@@ -26,6 +26,20 @@
 
       $results = Artist::getSongs($_GET['param']);
 
+      $pager_params = array(
+          'mode'      => 'Sliding',
+          'append'    => false,
+          'urlVar'    => 'pagenum',
+          'path'      => sprintf("http://%s/browse/artists/byid/%d/bypage/", $_SERVER["HTTP_HOST"], $_GET['param']),
+          'fileName'  => '%d'.'/',  //Pager replaces "%d" with page number...
+          'itemData'  => $results,
+          'perPage'   => 25
+      );
+
+      $pager = & Pager::factory($pager_params);
+      $data  = $pager->getPageData();
+      $links = $pager->getLinks();
+
       $smarty->assign("LINKS", $links['all']);
       $smarty->assign("COVER", Artist::hasCover($_GET['param']));
       $smarty->assign("ARTIST", $artist);

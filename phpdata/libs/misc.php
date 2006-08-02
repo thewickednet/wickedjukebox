@@ -35,7 +35,7 @@
       if (finfo_file($finfo, $file) == "audio/mpeg") {
         printf("file found: %s\n", $file);
         $tag = $getID3->analyze($file);
-        print_r($tag);
+        //print_r($tag);
 
         if (isset($tag['tags']['id3v2']))
           $tags = $tag['tags']['id3v2'];
@@ -100,7 +100,7 @@
 
           $data['artist_id'] = $artist['artist_id'];
 
-          print_r($data);
+          //print_r($data);
           if (empty($data['artist']) || empty($data['title']))
             printf(" ! not adding to DB, missing info, check the ID3 tag please!!!!\n");
           else {

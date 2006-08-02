@@ -11,7 +11,7 @@
   $path = ini_get("include_path");
   ini_set("include_path", sprintf("%s:%s", $path, dirname( __FILE__ ) . '/../phpdata'));
 
-  $debug = 1;
+  $debug = 0;
 
   if ($debug)
     error_reporting(E_ALL);
