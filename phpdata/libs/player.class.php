@@ -26,6 +26,10 @@ class Player {
     else {
       $row = $rows[0];
       $song = Song::getById($row['song_id']);
+      if (isset($song['album_id'])) {
+        $row['album_info'] = Album::getById($song['album_id']);
+        $row['cover'] = Album::hasCover($song['album_id']);
+      }
       $row = array_merge($row, $song);
     }
     return $row;

@@ -1,11 +1,14 @@
-						{if count($PLAYER_STATUS) ne '0'}
-            <p><b>Status:</b> {$PLAYER_STATUS.status}<br />
-						<a href="/details/song/{$PLAYER_STATUS.song_id}/">{$PLAYER_STATUS.name} - {$PLAYER_STATUS.title} ({$PLAYER_STATUS.duration|date_format:"%M:%S"})
-						</p>
-						{else}
-						<p>Status: not available</p>
-						{/if}
-						<hr size="1" noshade>
+            <h1>Now Playing</h1>
+            {if count($PLAYER_STATUS) ne '0'}
+            {if $PLAYER_STATUS.cover ne ''}
+            <img src="/browse/albums/thumb/{$PLAYER_STATUS.album_id}/" border="0" />
+            {/if}
+            <p><a href="/details/song/{$PLAYER_STATUS.song_id}/">{$PLAYER_STATUS.name} - {$PLAYER_STATUS.title} ({$PLAYER_STATUS.duration|date_format:"%M:%S"})</a></p>
+            {else}
+            <p>Status: not available</p>
+            {/if}
+
+            <h1>Queue</h1>
             {if count($QUEUE) ne '0'}
             {foreach from=$QUEUE item=QUEUE_SONG}
 								<li><a href="/details/song/{$QUEUE_SONG.song_id}/">{$QUEUE_SONG.name} - {$QUEUE_SONG.title} ({$QUEUE_SONG.duration|date_format:"%M:%S"}) [{$QUEUE_SONG.fullname}]</a>{if $PERMISSIONS.queue_remove eq '1'}<a href="#" onclick="javascript:delsong({$QUEUE_SONG.queue_id});" style="color: red;"> del</a>{/if}<br /></li>

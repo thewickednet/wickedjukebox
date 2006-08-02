@@ -15,8 +15,8 @@
 
         foreach($songs as $song){
           $queue->add($song['song_id'], $song['track_no']);
-          Song::countPlay($song['song_id']);
-          User::countPlay($userinfo['user_id']);
+          //Song::countPlay($song['song_id']);
+          //User::countPlay($userinfo['user_id']);
         }
 
         Album::countPlay($_GET['param']);

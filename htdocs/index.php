@@ -84,6 +84,9 @@
     case "login":
       include "modules/login/index.php";
       break;
+    case "admin":
+      include "modules/admin/index.php";
+      break;
     default:
       include "modules/browse/index.php";
   } // switch

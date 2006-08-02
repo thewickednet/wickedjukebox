@@ -25,7 +25,7 @@
 <a name="top" id="top"></a>
 <center>
 		<div id="menu">
-				<a href="/browse/artists/">artists</a> <a href="/browse/albums/">albums</a> <a href="/browse/genres/">genres</a> <a href="/browse/latest/">latest additions</a> <a href="/stats/">statistics</a>
+				<a href="/browse/artists/">artists</a> <a href="/browse/albums/">albums</a> <a href="/browse/genres/">genres</a> <a href="/browse/latest/">latest additions</a> <a href="/stats/">statistics</a>{if $PERMISSIONS.admin eq '1'} <a href="/?section=admin">admin</a>{/if}
 		</div>
 
 		<div id="header">
@@ -69,7 +69,7 @@
           {include file='profile.tpl'}
           {/if}
           </div>
-					<h1>Queue</h1>
+
 					<div class="submenu" id="queue">
 					{include file='queue.tpl'}
 					</div>

@@ -196,10 +196,15 @@ class Album {
 
   }
 
-  function showCover($original){
+  function showCover($original, $type = "cover"){
 
-    $w_max = 200;
-    $h_max = 200;
+    if ($type == "thumb") {
+      $w_max = 100;
+      $h_max = 100;
+    } else {
+      $w_max = 200;
+      $h_max = 200;
+    }
 
     $src_size = getimagesize($original);
 

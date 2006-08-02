@@ -9,12 +9,13 @@
 
 
   switch($_GET['mode']){
+    case "thumb":
     case "cover":
 
       $cover = Album::hasCover($_GET['param']);
 
       if (!empty($cover))
-        Album::showCover($cover);
+        Album::showCover($cover, $_GET['mode']);
       else
         echo "no cover found";
       exit();
