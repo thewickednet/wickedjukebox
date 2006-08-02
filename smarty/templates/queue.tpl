@@ -6,7 +6,7 @@
 <script language="Javascript">
   
   var timg_queue = new Image();
-  timg_queue.onload = function () { loaded('queue', '/browse/albums/thumb/{$PLAYER_STATUS.album_id}/'); } ;
+  timg_queue.onload = function () { loaded('queue', '/browse/albums/thumb/{/literal}{$PLAYER_STATUS.album_id}{literal}/'); } ;
 
 </script>
 {/literal}

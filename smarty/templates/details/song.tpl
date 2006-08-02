@@ -12,7 +12,7 @@
 <script language="Javascript">
   
   var timg_artist = new Image();
-  timg_artist.onload = function () { loaded('artist', '/browse/artists/cover/{$SONG.artist_id}/'); } ;
+  timg_artist.onload = function () { loaded('artist', '/browse/artists/cover/{/literal}{$SONG.artist_id}{literal}/'); } ;
   
 </script>
 {/literal}
@@ -25,7 +25,7 @@
 <script language="Javascript">
   
   var timg_album = new Image();
-  timg_album.onload = function () { loaded('album', '/browse/albums/cover/{$SONG.album_id}/'); } ;
+  timg_album.onload = function () { loaded('album', '/browse/albums/cover/{/literal}{$SONG.album_id}{literal}/'); } ;
   
 </script>
 {/literal}

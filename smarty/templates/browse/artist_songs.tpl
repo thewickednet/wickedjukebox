@@ -45,7 +45,7 @@
 <script language="Javascript">
   
   var timg_artist = new Image();
-  timg_artist.onload = function () { loaded('artist', '/browse/artists/cover/{$ARTIST.artist_id}/'); } ;
+  timg_artist.onload = function () { loaded('artist', '/browse/artists/cover/{/literal}{$ARTIST.artist_id}{literal}/'); } ;
   
 </script>
 {/literal}
