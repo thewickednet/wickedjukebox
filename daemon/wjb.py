@@ -154,19 +154,12 @@ def getAlbum(artistName, albumName):
       return album
    else:
       # check if we have the album with the matching artist
-      for album in list(Albums.selectBy(title=albumName)):
-         if dbArtist == album.artist:
-            return album
+      album = list(Albums.selectBy(title=albumName))[0]
+      if dbArtist == album.artist:
+         return album
       # aha! we have an album with a matching name, but not the artist. that
-      # means this is a new album, so we create it
-      album = Albums( 
-         title = albumName,
-         added=datetime.datetime.now(),
-         played = 0,
-         downloaded = 0,
-         type = 'album',
-         artist=dbArtist
-         )
+      # means this is a "various artist" album, so update it and return it
+      album.type='various'
       return album
 
 # ----------------------------------------------------------------------------
