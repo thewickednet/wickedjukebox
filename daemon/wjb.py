@@ -11,7 +11,8 @@
 import threading
 import time
 import kaa.metadata
-import socket, logging, logging.handlers
+import logging, logging.handlers, logging.config
+import socket
 from model import *
 import os, sys
 from sqlobject.main import SQLObjectNotFound
@@ -848,13 +849,7 @@ if __name__ == "__main__":
    # TODO: kaa.metadata send loads of DEBUG logs. These pollute the wjb logs
    # greatly. It should be possible to connect a different logger to
    # kaa.metadata to fix that. Need to figure that one out though.
-   logging.basicConfig(level=logging.INFO,
-                    format='[%(asctime)s] %(levelname)-8s %(threadName)-15s %(message)s')
-   formatter = logging.Formatter('[%(asctime)s] %(levelname)-8s %(threadName)-15s %(message)s')
-   rotfile = logging.handlers.RotatingFileHandler('wjb.log', maxBytes=100*1024, backupCount=3)
-   rotfile.setLevel(logging.DEBUG)
-   rotfile.setFormatter(formatter)
-   logging.getLogger('').addHandler(rotfile)
+   logging.config.fileConfig('logging.ini')
 
    # Retrieve settings from the DB
    host = getSetting('daemon_boundHost', 'localhost')
