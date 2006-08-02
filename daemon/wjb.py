@@ -18,6 +18,7 @@ import os, sys
 from sqlobject.main import SQLObjectNotFound
 from sqlobject.sqlbuilder import *
 from MySQLdb import OperationalError
+from datetime import datetime
 
 # ---- Global support functions ----------------------------------------------
 
@@ -99,7 +100,7 @@ def getArtist(artistName):
    if Artists.selectBy(name=artistName).count() == 0:
       return Artists( 
          name = artistName,
-         added = datetime.datetime.now()
+         added = datetime.now()
          )
    else:
       return Artists.selectBy(name=artistName)[0]
@@ -145,7 +146,7 @@ def getAlbum(artistName, albumName):
    if Albums.selectBy(title=albumName).count() == 0:
       album = Albums( 
          title = albumName,
-         added=datetime.datetime.now(),
+         added=datetime.now(),
          played = 0,
          downloaded = 0,
          type = 'album',
@@ -414,7 +415,7 @@ class DJ(threading.Thread):
                      # and title. It's highly unlikely though that there is more than
                      # one entry.
                      song = list(Songs.selectBy(artist=cArtist, title=cTitle, album=cAlbum))[0]
-                     song.lastPlayed = datetime.datetime.now()
+                     song.lastPlayed = datetime.now()
                      song.played = song.played + 1
 
                   except IndexError, ex:
@@ -583,10 +584,11 @@ class Librarian(threading.Thread):
          for name in files:
             if name.split('.')[-1] in recognizedTypes:
                # we have a valid file
+               filename = os.path.join(root,name)
 
                try:
                   # parse the metadata
-                  metadata = kaa.metadata.parse(os.path.join(root, name))
+                  metadata = kaa.metadata.parse(filename)
 
                   # if we have an artist, set the artist field.
                   # then, if we *also* have an album, store the album from this
@@ -619,16 +621,16 @@ class Librarian(threading.Thread):
                                  metadata.get('album')))
                               pass
                      else:
-                        self.__scanLog.warning('error getting album for %s', os.path.join(root, name))
+                        self.__scanLog.warning('error getting album for %s', filename)
                   else:
-                     self.__scanLog.warning('error getting artist for %s', os.path.join(root, name))
+                     self.__scanLog.warning('error getting artist for %s', filename)
 
                   if metadata.get('length') is not None:
                      duration = int(metadata.get('length'))
                   else:
                      duration = 0
 
-                  filesize = os.stat(os.path.join(root,name)).st_size
+                  filesize = os.stat(filename).st_size
 
                   if metadata.get('bitrate') is not None:
                      bitrate = int(metadata.get('bitrate'))
@@ -646,26 +648,26 @@ class Librarian(threading.Thread):
                      title = ''
 
                   # check if it is already in the database
-                  if Songs.selectBy(localpath=os.path.join(root, name)).count() == 0:
+                  if Songs.selectBy(localpath=filename).count() == 0:
 
                      # it was not in the DB, create a skeleton entry
                      song = Songs(
                            trackNo = trackNo,
                            title   = title,
-                           localpath = os.path.join(root, name),
+                           localpath = filename,
                            artist  = dbArtist,
                            album   = dbAlbum,
                            genre   = getGenre(metadata.get('genre')),
                            bitrate = bitrate,
                            duration = duration,
-                           checksum = get_hash(os.path.join(root,name)),
-                           lastScanned = datetime.datetime.now(),
+                           checksum = get_hash(filename),
+                           lastScanned = datetime.now(),
                            filesize = filesize
                            )
                      scancount += 1
 
                      self.__scanLog.info("Scanned %s (%s - %s - %2d - %t %s)" % (
-                           os.path.join(root, name),
+                           filename,
                            song.artist,
                            song.album,
                            trackNo,
@@ -676,10 +678,10 @@ class Librarian(threading.Thread):
 
                      # we found the song in the DB. Load it so we can update it's
                      # metadata. If it has changed since it was added to the DB!
-                     song = Songs.selectBy(localpath=os.path.join(root, name))[0]
+                     song = Songs.selectBy(localpath=filename)[0]
 
                      if song.lastScanned is None \
-                           or datetime.datetime.fromtimestamp(os.stat(os.path.join(root,name)).st_mtime) > song.lastScanned:
+                           or datetime.fromtimestamp(os.stat(filename).st_mtime) > song.lastScanned:
                         song.trackNo = trackNo
                         song.title   = title
                         song.artist  = dbArtist
@@ -687,13 +689,13 @@ class Librarian(threading.Thread):
                         song.bitrate = bitrate
                         song.filesize= filesize
                         song.duration = duration
-                        song.checksum = get_hash(os.path.join(root,name))
+                        song.checksum = get_hash(filename)
                         song.genre    = getGenre(metadata.get('genre'))
-                        song.lastScanned = datetime.datetime.now()
+                        song.lastScanned = datetime.now()
                      scancount += 1
 
                      self.__scanLog.info("Scanned %s (%s - %s - %2d - %t %s)" % (
-                           os.path.join(root, name),
+                           filename,
                            song.artist,
                            song.album,
                            trackNo,
@@ -702,10 +704,10 @@ class Librarian(threading.Thread):
                         ))
 
                except ValueError:
-                  self.__scanLog.warning("unknown metadata for %s" % os.path.join(root, name))
+                  self.__scanLog.warning("unknown metadata for %s" % filename)
                   errorCount += 1
                except OperationalError, ex:
-                  self.__scanLog.error("%s %s" % (os.path.join(root, name), str(ex)))
+                  self.__scanLog.error("%s %s" % (filename, str(ex)))
                   errorCount += 1
                   pass
 
