@@ -25,7 +25,7 @@ def killAgents():
    """
    Tries to stop all the agents
    """
-   
+
    if lib is not None: lib.stop(); lib.join()
    if dj is not None:  dj.stop();  dj.join()
    if t is not None:   t.stop();
@@ -307,6 +307,7 @@ class DJ(threading.Thread):
    __keepRunning   = True  # While this is true, the DJ is alive
    __playStatus    = 'playing'
    __currentSongID = 0
+   __logger        = logging.getLogger('dj')
 
    def __init__(self):
       """
@@ -336,7 +337,7 @@ class DJ(threading.Thread):
          self.__player = MPD()
       except mpdclient.MpdConnectionPortError, ex:
          import traceback
-         logging.critical("Error connecting to the player:\n%s" % traceback.format_exc())
+         self.__logger.critical("Error connecting to the player:\n%s" % traceback.format_exc())
          killAgents()
          sys.exit(0)
 
@@ -370,7 +371,7 @@ class DJ(threading.Thread):
       the queue, or at random)
       """
 
-      logging.info('Started DJ')
+      self.__logger.info('Started DJ')
       cycle = int(getSetting('dj_cycle', '1'))
 
       # while we are alive, do the loop
@@ -419,7 +420,7 @@ class DJ(threading.Thread):
          time.sleep(cycle)
 
       # self.__keepRunning became false. We should quit
-      logging.info('Stopped DJ')
+      self.__logger.info('Stopped DJ')
 
    def __dequeue(self):
       """
@@ -478,10 +479,10 @@ class DJ(threading.Thread):
       randindex = random.randint(1, len(res)) -1
       try:
          out = (res[randindex][0], res[randindex][1])
-         logging.info("Selected song (%d, %s) at random. However, this feature is not yet fully implemented" % out)
+         self.__logger.info("Selected song (%d, %s) at random. However, this feature is not yet fully implemented" % out)
          return out
       except IndexError:
-         logging.error('No song returned from query. Is the database empty?')
+         self.__logger.error('No song returned from query. Is the database empty?')
          pass
 
    def stop(self):
@@ -545,6 +546,8 @@ class Librarian(threading.Thread):
    """
 
    __keepRunning = True  # While this is true, the librarian is alive
+   __logger      = logging.getLogger('lib')
+   __scanLog     = logging.getLogger('lib.scanner')
 
    def __init__(self):
       """
@@ -559,7 +562,8 @@ class Librarian(threading.Thread):
       metadata into the library (DB)
       """
 
-      logging.debug("scanning %s" % (dir))
+      self.__logger.info("scanning %s (loging redirected to log/scanner.log)" % (dir))
+      self.__scanLog.info("-------- scanning %s ---------" % (dir))
 
       # Only scan the files specified in the settings table
       recognizedTypes = getSetting('recognizedTypes', 'mp3 ogg flac').split()
@@ -602,7 +606,7 @@ class Librarian(threading.Thread):
                            else:
                               # The word "duplicate" was found. We silently
                               # ignore this error, but keep a log
-                              logging.debug('Duplicate album %s - %s' % (
+                              self.__scanLog.warning('Duplicate album %s - %s' % (
                                  metadata.get('artist'),
                                  metadata.get('album')))
                               pass
@@ -644,27 +648,36 @@ class Librarian(threading.Thread):
                      song.album   = dbAlbum
                      song.genre   = getGenre(metadata.get('genre'))
                   scancount += 1
+                  self.__scanLog.info("Scanned %s (%s - %s - %2d - %t %s)" % (
+                        os.path.join(root, name),
+                        song.artist,
+                        song.album,
+                        trackNo,
+                        title,
+                        song.genre
+                     ))
 
                except ValueError:
-                  print "unknown metadata for %s" % os.path.join(root, name)
+                  self.__scanLog.warning("unknown metadata for %s" % os.path.join(root, name))
                   errorCount += 1
                except OperationalError, ex:
-                  logging.critical(ex)
+                  self.__scanLog.error("%s %s" % (os.path.join(root, name), str(ex)))
                   errorCount += 1
                   pass
 
-      logging.info("done scanning (%7d songs scanned, %7d errors)" % (scancount, errorCount))
+      self.__scanLog.info("--- done scanning (%7d songs scanned, %7d errors)" % (scancount, errorCount))
+      self.__logger.info("--- done scanning (%7d songs scanned, %7d errors)" % (scancount, errorCount))
 
    def run(self):
       """
       The control loop for the librarian.
       For now it does not much more than sitting there and wait. Ook!
       """
-      logging.info('Started Librarian')
+      self.__logger.info('Started Librarian')
       cycle = int(getSetting('librarian_cycle', '1'))
       while self.__keepRunning:
          time.sleep(cycle)
-      logging.info('Stopped Librarian')
+      self.__logger.info('Stopped Librarian')
 
    def stop(self):
       """
@@ -685,35 +698,35 @@ class Librarian(threading.Thread):
       Detects files that moved on the file system and updates the reference in
       the DB
       """
-      logging.debug("detecting moves")
+      self.__logger.debug("detecting moves")
 
    def detect_orphans(self):
       """
       Detects files that do not exist anymore on the file system and marks them
       as orphaned in the database
       """
-      logging.debug("detecting orphans")
+      self.__logger.debug("detecting orphans")
       pass
 
    def find_duplicates(self):
       """
       Detects duplicate entries.
       """
-      logging.debug("searching for duplicates")
+      self.__logger.debug("searching for duplicates")
       pass
 
    def add_file(self, filename):
       """
       Adds a new file to the library
       """
-      logging.debug("adding file %s" % (filename))
+      self.__logger.debug("adding file %s" % (filename))
       pass
 
    def read_metadata(self, filename):
       """
       Reads the metadata of a file and stores the info
       """
-      logging.debug("reading metadata from %s" % (filename))
+      self.__logger.debug("reading metadata from %s" % (filename))
       pass
 
    def find_cover_art(self, artist, album):
@@ -721,14 +734,14 @@ class Librarian(threading.Thread):
       Tries to locate the cover art of an album on the net and copies it into
       the album's directory
       """
-      logging.debug("finding cover art for %s %s" % (artist, album))
+      self.__logger.debug("finding cover art for %s %s" % (artist, album))
       pass
 
    def mark_dirty(self, songID):
       """
       Flags a song as dirty, meaning that the metadata is incomplete
       """
-      logging.info("marking %s as dirty" % (songID))
+      self.__logger.info("marking %s as dirty" % (songID))
       try:
          Songs.get(int(songID)).dirty = True
          return (True, 'OK')
@@ -745,6 +758,7 @@ class Arbitrator(threading.Thread):
 
    global lib        # a reference to the librarian
    __keepRunning = True
+   __logger      = logging.getLogger('arb')
 
    def __init__(self, connection, address):
       """
@@ -823,11 +837,11 @@ class Arbitrator(threading.Thread):
          # Unknown commands
          #
          else:
-            logging.info("received unknown command: %s" % command)
+            self.__logger.info("received unknown command: %s" % command)
             return 'ER:UNKNOWN COMMAND\n'
       except Exception, ex:
          import traceback
-         logging.critical("Unexpected error:\n%s" % traceback.format_exc())
+         self.__logger.critical("Unexpected error:\n%s" % traceback.format_exc())
          return "ER:%s\n" % ex
 
    def run(self):
@@ -836,13 +850,13 @@ class Arbitrator(threading.Thread):
       connected client and then starts listening for commands. Before the
       connection ends it sends "BYE"
       """
-      logging.debug( "Arbitrator awaiting your commands" )
+      self.__logger.debug( "Arbitrator awaiting commands from %s" % self.__address[0] )
       self.__connection.send('HELLO\n')
       try:
          while self.__keepRunning:
             data = self.__connection.recv(1024)[0:-1]
             if data:
-               logging.info( "command from %s: %s" % (self.__address[0], data) )
+               self.__logger.info( "command from %s: %s" % (self.__address[0], data) )
                self.__connection.send(self.dispatch(data))
             else:
                break
@@ -855,8 +869,8 @@ class Arbitrator(threading.Thread):
             pass
          else:
             import traceback
-            logging.critical("Unexpected error:\n%s" % traceback.format_exc())
-      logging.debug( "Arbitrator quit" )
+            self.__logger.critical("Unexpected error:\n%s" % traceback.format_exc())
+      self.__logger.debug( "Arbitrator quit" )
 
    def stop(self):
       self.__keepRunning = False
@@ -865,10 +879,9 @@ if __name__ == "__main__":
    # The main loop of the daemon.
 
    # Setting up logging
-   # TODO: kaa.metadata send loads of DEBUG logs. These pollute the wjb logs
-   # greatly. It should be possible to connect a different logger to
-   # kaa.metadata to fix that. Need to figure that one out though.
    logging.config.fileConfig('logging.ini')
+   logger = logging.getLogger('daemon')
+   logger.info( "===== WJB Deamon starting up ==============" )
 
    # Retrieve settings from the DB
    host = getSetting('daemon_boundHost', 'localhost')
@@ -889,7 +902,7 @@ if __name__ == "__main__":
          dj = DJ()
       except ValueError, ex:
          if str(ex) == 'unknown player backend':
-            logging.error('Unknown player specified in the config')
+            logger.error('Unknown player specified in the config')
             killAgents()
             sys.exit(0)
       else:
@@ -900,34 +913,33 @@ if __name__ == "__main__":
       sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
       sock.bind((host, port))
       sock.listen(5)
-      logging.info( "===== WJB Deamon started up ===============" )
-      logging.info( "listening on %s:%s" % (host, port) )
+      logger.info( "listening on %s:%s" % (host, port) )
 
       # wait for incoming connections until interrupted
       while True:
          try:
             # wait for next client to connect
             connection, address = sock.accept()
-            logging.info( "accepting incoming connection from %s" % (address[0]) )
+            logger.info( "accepting incoming connection from %s" % (address[0]) )
             t = Arbitrator(connection, address)
             t.start()
          except KeyboardInterrupt:
-            logging.info( "----- Waiting for agents to stop ----------" )
+            logger.info( "----- Waiting for agents to stop ----------" )
             killAgents()
-            logging.info( "===== WJB Deamon shutdown =================" )
+            logger.info( "===== WJB Deamon shutdown =================" )
             break
          except:
             import traceback
-            logging.critical("Uncaught exception!!! Bailing out!\n%s" % traceback.format_exc())
+            logger.critical("Uncaught exception!!! Bailing out!\n%s" % traceback.format_exc())
             killAgents()
-            logging.info( "===== WJB Deamon shutdown =================" )
+            logger.info( "===== WJB Deamon shutdown =================" )
             break
    except Exception, ex:
       # The safety net: Stop all threads and print out the stack trace to the
       # log and exit
       killAgents()
       import traceback
-      logging.critical("Unexpected error:\n%s" % traceback.format_exc())
+      logger.critical("Unexpected error:\n%s" % traceback.format_exc())
       sys.stderr.write('WJB Daemon exited unexpectedly. Check the log for details!')
       killAgents()
       sys.exit(0)
