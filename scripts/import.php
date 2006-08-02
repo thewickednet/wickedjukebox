@@ -23,7 +23,6 @@
   require_once "libs/getid3/getid3.php";
 
   $base_folder = Setting::get("folders");
-  $base_folder = $base_folder['value'];
 
   if (file_exists($base_folder)) {
     echo "scanning folder: $base_folder\n";

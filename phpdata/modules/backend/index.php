@@ -9,7 +9,10 @@
 
   $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
-  socket_connect($sock, '127.0.0.1', 61111);
+  $host = Setting::get("daemon_boundHost");
+  $port = Setting::get("daemon_port");
+
+  socket_connect($sock, $host, $port);
 
   if (socket_listen($sock) != "HELLO" ) {
      echo "socket_listen() failed: reason: " . socket_strerror($ret) . "\n";

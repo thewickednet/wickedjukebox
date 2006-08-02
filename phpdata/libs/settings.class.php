@@ -20,7 +20,7 @@ class Setting {
     $stmt = $q->prepare();
     $stmt->execute();
     $rows = $stmt->fetchAll();
-    return $rows[0];
+    return $rows[0]['value'];
   }
 
   function getAll() {

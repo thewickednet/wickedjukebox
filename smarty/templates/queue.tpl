@@ -6,13 +6,13 @@
 <script language="Javascript">
 
   var timg_queue = new Image();
-  timg_queue.onload = function () { loaded('queue', '/browse/albums/thumb/{/literal}{$PLAYER_STATUS.album_id}{literal}/'); } ;
-  timg_queue.src = '/browse/albums/thumb/{/literal}{$PLAYER_STATUS.album_id}{literal}/';
+  timg_queue.onload = function () { loaded('queue', '/browse/albums/thumb/{/literal}{$PLAYER_STATUS.song_info.album_id}{literal}/'); } ;
+  timg_queue.src = '/browse/albums/thumb/{/literal}{$PLAYER_STATUS.song_info.album_id}{literal}/';
 
 </script>
 {/literal}
             {/if}
-            <p class="nowplaying"><a href="/details/song/{$PLAYER_STATUS.song_id}/">{$PLAYER_STATUS.name}<br />{$PLAYER_STATUS.title} ({$PLAYER_STATUS.duration|date_format:"%M:%S"})</a></p>
+            <p class="nowplaying"><a href="/details/song/{$PLAYER_STATUS.song_id}/">{$PLAYER_STATUS.song_info.name}<br />{$PLAYER_STATUS.song_info.title} ({$PLAYER_STATUS.song_info.duration|date_format:"%M:%S"})</a></p>
             {else}
             <p>Status: not available</p>
             {/if}

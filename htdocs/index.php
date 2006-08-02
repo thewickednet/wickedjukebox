@@ -94,7 +94,7 @@
 
   $smarty->assign("USERINFO", $userinfo);
   $smarty->assign("PERMISSIONS", $permissions);
-  $smarty->assign("PLAYER_STATUS", Player::getStatus());
+  $smarty->assign("PLAYER_STATUS", Player::getStatusFromSocket());
   $smarty->assign("QUEUE", Queue::getAll());
   $smarty->assign("QUEUE_TOTAL", Queue::getTotal());
 
