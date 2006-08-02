@@ -183,6 +183,7 @@ CREATE TABLE `songs` (
   `skipped` int(11) unsigned NULL default '0',
   `downloaded` int(11) unsigned NOT NULL,
   `added` datetime NOT NULL,
+  `lastScanned` datetime NULL,
   `lastPlayed` datetime NULL,
   `bitrate` varchar(8) NOT NULL,
   `filesize` int(11) unsigned NOT NULL,

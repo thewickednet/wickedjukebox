@@ -659,6 +659,7 @@ class Librarian(threading.Thread):
                            bitrate = bitrate,
                            duration = duration,
                            checksum = get_hash(os.path.join(root,name)),
+                           lastScanned = datetime.datetime.now(),
                            filesize = filesize
                            )
                      scancount += 1
@@ -677,7 +678,8 @@ class Librarian(threading.Thread):
                      # metadata. If it has changed since it was added to the DB!
                      song = Songs.selectBy(localpath=os.path.join(root, name))[0]
 
-                     if datetime.datetime.fromtimestamp(os.stat(os.path.join(root,name)).st_mtime) > song.added:
+                     if song.lastScanned is None \
+                           or datetime.datetime.fromtimestamp(os.stat(os.path.join(root,name)).st_mtime) > song.lastScanned:
                         song.trackNo = trackNo
                         song.title   = title
                         song.artist  = dbArtist
@@ -687,6 +689,7 @@ class Librarian(threading.Thread):
                         song.duration = duration
                         song.checksum = get_hash(os.path.join(root,name))
                         song.genre    = getGenre(metadata.get('genre'))
+                        song.lastScanned = datetime.datetime.now()
                      scancount += 1
 
                      self.__scanLog.info("Scanned %s (%s - %s - %2d - %t %s)" % (
