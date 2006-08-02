@@ -661,29 +661,42 @@ class Librarian(threading.Thread):
                            checksum = get_hash(os.path.join(root,name)),
                            filesize = filesize
                            )
+                     scancount += 1
+
+                     self.__scanLog.info("Scanned %s (%s - %s - %2d - %t %s)" % (
+                           os.path.join(root, name),
+                           song.artist,
+                           song.album,
+                           trackNo,
+                           title,
+                           song.genre
+                        ))
                   else:
 
                      # we found the song in the DB. Load it so we can update it's
-                     # metadata
+                     # metadata. If it has changed since it was added to the DB!
                      song = Songs.selectBy(localpath=os.path.join(root, name))[0]
-                     song.trackNo = trackNo
-                     song.title   = title
-                     song.artist  = dbArtist
-                     song.album   = dbAlbum
-                     song.bitrate = bitrate
-                     song.filesize= filesize
-                     song.duration = duration
-                     song.checksum = get_hash(os.path.join(root,name))
-                     song.genre    = getGenre(metadata.get('genre'))
-                  scancount += 1
-                  self.__scanLog.info("Scanned %s (%s - %s - %2d - %t %s)" % (
-                        os.path.join(root, name),
-                        song.artist,
-                        song.album,
-                        trackNo,
-                        title,
-                        song.genre
-                     ))
+
+                     if datetime.datetime.fromtimestamp(os.stat(os.path.join(root,name)).st_mtime) > song.added:
+                        song.trackNo = trackNo
+                        song.title   = title
+                        song.artist  = dbArtist
+                        song.album   = dbAlbum
+                        song.bitrate = bitrate
+                        song.filesize= filesize
+                        song.duration = duration
+                        song.checksum = get_hash(os.path.join(root,name))
+                        song.genre    = getGenre(metadata.get('genre'))
+                     scancount += 1
+
+                     self.__scanLog.info("Scanned %s (%s - %s - %2d - %t %s)" % (
+                           os.path.join(root, name),
+                           song.artist,
+                           song.album,
+                           trackNo,
+                           title,
+                           song.genre
+                        ))
 
                except ValueError:
                   self.__scanLog.warning("unknown metadata for %s" % os.path.join(root, name))
