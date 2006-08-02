@@ -14,7 +14,7 @@
 
   socket_connect($sock, $host, $port);
 
-  if (socket_listen($sock) != "HELLO" ) {
+  if (socket_read($sock) != "HELLO" ) {
      echo "socket_listen() failed: reason: " . socket_strerror($ret) . "\n";
   }
 
@@ -36,7 +36,7 @@
 
   socket_write($sock, $command);
 
-  if (substr_count(socket_listen($sock), "OK") == 0) {
+  if (substr_count(socket_read($sock), "OK") == 0) {
      echo "socket_listen() failed: reason: " . socket_strerror($ret) . "\n";
   }
 
