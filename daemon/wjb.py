@@ -9,7 +9,7 @@
 # -----------------------------------------------------------------------------
 
 import threading
-import time
+import time, md5
 import kaa.metadata
 import logging, logging.handlers, logging.config
 import socket
@@ -20,6 +20,20 @@ from sqlobject.sqlbuilder import *
 from MySQLdb import OperationalError
 
 # ---- Global support functions ----------------------------------------------
+
+def get_hash(filename):
+   """
+   Return md5 hash.
+   https://gumuz.looze.net/svn/gumuz/dupes/dupes.py
+   """
+   f = open(filename,'rb')
+   hsh = md5.new()
+   while 1:
+      data = f.read(2048)
+      if not data: break
+      hsh.update(data)
+   f.close()
+   return hsh.hexdigest()
 
 def killAgents():
    """
@@ -548,6 +562,7 @@ class Librarian(threading.Thread):
    __keepRunning = True  # While this is true, the librarian is alive
    __logger      = logging.getLogger('lib')
    __scanLog     = logging.getLogger('lib.scanner')
+   __activeScans = []
 
    def __init__(self):
       """
@@ -610,10 +625,22 @@ class Librarian(threading.Thread):
                                  metadata.get('artist'),
                                  metadata.get('album')))
                               pass
+                     else:
+                        self.__scanLog.warning('error getting album for %s', os.path.join(root, name))
+                  else:
+                     self.__scanLog.warning('error getting artist for %s', os.path.join(root, name))
 
-                  # TODO bitrate
-                  # TODO filesize
-                  # TODO checksum
+                  if metadata.get('length') is not None:
+                     duration = int(metadata.get('length'))
+                  else:
+                     duration = 0
+
+                  filesize = os.stat(os.path.join(root,name)).st_size
+
+                  if metadata.get('bitrate') is not None:
+                     bitrate = int(metadata.get('bitrate'))
+                  else:
+                     bitrate = 0
 
                   if metadata.get('trackno') is not None:
                      trackNo = int(metadata.get('trackno'))
@@ -635,7 +662,11 @@ class Librarian(threading.Thread):
                            localpath = os.path.join(root, name),
                            artist  = dbArtist,
                            album   = dbAlbum,
-                           genre   = getGenre(metadata.get('genre'))
+                           genre   = getGenre(metadata.get('genre')),
+                           bitrate = bitrate,
+                           duration = duration,
+                           checksum = get_hash(os.path.join(root,name)),
+                           filesize = filesize
                            )
                   else:
 
@@ -646,7 +677,11 @@ class Librarian(threading.Thread):
                      song.title   = title
                      song.artist  = dbArtist
                      song.album   = dbAlbum
-                     song.genre   = getGenre(metadata.get('genre'))
+                     song.bitrate = bitrate
+                     song.filesize= filesize
+                     song.duration = duration
+                     song.checksum = get_hash(os.path.join(root,name))
+                     song.genre    = getGenre(metadata.get('genre'))
                   scancount += 1
                   self.__scanLog.info("Scanned %s (%s - %s - %2d - %t %s)" % (
                         os.path.join(root, name),
@@ -676,7 +711,18 @@ class Librarian(threading.Thread):
       self.__logger.info('Started Librarian')
       cycle = int(getSetting('librarian_cycle', '1'))
       while self.__keepRunning:
+         # check for active scans
+         if len(self.__activeScans) > 0:
+            for scan in self.__activeScans:
+               if not scan.isAlive():
+                  self.__activeScans.remove(scan)
+            self.__logger.debug("%s active scans" % len(self.__activeScans))
          time.sleep(cycle)
+      if len(self.__activeScans) > 0:
+         self.__logger.info('Stopped scans')
+         for scan in self.__activeScans:
+            #TODO# This does not work as expected
+            scan.join(0.0)
       self.__logger.info('Stopped Librarian')
 
    def stop(self):
@@ -691,7 +737,12 @@ class Librarian(threading.Thread):
       the settings table
       """
       for mediaFolder in getSetting('folders').split(','):
-         threading.Thread(target=self.__crawl_directory, kwargs={'dir': mediaFolder}).start()
+         self.__activeScans.append(
+               threading.Thread(
+                  target=self.__crawl_directory,
+                  kwargs={'dir': mediaFolder})
+               )
+         self.__activeScans[-1].start()
 
    def detect_moves(self):
       """
