@@ -461,7 +461,7 @@ class DJ(threading.Thread):
             localpath,
             %(playratio)s AS playratio
          FROM songs
-         WHERE %(playratio)s IS NULL OR %(playratio)s > 0.3
+         WHERE %(playratio)s IS NULL OR %(playratio)s > 0.3 OR (played+skipped)<10
       """ % {'playratio': "( played / ( played + skipped ) )"}
 
       # I won't use ORDER BY RAND() as it is way too dependent on the dbms!
