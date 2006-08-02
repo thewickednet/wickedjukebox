@@ -304,8 +304,9 @@ class DJ(threading.Thread):
    random.
    """
 
-   __keepRunning = True  # While this is true, the DJ is alive
-   __playStatus  = 'play'
+   __keepRunning   = True  # While this is true, the DJ is alive
+   __playStatus    = 'playing'
+   __currentSongID = 0
 
    def __init__(self):
       """
@@ -352,11 +353,13 @@ class DJ(threading.Thread):
          try:
             # song is soon finished. Add the next one to the playlist
             nextSong = self.__dequeue()
-            self.__player.queue(nextSong)
+            self.__currentSongID = nextSong[0]
+            self.__player.queue(nextSong[1])
          except IndexError:
             # no song in the queue run smartDj
             nextSong = self.__smartGet()
-            self.__player.queue(nextSong)
+            self.__currentSongID = nextSong[0]
+            self.__player.queue(nextSong[1])
 
    def run(self):
       """
@@ -374,16 +377,16 @@ class DJ(threading.Thread):
       while self.__keepRunning:
 
          # check if the player accidentally went into the "stop" state
-         if self.__player.status() == 'stop' and self.__playStatus == 'play':
+         if self.__player.status() == 'stop' and self.__playStatus == 'playing':
             self.__player.clearPlaylist()
             self.populatePlaylist()
             self.__player.startPlayback()
 
-         if self.__player.status() == 'play' and self.__playStatus == 'stop':
+         if self.__player.status() == 'play' and self.__playStatus == 'stopped':
             self.__player.stopPlayback()
 
          # only queue new songs if we are in play-mode
-         if self.__playStatus == 'play':
+         if self.__playStatus == 'playing':
 
             # if the song is soon finished, update stats and pick the next one
             currentPosition = self.__player.getPosition()
@@ -425,6 +428,7 @@ class DJ(threading.Thread):
 
       nextSong = list(QueueItem.select(orderBy=['added', 'position']))[0]
       filename = nextSong.song.localpath
+      songID   = nextSong.id
       nextSong.destroySelf()
 
 
@@ -446,7 +450,7 @@ class DJ(threading.Thread):
       #delquery = conn.sqlrepr(Delete(QueueItem.q, where=(QueueItem.q.position < -6)))
       #conn.query(delquery)
 
-      return filename
+      return (id, filename)
 
    def __smartGet(self):
       """
@@ -459,6 +463,7 @@ class DJ(threading.Thread):
 
       query = """
          SELECT
+            song_id,
             localpath,
             %(playratio)s AS playratio
          FROM songs
@@ -472,8 +477,8 @@ class DJ(threading.Thread):
       res = conn.queryAll(query)
       randindex = random.randint(1, len(res)) -1
       try:
-         out = res[randindex][0]
-         logging.info("Selected song %s at random. However, this feature is not yet fully implemented" % out)
+         out = (res[randindex][0], res[randindex][1])
+         logging.info("Selected song (%d, %s) at random. However, this feature is not yet fully implemented" % out)
          return out
       except IndexError:
          logging.error('No song returned from query. Is the database empty?')
@@ -489,7 +494,7 @@ class DJ(threading.Thread):
       """
       Sends a "play" command to the player backend
       """
-      self.__playStatus = 'play'
+      self.__playStatus = 'playing'
       self.__player.startPlayback()
       return ('OK', 'OK')
 
@@ -497,7 +502,7 @@ class DJ(threading.Thread):
       """
       Sends a "stop" command to the player backend
       """
-      self.__playStatus = 'stop'
+      self.__playStatus = 'stopped'
       self.__player.stopPlayback()
       return ('OK', 'OK')
 
@@ -505,14 +510,14 @@ class DJ(threading.Thread):
       """
       Sends a "pause" command to the player backend
       """
-      if self.__playStatus == 'pause':
-         self.__playStatus = 'play'
+      if self.__playStatus == 'paused':
+         self.__playStatus = 'playing'
       else:
-         self.__playStatus = 'pause'
+         self.__playStatus = 'paused'
       self.__player.pausePlayback()
       return ('OK', 'OK')
 
-   def nextSong(self):
+   def skipSong(self):
       """
       Updates play statistics and sends a "next" command to the player backend
       """
@@ -527,6 +532,12 @@ class DJ(threading.Thread):
          pass
       self.__player.skipSong()
       return ('OK', 'OK')
+
+   def playStatus(self):
+      return ("OK", self.__playStatus)
+
+   def nowPlaying(self):
+      return ("OK", self.__currentSongID)
 
 class Librarian(threading.Thread):
    """
@@ -797,7 +808,15 @@ class Arbitrator(threading.Thread):
             if res[0]: return 'OK:%s\n' % res[1]
             else: return 'ER:%s\n' % res[1]
          elif command == 'skip':
-            res = dj.nextSong()
+            res = dj.skipSong()
+            if res[0]: return 'OK:%s\n' % res[1]
+            else: return 'ER:%s\n' % res[1]
+         elif command == 'player_status':
+            res = dj.playStatus()
+            if res[0]: return 'OK:%s\n' % res[1]
+            else: return 'ER:%s\n' % res[1]
+         elif command == 'now_playing':
+            res = dj.nowPlaying()
             if res[0]: return 'OK:%s\n' % res[1]
             else: return 'ER:%s\n' % res[1]
          #
