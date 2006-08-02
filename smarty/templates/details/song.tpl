@@ -7,12 +7,28 @@
               <tr>
                 <td width="50%" colspan="2">
                 {if $ARTIST_COVER ne ''}
-                <img src="/browse/artist/cover/{$SONG.artist_id}/" border="0" />
+              <img src="/images/indicator.gif" border="0" id="img_artist"/>
+{literal}
+<script language="Javascript">
+  
+  var timg_artist = new Image();
+  timg_artist.onload = function () { loaded('artist', '/browse/artists/cover/{$SONG.artist_id}/'); } ;
+  
+</script>
+{/literal}
                 {/if}
                 </td>
                 <td width="50%" colspan="2">
                 {if $ALBUM_COVER ne ''}
-                <img src="/browse/albums/cover/{$SONG.album_id}/" border="0" />
+              <img src="/images/indicator.gif" border="0" id="img_album"/>
+{literal}
+<script language="Javascript">
+  
+  var timg_album = new Image();
+  timg_album.onload = function () { loaded('album', '/browse/albums/cover/{$SONG.album_id}/'); } ;
+  
+</script>
+{/literal}
                 {/if}
                 </td>
               </tr>

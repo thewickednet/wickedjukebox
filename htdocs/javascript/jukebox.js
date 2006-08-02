@@ -70,3 +70,9 @@ function logout() {
   return false;
 
 }
+
+  function loaded(id, src) {
+    img = document.getElementById('img_' + id);
+    img.src = src;
+  }
+

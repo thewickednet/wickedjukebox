@@ -37,7 +37,15 @@
               <td>Artist:</b> <a href="/browse/artist/byid/{$ARTIST.artist_id}/">{$ARTIST.name}</a></td>
               <td rowspan="4" align="right">
               {if $COVER ne ''}
-              <img src="/browse/albums/cover/{$ALBUM.album_id}/" border="0" />
+              <img src="/images/indicator.gif" border="0" id="img_album"/>
+{literal}
+<script language="Javascript">
+  
+  var timg_album = new Image();
+  timg_album.onload = function () { loaded('album', '/browse/albums/cover/{$ALBUM.album_id}/'); } ;
+
+</script>
+{/literal}
               {/if}
               </td>
             </tr>

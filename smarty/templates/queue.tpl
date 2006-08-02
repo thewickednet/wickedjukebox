@@ -1,7 +1,15 @@
             <h1>Now Playing</h1>
             {if count($PLAYER_STATUS) ne '0'}
             {if $PLAYER_STATUS.cover ne ''}
-            <img src="/browse/albums/thumb/{$PLAYER_STATUS.album_id}/" border="0" />
+            <a href="/browse/albums/byid/{$PLAYER_STATUS.album_id}/"><img src="/images/indicator.gif" border="0" id="img_queue"/></a>
+{literal}
+<script language="Javascript">
+  
+  var timg_queue = new Image();
+  timg_queue.onload = function () { loaded('queue', '/browse/albums/thumb/{$PLAYER_STATUS.album_id}/'); } ;
+
+</script>
+{/literal}
             {/if}
             <p class="nowplaying"><a href="/details/song/{$PLAYER_STATUS.song_id}/">{$PLAYER_STATUS.name}<br />{$PLAYER_STATUS.title} ({$PLAYER_STATUS.duration|date_format:"%M:%S"})</a></p>
             {else}

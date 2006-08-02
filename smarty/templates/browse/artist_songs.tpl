@@ -40,7 +40,15 @@
             <h3>Songs in this category</h3>
             {else}
             {if $COVER ne ''}
-            <img src="/browse/artists/cover/{$ARTIST.artist_id}/" border="0" />
+              <img src="/images/indicator.gif" border="0" id="img_artist"/>
+{literal}
+<script language="Javascript">
+  
+  var timg_artist = new Image();
+  timg_artist.onload = function () { loaded('artist', '/browse/artists/cover/{$ARTIST.artist_id}/'); } ;
+  
+</script>
+{/literal}
             {/if}
 
             <h3>Songs by this artist</h3>
