@@ -65,12 +65,18 @@
   Album::countDownload($_GET['param']);
   User::countDownload($userinfo['user_id']);
 
-  header('Content-type: ' . mime_content_type($full_path));
+  $mime_type = finfo_file($finfo, $full_path);
+
+  header('Content-type: ' . $mime_type);
   header("Content-length: ".filesize($full_path));
   header('Content-Disposition: attachment; filename="'.$file_zip.'"');
+
   $fp = fopen($full_path, "r");
+
   fpassthru($fp);
   fclose($fp);
+
+  finfo_close($finfo);
 
   exit();
 

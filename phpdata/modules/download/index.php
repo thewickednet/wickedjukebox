@@ -8,6 +8,8 @@
  */
 
   set_time_limit(180);
+  $finfo = finfo_open(FILEINFO_MIME);
+
 
   switch($_GET['module']){
     case "song":

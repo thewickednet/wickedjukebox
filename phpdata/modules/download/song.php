@@ -23,13 +23,19 @@
     Song::countDownload($_GET['param']);
     User::countDownload($userinfo['user_id']);
 
-    $mime = mime_content_type($song['localpath']);
+    $mime = finfo_file($finfo, $song['localpath']);
+
     header('Content-type: ' . $mime);
     header("Content-length: ".filesize($song['localpath']));
     header('Content-Disposition: attachment; filename="'.$filename.'"');
+
     $fp = fopen($song['localpath'], "r");
+
     fpassthru($fp);
     fclose($fp);
+
+    finfo_close($finfo);
+
     exit();
 
 /*  } else {
