@@ -40,13 +40,14 @@
             <h3>Songs in this category</h3>
             {else}
             {if $COVER ne ''}
-              <img src="/images/indicator.gif" border="0" id="img_artist"/>
+              <img src="/images/indicator.gif" border="0" id="img_artist" />
 {literal}
 <script language="Javascript">
-  
+
   var timg_artist = new Image();
   timg_artist.onload = function () { loaded('artist', '/browse/artists/cover/{/literal}{$ARTIST.artist_id}{literal}/'); } ;
-  
+  timg_artist.src = '/browse/artists/cover/{/literal}{$ARTIST.artist_id}{literal}/';
+
 </script>
 {/literal}
             {/if}

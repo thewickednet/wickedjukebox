@@ -71,8 +71,8 @@ function logout() {
 
 }
 
-  function loaded(id, src) {
-    img = document.getElementById('img_' + id);
-    img.src = src;
-  }
+function loaded(id, src) {
+  img = document.getElementById('img_' + id);
+  img.src = src;
+}
 

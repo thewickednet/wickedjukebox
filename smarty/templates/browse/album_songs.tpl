@@ -40,9 +40,10 @@
               <img src="/images/indicator.gif" border="0" id="img_album"/>
 {literal}
 <script language="Javascript">
-  
+
   var timg_album = new Image();
   timg_album.onload = function () { loaded('album', '/browse/albums/cover/{/literal}{$ALBUM.album_id}{literal}/'); } ;
+  timg_album.src = '/browse/albums/cover/{/literal}{$ALBUM.album_id}{literal}/';
 
 </script>
 {/literal}

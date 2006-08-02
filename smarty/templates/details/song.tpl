@@ -10,10 +10,11 @@
               <img src="/images/indicator.gif" border="0" id="img_artist"/>
 {literal}
 <script language="Javascript">
-  
+
   var timg_artist = new Image();
   timg_artist.onload = function () { loaded('artist', '/browse/artists/cover/{/literal}{$SONG.artist_id}{literal}/'); } ;
-  
+  timg_artist.src = '/browse/artists/cover/{/literal}{$SONG.artist_id}{literal}/';
+
 </script>
 {/literal}
                 {/if}
@@ -23,10 +24,11 @@
               <img src="/images/indicator.gif" border="0" id="img_album"/>
 {literal}
 <script language="Javascript">
-  
+
   var timg_album = new Image();
   timg_album.onload = function () { loaded('album', '/browse/albums/cover/{/literal}{$SONG.album_id}{literal}/'); } ;
-  
+  timg_album.src = '/browse/albums/cover/{/literal}{$SONG.album_id}{literal}/';
+
 </script>
 {/literal}
                 {/if}

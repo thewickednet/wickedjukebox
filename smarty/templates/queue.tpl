@@ -4,9 +4,10 @@
             <a href="/browse/albums/byid/{$PLAYER_STATUS.album_id}/"><img src="/images/indicator.gif" border="0" id="img_queue"/></a>
 {literal}
 <script language="Javascript">
-  
+
   var timg_queue = new Image();
   timg_queue.onload = function () { loaded('queue', '/browse/albums/thumb/{/literal}{$PLAYER_STATUS.album_id}{literal}/'); } ;
+  timg_queue.src = '/browse/albums/thumb/{/literal}{$PLAYER_STATUS.album_id}{literal}/';
 
 </script>
 {/literal}
