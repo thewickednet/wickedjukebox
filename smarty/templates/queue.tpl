@@ -1,7 +1,7 @@
             <h1>Now Playing</h1>
             {if count($PLAYER_STATUS) ne '0'}
             {if $PLAYER_STATUS.cover ne ''}
-            <a href="/browse/albums/byid/{$PLAYER_STATUS.album_id}/"><img src="/images/indicator.gif" border="0" id="img_queue"/></a>
+            <a href="/browse/albums/byid/{$PLAYER_STATUS.song_info.album_id}/"><img src="/images/indicator.gif" border="0" id="img_queue"/></a>
 {literal}
 <script language="Javascript">
 
