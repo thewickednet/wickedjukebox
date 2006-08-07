@@ -98,7 +98,7 @@ def getArtist(artistName):
       return None
 
    if Artists.selectBy(name=artistName).count() == 0:
-      return Artists( 
+      return Artists(
          name = artistName,
          added = datetime.now()
          )
@@ -144,7 +144,7 @@ def getAlbum(artistName, albumName):
       return None
 
    if Albums.selectBy(title=albumName).count() == 0:
-      album = Albums( 
+      album = Albums(
          title = albumName,
          added=datetime.now(),
          played = 0,
@@ -160,7 +160,8 @@ def getAlbum(artistName, albumName):
          return album
       # aha! we have an album with a matching name, but not the artist. that
       # means this is a "various artist" album, so update it and return it
-      album.type='various'
+      if album.type == 'album':
+         album.type='various'
       return album
 
 # ----------------------------------------------------------------------------
@@ -224,7 +225,7 @@ class MPD(Player):
       """
       Appends a new song to the playlist, and removes the first entry in the
       playlist if it's becoming too large. This prevents having huge playlists
-      after a while playing. 
+      after a while playing.
 
       PARAMETERS
          filename -  The full path of the file
@@ -302,6 +303,9 @@ class MPD(Player):
       else:
          return 'unknown (%s)' % self.__connection.getStatus().state
 
+   def updatePlaylist(self):
+      self.__connection.sendUpdateCommand()
+
 class DJ(threading.Thread):
    """
    The DJ is responsible for music playback. All changes of the playback (play,
@@ -364,11 +368,14 @@ class DJ(threading.Thread):
             nextSong = self.__dequeue()
             self.__currentSongID = nextSong[0]
             self.__player.queue(nextSong[1])
+            self.__logger.info('queued %s' % nextSong[1])
          except IndexError:
             # no song in the queue run smartDj
-            nextSong = self.__smartGet()
-            self.__currentSongID = nextSong[0]
-            self.__player.queue(nextSong[1])
+            ##nextSong = self.__smartGet()
+            ##self.__currentSongID = nextSong[0]
+            ##self.__player.queue(nextSong[1])
+            ##self.__logger.info('selected %s' % nextSong[1])
+            pass
 
    def run(self):
       """
@@ -382,17 +389,43 @@ class DJ(threading.Thread):
       self.__logger.info('Started DJ')
       cycle = int(getSetting('dj_cycle', '1'))
 
+      lastCreditGiveaway = datetime.now()
+
       # while we are alive, do the loop
       while self.__keepRunning:
 
-         # check if the player accidentally went into the "stop" state
-         if self.__player.status() == 'stop' and self.__playStatus == 'playing':
-            self.__player.clearPlaylist()
+         # if we handed out credits more than 30mins ago, we give out some more
+         if (datetime.now() - lastCreditGiveaway).seconds > 300:
+            q = "UPDATE users SET credits=credits+5 WHERE credits<30"
+            conn = Users._connection
+            lastCreditGiveaway = datetime.now()
+            conn.query(q)
+
+         # if the queue is empty, add a random song to the queue
+         if QueueItem.select().count() == 0:
+            nextSong = Songs.get(self.__smartGet()[0])
+            tmp = QueueItem(
+                  position=0,
+                  added=datetime.now(),
+                  song=nextSong,
+                  channel=1,
+                  user=Users.get(1)
+                  )
             self.populatePlaylist()
             self.__player.startPlayback()
 
-         if self.__player.status() == 'play' and self.__playStatus == 'stopped':
-            self.__player.stopPlayback()
+         try:
+            # check if the player accidentally went into the "stop" state
+            if self.__player.status() == 'stop' and self.__playStatus == 'playing':
+               self.__player.clearPlaylist()
+               self.populatePlaylist()
+               self.__player.startPlayback()
+
+            # or if it accidentally wen into the play state
+            if self.__player.status() == 'play' and self.__playStatus == 'stopped':
+               self.__player.stopPlayback()
+         except mpdclient.MpdError:
+            pass
 
          # only queue new songs if we are in play-mode
          if self.__playStatus == 'playing':
@@ -437,7 +470,7 @@ class DJ(threading.Thread):
 
       nextSong = list(QueueItem.select(orderBy=['added', 'position']))[0]
       filename = nextSong.song.localpath
-      songID   = nextSong.id
+      songID   = nextSong.song.id
       nextSong.destroySelf()
 
 
@@ -459,7 +492,7 @@ class DJ(threading.Thread):
       #delquery = conn.sqlrepr(Delete(QueueItem.q, where=(QueueItem.q.position < -6)))
       #conn.query(delquery)
 
-      return (id, filename)
+      return (songID, filename)
 
    def __smartGet(self):
       """
@@ -553,10 +586,195 @@ class Librarian(threading.Thread):
    The librarian is a worker thread that manages the music library
    """
 
-   __keepRunning = True  # While this is true, the librarian is alive
-   __logger      = logging.getLogger('lib')
-   __scanLog     = logging.getLogger('lib.scanner')
    __activeScans = []
+   __scheduleMovesDetection  = False
+   __scheduleOrphanDetection = False
+   __logger        = logging.getLogger('lib')
+   __keepRunning   = True
+
+   class Scanner(threading.Thread):
+
+      __scanLog       = logging.getLogger('lib.scanner')
+
+      def __init__(self, folders):
+         self.__folders = folders
+         threading.Thread.__init__(self)
+
+      def __crawl_directory(self, dir):
+         """
+         Scans a directory and all its subfolders for media files and stores their
+         metadata into the library (DB)
+         """
+
+         self.__scanLog.info("-------- scanning %s ---------" % (dir))
+
+         # Only scan the files specified in the settings table
+         recognizedTypes = getSetting('recognizedTypes', 'mp3 ogg flac').split()
+
+         # walk through the directories
+         scancount  = 0
+         errorCount = 0
+         for root, dirs, files in os.walk(dir):
+            for name in files:
+               if name.split('.')[-1] in recognizedTypes:
+                  # we have a valid file
+                  filename = os.path.join(root,name)
+
+                  try:
+                     # parse the metadata
+                     metadata = kaa.metadata.parse(filename)
+
+                     # if we have an artist, set the artist field.
+                     # then, if we *also* have an album, store the album from this
+                     # artist and set the song's metadata accordingly.
+                     # Finally, the song needs a track position on that album. So
+                     # we set it.
+                     dbArtist = None
+                     dbAlbum  = None
+                     if metadata.get('artist') is not None:
+                        dbArtist = getArtist(metadata.get('artist').encode('latin-1', 'xmlcharrefreplace'))
+
+                        if metadata.get('album') is not None:
+                           try:
+                              dbAlbum = getAlbum(
+                                          metadata.get('artist').encode('latin-1', 'xmlcharrefreplace'),
+                                          metadata.get('album').encode('latin-1', 'xmlcharrefreplace')
+                                       )
+                           except Exception, ex:
+                              if str(ex).upper().find("DUPLICATE") < 0:
+                                 # The word "duplicate" did not appear in the
+                                 # exception message. This means, some other error
+                                 # happened, so we simply raise that exception
+                                 # again so it can be caught separately.
+                                 raise
+                              else:
+                                 # The word "duplicate" was found. We silently
+                                 # ignore this error, but keep a log
+                                 self.__scanLog.warning('Duplicate album %s - %s' % (
+                                    metadata.get('artist').encode('latin-1', 'xmlcharrefreplace'),
+                                    metadata.get('album').encode('latin-1', 'xmlcharrefreplace')))
+                                 pass
+                        else:
+                           self.__scanLog.warning('error getting album for %s', filename)
+                     else:
+                        self.__scanLog.warning('error getting artist for %s', filename)
+
+                     if metadata.get('length') is not None:
+                        duration = int(metadata.get('length'))
+                     else:
+                        duration = 0
+
+                     filesize = os.stat(filename).st_size
+
+                     if metadata.get('bitrate') is not None:
+                        bitrate = int(metadata.get('bitrate'))
+                     else:
+                        bitrate = 0
+
+                     if metadata.get('trackno') is not None:
+                        trackNo = int(metadata.get('trackno'))
+                     else:
+                        trackNo = 0
+
+                     if metadata.get('title') is not None:
+                        title = metadata.get('title').encode('latin-1', 'xmlcharrefreplace')
+                     else:
+                        title = ''
+
+                     if metadata.get('genre') is not None:
+                        genre = getGenre(metadata.get('genre').encode('latin-1', 'xmlcharrefreplace'))
+                     else:
+                        genre = ''
+
+                     # check if it is already in the database
+                     if Songs.selectBy(localpath=filename).count() == 0:
+
+                        # it was not in the DB, create a newentry
+                        song = Songs(
+                              trackNo = trackNo,
+                              title   = title,
+                              localpath = filename,
+                              artist  = dbArtist,
+                              album   = dbAlbum,
+                              genre   = genre,
+                              bitrate = bitrate,
+                              duration = duration,
+                              lastScanned = datetime.now(),
+                              filesize = filesize
+                              )
+                        # we call this after creating the object, as this
+                        # prevents the hash being calculated if an error
+                        # occurred on song-creation
+                        song.checksum = get_hash(filename)
+                        scancount += 1
+
+                        self.__scanLog.info("Scanned %s" % ( filename ))
+                     else:
+
+                        # we found the song in the DB. Load it so we can update it's
+                        # metadata. If it has changed since it was added to the DB!
+                        song = Songs.selectBy(localpath=filename)[0]
+
+                        if song.lastScanned is None \
+                              or datetime.fromtimestamp(os.stat(filename).st_ctime) > song.lastScanned:
+                           song.localpath = filename
+                           song.trackNo = trackNo
+                           song.title   = title
+                           song.artist  = dbArtist
+                           song.album   = dbAlbum
+                           song.bitrate = bitrate
+                           song.filesize= filesize
+                           song.duration = duration
+                           song.checksum = get_hash(filename)
+                           song.genre    = genre
+                           song.lastScanned = datetime.now()
+                           self.__scanLog.info("Updated %s" % ( filename))
+                        scancount += 1
+
+                     if song.title is not None and song.artist is not None and song.album is not None and song.trackNo != 0:
+                        song.isDirty = False
+
+
+                  except ValueError, ex:
+                     import traceback
+                     self.__scanLog.critical("Unexpected error:\n%s" % traceback.format_exc())
+                     self.__scanLog.warning("unknown metadata for %s (%s)" % (filename, str(ex)))
+                     errorCount += 1
+                  except OperationalError, ex:
+                     #self.__scanLog.error("%s %s" % (filename, str(ex)))
+                     errorCount += 1
+                     pass
+
+         self.__scanLog.info("--- done scanning (%7d songs scanned, %7d errors)" % (scancount, errorCount))
+
+      def run(self):
+         for folder in self.__folders:
+            self.__crawl_directory(folder)
+
+         for song in list(Songs.select()):
+            if not os.path.exists(song.localpath):
+               self.__scanLog.warning('File %s not found on filesystem.' % song.localpath)
+               try:
+                  targetSongs = list(Songs.selectBy(
+                        title=song.title,
+                        artist=song.artist,
+                        album=song.album,
+                        trackNo=song.trackNo
+                        ))
+
+                  for targetSong in targetSongs:
+                     if song.localpath != targetSong.localpath:
+                        self.__scanLog.info('Song with id %d moved to id %d' % (song.id, targetSong.id))
+                        newPath = targetSong.localpath
+                        targetSong.destroySelf()
+                        song.localpath = newPath
+               except IndexError:
+                  # no such song found. We can delete the entry from the database
+                  self.__scanLog.warning('File %s disappeared!' % song.localpath)
+                  song.isDirty = True
+
+         self.__scanLog.info('Done checking filesystem')
+
 
    def __init__(self):
       """
@@ -564,155 +782,6 @@ class Librarian(threading.Thread):
       """
       threading.Thread.__init__(self)
       self.setName( '%s (%s)' % (self.getName(), 'Lib') )
-
-   def __crawl_directory(self, dir):
-      """
-      Scans a directory and all its subfolders for media files and stores their
-      metadata into the library (DB)
-      """
-
-      self.__logger.info("scanning %s (loging redirected to log/scanner.log)" % (dir))
-      self.__scanLog.info("-------- scanning %s ---------" % (dir))
-
-      # Only scan the files specified in the settings table
-      recognizedTypes = getSetting('recognizedTypes', 'mp3 ogg flac').split()
-
-      # walk through the directories
-      scancount  = 0
-      errorCount = 0
-      for root, dirs, files in os.walk(dir):
-         for name in files:
-            if name.split('.')[-1] in recognizedTypes:
-               # we have a valid file
-               filename = os.path.join(root,name)
-
-               try:
-                  # parse the metadata
-                  metadata = kaa.metadata.parse(filename)
-
-                  # if we have an artist, set the artist field.
-                  # then, if we *also* have an album, store the album from this
-                  # artist and set the song's metadata accordingly.
-                  # Finally, the song needs a track position on that album. So
-                  # we set it.
-                  dbArtist = None
-                  dbAlbum  = None
-                  if metadata.get('artist') is not None:
-                     dbArtist = getArtist(metadata.get('artist'))
-
-                     if metadata.get('album') is not None:
-                        try:
-                           dbAlbum = getAlbum(
-                                       metadata.get('artist'),
-                                       metadata.get('album')
-                                    )
-                        except Exception, ex:
-                           if str(ex).upper().find("DUPLICATE") < 0:
-                              # The word "duplicate" did not appear in the
-                              # exception message. This means, some other error
-                              # happened, so we simply raise that exception
-                              # again so it can be caught separately.
-                              raise
-                           else:
-                              # The word "duplicate" was found. We silently
-                              # ignore this error, but keep a log
-                              self.__scanLog.warning('Duplicate album %s - %s' % (
-                                 metadata.get('artist'),
-                                 metadata.get('album')))
-                              pass
-                     else:
-                        self.__scanLog.warning('error getting album for %s', filename)
-                  else:
-                     self.__scanLog.warning('error getting artist for %s', filename)
-
-                  if metadata.get('length') is not None:
-                     duration = int(metadata.get('length'))
-                  else:
-                     duration = 0
-
-                  filesize = os.stat(filename).st_size
-
-                  if metadata.get('bitrate') is not None:
-                     bitrate = int(metadata.get('bitrate'))
-                  else:
-                     bitrate = 0
-
-                  if metadata.get('trackno') is not None:
-                     trackNo = int(metadata.get('trackno'))
-                  else:
-                     trackNo = 0
-
-                  if metadata.get('title') is not None:
-                     title = metadata.get('title')
-                  else:
-                     title = ''
-
-                  # check if it is already in the database
-                  if Songs.selectBy(localpath=filename).count() == 0:
-
-                     # it was not in the DB, create a skeleton entry
-                     song = Songs(
-                           trackNo = trackNo,
-                           title   = title,
-                           localpath = filename,
-                           artist  = dbArtist,
-                           album   = dbAlbum,
-                           genre   = getGenre(metadata.get('genre')),
-                           bitrate = bitrate,
-                           duration = duration,
-                           checksum = get_hash(filename),
-                           lastScanned = datetime.now(),
-                           filesize = filesize
-                           )
-                     scancount += 1
-
-                     self.__scanLog.info("Scanned %s (%s - %s - %2d - %t %s)" % (
-                           filename,
-                           song.artist,
-                           song.album,
-                           trackNo,
-                           title,
-                           song.genre
-                        ))
-                  else:
-
-                     # we found the song in the DB. Load it so we can update it's
-                     # metadata. If it has changed since it was added to the DB!
-                     song = Songs.selectBy(localpath=filename)[0]
-
-                     if song.lastScanned is None \
-                           or datetime.fromtimestamp(os.stat(filename).st_mtime) > song.lastScanned:
-                        song.trackNo = trackNo
-                        song.title   = title
-                        song.artist  = dbArtist
-                        song.album   = dbAlbum
-                        song.bitrate = bitrate
-                        song.filesize= filesize
-                        song.duration = duration
-                        song.checksum = get_hash(filename)
-                        song.genre    = getGenre(metadata.get('genre'))
-                        song.lastScanned = datetime.now()
-                     scancount += 1
-
-                     self.__scanLog.info("Scanned %s (%s - %s - %2d - %t %s)" % (
-                           filename,
-                           song.artist,
-                           song.album,
-                           trackNo,
-                           title,
-                           song.genre
-                        ))
-
-               except ValueError:
-                  self.__scanLog.warning("unknown metadata for %s" % filename)
-                  errorCount += 1
-               except OperationalError, ex:
-                  self.__scanLog.error("%s %s" % (filename, str(ex)))
-                  errorCount += 1
-                  pass
-
-      self.__scanLog.info("--- done scanning (%7d songs scanned, %7d errors)" % (scancount, errorCount))
-      self.__logger.info("--- done scanning (%7d songs scanned, %7d errors)" % (scancount, errorCount))
 
    def run(self):
       """
@@ -747,19 +816,20 @@ class Librarian(threading.Thread):
       Spawns a slave thread to rescan the library for each filder specified in
       the settings table
       """
-      for mediaFolder in getSetting('folders').split(','):
-         self.__activeScans.append(
-               threading.Thread(
-                  target=self.__crawl_directory,
-                  kwargs={'dir': mediaFolder})
-               )
-         self.__activeScans[-1].start()
+      self.__logger.info("scanning %s (loging redirected to log/scanner.log)" % (getSetting('folders').split(',')))
+      thr = self.Scanner(getSetting('folders').split(','))
+      thr.start()
 
    def detect_moves(self):
       """
       Detects files that moved on the file system and updates the reference in
       the DB
       """
+
+      ## wait for scanners to finish their job
+      #for item in self.__activeScans:
+      #   if item.isAlive():
+      #      item.join()
       self.__logger.debug("detecting moves")
 
    def detect_orphans(self):
@@ -918,7 +988,7 @@ class Arbitrator(threading.Thread):
          while self.__keepRunning:
             data = self.__connection.recv(1024)[0:-1]
             if data:
-               self.__logger.info( "command from %s: %s" % (self.__address[0], data) )
+               self.__logger.debug( "command from %s: %s" % (self.__address[0], data) )
                self.__connection.send(self.dispatch(data))
             else:
                break
@@ -982,7 +1052,7 @@ if __name__ == "__main__":
          try:
             # wait for next client to connect
             connection, address = sock.accept()
-            logger.info( "accepting incoming connection from %s" % (address[0]) )
+            logger.debug( "accepting incoming connection from %s" % (address[0]) )
             t = Arbitrator(connection, address)
             t.start()
          except KeyboardInterrupt:

@@ -89,7 +89,7 @@
 		  </div>
 
   </div>
-  <div style="height: 50px;">&nbsp;</div>
+  <div style="height: 50px; clear:both;">&nbsp;</div>
   <div id="footer">
  		wicked jukebox 1.0<br />
   Designed by <a href="http://www.jameskoster.co.uk">James Koster</a>, all the rest by exhuma.twn & doc.twn - The Wicked Net</div>

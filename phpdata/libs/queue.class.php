@@ -16,7 +16,7 @@ class Queue {
   function getAll($channel = 1) {
     $db = ezcDbInstance::get();
 
-    $stmt = $db->prepare("SELECT *, SEC_TO_TIME(duration) AS duration FROM queue, artists, users, songs WHERE queue.user_id = users.user_id AND artists.artist_id = songs.artist_id AND queue.song_id = songs.song_id AND channel_id = ? ORDER BY queue.added ASC, queue.position ASC");
+    $stmt = $db->prepare("SELECT *, SEC_TO_TIME(duration) AS duration, queue.user_id AS queue_user FROM queue, artists, users, songs WHERE queue.user_id = users.user_id AND artists.artist_id = songs.artist_id AND queue.song_id = songs.song_id AND channel_id = ? ORDER BY queue.added ASC, queue.position ASC");
 
     $stmt->execute(array("$channel"));
 

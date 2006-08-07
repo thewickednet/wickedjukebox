@@ -23,11 +23,11 @@
       break;
     case "del":
 
-      if ($permissions['queue_remove'] == '1') {
+//      if ($permissions['queue_remove'] == '1') {
         $queue->del($_GET['param']);
-      } else {
-        die("no permissions for this action.");
-      }
+//      } else {
+//        die("no permissions for this action.");
+//      }
 
       break;
   } // switch

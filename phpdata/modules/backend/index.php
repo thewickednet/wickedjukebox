@@ -14,13 +14,16 @@
 
   socket_connect($sock, $host, $port);
 
-  if (socket_read($sock) != "HELLO" ) {
+  if (socket_read($sock, 64) != "HELLO" ) {
      echo "socket_listen() failed: reason: " . socket_strerror($ret) . "\n";
   }
 
   switch($_GET['param']) {
     case "play":
       $command = "play\n";
+      break;
+    case "stop":
+      $command = "stop\n";
       break;
     case "pause":
       $command = "pause\n";
@@ -36,7 +39,7 @@
 
   socket_write($sock, $command);
 
-  if (substr_count(socket_read($sock), "OK") == 0) {
+  if (substr_count(socket_read($sock, 64), "OK") == 0) {
      echo "socket_listen() failed: reason: " . socket_strerror($ret) . "\n";
   }
 

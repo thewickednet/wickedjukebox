@@ -72,12 +72,6 @@ class Song {
 
   function getLatest($id = 0){
 
-    $cache = ezcCacheManager::getCache('short');
-
-    $cache_id = sprintf("latest_additions");
-
-    if ( ( $results = $cache->restore( $cache_id ) ) === false ) {
-
       $db = ezcDbInstance::get();
 
       $results = array();
@@ -85,11 +79,6 @@ class Song {
       $stmt = $db->prepare("SELECT *, songs.title AS song, albums.title AS album, songs.added AS added_song, SEC_TO_TIME(duration) AS duration FROM songs, albums, artists WHERE artists.artist_id = songs.artist_id AND songs.album_id = albums.album_id ORDER BY songs.added DESC LIMIT 25");
       $stmt->execute(array());
       $results = $stmt->fetchAll();
-
-      $cache->store( $cache_id, $results );
-
-    }
-
 
     return $results;
   }

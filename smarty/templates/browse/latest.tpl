@@ -18,4 +18,3 @@
             </tr>
             </table>
             </div>
-            {debug}

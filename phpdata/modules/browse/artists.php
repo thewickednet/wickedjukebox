@@ -30,7 +30,7 @@
           'mode'      => 'Sliding',
           'append'    => false,
           'urlVar'    => 'pagenum',
-          'path'      => sprintf("http://%s/browse/artists/byid/%d/bypage/", $_SERVER["HTTP_HOST"], $_GET['param']),
+          'path'      => sprintf("http://%s/browse/artists/byid/%s/bypage/", $_SERVER["HTTP_HOST"], $_GET['param']),
           'fileName'  => '%d'.'/',  //Pager replaces "%d" with page number...
           'itemData'  => $results,
           'perPage'   => 25

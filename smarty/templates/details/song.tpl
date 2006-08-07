@@ -7,30 +7,12 @@
               <tr>
                 <td width="50%" colspan="2">
                 {if $ARTIST_COVER ne ''}
-              <img src="/images/indicator.gif" border="0" id="img_artist"/>
-{literal}
-<script language="Javascript">
-
-  var timg_artist = new Image();
-  timg_artist.onload = function () { loaded('artist', '/browse/artists/cover/{/literal}{$SONG.artist_id}{literal}/'); } ;
-  timg_artist.src = '/browse/artists/cover/{/literal}{$SONG.artist_id}{literal}/';
-
-</script>
-{/literal}
+                <img src="/browse/artists/cover/{$SONG.artist_id}/" border="0" id="img_artist"/>
                 {/if}
                 </td>
                 <td width="50%" colspan="2">
                 {if $ALBUM_COVER ne ''}
-              <img src="/images/indicator.gif" border="0" id="img_album"/>
-{literal}
-<script language="Javascript">
-
-  var timg_album = new Image();
-  timg_album.onload = function () { loaded('album', '/browse/albums/cover/{/literal}{$SONG.album_id}{literal}/'); } ;
-  timg_album.src = '/browse/albums/cover/{/literal}{$SONG.album_id}{literal}/';
-
-</script>
-{/literal}
+                <img src="/browse/albums/cover/{$SONG.album_id}/" border="0" id="img_album"/>
                 {/if}
                 </td>
               </tr>
@@ -72,6 +54,9 @@
               </tr>
               <tr>
                 <td colspan="4"><a href="/download/song/{$SONG.song_id}/">Download this Song</a></td>
+              </tr>
+              <tr>
+                <td colspan="4">Debug info - localpath: {$SONG.localpath}</a></td>
               </tr>
             </table>
 

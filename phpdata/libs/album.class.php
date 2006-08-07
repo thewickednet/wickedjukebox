@@ -199,8 +199,8 @@ class Album {
   function showCover($original, $type = "cover"){
 
     if ($type == "thumb") {
-      $w_max = 100;
-      $h_max = 100;
+      $w_max = 120;
+      $h_max = 120;
     } else {
       $w_max = 200;
       $h_max = 200;

@@ -47,16 +47,14 @@ class Player {
 
     socket_connect($sock, $host, $port);
 
-    if (socket_read($sock, 64) != "HELLO" ) {
-       echo "socket_listen() failed: reason: " . socket_strerror($ret) . "\n";
-    }
+    $hello = socket_read($sock, 512);
 
     socket_write($sock, "player_status\n");
-    $reader = socket_read($sock, 64);
+    $reader = socket_read($sock, 512);
     $player_status = split(":", $reader);
 
     socket_write($sock, "now_playing\n");
-    $reader = socket_read($sock, 64);
+    $reader = socket_read($sock, 512);
     $now_playing = split(":", $reader);
 
     socket_close($sock);

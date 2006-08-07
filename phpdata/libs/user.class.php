@@ -25,6 +25,28 @@ class User {
   }
 
 
+  function pay($id, $credits){
+    $db = ezcDbInstance::get();
+
+    $user = self::get($id);
+
+    if ($user['credits'] < $credits) {
+      die("net genuch credits, nawend");
+    }
+
+    $user['credits'] -= $credits;
+
+    $q = $db->createUpdateQuery();
+    $e = $q->expr;
+    $q->update( 'users' )
+      ->set( 'credits', $q->bindValue( $user['credits'] ) )
+      ->where( $e->eq( 'user_id', $q->bindValue( $id ) ) );
+    $stmt = $q->prepare();
+    $stmt->execute();
+
+    return $cookie;
+  }
+
   function getAll(){
     $db = ezcDbInstance::get();
 
