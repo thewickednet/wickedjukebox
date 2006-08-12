@@ -45,7 +45,6 @@ def killAgents():
    if dj is not None:  dj.stop();  dj.join()
    if t is not None:   t.stop();
 
-
 def getSetting(param_in, default=None):
    """
    Retrieves a setting from the database.
@@ -353,6 +352,69 @@ class DJ(threading.Thread):
          killAgents()
          sys.exit(0)
 
+   def __dequeue(self):
+      """
+      Return the filename of the next item on the queue
+      """
+
+      nextSong = list(QueueItem.select(orderBy=['added', 'position']))[0]
+      filename = nextSong.song.localpath
+      songID   = nextSong.song.id
+      nextSong.destroySelf()
+
+
+      #TODO# The following is based on a wrong assumption of the "position" field.
+      # This needs to be discussed!
+      ## ok, we got the top of the queue. We can now shift the queue by 1
+      ## This is a custom query. This is badly documented by SQLObject. Refer to
+      ## the top comment in model.py for a reference
+      #conn = QueueItem._connection
+      #posCol = QueueItem.q.position.fieldName
+      #updatePosition = conn.sqlrepr(
+      #      Update(QueueItem.q,
+      #         {posCol: QueueItem.q.position - 1} )) # this shifts
+      #conn.query(updatePosition)
+      #conn.cache.clear()
+      #
+      ## ok. queue is shifted. now drop all items having a position smaller than
+      ## -6
+      #delquery = conn.sqlrepr(Delete(QueueItem.q, where=(QueueItem.q.position < -6)))
+      #conn.query(delquery)
+
+      return (songID, filename)
+
+   def __smartGet(self):
+      """
+      determine a song that would be best to play next and return it's filename
+
+      TODO The current query completely ignores songs that have only been
+           played once and skipped once. A minimum play cound should be
+           required before it starts calculating the score.
+      """
+
+      query = """
+         SELECT
+            song_id,
+            localpath,
+            %(playratio)s AS playratio
+         FROM songs
+         WHERE %(playratio)s IS NULL OR %(playratio)s > 0.3 OR (played+skipped)<10
+      """ % {'playratio': "( played / ( played + skipped ) )"}
+
+      # I won't use ORDER BY RAND() as it is way too dependent on the dbms!
+      import random
+      random.seed()
+      conn = Songs._connection
+      res = conn.queryAll(query)
+      randindex = random.randint(1, len(res)) -1
+      try:
+         out = (res[randindex][0], res[randindex][1])
+         self.__logger.info("Selected song (%d, %s) at random. However, this feature is not yet fully implemented" % out)
+         return out
+      except IndexError:
+         self.__logger.error('No song returned from query. Is the database empty?')
+         pass
+
    def populatePlaylist(self):
       """
       First, this ensures the playlist does not grow too large. Then it checks
@@ -462,69 +524,6 @@ class DJ(threading.Thread):
 
       # self.__keepRunning became false. We should quit
       self.__logger.info('Stopped DJ')
-
-   def __dequeue(self):
-      """
-      Return the filename of the next item on the queue
-      """
-
-      nextSong = list(QueueItem.select(orderBy=['added', 'position']))[0]
-      filename = nextSong.song.localpath
-      songID   = nextSong.song.id
-      nextSong.destroySelf()
-
-
-      #TODO# The following is based on a wrong assumption of the "position" field.
-      # This needs to be discussed!
-      ## ok, we got the top of the queue. We can now shift the queue by 1
-      ## This is a custom query. This is badly documented by SQLObject. Refer to
-      ## the top comment in model.py for a reference
-      #conn = QueueItem._connection
-      #posCol = QueueItem.q.position.fieldName
-      #updatePosition = conn.sqlrepr(
-      #      Update(QueueItem.q,
-      #         {posCol: QueueItem.q.position - 1} )) # this shifts
-      #conn.query(updatePosition)
-      #conn.cache.clear()
-      #
-      ## ok. queue is shifted. now drop all items having a position smaller than
-      ## -6
-      #delquery = conn.sqlrepr(Delete(QueueItem.q, where=(QueueItem.q.position < -6)))
-      #conn.query(delquery)
-
-      return (songID, filename)
-
-   def __smartGet(self):
-      """
-      determine a song that would be best to play next and return it's filename
-
-      TODO The current query completely ignores songs that have only been
-           played once and skipped once. A minimum play cound should be
-           required before it starts calculating the score.
-      """
-
-      query = """
-         SELECT
-            song_id,
-            localpath,
-            %(playratio)s AS playratio
-         FROM songs
-         WHERE %(playratio)s IS NULL OR %(playratio)s > 0.3 OR (played+skipped)<10
-      """ % {'playratio': "( played / ( played + skipped ) )"}
-
-      # I won't use ORDER BY RAND() as it is way too dependent on the dbms!
-      import random
-      random.seed()
-      conn = Songs._connection
-      res = conn.queryAll(query)
-      randindex = random.randint(1, len(res)) -1
-      try:
-         out = (res[randindex][0], res[randindex][1])
-         self.__logger.info("Selected song (%d, %s) at random. However, this feature is not yet fully implemented" % out)
-         return out
-      except IndexError:
-         self.__logger.error('No song returned from query. Is the database empty?')
-         pass
 
    def stop(self):
       """
