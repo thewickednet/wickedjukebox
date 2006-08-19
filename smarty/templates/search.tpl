@@ -12,7 +12,7 @@
                 <td><a href="/browse/artists/byid/{$RESULT.artist_id}/">{$RESULT.artist}</a></td>
                 <td width="24"><a href="#" onclick="javascript:addsong({$RESULT.song_id});"><img src="/images/add.gif" border="0" /></a></td>
                 <td><a href="/details/song/{$RESULT.song_id}/">{$RESULT.song}</a></td>
-                <td width="24"><a href="#" onclick="javascript:addalbum({$RESULT.album_id});"><img src="/images/add.gif" border="0" /></a></td>
+                <td width="24"><a href="#" onclick="javascript:addalbum({$RESULT.album_id});"><img src="/images/add_album.gif" border="0" /></a></td>
                 <td><a href="/browse/albums/byid/{$RESULT.album_id}/">{$RESULT.album}</a></td>
                 <td align="right">{$RESULT.duration|date_format:"%M:%S"}</td>
               </tr>

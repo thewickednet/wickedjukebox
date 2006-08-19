@@ -30,7 +30,7 @@
             <a href="/browse/albums/byalpha/z/">Z</a>
             </p>
 
-            <h2>{$ALBUM.title}{if $PERMISSIONS.queue_add eq '1'} -<a href="#" onclick="javascript:addalbum({$ALBUM.album_id});"><img src="/images/add.gif" border="0" /></a>{/if}</h2>
+            <h2>{$ALBUM.title}{if $PERMISSIONS.queue_add eq '1'} -<a href="#" onclick="javascript:addalbum({$ALBUM.album_id});"><img src="/images/add_album.gif" border="0" /></a>{/if}</h2>
 
             <table cellspacing="6" width="750">
             <tr>

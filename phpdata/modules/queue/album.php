@@ -7,7 +7,6 @@
  * @copyright 2006
  */
 
-  die("bon, ganz alben queuen geet lo netei. an haal elo op, soss soen ech denger mamm et!");
 
   switch($_GET['mode']){
     case "add":
