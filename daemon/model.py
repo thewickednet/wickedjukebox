@@ -116,6 +116,8 @@ class Channels(SQLObject):
    public         = BoolCol()
    backend        = StringCol(length=32)
    backend_params = StringCol()
+   active         = BoolCol()
+   ping           = DateTimeCol()
 
    #--- Joins ----------------------------------
    queues         = MultipleJoin('QueueItem', joinColumn='channel_id')
@@ -218,7 +220,6 @@ class Artists(SQLObject):
 
 # load the configuration file, and set up the DB-conenction
 config = LoadConfig(os.path.join("..", "phpdata", "config.ini"))
-   
 
 dburi = "%s://%s:%s@%s/%s" % (
       config['database.type'],
@@ -230,4 +231,4 @@ dburi = "%s://%s:%s@%s/%s" % (
 
 sqlhub.processConnection = connectionForURI(dburi)
 
-# vim: set ts=3 sw=3 ts ai :
+# vim: set ts=3 sw=3 ai :

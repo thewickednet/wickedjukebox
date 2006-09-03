@@ -10,575 +10,16 @@
 
 import threading
 import time, md5
-import kaa.metadata
+import kaa.metadata, kaa.strutils
 import logging, logging.handlers, logging.config
 import socket
 from model import *
 import os, sys
-from sqlobject.main import SQLObjectNotFound
 from sqlobject.sqlbuilder import *
 from MySQLdb import OperationalError
 from datetime import datetime
-
-# ---- Global support functions ----------------------------------------------
-
-def get_hash(filename):
-   """
-   Return md5 hash.
-   https://gumuz.looze.net/svn/gumuz/dupes/dupes.py
-   """
-   f = open(filename,'rb')
-   hsh = md5.new()
-   while 1:
-      data = f.read(2048)
-      if not data: break
-      hsh.update(data)
-   f.close()
-   return hsh.hexdigest()
-
-def killAgents():
-   """
-   Tries to stop all the agents
-   """
-
-   if lib is not None: lib.stop(); lib.join()
-   if dj is not None:  dj.stop();  dj.join()
-   if t is not None:   t.stop();
-
-def getSetting(param_in, default=None):
-   """
-   Retrieves a setting from the database.
-
-   PARAMETERS
-      param_in - The name of the setting as string
-      default  - (optional) If it's set, it provides the default value in case
-                 the value was not found in the database.
-   """
-   try:
-      return Settings.byParam(param_in).value
-   except SQLObjectNotFound, ex:
-      # The parameter was not found in the database. Do we have a default?
-      if default is not None:
-         # yes, we have a default. Return that instead the database value.
-         return default
-      else:
-         # no, no default specified. This won't work so we tell the user
-         words = str(ex).split()
-         print
-         print "Required parameter %s was not found in the settings table!" % words[6]
-         print
-         raise
-   except Exception, ex:
-      if str(ex).lower().find('connect') > 0:
-         logging.critical('Unable to connect to the database. Error was: \n%s' % ex)
-         killAgents()
-         sys.exit(0)
-      if str(ex).lower().find('exist') > 0:
-         logging.critical('Settings table not found. Did you create the database tables?')
-         killAgents()
-         sys.exit(0)
-      else:
-         # An unknown error occured. We raise it again
-         raise
-
-def getArtist(artistName):
-   """
-   If the artist does not yet exist, create it. Otherwise get the database
-   reference.
-
-   PARAMETERS
-      artistName - The name of the artist to create/retrieve
-
-   RETURNS
-      an Artists sql-object
-   """
-
-   if artistName is None or artistName == '':
-      return None
-
-   if Artists.selectBy(name=artistName).count() == 0:
-      return Artists(
-         name = artistName,
-         added = datetime.now()
-         )
-   else:
-      return Artists.selectBy(name=artistName)[0]
-
-def getGenre(genreName):
-   """
-   If the genre does not yet exist, create it. Otherwise get the database
-   reference.
-
-   PARAMETERS
-      genreName - The name of the genre to create/retrieve
-
-   RETURNS
-      an Genres ssql-object
-   """
-
-   if genreName is None or genreName == '':
-      return None
-
-   if Genres.selectBy(name=genreName).count() == 0:
-      return Genres( name = genreName)
-   else:
-      return Genres.selectBy(name=genreName)[0]
-
-def getAlbum(artistName, albumName):
-   """
-   If the album does not yet exist, create it. Otherwise get the database
-   reference.
-
-   PARAMETERS
-      artistName - The name of the artist of that album
-      albumName  - The name of the album to create/retrieve
-
-   RETURNS
-      an Albums sql-object
-   """
-
-   dbArtist = getArtist(artistName)
-
-   if albumName is None or albumName == '' or dbArtist is None:
-      return None
-
-   if Albums.selectBy(title=albumName).count() == 0:
-      album = Albums(
-         title = albumName,
-         added=datetime.now(),
-         played = 0,
-         downloaded = 0,
-         type = 'album',
-         artist=dbArtist
-         )
-      return album
-   else:
-      # check if we have the album with the matching artist
-      album = list(Albums.selectBy(title=albumName))[0]
-      if dbArtist == album.artist:
-         return album
-      # aha! we have an album with a matching name, but not the artist. that
-      # means this is a "various artist" album, so update it and return it
-      if album.type == 'album':
-         album.type='various'
-      return album
-
-# ----------------------------------------------------------------------------
-
-class Player:
-   """
-   An abstract class that each player should inherit.
-   """
-
-   def queue(self, filename):
-      raise NotImplementedError, "Must override this method"
-
-   def getSong(self):
-      raise NotImplementedError, "Must override this method"
-
-class MPD(Player):
-   """
-   An interface to the music player daemon (mpd).
-   mpd is a client-server based audio player. It offers easy bindings to python
-   and hence it's a simple implementation
-   http://www.musicpd.org
-   """
-
-   __connection = None  # The interface to mpd
-
-   def __init__(self):
-      """
-      Constructor
-      Connects to the mpd-daemon.
-      """
-      import mpdclient
-      # set up the connection to the daemon
-      self.__connection = mpdclient.MpdController(
-            host=getSetting('mpd_host', 'localhost'),
-            port=int(getSetting('mpd_port', '6600'))
-            )
-
-   def getPosition(self):
-      """
-      Returns the current position in the song. (currentSec, totalSec)
-      """
-      pos = self.__connection.getSongPosition()
-      if pos:
-         return (pos[0], pos[1])
-      else:
-         return (0,0)
-
-   def getSong(self):
-      """
-      Returns the currently running song
-      """
-      return self.__connection.getCurrentSong()
-
-   def playlistPosition(self):
-      """
-      Returns the position in the playlist as integer
-      """
-      return self.__connection.status().song
-
-   def queue(self, filename):
-      """
-      Appends a new song to the playlist, and removes the first entry in the
-      playlist if it's becoming too large. This prevents having huge playlists
-      after a while playing.
-
-      PARAMETERS
-         filename -  The full path of the file
-      """
-      for folder in getSetting('folders').split(','):
-         # with MPD, filenames are relative to the path specified in the mpd
-         # config!! This is handled here.
-         if filename.startswith(folder):
-            filename = filename[len(folder)+1:]
-      logging.info("queuing %s" % filename)
-      self.__connection.add([filename])
-
-      # keep the playlist clean
-      if self.__connection.getStatus().playlistLength > 10:
-         self.__connection.delete([0])
-
-   def playlistSize(self):
-      """
-      Returns the complete size of the playlist
-      """
-      return self.__connection.getStatus().playlistLength
-
-   def cropPlaylist(self, length=2):
-      """
-      Removes items from the *beginning* of the playlist to ensure it has only
-      a fixed number of entries.
-
-      PARAMETERS
-         length - The new size of the playlist (optional, default=10)
-      """
-      if self.__connection.getStatus().playlistLength > length:
-         self.__connection.delete(range(0,
-            self.__connection.getStatus().playlistLength - length))
-
-   def clearPlaylist(self):
-      """
-      Clears the player's playlist
-      """
-      self.cropPlaylist(0)
-
-   def skipSong(self):
-      """
-      Skips the current song
-      """
-      self.__connection.next()
-
-   def stopPlayback(self):
-      """
-      Stops playback
-      """
-      self.__connection.stop()
-
-   def pausePlayback(self):
-      """
-      Pauses playback
-      """
-      self.__connection.pause()
-
-   def startPlayback(self):
-      """
-      Starts playback
-      """
-      self.__connection.play()
-
-   def status(self):
-      """
-      Returns the status of the player (play, stop, pause)
-      """
-      if self.__connection.getStatus().state == 1:
-         return 'stop'
-      elif self.__connection.getStatus().state == 2:
-         return 'play'
-      elif self.__connection.getStatus().state == 3:
-         return 'pause'
-      else:
-         return 'unknown (%s)' % self.__connection.getStatus().state
-
-   def updatePlaylist(self):
-      self.__connection.sendUpdateCommand()
-
-class DJ(threading.Thread):
-   """
-   The DJ is responsible for music playback. All changes of the playback (play,
-   pause, skip, ...) have to be passed to the DJ. The DJ handles updating of
-   the play statistics, and continuous playback. It manages the queue from the
-   database and automatically adds new songs to the playlist. In case something
-   is on the queue it takes off the next item, otherwise it picks a song at
-   random.
-   """
-
-   __keepRunning   = True  # While this is true, the DJ is alive
-   __playStatus    = 'playing'
-   __currentSongID = 0
-   __logger        = logging.getLogger('dj')
-
-   def __init__(self):
-      """
-      Constructor
-
-      Connects to the player and prepares the playlist
-      """
-      threading.Thread.__init__(self)
-      self.setName( '%s (%s)' % (self.getName(), 'DJ') )
-
-      # initialise the player
-      playerBackend = getSetting('player', 'mpd')
-      if playerBackend == 'mpd':
-         self.__connectMPD()
-      else:
-         raise ValueError, 'unknown player backend'
-
-      self.populatePlaylist()
-
-   def __connectMPD(self):
-      """
-      A helper method to connect to the mpd-player. It will retry until it
-      get's a connection.
-      """
-      import mpdclient
-      try:
-         self.__player = MPD()
-      except mpdclient.MpdConnectionPortError, ex:
-         import traceback
-         self.__logger.critical("Error connecting to the player:\n%s" % traceback.format_exc())
-         killAgents()
-         sys.exit(0)
-
-   def __dequeue(self):
-      """
-      Return the filename of the next item on the queue
-      """
-
-      nextSong = list(QueueItem.select(orderBy=['added', 'position']))[0]
-      filename = nextSong.song.localpath
-      songID   = nextSong.song.id
-      nextSong.destroySelf()
-
-
-      #TODO# The following is based on a wrong assumption of the "position" field.
-      # This needs to be discussed!
-      ## ok, we got the top of the queue. We can now shift the queue by 1
-      ## This is a custom query. This is badly documented by SQLObject. Refer to
-      ## the top comment in model.py for a reference
-      #conn = QueueItem._connection
-      #posCol = QueueItem.q.position.fieldName
-      #updatePosition = conn.sqlrepr(
-      #      Update(QueueItem.q,
-      #         {posCol: QueueItem.q.position - 1} )) # this shifts
-      #conn.query(updatePosition)
-      #conn.cache.clear()
-      #
-      ## ok. queue is shifted. now drop all items having a position smaller than
-      ## -6
-      #delquery = conn.sqlrepr(Delete(QueueItem.q, where=(QueueItem.q.position < -6)))
-      #conn.query(delquery)
-
-      return (songID, filename)
-
-   def __smartGet(self):
-      """
-      determine a song that would be best to play next and return it's filename
-
-      TODO The current query completely ignores songs that have only been
-           played once and skipped once. A minimum play cound should be
-           required before it starts calculating the score.
-      """
-
-      query = """
-         SELECT
-            song_id,
-            localpath,
-            %(playratio)s AS playratio
-         FROM songs
-         WHERE %(playratio)s IS NULL OR %(playratio)s > 0.3 OR (played+skipped)<10
-      """ % {'playratio': "( played / ( played + skipped ) )"}
-
-      # I won't use ORDER BY RAND() as it is way too dependent on the dbms!
-      import random
-      random.seed()
-      conn = Songs._connection
-      res = conn.queryAll(query)
-      randindex = random.randint(1, len(res)) -1
-      try:
-         out = (res[randindex][0], res[randindex][1])
-         self.__logger.info("Selected song (%d, %s) at random. However, this feature is not yet fully implemented" % out)
-         return out
-      except IndexError:
-         self.__logger.error('No song returned from query. Is the database empty?')
-         pass
-
-   def populatePlaylist(self):
-      """
-      First, this ensures the playlist does not grow too large. Then it checks
-      if the current song is the last one playing. If that is the case, it will
-      add a new song to the playlist.
-      """
-
-      self.__player.cropPlaylist()
-      if self.__player.playlistPosition() == self.__player.playlistSize()-1 \
-            or self.__player.playlistSize() == 0:
-         try:
-            # song is soon finished. Add the next one to the playlist
-            nextSong = self.__dequeue()
-            self.__currentSongID = nextSong[0]
-            self.__player.queue(nextSong[1])
-            self.__logger.info('queued %s' % nextSong[1])
-         except IndexError:
-            # no song in the queue run smartDj
-            ##nextSong = self.__smartGet()
-            ##self.__currentSongID = nextSong[0]
-            ##self.__player.queue(nextSong[1])
-            ##self.__logger.info('selected %s' % nextSong[1])
-            pass
-
-   def run(self):
-      """
-      The control loop of the DJ
-      Every x seconds (can be customised in the settings) it will check the
-      position in the current song. If the song is nearly finished, it will
-      take appropriate actions to ensure continuous playback (pick a song from
-      the queue, or at random)
-      """
-
-      self.__logger.info('Started DJ')
-      cycle = int(getSetting('dj_cycle', '1'))
-
-      lastCreditGiveaway = datetime.now()
-
-      # while we are alive, do the loop
-      while self.__keepRunning:
-
-         # if we handed out credits more than 30mins ago, we give out some more
-         if (datetime.now() - lastCreditGiveaway).seconds > 300:
-            q = "UPDATE users SET credits=credits+5 WHERE credits<30"
-            conn = Users._connection
-            lastCreditGiveaway = datetime.now()
-            conn.query(q)
-
-         # if the queue is empty, add a random song to the queue
-         if QueueItem.select().count() == 0:
-            nextSong = Songs.get(self.__smartGet()[0])
-            tmp = QueueItem(
-                  position=0,
-                  added=datetime.now(),
-                  song=nextSong,
-                  channel=1,
-                  user=Users.get(1)
-                  )
-            self.populatePlaylist()
-            self.__player.startPlayback()
-
-         try:
-            # check if the player accidentally went into the "stop" state
-            if self.__player.status() == 'stop' and self.__playStatus == 'playing':
-               self.__player.clearPlaylist()
-               self.populatePlaylist()
-               self.__player.startPlayback()
-
-            # or if it accidentally wen into the play state
-            if self.__player.status() == 'play' and self.__playStatus == 'stopped':
-               self.__player.stopPlayback()
-         except mpdclient.MpdError:
-            pass
-
-         # only queue new songs if we are in play-mode
-         if self.__playStatus == 'playing':
-
-            # if the song is soon finished, update stats and pick the next one
-            currentPosition = self.__player.getPosition()
-            if (currentPosition[1] - currentPosition[0]) == 3 or currentPosition == (0,0):
-               if self.__player.getSong():
-                  try:
-
-                     # retrieve info from the currently playing song
-                     # TODO: This is hardcoded for mpd. It HAS to be abstracted by
-                     #       the MPD class.
-                     cArtist = Artists.selectBy(name=self.__player.getSong().artist)[0]
-                     cAlbum  = Albums.selectBy(title=self.__player.getSong().album)[0]
-                     cTitle  = self.__player.getSong().title
-
-                     # I haven't figured out the way to add the album to the select
-                     # query. That's why I loop through all songs from a given artist
-                     # and title. It's highly unlikely though that there is more than
-                     # one entry.
-                     song = list(Songs.selectBy(artist=cArtist, title=cTitle, album=cAlbum))[0]
-                     song.lastPlayed = datetime.now()
-                     song.played = song.played + 1
-
-                  except IndexError, ex:
-                     # no song on the queue. We can ignore this error
-                     pass
-
-               self.populatePlaylist()
-
-         # wait for x seconds
-         time.sleep(cycle)
-
-      # self.__keepRunning became false. We should quit
-      self.__logger.info('Stopped DJ')
-
-   def stop(self):
-      """
-      Requests the DJ to cease operation and quit
-      """
-      self.__keepRunning = False
-
-   def startPlayback(self):
-      """
-      Sends a "play" command to the player backend
-      """
-      self.__playStatus = 'playing'
-      self.__player.startPlayback()
-      return ('OK', 'OK')
-
-   def stopPlayback(self):
-      """
-      Sends a "stop" command to the player backend
-      """
-      self.__playStatus = 'stopped'
-      self.__player.stopPlayback()
-      return ('OK', 'OK')
-
-   def pausePlayback(self):
-      """
-      Sends a "pause" command to the player backend
-      """
-      if self.__playStatus == 'paused':
-         self.__playStatus = 'playing'
-      else:
-         self.__playStatus = 'paused'
-      self.__player.pausePlayback()
-      return ('OK', 'OK')
-
-   def skipSong(self):
-      """
-      Updates play statistics and sends a "next" command to the player backend
-      """
-      try:
-         cArtist = Artists.selectBy(name=self.__player.getSong().artist)[0]
-         cAlbum  = Albums.selectBy(title=self.__player.getSong().album)[0]
-         cTitle  = self.__player.getSong().title
-         song = list(Songs.selectBy(artist=cArtist, title=cTitle, album=cAlbum))[0]
-         song.skipped = song.skipped + 1
-      except IndexError, ex:
-         # no song on the queue. We can ignore this error
-         pass
-      self.__player.skipSong()
-      return ('OK', 'OK')
-
-   def playStatus(self):
-      return ("OK", self.__playStatus)
-
-   def nowPlaying(self):
-      return ("OK", self.__currentSongID)
+from demon import Juggler
+from util import *
 
 class Librarian(threading.Thread):
    """
@@ -631,13 +72,13 @@ class Librarian(threading.Thread):
                      dbArtist = None
                      dbAlbum  = None
                      if metadata.get('artist') is not None:
-                        dbArtist = getArtist(metadata.get('artist').encode('latin-1', 'xmlcharrefreplace'))
+                        dbArtist = kaa.strutils.unicode_to_str(getArtist(metadata.get('artist')))
 
                         if metadata.get('album') is not None:
                            try:
                               dbAlbum = getAlbum(
-                                          metadata.get('artist').encode('latin-1', 'xmlcharrefreplace'),
-                                          metadata.get('album').encode('latin-1', 'xmlcharrefreplace')
+                                          kaa.strutils.unicode_to_str(metadata.get('artist')),
+                                          kaa.strutils.unicode_to_str(metadata.get('album'))
                                        )
                            except Exception, ex:
                               if str(ex).upper().find("DUPLICATE") < 0:
@@ -650,8 +91,8 @@ class Librarian(threading.Thread):
                                  # The word "duplicate" was found. We silently
                                  # ignore this error, but keep a log
                                  self.__scanLog.warning('Duplicate album %s - %s' % (
-                                    metadata.get('artist').encode('latin-1', 'xmlcharrefreplace'),
-                                    metadata.get('album').encode('latin-1', 'xmlcharrefreplace')))
+                                    kaa.strutils.unicode_to_str(metadata.get('artist')),
+                                    kaa.strutils.unicode_to_str(metadata.get('album'))))
                                  pass
                         else:
                            self.__scanLog.warning('error getting album for %s', filename)
@@ -676,12 +117,12 @@ class Librarian(threading.Thread):
                         trackNo = 0
 
                      if metadata.get('title') is not None:
-                        title = metadata.get('title').encode('latin-1', 'xmlcharrefreplace')
+                        title = kaa.strutils.unicode_to_str(metadata.get('title'))
                      else:
                         title = ''
 
                      if metadata.get('genre') is not None:
-                        genre = getGenre(metadata.get('genre').encode('latin-1', 'xmlcharrefreplace'))
+                        genre = kaa.strutils.unicode_to_str(getGenre(metadata.get('genre')))
                      else:
                         genre = ''
 
@@ -698,7 +139,7 @@ class Librarian(threading.Thread):
                               genre   = genre,
                               bitrate = bitrate,
                               duration = duration,
-                              lastScanned = datetime.now(),
+                              lastScanned = datetime.datetime.now(),
                               filesize = filesize
                               )
                         # we call this after creating the object, as this
@@ -715,7 +156,7 @@ class Librarian(threading.Thread):
                         song = Songs.selectBy(localpath=filename)[0]
 
                         if song.lastScanned is None \
-                              or datetime.fromtimestamp(os.stat(filename).st_ctime) > song.lastScanned:
+                              or datetime.datetime.fromtimestamp(os.stat(filename).st_ctime) > song.lastScanned:
                            song.localpath = filename
                            song.trackNo = trackNo
                            song.title   = title
@@ -730,8 +171,14 @@ class Librarian(threading.Thread):
                            self.__scanLog.info("Updated %s" % ( filename))
                         scancount += 1
 
-                     if song.title is not None and song.artist is not None and song.album is not None and song.trackNo != 0:
-                        song.isDirty = False
+                     try:
+                        if song.title is not None \
+                              and song.artist is not None \
+                              and song.album is not None \
+                              and song.trackNo != 0:
+                           song.isDirty = False
+                     except:
+                        song.isDirty = True
 
 
                   except ValueError, ex:
@@ -938,30 +385,30 @@ class Arbitrator(threading.Thread):
             if res[0]: return 'OK:%s\n' % res[1]
             else: return 'ER:%s\n' % res[1]
          #
-         # DJ commands
+         # Juggler commands
          #
          elif command == 'play':
-            res = dj.startPlayback()
+            res = juggler.startPlayback()
             if res[0]: return 'OK:%s\n' % res[1]
             else: return 'ER:%s\n' % res[1]
          elif command == 'pause':
-            res = dj.pausePlayback()
+            res = juggler.pausePlayback()
             if res[0]: return 'OK:%s\n' % res[1]
             else: return 'ER:%s\n' % res[1]
          elif command == 'stop':
-            res = dj.stopPlayback()
+            res = juggler.stopPlayback()
             if res[0]: return 'OK:%s\n' % res[1]
             else: return 'ER:%s\n' % res[1]
          elif command == 'skip':
-            res = dj.skipSong()
+            res = juggler.skipSong()
             if res[0]: return 'OK:%s\n' % res[1]
             else: return 'ER:%s\n' % res[1]
          elif command == 'player_status':
-            res = dj.playStatus()
+            res = juggler.playStatus()
             if res[0]: return 'OK:%s\n' % res[1]
             else: return 'ER:%s\n' % res[1]
          elif command == 'now_playing':
-            res = dj.nowPlaying()
+            res = juggler.nowPlaying()
             if res[0]: return 'OK:%s\n' % res[1]
             else: return 'ER:%s\n' % res[1]
          #
@@ -1006,8 +453,22 @@ class Arbitrator(threading.Thread):
    def stop(self):
       self.__keepRunning = False
 
+# ---- helper functions ------------------------------------------------------
+def killAgents():
+   """
+   Tries to stop all the agents
+   """
+
+   if lib is not None: lib.stop(); lib.join()
+   if juggler is not None:  juggler.stop();  juggler.join()
+   if t is not None:   t.stop();
+# ----------------------------------------------------------------------------
+
 if __name__ == "__main__":
    # The main loop of the daemon.
+
+   # set the default encoding for multibyte strings
+   kaa.strutils.set_encoding('latin-1')
 
    # Setting up logging
    logging.config.fileConfig('logging.ini')
@@ -1020,24 +481,25 @@ if __name__ == "__main__":
 
    # set up a safety net to kill all the threads in case of an uncaught
    # exception
-   dj  = None # initialise the thread variables
-   lib = None
-   t   = None
+   juggler  = None # initialise the thread variables
+   lib        = None
+   t          = None
    try:
       # Start the librarian
       lib = Librarian(); lib.start()
 
-      # start the DJ
-      dj = None
+      # start the juggler
+      juggler = None
       try:
-         dj = DJ()
+         ## debug
+         juggler= Juggler(Channels.get(1))
       except ValueError, ex:
          if str(ex) == 'unknown player backend':
             logger.error('Unknown player specified in the config')
             killAgents()
             sys.exit(0)
       else:
-         dj.start()
+         juggler.start()
 
       # Prepare and open up the server-socket
       sock = socket.socket( socket.AF_INET, socket.SOCK_STREAM )

@@ -14,7 +14,7 @@
 -- Dumping data for table `channels`
 -- 
 
-INSERT INTO `channels` (`channel_id`, `name`, `public`, `backend`, `backend_params`) VALUES (1, 'Wicked Jukebox Soundcard 0', 1, 'playerd', '');
+INSERT INTO `channels` (`channel_id`, `name`, `public`, `backend`, `backend_params`) VALUES (1, 'Wicked Jukebox Soundcard 0', 1, 'mpd', 'host=localhost, port=6600, rootFolder=/mp3');
 
 -- 
 -- Dumping data for table `genres`
