@@ -1,4 +1,7 @@
 import mpdclient
+import os, sys
+import shoutpy, threading
+
 def createPlayer(playerName, backend_params):
 
    # parse parameters, and put them into a dictionary
@@ -10,6 +13,8 @@ def createPlayer(playerName, backend_params):
    # create the specified player
    if playerName == 'mpd':
       return MPD(params)
+   elif playerName == 'icecast':
+      return Icecast(params)
 
 class MPD:
    """
@@ -189,4 +194,125 @@ class MPD:
    def updatePlaylist(self):
       self.__connection.sendUpdateCommand()
 
+class Icecast:
 
+   def __init__(self, params):
+      self.__port     = int(params['port'])
+      self.__mount    = params['mount']
+      self.__password = params['pwd']
+      self.__player   = Shoutcast_Player(self.__password,
+                                         self.__mount,
+                                         self.__port)
+
+   def getPosition(self):
+      # now, the position is a challenge. If we have a CBR file, all is fine
+      # and we can easily determine the duration. With VBR's that's very
+      # difficult however. We use a simple cheat to overcome this. We simply
+      # monitor the file position. So when asked for the position we return (0,
+      # 100) so we in fact fool the juggler by telling it we have played 0 out
+      # of 100 seconds. Then if we played a certain percentage, we immediately
+      # jump to (99, 100). It's ugly, but should work.
+      if self.__player.position > 90.0:
+         return (99, 100)
+      else:
+         return (0, 100)
+
+   def getSong(self):
+      return self.__player.currentSong()
+
+   def queue(self, filename):
+      return self.__player.queue(filename)
+
+   def skipSong(self):
+      self.__player.skip()
+
+   def stopPlayback(self):
+      pass
+
+   def pausePlayback(self):
+      pass
+
+   def startPlayback(self):
+      pass
+
+   def status(self):
+      pass
+
+class Shoutcast_Player(threading.Thread):
+
+   def __init__(self, password='hackme', mount='/wicked.mp3', port=8000):
+      self.__server           = shoutpy.Shout()
+      self.__server.user      = "source"
+      self.__server.password  = password
+      self.__server.mount     = mount
+      self.__server.port      = port
+      self.__server.format    = shoutpy.FORMAT_MP3
+      self.__server.open()
+      self.__keepRunning      = True
+      self.__progress         = (0,0) # (streamed_bytes, total_bytes)
+      self.__queue            = []
+      self.__currentSong      = ''
+      self.__triggerSkip      = False
+      threading.Thread.__init__(self)
+
+   def run(self):
+
+      while self.__keepRunning is True:
+
+         if len(self.__queue) > 0:
+            self.__currentSong = self.__queue.pop(0)
+
+            f = open(self.__currentSong, "rb")
+
+            buf = f.read(4096)
+            self.__progress = (0, os.stat(arg).st_size)
+
+            # stream the file as long as the player is running, or as long as
+            # it's been skipped
+            while buf and self.__keepRunning and not self.__triggerSkip:
+
+               self.__server.send(buf)
+               self.__progress = (self.__progress[0]+len(buf),
+                                  self.__progress[1])
+               buf = f.read(512)
+               self.__server.sync()
+            f.close()
+
+            # if we fell through the previous loop because a skip was
+            # requested, we need to reset that value. Otherwise we keep
+            # skipping
+            if self.__triggerSkip:
+               self.__triggerSkip = False
+
+
+      self.__server.close()
+
+   def skip(self):
+      self.__triggerSkip = True
+
+   def queue(self, filename):
+      self.__queue.append(filename)
+
+   def currentSong(self):
+      return self.__currentSong
+
+   def position(self):
+      """
+      Returns a percentage of how far we are in the song
+      """
+      return float(self.__progress[0]) / float(self.__progress[1]) * 100.0
+
+   def pause(self):
+      pass
+
+   def skip(self):
+      pass
+
+   def stop(self):
+      pass
+
+   def play(self):
+      pass
+
+   def disconnect(self):
+      self.__keepRunning = False
