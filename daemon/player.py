@@ -102,7 +102,16 @@ class MPD:
       if filename.startswith(self.__rootFolder):
          filename = filename[len(self.__rootFolder)+1:]
       ##logging.info("queuing %s" % filename)
-      self.__connection.add([filename])
+      try:
+         self.__connection.add([filename])
+      except mpdclient.MpdError, ex:
+         if str(ex).find('not done processing current command') > 0:
+            # retry in 5 seconds
+            import time
+            time.sleep(5)
+            self.__connection.add([filename])
+         else:
+            raise
 
       # keep the playlist clean
       if self.__connection.getStatus().playlistLength > 10:
