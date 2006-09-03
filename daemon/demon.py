@@ -45,8 +45,8 @@ class Juggler(threading.Thread):
 
       try:
          nextSong = list(QueueItem.select(orderBy=['added', 'position']))[0]
-         filename = nextSong.localpath
-         songID   = nextSong.id
+         filename = nextSong.song.localpath
+         songID   = nextSong.song.id
          nextSong.destroySelf()
       except IndexError:
          # no item on the main queue. Use the internal prediction queue

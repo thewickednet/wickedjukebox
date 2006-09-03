@@ -47,23 +47,40 @@ class MPD:
       """
       Returns the current position in the song. (currentSec, totalSec)
       """
-      pos = self.__connection.getSongPosition()
-      if pos:
-         return (pos[0], pos[1])
-      else:
-         return (0,0)
+      out = (0,0)
+      try:
+         pos = self.__connection.getSongPosition()
+         if pos:
+            out = (pos[0], pos[1])
+         else:
+            out = (0,0)
+      except mpdclient.MpdError, ex:
+         if str(ex).find('not done processing current command') > 0:
+            pass
+         else:
+            raise
+
+      return out
 
    def getSong(self):
       """
       Returns the currently running song
       """
       import os
-      if self.__connection.getCurrentSong() is False:
-         return False
+      try:
+         if self.__connection.getCurrentSong() is False:
+            return False
 
-      return os.path.join(
-            self.__rootFolder,
-            self.__connection.getCurrentSong().path)
+         return os.path.join(
+               self.__rootFolder,
+               self.__connection.getCurrentSong().path)
+      except mpdclient.MpdError, ex:
+         if str(ex).find('not done processing current command') > 0:
+            pass
+         else:
+            raise
+
+      return ''
 
    def playlistPosition(self):
       """
@@ -150,13 +167,15 @@ class MPD:
             return 'play'
          elif self.__connection.getStatus().state == 3:
             return 'pause'
+         else:
+            return 'unknown (%s)' % self.__connection.getStatus().state
       except mpdclient.MpdError, ex:
          if str(ex).find('not done processing current command') > 0:
             pass
          else:
             raise
 
-      return 'unknown (%s)' % self.__connection.getStatus().state
+      return 'unknown'
 
    def updatePlaylist(self):
       self.__connection.sendUpdateCommand()
