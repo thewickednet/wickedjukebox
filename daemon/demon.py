@@ -110,8 +110,8 @@ class Juggler(threading.Thread):
       res = conn.queryAll(query)
       randindex = random.randint(1, len(res)) -1
       try:
-         out = (res[randindex][0], res[randindex][1])
-         self.__logger.info("Selected song (%d, %s) at random. However, this feature is not yet fully implemented" % out)
+         out = (res[randindex][0], res[randindex][1], res[randindex][2])
+         self.__logger.info("Selected song (%d, %s) via smartget. Score was %4.3f" % out)
          self.__predictionQueue.append(out)
       except IndexError:
          self.__logger.error('No song returned from query. Is the database empty?')
