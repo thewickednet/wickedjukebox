@@ -33,6 +33,12 @@ class Juggler(threading.Thread):
       threading.Thread.__init__(self)
       self.setName( '%s (%s)' % (self.getName(), 'juggler') )
 
+      # setup song scoring coefficients
+      self.__neverPlayed = int(getSetting('scoring_neverPlayed', 5))
+      self.__playRatio   = int(getSetting('scoring_ratio',       8))
+      self.__lastPlayed  = int(getSetting('scoring_lastPlayed',  5))
+      self.__songAge     = int(getSetting('scoring_songAge',    10))
+
       # initialise the player
       self.__player  = player.createPlayer(channel.backend, channel.backend_params)
       self.__channel = channel
@@ -97,10 +103,10 @@ class Juggler(threading.Thread):
          ORDER BY score DESC, rand()
          LIMIT 0,10
       """ % {
-         'neverPlayed': 10,
-         'playRatio': 5,
-         'lastPlayed': 5,
-         'songAge': 10
+         'neverPlayed': self.__neverPlayed,
+         'playRatio':   self.__playRatio,
+         'lastPlayed':  self.__lastPlayed,
+         'songAge':     self.__songAge
       }
 
       # I won't use ORDER BY RAND() as it is way too dependent on the dbms!
