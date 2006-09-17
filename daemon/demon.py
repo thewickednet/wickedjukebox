@@ -110,7 +110,7 @@ class Juggler(threading.Thread):
       res = conn.queryAll(query)
       randindex = random.randint(1, len(res)) -1
       try:
-         out = (res[randindex][0], res[randindex][1], res[randindex][2])
+         out = (res[randindex][0], res[randindex][1], float(res[randindex][2]))
          self.__logger.info("Selected song (%d, %s) via smartget. Score was %4.3f" % out)
          self.__predictionQueue.append(out)
       except IndexError:
