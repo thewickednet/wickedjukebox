@@ -89,10 +89,19 @@ class Juggler(threading.Thread):
          SELECT
             song_id,
             localpath,
-            %(playratio)s AS playratio
+            IFNULL( IF(played+skipped>=10, (played/(played+skipped))*%(playRatio)d, 0), 0)
+               + IFNULL( least(604800, time_to_sec(timediff(NOW(), lastPlayed)))/604800*%(lastPlayed)d, 0)
+               + IF( played+skipped=0, %(neverPlayed)d, 0)
+               + IFNULL( IF( time_to_sec(timediff(NOW(),added))<1209600, time_to_sec(timediff(NOW(),added))/1209600*%(songAge)d, 0), 0) score
          FROM songs
-         WHERE %(playratio)s IS NULL OR %(playratio)s > 0.3 OR (played+skipped)<10
-      """ % {'playratio': "( played / ( played + skipped ) )"}
+         ORDER BY score DESC, rand()
+         LIMIT 0,10
+      """ % {
+         'neverPlayed': 10,
+         'playRatio': 5,
+         'lastPlayed': 5,
+         'songAge': 10
+      }
 
       # I won't use ORDER BY RAND() as it is way too dependent on the dbms!
       import random
