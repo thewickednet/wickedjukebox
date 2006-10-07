@@ -96,7 +96,7 @@ class Juggler(threading.Thread):
             song_id,
             localpath,
             IFNULL( IF(played+skipped>=10, (played/(played+skipped))*%(playRatio)d, 0), 0)
-               + IFNULL( least(604800, (time_to_sec(timediff(NOW(), lastPlayed)))/604800)-604800*%(lastPlayed)d, 0)
+               + (IFNULL( least(604800, time_to_sec(timediff(NOW(), lastPlayed))), 604800)-604800)/604800*%(lastPlayed)d
                + IF( played+skipped=0, %(neverPlayed)d, 0)
                + IFNULL( IF( time_to_sec(timediff(NOW(),added))<1209600, time_to_sec(timediff(NOW(),added))/1209600*%(songAge)d, 0), 0) score
          FROM songs
