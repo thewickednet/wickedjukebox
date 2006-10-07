@@ -34,10 +34,10 @@ class Juggler(threading.Thread):
       self.setName( '%s (%s)' % (self.getName(), 'juggler') )
 
       # setup song scoring coefficients
-      self.__neverPlayed = int(getSetting('scoring_neverPlayed', 5))
-      self.__playRatio   = int(getSetting('scoring_ratio',       8))
-      self.__lastPlayed  = int(getSetting('scoring_lastPlayed',  5))
-      self.__songAge     = int(getSetting('scoring_songAge',    10))
+      self.__neverPlayed = int(getSetting('scoring_neverPlayed', 10))
+      self.__playRatio   = int(getSetting('scoring_ratio',        4))
+      self.__lastPlayed  = int(getSetting('scoring_lastPlayed',   7))
+      self.__songAge     = int(getSetting('scoring_songAge',      0))
 
       # initialise the player
       self.__player  = player.createPlayer(channel.backend, channel.backend_params)
@@ -96,7 +96,7 @@ class Juggler(threading.Thread):
             song_id,
             localpath,
             IFNULL( IF(played+skipped>=10, (played/(played+skipped))*%(playRatio)d, 0), 0)
-               + IFNULL( least(604800, time_to_sec(timediff(NOW(), lastPlayed)))/604800*%(lastPlayed)d, 0)
+               + IFNULL( least(604800, (time_to_sec(timediff(NOW(), lastPlayed)))/604800)-604800*%(lastPlayed)d, 0)
                + IF( played+skipped=0, %(neverPlayed)d, 0)
                + IFNULL( IF( time_to_sec(timediff(NOW(),added))<1209600, time_to_sec(timediff(NOW(),added))/1209600*%(songAge)d, 0), 0) score
          FROM songs

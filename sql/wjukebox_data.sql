@@ -205,3 +205,7 @@ INSERT IGNORE INTO `settings` (`param`, `value`) VALUES ('daemon_port',      '64
 INSERT IGNORE INTO `settings` (`param`, `value`) VALUES ('folders',          '/mnt/mp3s/Tagged');
 INSERT IGNORE INTO `settings` (`param`, `value`) VALUES ('librarian_cycle',  '1');
 INSERT IGNORE INTO `settings` (`param`, `value`) VALUES ('dj_cycle',         '1');
+INSERT IGNORE INTO `settings` (`param`, `value`) VALUES ('scoring_neverPlayed',  '10');
+INSERT IGNORE INTO `settings` (`param`, `value`) VALUES ('scoring_ratio',        '4');
+INSERT IGNORE INTO `settings` (`param`, `value`) VALUES ('scoring_lastPlayed',   '7');
+INSERT IGNORE INTO `settings` (`param`, `value`) VALUES ('scoring_songAge',      '0');
