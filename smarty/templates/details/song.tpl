@@ -41,6 +41,12 @@
                 <td width="30%">{$SONG.filesize|bytesToHumanReadable}</td>
               </tr>
               <tr>
+                <td width="20%"><b>Last Played:</b></td>
+                <td width="30%">{$SONG.lastplayed|date_format:"%d.%m.%Y@%H:%M:%S"}</td>
+                <td width="20%">&nbsp;</td>
+                <td width="30%">&nbsp;</td>
+              </tr>
+              <tr>
                 <td width="20%"><b>Played:</b></td>
                 <td width="30%">{$SONG.played}</td>
                 <td width="20%"><b>Skipped:</b></td>
