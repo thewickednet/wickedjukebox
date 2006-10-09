@@ -220,7 +220,21 @@ class Librarian(threading.Thread):
                   song.isDirty = True
 
          self.__scanLog.info('Done checking filesystem')
+         self.__scanLog.info('Checking for empty genres...')
+         for x in list(Genres.select()):
+            if len(x.songs) == 0:
+               self.__scanLog.info('Genre %-15s was empty' % x.name)
+               x.destroySelf()
+         self.__scanLog.info('Done checking genres')
 
+         self.__scanLog.info('Checking for empty albums...')
+         for x in list(Albums.select()):
+            if len(x.songs) == 0:
+               self.__scanLog.info('Album %-15s was empty' % x.title)
+               x.destroySelf()
+         self.__scanLog.info('Done checking albums')
+
+         self.__scanLog.info('--- All done! ---')
 
    def __init__(self):
       """
