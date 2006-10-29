@@ -1,6 +1,6 @@
 import mpdclient
 import os, sys
-import shoutpy, threading
+import shoutpy, threading, logging
 
 def createPlayer(playerName, backend_params):
 
@@ -25,6 +25,7 @@ class MPD:
    """
 
    __connection = None  # The interface to mpd
+   __logger          = logging.getLogger('player')
 
    def __init__(self, params):
       """
@@ -106,7 +107,7 @@ class MPD:
       # config!! This is handled here.
       if filename.startswith(self.__rootFolder):
          filename = filename[len(self.__rootFolder)+1:]
-      ##logging.info("queuing %s" % filename)
+      self.__logger.info("queuing %s" % filename)
       try:
          self.__connection.add([filename])
       except mpdclient.MpdError, ex:
@@ -115,12 +116,20 @@ class MPD:
             import time
             time.sleep(5)
             self.__connection.add([filename])
+         elif str(ex).find('already done processing current command') > 0:
+            self.__logger.info('Received error "already done proc. current \
+                  command" from mpdclient. It should be ok to skip that' 
+                  % filename)
+            pass
          else:
             raise
 
       # keep the playlist clean
-      if self.__connection.getStatus().playlistLength > 10:
-         self.__connection.delete([0])
+      try:
+         if self.__connection.getStatus().playlistLength > 10:
+            self.__connection.delete([0])
+      except MpdError, ex:
+         pass
 
    def playlistSize(self):
       """
@@ -136,9 +145,12 @@ class MPD:
       PARAMETERS
          length - The new size of the playlist (optional, default=10)
       """
-      if self.__connection.getStatus().playlistLength > length:
-         self.__connection.delete(range(0,
-            self.__connection.getStatus().playlistLength - length))
+      try:
+         if self.__connection.getStatus().playlistLength > length:
+            self.__connection.delete(range(0,
+               self.__connection.getStatus().playlistLength - length))
+      except MpdError, ex:
+         pass
 
    def clearPlaylist(self):
       """

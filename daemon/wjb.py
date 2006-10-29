@@ -112,7 +112,10 @@ class Librarian(threading.Thread):
                         bitrate = 0
 
                      if metadata.get('trackno') is not None:
-                        trackNo = int(metadata.get('trackno'))
+                        try:
+                           trackNo = int(metadata.get('trackno'))
+                        except ValueError:
+                           trackNo = int(metadata.get('trackno').split('/')[0])
                      else:
                         trackNo = 0
 
@@ -167,7 +170,7 @@ class Librarian(threading.Thread):
                            song.duration = duration
                            song.checksum = get_hash(filename)
                            song.genre    = genre
-                           song.lastScanned = datetime.now()
+                           song.lastScanned = datetime.datetime.now()
                            self.__scanLog.info("Updated %s" % ( filename))
                         scancount += 1
 
