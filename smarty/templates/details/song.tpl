@@ -20,7 +20,7 @@
                 <td width="20%"><b>Artist:</b></td>
                 <td width="30%"><a href="/browse/artists/byid/{$SONG.artist_id}/">{$SONG.name}</a></td>
                 <td width="20%"><b>Album:</b></td>
-                <td width="30%"><a href="/browse/albums/byid/{$ALBUM.0.album_id}/">{$ALBUM.title}</a></td>
+                <td width="30%"><a href="/browse/albums/byid/{$ALBUM.album_id}/">{$ALBUM.title}</a></td>
               </tr>
               <tr>
                 <td width="20%"><b>Genre:</b></td>
