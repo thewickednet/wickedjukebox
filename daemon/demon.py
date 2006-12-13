@@ -21,7 +21,7 @@ class Juggler(threading.Thread):
    __predictionQueue = []
    __logger          = logging.getLogger('juggler')
 
-   def __init__(self, channel, scrobbler = None):
+   def __init__(self, channel):
       """
       Constructor
 
@@ -42,9 +42,6 @@ class Juggler(threading.Thread):
       # initialise the player
       self.__player  = player.createPlayer(channel.backend, channel.backend_params)
       self.__channel = channel
-
-      # set up the scrobbler
-      self.__scrobbler = scrobbler
 
    def __dequeue(self):
       """
@@ -207,8 +204,7 @@ class Juggler(threading.Thread):
                currentSong = Songs.get(self.__currentSongID)
                currentSong.lastPlayed = datetime.now()
                currentSong.played     = currentSong.played + 1
-               if self.__scrobbler is not None:
-                  self.__scrobbler.scrobble(currentSong)
+               tmp = LastFMQueue(song = currentSong)
             self.__dequeue()
 
          # if we handed out credits more than 30mins ago, we give out some more

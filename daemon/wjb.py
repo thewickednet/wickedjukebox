@@ -520,7 +520,7 @@ class Scrobbler(threading.Thread):
       return (challengeresponse, posturl, float(interval))
 
    def scrobble(self, song):
-      conn = httplib.HTTPConnection(url.split('/')[2])
+      conn = httplib.HTTPConnection(self.__posturl.split('/')[2])
       # this is very ugly. It should be easier.... :(
       now = datetime.datetime.now().isoformat(' ').split('.')[0:-1][0]
       params = urllib.urlencode({
@@ -609,7 +609,7 @@ if __name__ == "__main__":
       # start the juggler
       try:
          logger.warning('Overriding channel setting. Getting first channel!')
-         juggler= Juggler(Channels.get(1), scrobbler=scrobbler)
+         juggler= Juggler(Channels.get(1))
       except ValueError, ex:
          if str(ex) == 'unknown player backend':
             logger.error('Unknown player specified in the config')
