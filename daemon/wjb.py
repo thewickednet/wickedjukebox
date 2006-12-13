@@ -20,6 +20,7 @@ from MySQLdb import OperationalError
 from datetime import datetime
 from demon import Juggler
 from util import *
+import urllib, httplib
 
 class Librarian(threading.Thread):
    """
@@ -470,6 +471,96 @@ class Arbitrator(threading.Thread):
    def stop(self):
       self.__keepRunning = False
 
+class Scrobbler(threading.Thread):
+
+   """
+   Submits tracks to last.fm. It does not submit more than one song per minute
+   to easen last.fm's load
+   """
+
+   __keepRunning = True
+   __logger      = logging.getLogger('scro')
+
+   def __init__(self, user, passwd):
+      """
+      Constructor
+      """
+      threading.Thread.__init__(self)
+      self.setName( '%s (%s)' % (self.getName(), 'Scro') )
+
+      self.__user = user
+      self.__pwd  = passwd
+
+      self.__cr, self.__posturl, self.__interval = self.getConnection(user, passwd)
+
+   def getConnection(self, user, password):
+
+      url = "post.audioscrobbler.com"
+
+      self.__logger.debug("opening last.fm handshake uri")
+
+      params = urllib.urlencode({
+         'hs': 'true',
+         'p':  '1.1',
+         'c':  'tst',
+         'v':  '1.0',
+         'u':  user
+         })
+      conn = httplib.HTTPConnection(url)
+      conn.request("GET", "/?%s" % params )
+      r = conn.getresponse()
+      data = r.read()
+      conn.close()
+
+      challenge = data.split()[1]
+      posturl   = data.split()[2]
+      interval  = data.split()[4]
+
+      challengeresponse = md5.md5('%s%s' % (password, challenge)).hexdigest()
+      return (challengeresponse, posturl, float(interval))
+
+   def scrobble(self, song):
+      conn = httplib.HTTPConnection(url.split('/')[2])
+      # this is very ugly. It should be easier.... :(
+      now = datetime.datetime.now().isoformat(' ').split('.')[0:-1][0]
+      params = urllib.urlencode({
+         'u': 'exhuma',
+         's': self.__cr,
+         'a[0]': unicode(song.artist.name),
+         't[0]': unicode(song.title),
+         'b[0]': unicode(song.album.title),
+         'm[0]': '',
+         'l[0]': song.duration,
+         'i[0]': now
+      })
+      headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
+      conn.request("POST", '/' + '/'.join(self.__posturl.split('/')[3:]), params, headers)
+      conn.close()
+
+   def run(self):
+      """
+      The main control loop of the Scrobbler.
+      It checks once a minute if there are new songs on the scrobbler queue
+      that should be submitted, then submits them.
+      """
+      import time
+      self.__logger.debug( "Scrobbler started" )
+
+      while self.__keepRunning:
+         self.__logger.debug('checking scrobble-queue')
+         try:
+            nextScrobble = LastFMQueue.select(orderBy=LastFMQueue.q.id)[0]
+            self.__logger.info('Scrobbling %s - %s' % (nextScrobble.song.artist.name, nextScrobble.song.title))
+            self.scrobble( song = nextScrobble.song)
+            nextScrobble.destroySelf()
+         except IndexError:
+            self.__logger.debug('Nothing to scrobble')
+         time.sleep(self.__interval)
+      self.__logger.debug( "Scrobbler stopped" )
+
+   def stop(self):
+      self.__keepRunning = False
+
 # ---- helper functions ------------------------------------------------------
 def killAgents():
    """
@@ -479,6 +570,7 @@ def killAgents():
    if lib is not None: lib.stop(); lib.join()
    if juggler is not None:  juggler.stop();  juggler.join()
    if t is not None:   t.stop();
+   if scrobbler is not None: scrobbler.stop()
 # ----------------------------------------------------------------------------
 
 if __name__ == "__main__":
@@ -501,15 +593,23 @@ if __name__ == "__main__":
    juggler  = None # initialise the thread variables
    lib        = None
    t          = None
+   scrobbler  = None
    try:
       # Start the librarian
       lib = Librarian(); lib.start()
 
+      # Start the scrobbler
+      u = getSetting('lastfm_user', '')
+      p = getSetting('lastfm_pass', '')
+      if u == '' or p == '' or u is None or p is None:
+         logger.info('No lastFM user and password specified. Disabling support...')
+      else:
+         scrobbler = Scrobbler(u, p); scrobbler.start()
+
       # start the juggler
-      juggler = None
       try:
-         ## debug
-         juggler= Juggler(Channels.get(1))
+         logger.warning('Overriding channel setting. Getting first channel!')
+         juggler= Juggler(Channels.get(1), scrobbler=scrobbler)
       except ValueError, ex:
          if str(ex) == 'unknown player backend':
             logger.error('Unknown player specified in the config')

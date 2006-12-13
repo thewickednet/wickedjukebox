@@ -21,7 +21,7 @@ class Juggler(threading.Thread):
    __predictionQueue = []
    __logger          = logging.getLogger('juggler')
 
-   def __init__(self, channel):
+   def __init__(self, channel, scrobbler = None):
       """
       Constructor
 
@@ -42,6 +42,9 @@ class Juggler(threading.Thread):
       # initialise the player
       self.__player  = player.createPlayer(channel.backend, channel.backend_params)
       self.__channel = channel
+
+      # set up the scrobbler
+      self.__scrobbler = scrobbler
 
    def __dequeue(self):
       """
@@ -204,6 +207,8 @@ class Juggler(threading.Thread):
                currentSong = Songs.get(self.__currentSongID)
                currentSong.lastPlayed = datetime.now()
                currentSong.played     = currentSong.played + 1
+               if self.__scrobbler is not None:
+                  self.__scrobbler.scrobble(currentSong)
             self.__dequeue()
 
          # if we handed out credits more than 30mins ago, we give out some more
@@ -212,49 +217,6 @@ class Juggler(threading.Thread):
             conn = Users._connection
             lastCreditGiveaway = datetime.now()
             conn.query(q)
-
-         #old# # if the queue is empty, add a random song to the queue
-         #old# if QueueItem.select().count() == 0:
-         #old#    nextSong = Songs.get(self.__smartGet()[0])
-         #old#    tmp = QueueItem(
-         #old#          position=0,
-         #old#          added=datetime.now(),
-         #old#          song=nextSong,
-         #old#          channel=1,
-         #old#          user=Users.get(1)
-         #old#          )
-         #old#    self.populatePlaylist()
-         #old#    self.__player.startPlayback()
-
-         #old# # only queue new songs if we are in play-mode
-         #old# if self.__playStatus == 'playing':
-
-         #old#    # if the song is soon finished, update stats and pick the next one
-         #old#    currentPosition = self.__player.getPosition()
-         #old#    if (currentPosition[1] - currentPosition[0]) == 3 or currentPosition == (0,0):
-         #old#       if self.__player.getSong():
-         #old#          try:
-
-         #old#             # retrieve info from the currently playing song
-         #old#             # TODO: This is hardcoded for mpd. It HAS to be abstracted by
-         #old#             #       the MPD class.
-         #old#             cArtist = Artists.selectBy(name=self.__player.getSong().artist)[0]
-         #old#             cAlbum  = Albums.selectBy(title=self.__player.getSong().album)[0]
-         #old#             cTitle  = self.__player.getSong().title
-
-         #old#             # I haven't figured out the way to add the album to the select
-         #old#             # query. That's why I loop through all songs from a given artist
-         #old#             # and title. It's highly unlikely though that there is more than
-         #old#             # one entry.
-         #old#             song = list(Songs.selectBy(artist=cArtist, title=cTitle, album=cAlbum))[0]
-         #old#             song.lastPlayed = datetime.now()
-         #old#             song.played = song.played + 1
-
-         #old#          except IndexError, ex:
-         #old#             # no song on the queue. We can ignore this error
-         #old#             pass
-
-         #old#       self.populatePlaylist()
 
          # wait for x seconds
          time.sleep(cycle)

@@ -216,6 +216,12 @@ class Artists(SQLObject):
    albums = MultipleJoin('Albums', joinColumn='artist_id')
    songs  = MultipleJoin('Songs', joinColumn='artist_id')
 
+class LastFMQueue(SQLObject):
+   class sqlmeta:
+      idName = 'queue_id'
+      table  = 'lastfm_queue'
+   song      = ForeignKey('Songs', dbName='song_id')
+
 # ----------------------------------------------------------------------------
 
 # load the configuration file, and set up the DB-conenction
