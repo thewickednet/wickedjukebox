@@ -223,6 +223,17 @@ CREATE TABLE `users` (
   KEY `cookie` (`cookie`),
   KEY `username` (`username`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `lastfm_queue`
+--
+
+CREATE TABLE `lastfm_queue` (
+   `queue_id` int(11) unsigned NOT NULL auto_increment,
+   `song_id` INT NOT NULL ,
+   PRIMARY KEY ( `queue_id` )
+) ENGINE = MYISAM COMMENT = 'This queue is used to submit songs to last.fm (audioscrobbler).';
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
