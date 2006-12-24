@@ -4,6 +4,18 @@ from model import *
 from player import *
 import md5
 
+def to_utf8(s):
+   """
+   Convert a string to utf-8
+   """
+   if isinstance(s, str):
+      pass
+   elif hasattr(s, '__unicode__'):
+      s = unicode(s)
+   if isinstance(s, unicode):
+      s = s.encode('utf-8')
+   return s
+
 def get_hash(filename):
    """
    Return md5 hash.

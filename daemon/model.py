@@ -56,7 +56,7 @@ class Songs(SQLObject):
 
    #--- Fields ---------------------------------
    trackNo     = IntCol(default=0)
-   title       = StringCol(length=128)
+   title       = UnicodeCol(length=128)
    duration    = IntCol(default=0)
    year        = StringCol(length=4, default=None)
    localpath   = StringCol(length=255)
@@ -91,7 +91,7 @@ class Albums(SQLObject):
       idName = 'album_id'
 
    #--- Fields ---------------------------------
-   title      = StringCol(length=128)
+   title      = UnicodeCol(length=128)
    added      = DateTimeCol()
    played     = IntCol()
    downloaded = IntCol()
@@ -131,7 +131,7 @@ class Genres(SQLObject):
       idName = 'genre_id'
 
    #--- Fields ---------------------------------
-   name  = StringCol(length=64)
+   name  = UnicodeCol(length=64)
 
    #--- Joins ----------------------------------
    songs = MultipleJoin('Songs', joinColumn='genre_id')
@@ -209,7 +209,7 @@ class Artists(SQLObject):
       idName = 'artist_id'
 
    #--- Fields ---------------------------------
-   name   = StringCol(length=128)
+   name   = UnicodeCol(length=128)
    added  = DateTimeCol()
 
    #--- Joins ----------------------------------

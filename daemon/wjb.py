@@ -63,6 +63,7 @@ class Librarian(threading.Thread):
 
                   try:
                      # parse the metadata
+                     self.__scanLog.debug("Scanning %s" % filename)
                      metadata = kaa.metadata.parse(filename)
 
                      # if we have an artist, set the artist field.
@@ -72,14 +73,16 @@ class Librarian(threading.Thread):
                      # we set it.
                      dbArtist = None
                      dbAlbum  = None
+                     self.__scanLog.debug('   Artist is %s' % (repr(metadata.get('artist'))))
                      if metadata.get('artist') is not None:
-                        dbArtist = getArtist(metadata.get('artist'))
+                        dbArtist = getArtist(to_utf8(metadata.get('artist')))
 
+                        self.__scanLog.debug('   Album is %s' % (repr(metadata.get('album'))))
                         if metadata.get('album') is not None:
                            try:
                               dbAlbum = getAlbum(
-                                          metadata.get('artist'),
-                                          metadata.get('album')
+                                          to_utf8(metadata.get('artist')),
+                                          to_utf8(metadata.get('album'))
                                        )
                            except Exception, ex:
                               if str(ex).upper().find("DUPLICATE") < 0:
@@ -96,9 +99,9 @@ class Librarian(threading.Thread):
                                     metadata.get('album')))
                                  pass
                         else:
-                           self.__scanLog.warning('error getting album for %s', filename)
+                           self.__scanLog.warning('album cannot be NULL for %s', filename)
                      else:
-                        self.__scanLog.warning('error getting artist for %s', filename)
+                        self.__scanLog.warning('artist cannot be NULL for %s', filename)
 
                      if metadata.get('length') is not None:
                         duration = int(metadata.get('length'))
@@ -121,7 +124,7 @@ class Librarian(threading.Thread):
                         trackNo = 0
 
                      if metadata.get('title') is not None:
-                        title = metadata.get('title')
+                        title = to_utf8(metadata.get('title'))
                      else:
                         title = ''
 
@@ -134,46 +137,48 @@ class Librarian(threading.Thread):
                      if Songs.selectBy(localpath=filename).count() == 0:
 
                         # it was not in the DB, create a newentry
-                        song = Songs(
-                              trackNo = trackNo,
-                              title   = title,
-                              localpath = filename,
-                              artist  = dbArtist,
-                              album   = dbAlbum,
-                              genre   = genre,
-                              bitrate = bitrate,
-                              duration = duration,
-                              lastScanned = datetime.datetime.now(),
-                              filesize = filesize
-                              )
-                        # we call this after creating the object, as this
-                        # prevents the hash being calculated if an error
-                        # occurred on song-creation
-                        song.checksum = get_hash(filename)
-                        scancount += 1
+                        if dbAlbum is not None and dbArtist is not None:
+                           song = Songs(
+                                 trackNo = trackNo,
+                                 title   = title,
+                                 localpath = filename,
+                                 artist  = dbArtist,
+                                 album   = dbAlbum,
+                                 genre   = genre,
+                                 bitrate = bitrate,
+                                 duration = duration,
+                                 lastScanned = datetime.datetime.now(),
+                                 filesize = filesize
+                                 )
+                           # we call this after creating the object, as this
+                           # prevents the hash being calculated if an error
+                           # occurred on song-creation
+                           song.checksum = get_hash(filename)
+                           scancount += 1
 
-                        self.__scanLog.info("Scanned %s" % ( filename ))
+                           self.__scanLog.info("Scanned %s" % ( filename ))
                      else:
 
                         # we found the song in the DB. Load it so we can update it's
                         # metadata. If it has changed since it was added to the DB!
                         song = Songs.selectBy(localpath=filename)[0]
 
-                        if song.lastScanned is None \
-                              or datetime.datetime.fromtimestamp(os.stat(filename).st_ctime) > song.lastScanned:
-                           song.localpath = filename
-                           song.trackNo = trackNo
-                           song.title   = title
-                           song.artist  = dbArtist
-                           song.album   = dbAlbum
-                           song.bitrate = bitrate
-                           song.filesize= filesize
-                           song.duration = duration
-                           song.checksum = get_hash(filename)
-                           song.genre    = genre
-                           song.lastScanned = datetime.datetime.now()
-                           self.__scanLog.info("Updated %s" % ( filename))
-                        scancount += 1
+                        if dbAlbum is not None and dbArtist is not None:
+                           if song.lastScanned is None \
+                                 or datetime.datetime.fromtimestamp(os.stat(filename).st_ctime) > song.lastScanned:
+                              song.localpath = filename
+                              song.trackNo = trackNo
+                              song.title   = title
+                              song.artist  = dbArtist
+                              song.album   = dbAlbum
+                              song.bitrate = bitrate
+                              song.filesize= filesize
+                              song.duration = duration
+                              song.checksum = get_hash(filename)
+                              song.genre    = genre
+                              song.lastScanned = datetime.datetime.now()
+                              self.__scanLog.info("Updated %s" % ( filename))
+                           scancount += 1
 
                      try:
                         if song.title is not None \
