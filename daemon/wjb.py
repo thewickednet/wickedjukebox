@@ -73,13 +73,13 @@ class Librarian(threading.Thread):
                      dbArtist = None
                      dbAlbum  = None
                      if metadata.get('artist') is not None:
-                        dbArtist = kaa.strutils.unicode_to_str(getArtist(metadata.get('artist')))
+                        dbArtist = getArtist(metadata.get('artist'))
 
                         if metadata.get('album') is not None:
                            try:
                               dbAlbum = getAlbum(
-                                          kaa.strutils.unicode_to_str(metadata.get('artist')),
-                                          kaa.strutils.unicode_to_str(metadata.get('album'))
+                                          metadata.get('artist'),
+                                          metadata.get('album')
                                        )
                            except Exception, ex:
                               if str(ex).upper().find("DUPLICATE") < 0:
@@ -92,8 +92,8 @@ class Librarian(threading.Thread):
                                  # The word "duplicate" was found. We silently
                                  # ignore this error, but keep a log
                                  self.__scanLog.warning('Duplicate album %s - %s' % (
-                                    kaa.strutils.unicode_to_str(metadata.get('artist')),
-                                    kaa.strutils.unicode_to_str(metadata.get('album'))))
+                                    metadata.get('artist'),
+                                    metadata.get('album')))
                                  pass
                         else:
                            self.__scanLog.warning('error getting album for %s', filename)
@@ -121,12 +121,12 @@ class Librarian(threading.Thread):
                         trackNo = 0
 
                      if metadata.get('title') is not None:
-                        title = kaa.strutils.unicode_to_str(metadata.get('title'))
+                        title = metadata.get('title')
                      else:
                         title = ''
 
                      if metadata.get('genre') is not None:
-                        genre = kaa.strutils.unicode_to_str(getGenre(metadata.get('genre')))
+                        genre = getGenre(metadata.get('genre'))
                      else:
                         genre = ''
 
@@ -368,6 +368,7 @@ class Arbitrator(threading.Thread):
       self.__address    = address
       threading.Thread.__init__(self)
       self.setName( '%s (%s)' % (self.getName(), 'Arb') )
+      self.__logger.debug( "accepted incoming connection from %s" % (address[0]) )
 
    def dispatch(self, command):
       """
@@ -511,6 +512,7 @@ class Scrobbler(threading.Thread):
       r = conn.getresponse()
       data = r.read()
       conn.close()
+      self.__logger.debug("... response received. Authencitating... ")
 
       challenge = data.split()[1]
       posturl   = data.split()[2]
@@ -580,7 +582,11 @@ if __name__ == "__main__":
    kaa.strutils.set_encoding('latin-1')
 
    # Setting up logging
-   logging.config.fileConfig('logging.ini')
+   if (os.path.exists( 'logging_dev.ini' )):
+      print "Using development logging"
+      logging.config.fileConfig('logging_dev.ini')
+   else:
+      logging.config.fileConfig('logging.ini')
    logger = logging.getLogger('daemon')
    logger.info( "===== WJB Deamon starting up ==============" )
 
@@ -630,7 +636,6 @@ if __name__ == "__main__":
          try:
             # wait for next client to connect
             connection, address = sock.accept()
-            logger.debug( "accepting incoming connection from %s" % (address[0]) )
             t = Arbitrator(connection, address)
             t.start()
          except KeyboardInterrupt:
