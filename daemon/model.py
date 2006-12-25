@@ -56,7 +56,7 @@ class Songs(SQLObject):
 
    #--- Fields ---------------------------------
    trackNo     = IntCol(default=0)
-   title       = UnicodeCol(length=128)
+   title       = StringCol(length=128)
    duration    = IntCol(default=0)
    year        = StringCol(length=4, default=None)
    localpath   = StringCol(length=255)
@@ -220,7 +220,8 @@ class LastFMQueue(SQLObject):
    class sqlmeta:
       idName = 'queue_id'
       table  = 'lastfm_queue'
-   song      = ForeignKey('Songs', dbName='song_id')
+   song        = ForeignKey('Songs', dbName='song_id')
+   time_played = DateTimeCol( default=datetime.datetime.now() )
 
 # ----------------------------------------------------------------------------
 

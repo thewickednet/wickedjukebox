@@ -183,15 +183,13 @@ class Juggler(threading.Thread):
             continue;
 
          # update "now playing" info
-         if self.__currentSongFile != self.__player.getSong():
+         if self.__currentSongFile != self.__player.getSong() and self.__player.getSong() != False:
             try:
+               self.__logger.debug("Retrieving ID for: %s" % repr(self.__player.getSong()))
                self.__currentSongID   = list(Songs.selectBy(localpath = self.__player.getSong()))[0].id
                self.__currentSongFile = self.__player.getSong()
             except IndexError:
-               print """
-               bah %s 
-               """ % self.__player.getSong()
-               pass
+               self.__logger.error("Error when updating current song info! player.getSong: %s" % self.__player.getSong())
 
          # if prediction queue is empty we add a new song to it
          if len(self.__predictionQueue) == 0:

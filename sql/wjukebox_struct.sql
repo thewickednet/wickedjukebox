@@ -231,6 +231,7 @@ CREATE TABLE `users` (
 CREATE TABLE `lastfm_queue` (
    `queue_id` int(11) unsigned NOT NULL auto_increment,
    `song_id` INT NOT NULL ,
+   `time_played` timestamp NOT NULL default CURRENT_TIMESTAMP,
    PRIMARY KEY ( `queue_id` )
 ) ENGINE = MYISAM COMMENT = 'This queue is used to submit songs to last.fm (audioscrobbler).';
 

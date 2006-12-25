@@ -516,6 +516,7 @@ class Scrobbler(threading.Thread):
       conn.request("GET", "/?%s" % params )
       r = conn.getresponse()
       data = r.read()
+      self.__logger.debug("Last.FM response: \n %s" % data)
       conn.close()
       self.__logger.debug("... response received. Authencitating... ")
 
@@ -526,23 +527,29 @@ class Scrobbler(threading.Thread):
       challengeresponse = md5.md5('%s%s' % (password, challenge)).hexdigest()
       return (challengeresponse, posturl, float(interval))
 
-   def scrobble(self, song):
-      conn = httplib.HTTPConnection(self.__posturl.split('/')[2])
-      # this is very ugly. It should be easier.... :(
-      now = datetime.datetime.now().isoformat(' ').split('.')[0:-1][0]
-      params = urllib.urlencode({
-         'u': 'exhuma',
-         's': self.__cr,
-         'a[0]': unicode(song.artist.name),
-         't[0]': unicode(song.title),
-         'b[0]': unicode(song.album.title),
-         'm[0]': '',
-         'l[0]': song.duration,
-         'i[0]': now
-      })
-      headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
-      conn.request("POST", '/' + '/'.join(self.__posturl.split('/')[3:]), params, headers)
-      conn.close()
+   def scrobble(self, song, time_played):
+      now = time_played.isoformat(' ')
+      try:
+         conn = httplib.HTTPConnection(self.__posturl.split('/')[2])
+         params = urllib.urlencode({
+            'u': 'exhuma',
+            's': self.__cr,
+            'a[0]': unicode(song.artist.name),
+            't[0]': unicode(song.title),
+            'b[0]': unicode(song.album.title),
+            'm[0]': '',
+            'l[0]': song.duration,
+            'i[0]': now
+         })
+         headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
+         conn.request("POST", '/' + '/'.join(self.__posturl.split('/')[3:]), params, headers)
+         r = conn.getresponse()
+         data = r.read()
+         self.__logger.debug("Last.FM response: \n %s" % data)
+         conn.close()
+      except UnicodeDecodeError:
+         import traceback
+         logger.critical("UTF-8 error when scrobbling. Skipping this song\n%s" % traceback.format_exc())
 
    def run(self):
       """
@@ -557,12 +564,12 @@ class Scrobbler(threading.Thread):
          self.__logger.debug('checking scrobble-queue')
          try:
             nextScrobble = LastFMQueue.select(orderBy=LastFMQueue.q.id)[0]
-            self.__logger.info('Scrobbling %s - %s' % (nextScrobble.song.artist.name, nextScrobble.song.title))
-            self.scrobble( song = nextScrobble.song)
+            self.__logger.info('Scrobbling %s - %s' % (repr(nextScrobble.song.artist.name), repr(nextScrobble.song.title)))
+            self.scrobble( song = nextScrobble.song, time_played=nextScrobble.time_played )
             nextScrobble.destroySelf()
          except IndexError:
             self.__logger.debug('Nothing to scrobble')
-         time.sleep(self.__interval)
+         time.sleep(30)
       self.__logger.debug( "Scrobbler stopped" )
 
    def stop(self):
