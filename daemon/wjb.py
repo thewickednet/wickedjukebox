@@ -584,7 +584,8 @@ class Scrobbler(threading.Thread):
             self.scrobble( song = nextScrobble.song, time_played=datetime.datetime.utcnow() )
             nextScrobble.destroySelf()
          except IndexError:
-         time.sleep(30)
+            # nothing to scrobble
+            time.sleep(5)
       self.__logger.debug( "Scrobbler stopped" )
 
    def stop(self):
