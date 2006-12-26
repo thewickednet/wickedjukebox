@@ -579,13 +579,11 @@ class Scrobbler(threading.Thread):
       self.__logger.debug( "Scrobbler started" )
 
       while self.__keepRunning:
-         self.__logger.debug('checking scrobble-queue')
          try:
             nextScrobble = LastFMQueue.select(orderBy=LastFMQueue.q.id)[0]
             self.scrobble( song = nextScrobble.song, time_played=datetime.datetime.utcnow() )
             nextScrobble.destroySelf()
          except IndexError:
-            self.__logger.debug('Nothing to scrobble')
          time.sleep(30)
       self.__logger.debug( "Scrobbler stopped" )
 
