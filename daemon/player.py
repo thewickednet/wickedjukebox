@@ -123,8 +123,8 @@ class MPD:
       try:
          if self.__connection.getStatus().playlistLength > 10:
             self.__connection.delete([0])
-      except MpdError, ex:
-         pass
+      except mpdclient.MpdError, ex:
+         self.__logger.error(str(ex))
 
    def playlistSize(self):
       """
