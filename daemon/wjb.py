@@ -530,6 +530,7 @@ class Scrobbler(threading.Thread):
    def scrobble(self, song, time_played):
       now = time_played.isoformat(' ')
       try:
+         self.__logger.info('Scrobbling %s - %s' % (song.artist.name, song.title))
          conn = httplib.HTTPConnection(self.__posturl.split('/')[2])
          params = urllib.urlencode({
             'u': 'exhuma',
@@ -541,6 +542,7 @@ class Scrobbler(threading.Thread):
             'l[0]': song.duration,
             'i[0]': now
          })
+         self.__logger.debug("params: %s" % params)
          headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
          conn.request("POST", '/' + '/'.join(self.__posturl.split('/')[3:]), params, headers)
          r = conn.getresponse()
@@ -564,8 +566,7 @@ class Scrobbler(threading.Thread):
          self.__logger.debug('checking scrobble-queue')
          try:
             nextScrobble = LastFMQueue.select(orderBy=LastFMQueue.q.id)[0]
-            self.__logger.info('Scrobbling %s - %s' % (repr(nextScrobble.song.artist.name), repr(nextScrobble.song.title)))
-            self.scrobble( song = nextScrobble.song, time_played=nextScrobble.time_played )
+            self.scrobble( song = nextScrobble.song, time_played=datetime.datetime.now() )
             nextScrobble.destroySelf()
          except IndexError:
             self.__logger.debug('Nothing to scrobble')
