@@ -17,6 +17,7 @@ class Juggler(threading.Thread):
    __keepRunning     = True  # While this is true, the Juggler is alive
    __playStatus      = 'stopped'
    __currentSongID   = 0
+   __currentSongRecorded = False
    __currentSongFile = ''
    __predictionQueue = []
    __logger          = logging.getLogger('juggler')
@@ -137,12 +138,15 @@ class Juggler(threading.Thread):
             # song is soon finished. Add the next one to the playlist
             nextSong = self.__dequeue()
             self.__currentSongID = nextSong[0]
+            self.__currentSongRecorded = False
             self.__player.queue(nextSong[1])
             self.__logger.info('queued %s' % nextSong[1])
          except IndexError:
             # no song in the queue run smartDj
+            self.__logger.warning('Skipped an IndexError in \'populatePlaylist\'!')
             ##nextSong = self.__smartGet()
             ##self.__currentSongID = nextSong[0]
+            ##self.__currentSongRecorded = False
             ##self.__player.queue(nextSong[1])
             ##self.__logger.info('selected %s' % nextSong[1])
             pass
@@ -178,6 +182,7 @@ class Juggler(threading.Thread):
          if self.__player.status() == 'play' and self.__playStatus == 'stopped':
             self.__player.stopPlayback()
 
+         # If we are not playing stuff, we can skip the rest
          if self.__playStatus != 'playing':
             time.sleep(cycle)
             continue;
@@ -187,6 +192,7 @@ class Juggler(threading.Thread):
             try:
                self.__logger.debug("Retrieving ID for: %s" % repr(self.__player.getSong()))
                self.__currentSongID   = list(Songs.selectBy(localpath = self.__player.getSong()))[0].id
+               self.__currentSongRecorded = False
                self.__currentSongFile = self.__player.getSong()
             except IndexError:
                self.__logger.error("Error when updating current song info! player.getSong: %s" % self.__player.getSong())
@@ -197,15 +203,16 @@ class Juggler(threading.Thread):
 
          # if the song is soon finished, update stats and pick the next one
          currentPosition = self.__player.getPosition()
-         if (currentPosition[1] - currentPosition[0]) == 3 or currentPosition == (0,0):
-            if self.__currentSongID != 0:
+         if (currentPosition[1] - currentPosition[0]) < 3:
+            if self.__currentSongID != 0 and not self.__currentSongRecorded:
                currentSong = Songs.get(self.__currentSongID)
                currentSong.lastPlayed = datetime.now()
                currentSong.played     = currentSong.played + 1
                tmp = LastFMQueue(song = currentSong, time_played=datetime.now())
+               self.__currentSongRecorded = True
             self.__dequeue()
 
-         # if we handed out credits more than 30mins ago, we give out some more
+         # if we handed out credits more than 5mins ago, we give out some more
          if (datetime.now() - lastCreditGiveaway).seconds > 300:
             q = "UPDATE users SET credits=credits+5 WHERE credits<30"
             conn = Users._connection

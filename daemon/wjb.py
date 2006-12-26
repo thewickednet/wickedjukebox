@@ -531,24 +531,33 @@ class Scrobbler(threading.Thread):
       now = time_played.isoformat(' ')
       try:
          self.__logger.info('Scrobbling %s - %s' % (song.artist.name, song.title))
-         conn = httplib.HTTPConnection(self.__posturl.split('/')[2])
-         params = urllib.urlencode({
-            'u': 'exhuma',
-            's': self.__cr,
-            'a[0]': unicode(song.artist.name),
-            't[0]': unicode(song.title),
-            'b[0]': unicode(song.album.title),
-            'm[0]': '',
-            'l[0]': song.duration,
-            'i[0]': now
-         })
-         self.__logger.debug("params: %s" % params)
-         headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
-         conn.request("POST", '/' + '/'.join(self.__posturl.split('/')[3:]), params, headers)
-         r = conn.getresponse()
-         data = r.read()
-         self.__logger.debug("Last.FM response: \n %s" % data)
-         conn.close()
+         while True:
+            try:
+               conn = httplib.HTTPConnection(self.__posturl.split('/')[2])
+               params = urllib.urlencode({
+                  'u': 'exhuma',
+                  's': self.__cr,
+                  'a[0]': unicode(song.artist.name),
+                  't[0]': unicode(song.title),
+                  'b[0]': unicode(song.album.title),
+                  'm[0]': '',
+                  'l[0]': song.duration,
+                  'i[0]': now
+               })
+               self.__logger.debug("params: %s" % params)
+               headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
+               conn.request("POST", '/' + '/'.join(self.__posturl.split('/')[3:]), params, headers)
+               r = conn.getresponse()
+               data = r.read()
+               self.__logger.debug("Last.FM response: \n %s" % data)
+               conn.close()
+            except BadStatusLine:
+               # Wait 3 seconds, the loop
+               self.__logger.warning('Bad Status Line error received. Retrying...')
+               time.sleep(3)
+               continue
+            # No more exceptions, so we can break out of the loop
+            break
       except UnicodeDecodeError:
          import traceback
          logger.critical("UTF-8 error when scrobbling. Skipping this song\n%s" % traceback.format_exc())
