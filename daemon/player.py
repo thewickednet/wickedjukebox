@@ -128,7 +128,7 @@ class MPD:
 
       # keep the playlist clean
       try:
-         if self.__connection.getStatus().playlistLength > 10:
+         if self.__connection.getStatus().playlistLength > 2:
             self.__connection.delete([0])
       except mpdclient.MpdError, ex:
          self.__logger.error(str(ex))
@@ -145,7 +145,7 @@ class MPD:
       a fixed number of entries.
 
       PARAMETERS
-         length - The new size of the playlist (optional, default=10)
+         length - The new size of the playlist (optional, default=2)
       """
       try:
          if self.__connection.getStatus().playlistLength > length:
