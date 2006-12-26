@@ -575,7 +575,6 @@ class Scrobbler(threading.Thread):
       It checks once a minute if there are new songs on the scrobbler queue
       that should be submitted, then submits them.
       """
-      import time
       self.__logger.debug( "Scrobbler started" )
 
       while self.__keepRunning:
@@ -585,7 +584,8 @@ class Scrobbler(threading.Thread):
             nextScrobble.destroySelf()
          except IndexError:
             # nothing to scrobble
-            time.sleep(5)
+            pass
+         time.sleep(5)
       self.__logger.debug( "Scrobbler stopped" )
 
    def stop(self):
