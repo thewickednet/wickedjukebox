@@ -1,5 +1,5 @@
 import mpdclient
-import os, sys
+import os, sys, time, traceback
 import shoutpy, threading, logging
 
 def createPlayer(playerName, backend_params):
@@ -45,7 +45,6 @@ class MPD:
       try:
          self.__connection = mpdclient.MpdController(self.__host, self.__port)
       except mpdclient.MpdConnectionPortError, ex:
-         import traceback
          self.__logger.error("Error connecting to the player:\n%s"
                              % traceback.format_exc())
 
@@ -108,21 +107,17 @@ class MPD:
       if filename.startswith(self.__rootFolder):
          filename = filename[len(self.__rootFolder)+1:]
       self.__logger.info("queuing %s" % filename)
-      try:
-         self.__connection.add([filename])
-      except mpdclient.MpdError, ex:
-         if str(ex).find('not done processing current command') > 0:
-            # retry in 5 seconds
-            import time
-            time.sleep(5)
+      while True:
+         try:
             self.__connection.add([filename])
-         elif str(ex).find('already done processing current command') > 0:
-            self.__logger.info('Received error "already done proc. current \
-                  command" from mpdclient. It should be ok to skip that' 
-                  % filename)
-            pass
-         else:
-            raise
+         except mpdclient.MpdError, ex:
+            if str(ex).find('done processing current command') > 0:
+               # retry in 1 seconds
+               time.sleep(1)
+               continue
+            else:
+               raise
+         break
 
       # keep the playlist clean
       try:
