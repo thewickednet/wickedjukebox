@@ -551,11 +551,16 @@ class Scrobbler(threading.Thread):
                data = r.read()
                self.__logger.debug("Last.FM response: \n %s" % data)
                conn.close()
-            except BadStatusLine:
+            except Exception, ex:
                # Wait 3 seconds, the loop
-               self.__logger.warning('Bad Status Line error received. Retrying...')
+               self.__logger.warning('Exception caught (%s). Retrying...' % str(ex))
                time.sleep(3)
                continue
+            ## except BadStatusLine:
+            ##    # Wait 3 seconds, the loop
+            ##    self.__logger.warning('Bad Status Line error received. Retrying...')
+            ##    time.sleep(3)
+            ##    continue
             # No more exceptions, so we can break out of the loop
             break
       except UnicodeDecodeError:

@@ -71,19 +71,26 @@ class MPD:
       """
       Returns the currently running song
       """
-      import os
-      try:
-         if self.__connection.getCurrentSong() is False:
-            return False
+      while True:
+         try:
+            if self.__connection.getCurrentSong() is False:
+               return False
 
-         return os.path.join(
-               self.__rootFolder,
-               self.__connection.getCurrentSong().path)
-      except mpdclient.MpdError, ex:
-         if str(ex).find('not done processing current command') > 0:
-            pass
-         else:
-            raise
+            return os.path.join(
+                  self.__rootFolder,
+                  self.__connection.getCurrentSong().path)
+         except mpdclient.MpdError, ex:
+            if str(ex).find('not done processing current command') > 0:
+               self.__logger.debug('"not done processing current command" received. Retrying')
+               time.sleep(1)
+               continue
+            elif str(ex).find('playlistLength not found') > 0:
+               self.__logger.debug('"playlistLength not found" received. Retrying')
+               time.sleep(1)
+               continue
+            else:
+               raise
+         break
 
       return ''
 

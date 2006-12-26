@@ -196,6 +196,8 @@ class Juggler(threading.Thread):
                self.__currentSongFile = self.__player.getSong()
             except IndexError:
                self.__logger.error("Error when updating current song info! player.getSong: %s" % self.__player.getSong())
+            except UnicodeDecodeError:
+               self.__logger.error("Error when updating current song info! (UnicodeDecodeError)")
 
          # if prediction queue is empty we add a new song to it
          if len(self.__predictionQueue) == 0:
