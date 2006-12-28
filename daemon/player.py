@@ -88,6 +88,10 @@ class MPD:
                self.__logger.debug('"playlistLength not found" received. Retrying')
                time.sleep(1)
                continue
+            elif str(ex).find('problem parsing song info') > 0:
+               self.__logger.debug('"problem parsing song info" received. Retrying')
+               time.sleep(1)
+               continue
             else:
                raise
          break
