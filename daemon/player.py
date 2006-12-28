@@ -188,20 +188,28 @@ class MPD:
       """
       Returns the status of the player (play, stop, pause)
       """
-      try:
-         if self.__connection.getStatus().state == 1:
-            return 'stop'
-         elif self.__connection.getStatus().state == 2:
-            return 'play'
-         elif self.__connection.getStatus().state == 3:
-            return 'pause'
-         else:
-            return 'unknown (%s)' % self.__connection.getStatus().state
-      except mpdclient.MpdError, ex:
-         if str(ex).find('not done processing current command') > 0:
-            pass
-         else:
-            raise
+      while True:
+         try:
+            if self.__connection.getStatus().state == 1:
+               return 'stop'
+            elif self.__connection.getStatus().state == 2:
+               return 'play'
+            elif self.__connection.getStatus().state == 3:
+               return 'pause'
+            else:
+               return 'unknown (%s)' % self.__connection.getStatus().state
+         except mpdclient.MpdError, ex:
+            if str(ex).find('not done processing current command') > 0:
+               self.__logger.debug("'Not done proc. command' error skipped")
+               time.sleep(1)
+               continue
+            elif str(ex).find("playlistLength not found") > 0:
+               self.__logger.debug("'playlistLength not found' error skipped")
+               time.sleep(1)
+               continue
+            else:
+               raise
+         break;
 
       return 'unknown'
 
