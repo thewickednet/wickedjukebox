@@ -270,6 +270,8 @@ class Juggler(threading.Thread):
       except IndexError, ex:
          # no song on the queue. We can ignore this error
          pass
+      except UnicodeDecodeError, ex:
+         self.__logger.error('Unicode decode error in "juggler.skipSong"')
       # set "current song" to the next in the queue
       self.__dequeue()
       self.__player.skipSong()

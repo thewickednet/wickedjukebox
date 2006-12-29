@@ -471,7 +471,7 @@ class Arbitrator(threading.Thread):
             pass
          else:
             import traceback
-            self.__logger.critical("Unexpected error:\n%s" % traceback.format_exc())
+            self.__logger.critical("Skipped unexpected error:\n%s" % traceback.format_exc())
       self.__logger.debug( "Arbitrator quit" )
 
    def stop(self):
