@@ -2,6 +2,9 @@ You need:
    - Python >= 2.4
    - SQLObject
    - kaa
+   - libboost-python-dev (for icecast support)
+   - libshout-dev        (for icecast support)
+   - icecast2            (for icecast support)
 
 Installation of Python
 ======================
@@ -34,7 +37,7 @@ Manual installation
 -------------------
 
 Go to http://www.sqlobject.org, download the latest source version, unpack it
-(tar xzf <filename>.tar.gz) and chane to the folder it then created. Then
+(tar xzf <filename>.tar.gz) and change to the folder it then created. Then
 execute the following commands:
 
 $ python setup.py build
@@ -43,7 +46,8 @@ $ python setup.py build
 Installation of kaa
 ===================
 
-Kaa is currently only available from SVN. For users that don't have SVN, I included a snapshot in the "support" folder. Either grab it from svn:
+Kaa is currently only available from SVN. For users that don't have SVN,
+I included a snapshot in the "support" folder. Either grab it from svn:
 
 $ svn co svn://svn.freevo.org/kaa/trunk kaa
 
