@@ -500,8 +500,6 @@ class Scrobbler(threading.Thread):
       self.__user = user
       self.__pwd  = passwd
 
-      self.__cr, self.__posturl, self.__interval = self.getConnection(user, passwd)
-
    def getConnection(self, user, password):
 
       url = "post.audioscrobbler.com"
@@ -578,7 +576,14 @@ class Scrobbler(threading.Thread):
       It checks once a minute if there are new songs on the scrobbler queue
       that should be submitted, then submits them.
       """
-      self.__logger.debug( "Scrobbler started" )
+
+      try:
+         self.__cr, self.__posturl, self.__interval = self.getConnection(self.__user, self.__passwd)
+         self.__logger.debug( "Scrobbler started" )
+      except gaierror, ex:
+         self.__logger.warning('Error connecting to last.fm. Disabling support...')
+         self.__keepRunning = False
+
 
       while self.__keepRunning:
          try:
