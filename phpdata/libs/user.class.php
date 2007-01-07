@@ -47,6 +47,24 @@ class User {
     return $cookie;
   }
 
+  function reward($id, $credits){
+    $db = ezcDbInstance::get();
+
+    $user = self::get($id);
+
+    $user['credits'] += $credits;
+
+    $q = $db->createUpdateQuery();
+    $e = $q->expr;
+    $q->update( 'users' )
+      ->set( 'credits', $q->bindValue( $user['credits'] ) )
+      ->where( $e->eq( 'user_id', $q->bindValue( $id ) ) );
+    $stmt = $q->prepare();
+    $stmt->execute();
+
+    return $cookie;
+  }
+
   function getAll(){
     $db = ezcDbInstance::get();
 
