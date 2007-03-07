@@ -529,9 +529,9 @@ class Scrobbler(threading.Thread):
       return (challengeresponse, posturl, float(interval))
 
    def scrobble(self, song, time_played):
-      now = time_played.isoformat(' ')
-      if '.' in now:
-         now = now.split('.')[0]
+      pltime = time_played.isoformat(' ')
+      if '.' in pltime:
+         pltime = pltime.split('.')[0]
       try:
          self.__logger.info('Scrobbling %s - %s' % (song.artist.name, song.title))
          while True:
@@ -545,7 +545,7 @@ class Scrobbler(threading.Thread):
                   'b[0]': unicode(song.album.title),
                   'm[0]': '',
                   'l[0]': song.duration,
-                  'i[0]': now
+                  'i[0]': pltime
                })
                self.__logger.debug("params: %s" % params)
                headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
@@ -577,18 +577,13 @@ class Scrobbler(threading.Thread):
       that should be submitted, then submits them.
       """
 
-      try:
-         self.__cr, self.__posturl, self.__interval = self.getConnection(self.__user, self.__passwd)
-         self.__logger.debug( "Scrobbler started" )
-      except gaierror, ex:
-         self.__logger.warning('Error connecting to last.fm. Disabling support...')
-         self.__keepRunning = False
-
+      self.__cr, self.__posturl, self.__interval = self.getConnection(self.__user, self.__pwd)
+      self.__logger.debug( "Scrobbler started" )
 
       while self.__keepRunning:
          try:
             nextScrobble = LastFMQueue.select(orderBy=LastFMQueue.q.id)[0]
-            self.scrobble( song = nextScrobble.song, time_played=datetime.datetime.utcnow() )
+            self.scrobble( song = nextScrobble.song, time_played=nextScrobble.time_played )
             nextScrobble.destroySelf()
          except IndexError:
             # nothing to scrobble

@@ -210,7 +210,7 @@ class Juggler(threading.Thread):
                currentSong = Songs.get(self.__currentSongID)
                currentSong.lastPlayed = datetime.now()
                currentSong.played     = currentSong.played + 1
-               tmp = LastFMQueue(song = currentSong, time_played=datetime.now())
+               tmp = LastFMQueue(song = currentSong, time_played=datetime.utcnow())
                self.__currentSongRecorded = True
             self.__dequeue()
 
