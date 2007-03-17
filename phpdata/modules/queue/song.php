@@ -9,19 +9,24 @@
 
 
 
+  $song = Song::getById( $_GET['param'] );
+  $songMinutes = floor($song['seconds'] / 60);
   switch($_GET['mode']){
     case "add":
 
       if ($permissions['queue_add'] == '1') {
+
+        if ( $permissions['nocredits'] != '1') {
+           if ( $userinfo['credits'] < $songMinutes ){
+              die('not enough credits');
+           }
+           User::pay($userinfo['user_id'], $songMinutes );
+        }
+
         $queue->add($_GET['param']);
         Song::countPlay($_GET['param']);
 
         User::countPlay($userinfo['user_id']);
-
-        if ( $permissions['nocredits'] != '1') {
-           // TODO: make this dependent on song-length
-           User::pay($userinfo['user_id'], 5);
-        }
 
       } else {
         die("no permissions for this action.");
@@ -33,8 +38,7 @@
 //      if ($permissions['queue_remove'] == '1') {
         $queue->del($_GET['param']);
         if ( $permissions['nocredits'] != '1') {
-           // TODO: make this dependent on song-length
-           User::reward($userinfo['user_id'], 5);
+           User::reward($userinfo['user_id'], $songMinutes );
         }
 
 //      } else {

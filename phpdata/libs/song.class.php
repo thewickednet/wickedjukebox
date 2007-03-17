@@ -13,7 +13,7 @@ class Song {
 
     $db = ezcDbInstance::get();
 
-    $stmt = $db->prepare("SELECT *, SEC_TO_TIME(duration) AS duration FROM songs, artists WHERE songs.artist_id = artists.artist_id AND songs.song_id = ? LIMIT 1");
+    $stmt = $db->prepare("SELECT *, SEC_TO_TIME(duration) AS duration, duration as seconds FROM songs, artists WHERE songs.artist_id = artists.artist_id AND songs.song_id = ? LIMIT 1");
     $stmt->execute(array("$id"));
 
     $result = $stmt->fetchAll();
