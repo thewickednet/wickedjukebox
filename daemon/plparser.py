@@ -25,6 +25,7 @@ reserved = {
    'is'        : 'EQUALS',
    'contains'  : 'LIKE',
    'artist'    : 'FIELD',
+   'album'     : 'FIELD',
    'title'     : 'FIELD',
    'genre'     : 'FIELD',
    'dirty'     : 'FIELD',
@@ -44,7 +45,7 @@ def t_error(t):
    t.lexer.skip(1)
 
 def t_value(t):
-   r'["\'].*["\']'
+   r'["\'].*?["\']'
    t.type  = 'VALUE'
    t.value = t.value[1:-1]
    return t
