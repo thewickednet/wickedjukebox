@@ -55,7 +55,7 @@ class WJBFactory( protocol.ServerFactory ):
    def __repr__( self ): return "<WJBFactory>"
 
    def stopFactory(self):
-      self.protocol.disconnect()
+      pass
 
    def processLine( self, line ):
       if line.split()[0] not in self.gate.knownCommands:

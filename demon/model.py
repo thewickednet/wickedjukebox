@@ -18,7 +18,7 @@ def LoadConfig(file, config={}):
     return config
 
 # load the configuration file, and set up the DB-conenction
-config = LoadConfig(os.path.join("config.ini"))
+config = LoadConfig(os.path.join('..', 'config.ini'))
 
 if config['database.type'] == 'sqlite':
    dburi = "%s:///%s" % (
