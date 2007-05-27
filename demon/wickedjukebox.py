@@ -27,6 +27,7 @@ def getSetting(param_in, default=None):
             print "Required parameter %s was not found in the settings table!" % param_in
             print
             raise
+      return setting.value
    except Exception, ex:
       if str(ex).lower().find('connect') > 0:
          logging.critical('Unable to connect to the database. Error was: \n%s' % ex)
@@ -115,7 +116,8 @@ class Librarian(object):
          session  = create_session()
          for root, dirs, files in os.walk(dir):
             for name in files:
-               name = name.decode(sys.getfilesystemencoding())
+               if type(name) != type( u'' ):
+                  name = name.decode(sys.getfilesystemencoding())
                if name.split('.')[-1] in recognizedTypes:
                   # we have a valid file
                   filename = os.path.join(root,name)
@@ -241,6 +243,6 @@ class Librarian(object):
       pass
 
    def rescanLib(self):
-      self.__activeScans.append( self.Scanner( ['/mp3'] ) )
+      self.__activeScans.append( self.Scanner( getSetting('mediadir').split(' ') ) )
       self.__activeScans[-1].start()
 
