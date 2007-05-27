@@ -5,13 +5,16 @@ from twisted.application import internet, service
 from twisted.protocols import basic
 from twisted.internet import protocol, reactor, defer
 import os
+from demon.wickedjukebox import Librarian
+from demon.util import config
 
 class Gatekeeper(object):
    """
    Responsible to route commands and stuff
    """
 
-   knownCommands = 'setChannel play pause next prev setBackend status q exit quit bye'.split()
+   lib = Librarian()
+   knownCommands = 'setChannel rescanlib play pause next prev setBackend status q exit quit bye'.split()
 
    def __init__(self, factory):
       self.__factory = factory
@@ -25,9 +28,8 @@ class Gatekeeper(object):
 
       if command == 'status':
          return "running"
-      elif command in 'exit bye quit q'.split():
-         self.__factory.doStop()
-         return "bye"
+      if command == 'rescanlib':
+         return self.lib.rescanLib()
 
 class WJBProtocol(basic.LineReceiver):
 
@@ -36,10 +38,11 @@ class WJBProtocol(basic.LineReceiver):
 
    def lineReceived( self, line ):
       print "<", line
+      if line in 'q bye exit quit'.split(): self.transport.loseConnection()
       self.factory.processLine(line
             ).addErrback( lambda _: self.transport.write("Internal server error\r\n")
             ).addCallback( lambda m:
-                      self.transport.write(m+"\r\n"))
+                      self.transport.write("%s\r\n" % m))
 
    def disconnect(self):
       self.transport.loseConnection()
@@ -54,14 +57,15 @@ class WJBFactory( protocol.ServerFactory ):
 
    def __repr__( self ): return "<WJBFactory>"
 
-   def stopFactory(self):
-      pass
-
    def processLine( self, line ):
-      if line.split()[0] not in self.gate.knownCommands:
-         return defer.succeed( "ER: Unknown Command" )
-      else:
-         return defer.succeed( self.gate.route( line ) )
+      try:
+         if line.split()[0] not in self.gate.knownCommands:
+            return defer.succeed( "ER: Unknown Command" )
+         else:
+            return defer.succeed( self.gate.route( line ) )
+      except IndexError, ex:
+         self.disconnect()
+
 
 application = None
 if os.getuid() == 0:
@@ -78,7 +82,7 @@ else:
 
 if application is not None:
    factory = WJBFactory()
-   internet.TCPServer(61111, factory).setServiceParent(
+   internet.TCPServer(int(config['demon.port']), factory).setServiceParent(
        service.IServiceCollection(application))
 else:
    print "Application failed to start up."

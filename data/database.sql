@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS album;
 DROP TABLE IF EXISTS genre;
 DROP TABLE IF EXISTS song;
 DROP TABLE IF EXISTS channel_song_data;
+DROP TABLE IF EXISTS channel_album_data;
 
 ----------------------------------------------------------------------------
 
@@ -45,26 +46,27 @@ CREATE TABLE setting(
 
 CREATE TABLE artist(
    id INTEGER NOT NULL PRIMARY KEY,
-   name VARCHAR(128),
-   added DATETIME NOT NULL
+   name VARCHAR(128) UNIQUE,
+   added DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE album(
    id INTEGER NOT NULL PRIMARY KEY,
-   name VARCHAR(128),
-   added DATETIME NOT NULL,
    artist_id INTEGER NOT NULL
       REFERENCES artist(id)
          ON UPDATE CASCADE
          ON DELETE RESTRICT,
+   name VARCHAR(128),
+   added DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
    downloaded INTEGER NOT NULL DEFAULT 0,
-   type VARCHAR(32)
+   type VARCHAR(32),
+   UNIQUE( id, artist_id)
 );
 
 CREATE TABLE genre(
    id INTEGER NOT NULL PRIMARY KEY,
-   name VARCHAR(128),
-   added DATETIME NOT NULL
+   name VARCHAR(128) UNIQUE,
+   added DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE song(
@@ -77,23 +79,23 @@ CREATE TABLE song(
       REFERENCES album(id)
          ON UPDATE CASCADE
          ON DELETE RESTRICT,
-   genre_id INTEGER NOT NULL
+   genre_id INTEGER
       REFERENCES genre(id)
          ON UPDATE CASCADE
          ON DELETE RESTRICT,
    track_no INTEGER(3) DEFAULT NULL,
    title VARCHAR(128),
-   duration INTEGER(4),  -- Duration in seconds
+   duration REAL, -- Duration in seconds
    year INTEGER(4),
-   localpath TEXT NOT NULL,
+   localpath TEXT NOT NULL UNIQUE,
    downloaded INTEGER DEFAULT 0,
-   lastScanned DATETIME DEFAULT NULL,
+   lastScanned DATETIME DEFAULT NULL DEFAULT CURRENT_TIMESTAMP,
    bitrate INTEGER(5),
    filesize INTEGER(32),
    checksum VARCHAR(14),
    lyrics TEXT,
    dirty INTEGER(1) DEFAULT 0,
-   added DATETIME NOT NULL
+   added DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE channel_song_data(
