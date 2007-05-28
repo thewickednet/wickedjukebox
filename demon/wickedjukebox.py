@@ -265,11 +265,22 @@ class Channel(threading.Thread):
       return self._Thread__stopped
 
    def stop(self):
+      print "Syncronising channel"
+      self.sess.save( self.__dbModel )
+      self.sess.flush()
+      print "Stopping channel"
       if self._Thread__started:
          self.keepRunning = False
+
+   def setBackend(self, backend):
+      raise
+
+   def setPlaymode(self, playmode):
+      raise
 
    def run(self):
       while self.keepRunning:
          time.sleep(1)
          print "1"
+      print "Channel stopped"
 
