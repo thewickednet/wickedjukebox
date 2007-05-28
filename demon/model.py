@@ -28,17 +28,23 @@ else:
    metadata.engine.echo = False
 
 playmodeTable = Table( 'playmode', metadata, autoload=True )
-channelTable  = Table('channel', metadata, autoload=True )
-settingTable  = Table('setting', metadata, autoload=True )
-artistTable   = Table('artist', metadata, autoload=True )
-albumTable    = Table('album', metadata, autoload=True )
-songTable     = Table('song', metadata, autoload=True )
+channelTable  = Table( 'channel', metadata, autoload=True )
+settingTable  = Table( 'setting', metadata, autoload=True )
+artistTable   = Table( 'artist', metadata, autoload=True )
+albumTable    = Table( 'album', metadata, autoload=True )
+songTable     = Table( 'song', metadata, autoload=True )
 
 # ----------------------------------------------------------------------------
 # Mappers
 # ----------------------------------------------------------------------------
 
-class Setting(object): pass
+class Setting(object):
+   pass
+
+class Channel(object):
+   def __repr__(self):
+      return "<Channel %s name=%s>" % (self.id, repr(self.name))
+
 class Artist(object):
 
    def __init__( self, name ):
@@ -67,7 +73,9 @@ class Song(object):
    def __repr__(self):
       return "<Song %s path=%s>" % (self.id, repr(self.localpath))
 
+
 mapper(Setting, settingTable)
+mapper(Channel, channelTable)
 mapper(Album, albumTable, properties=dict(
    songs=relation(Song, backref='album')))
 

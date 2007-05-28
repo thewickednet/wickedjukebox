@@ -1,5 +1,5 @@
-import sys, os, threading, mutagen
-from model import Setting, create_session, Artist, Album, Song
+import sys, os, threading, mutagen, time
+from model import create_session, Artist, Album, Song, Setting, Channel as dbChannel
 from datetime import datetime
 
 def wjblog( text ):
@@ -245,4 +245,31 @@ class Librarian(object):
    def rescanLib(self):
       self.__activeScans.append( self.Scanner( getSetting('mediadir').split(' ') ) )
       self.__activeScans[-1].start()
+
+class Channel(threading.Thread):
+
+   __dbModel   = None
+   sess        = None
+   name        = None
+   keepRunning = True
+
+   def __init__(self, name):
+      self.sess = create_session()
+      self.__dbModel = self.sess.query(dbChannel).selectfirst_by( dbChannel.c.name == name )
+      if self.__dbModel is not None:
+         self.name = self.__dbModel.name
+         print "Loaded channel %s" % self.__dbModel
+      threading.Thread.__init__(self)
+
+   def isStopped(self):
+      return self._Thread__stopped
+
+   def stop(self):
+      if self._Thread__started:
+         self.keepRunning = False
+
+   def run(self):
+      while self.keepRunning:
+         time.sleep(1)
+         print "1"
 

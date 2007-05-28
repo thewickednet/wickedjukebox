@@ -7,17 +7,34 @@ from twisted.internet import protocol, reactor, defer
 import os
 from demon.wickedjukebox import Librarian
 from demon.util import config
+from demon.wickedjukebox import Channel
 
 class Gatekeeper(object):
    """
-   Responsible to route commands and stuff
+   Responsible to route commands
    """
 
+   channels = []
    lib = Librarian()
-   knownCommands = 'setChannel rescanlib play pause next prev setBackend status q exit quit bye'.split()
+   activeChannel = None
+   knownCommands = 'setChannel activeChannel rescanlib play pause next prev start stop q exit quit bye'.split()
 
    def __init__(self, factory):
       self.__factory = factory
+      if config['demon.default_channel'] != '':
+         channel = Channel( config['demon.default_channel'] )
+         if channel.name is not None:
+            print "Channel %s selected (from config.ini)" % channel.name
+            self.channels.append(channel)
+            self.activeChannel = self.channels[-1]
+            if config['demon.start_channel'] == '1':
+               self.activeChannel.start()
+         else:
+            del(channel)
+
+   def stopThreads(self):
+      for c in self.channels:
+         c.stop()
 
    def route( self, line ):
       command = line.split()[0]
@@ -26,15 +43,79 @@ class Gatekeeper(object):
       except IndexError:
          args = []
 
-      if command == 'status':
-         return "running"
+      #
+      # Rescanning the library
+      #
       if command == 'rescanlib':
          return self.lib.rescanLib()
+
+      #
+      # Selecting a Channel
+      #
+      elif command == 'setChannel':
+         if len(args) != 1:
+            return "ER: setChannel only takes one argument (name of channel)!"
+         channelFound = False
+         for channel in self.channels:
+            if channel.name == args[0]:
+               channelFound = True
+               self.activeChannel = channel
+         if channelFound == False:
+            channel = Channel( args[0] )
+            if channel.name is None:
+               del(channel)
+               return "ER: no such channel!"
+            self.channels.append( channel )
+            self.activeChannel = self.channels[-1]
+         return "OK: Selected channel %s" % self.activeChannel.name.encode('utf-8')
+
+      #
+      # Querying the active channel
+      #
+      elif command == 'activeChannel':
+         if self.activeChannel is None:
+            return "OK: %s" % self.activeChannel
+         else:
+            return "OK: %s" % self.activeChannel.name.encode('utf-8')
+
+      #
+      # Starting the active channel
+      #
+      elif command == 'start':
+         if self.activeChannel is not None:
+            try:
+               if self.activeChannel.isStopped():
+                  n = self.activeChannel.name
+                  self.channels.remove(self.activeChannel)
+                  self.activeChannel = None
+                  self.channels.append( Channel(n) )
+                  self.activeChannel = self.channels[-1]
+                  del(n)
+               self.activeChannel.start()
+               return "OK: %s started" % self.activeChannel.name.encode('utf-8')
+            except Exception, ex:
+               return "ER: %s" % str(ex)
+         return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
+
+      #
+      # Stopping the active channel
+      #
+      elif command == 'stop':
+         if self.activeChannel is not None:
+            try:
+               self.activeChannel.stop()
+               self.activeChannel.join()
+               return "OK: %s stopped" % self.activeChannel.name.encode('utf-8')
+            except Exception, ex:
+               return "ER: %s" % str(ex)
+         return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
+
+
 
 class WJBProtocol(basic.LineReceiver):
 
    def connectionMade(self):
-      self.transport.write("No rest for the wicked.\r\n") 
+      self.transport.write("No rest for the wicked.\r\n")
 
    def lineReceived( self, line ):
       print "<", line
@@ -55,17 +136,18 @@ class WJBFactory( protocol.ServerFactory ):
    def __init__( self ):
       self.gate = Gatekeeper(self)
 
-   def __repr__( self ): return "<WJBFactory>"
+   def __repr__( self ):
+      return "<WJBFactory>"
 
    def processLine( self, line ):
-      try:
-         if line.split()[0] not in self.gate.knownCommands:
-            return defer.succeed( "ER: Unknown Command" )
-         else:
-            return defer.succeed( self.gate.route( line ) )
-      except IndexError, ex:
-         self.disconnect()
+      if line == '': return defer.succeed( "ER: Unknown Command" )
+      if line.split()[0] not in self.gate.knownCommands:
+         return defer.succeed( "ER: Unknown Command" )
+      else:
+         return defer.succeed( self.gate.route( line ) )
 
+   def stopFactory(self):
+      self.gate.stopThreads()
 
 application = None
 if os.getuid() == 0:
