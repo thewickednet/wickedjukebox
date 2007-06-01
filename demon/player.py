@@ -43,11 +43,19 @@ class MPD:
       """
       Connect to the mpd-player.
       """
-      try:
-         self.__connection = mpdclient.MpdController(self.__host, self.__port)
-      except mpdclient.MpdConnectionPortError, ex:
-         log.err("Error connecting to the player:\n%s"
-                             % traceback.format_exc())
+
+      while True:
+         try:
+            log.msg( "Connecting to MPD backend..." )
+            self.__connection = mpdclient.MpdController(
+                  self.__host,
+                  self.__port)
+         except mpdclient.MpdConnectionPortError, ex:
+            log.err("Error connecting to the player.")
+            time.sleep(1)
+            continue
+         break
+      log.msg( "... MPD connected" )
 
    def getPosition(self):
       """
