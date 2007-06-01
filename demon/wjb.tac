@@ -18,7 +18,7 @@ class Gatekeeper(object):
    channels = []
    lib = Librarian()
    activeChannel = None
-   knownCommands = 'setChannel activeChannel rescanlib play pause next prev start stop q exit quit bye'.split()
+   knownCommands = 'setChannel activeChannel rescanlib play pause next prev stop open close q exit quit bye'.split()
 
    def __init__(self, factory):
       self.__factory = factory
@@ -28,14 +28,14 @@ class Gatekeeper(object):
             log.msg( "Channel %s selected (from config.ini)" % channel.name )
             self.channels.append(channel)
             self.activeChannel = self.channels[-1]
-            if config['demon.start_channel'] == '1':
+            if config['demon.open_channel'] == '1':
                self.activeChannel.start()
          else:
             del(channel)
 
    def stopThreads(self):
       for c in self.channels:
-         c.stop()
+         c.close()
 
    def route( self, line ):
       command = line.split()[0]
@@ -82,7 +82,7 @@ class Gatekeeper(object):
       #
       # Starting the active channel
       #
-      elif command == 'start':
+      elif command == 'open':
          if self.activeChannel is not None:
             try:
                if self.activeChannel.isStopped():
@@ -92,8 +92,8 @@ class Gatekeeper(object):
                   self.channels.append( Channel(n) )
                   self.activeChannel = self.channels[-1]
                   del(n)
-               self.activeChannel.start()
-               return "OK: %s started" % self.activeChannel.name.encode('utf-8')
+               self.activeChannel.open()
+               return "OK: %s opened" % self.activeChannel.name.encode('utf-8')
             except Exception, ex:
                return "ER: %s" % str(ex)
          return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
@@ -101,16 +101,34 @@ class Gatekeeper(object):
       #
       # Stopping the active channel
       #
-      elif command == 'stop':
+      elif command == 'close':
          if self.activeChannel is not None:
             try:
-               self.activeChannel.stop()
+               self.activeChannel.close()
                self.activeChannel.join()
-               return "OK: %s stopped" % self.activeChannel.name.encode('utf-8')
+               return "OK: %s closed" % self.activeChannel.name.encode('utf-8')
             except Exception, ex:
                return "ER: %s" % str(ex)
          return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
 
+      #
+      # Start playing music
+      #
+      elif command == 'play':
+         if self.activeChannel is not None:
+            return self.activeChannel.startPlayback()
+         return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
+
+      #
+      # Stop playing music
+      #
+      elif command == 'stop':
+         if self.activeChannel is not None:
+            return self.activeChannel.stopPlayback()
+         return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
+
+      else:
+         return "ER: '%s' is an unknown command" % repr(command)
 
 
 class WJBProtocol(basic.LineReceiver):
