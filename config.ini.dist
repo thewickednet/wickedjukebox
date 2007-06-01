@@ -5,7 +5,7 @@ debug = 0
 [demon]
 port            = 61111
 default_channel = exhuma
-start_channel   = 0
+open_channel    = 0
 
 [Database]
 Type=sqlite
