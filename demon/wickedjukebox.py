@@ -1,5 +1,6 @@
 import sys, os, threading, mutagen, time
-from model import create_session, Artist, Album, Song, Channel as dbChannel, getSetting
+from model import create_session, Artist, Album, Song, QueueItem, Channel as dbChannel, getSetting, metadata as dbMeta
+from sqlalchemy import text as dbText
 from datetime import datetime
 from util import Scrobbler
 import player
@@ -214,11 +215,17 @@ class Librarian(object):
 
 class Channel(threading.Thread):
 
-   __dbModel   = None
-   __scrobbler = None
-   sess        = None
-   name        = None
-   keepRunning = True
+   __dbModel         = None
+   __scrobbler       = None
+   __keepRunning     = True
+   __playStatus      = 'stopped'
+   __currentSongID   = 0
+   __currentSongRecorded = False
+   __currentSongFile = ''
+   __predictionQueue = []
+
+   sess              = None
+   name              = None
 
    def __init__(self, name):
       self.sess = create_session()
@@ -244,6 +251,73 @@ class Channel(threading.Thread):
       self.__player  = player.createPlayer(self.__dbModel.backend,
                                            self.__dbModel.backend_params)
       threading.Thread.__init__(self)
+
+   def __smartGet(self):
+      """
+      determine a song that would be best to play next and add it to the
+      prediction queue
+      """
+
+      ## -- MySQL Query WAS:
+      ##   SELECT
+      ##      song_id,
+      ##      localpath,
+      ##      IFNULL( IF(played+skipped>=10, (played/(played+skipped))*%(playRatio)d, 0.5), 0)
+      ##         + (IFNULL( least(604800, time_to_sec(timediff(NOW(), lastPlayed))), 604800)-604800)/604800*%(lastPlayed)d
+      ##         + IF( played+skipped=0, %(neverPlayed)d, 0)
+      ##         + IFNULL( IF( time_to_sec(timediff(NOW(),added))<1209600, time_to_sec(timediff(NOW(),added))/1209600*%(songAge)d, 0), 0) score
+      ##   FROM songs
+      ##   ORDER BY score DESC, rand()
+      ##   LIMIT 0,10
+      query = """
+         SELECT
+            id,
+            localpath,
+            CASE
+               WHEN played ISNULL OR skipped ISNULL THEN 0
+            ELSE
+               CASE
+                  WHEN (played+skipped>=10) THEN (( CAST(played as real)/(played+skipped))*%(playRatio)d)
+                  ELSE 0.5
+               END
+            END +
+               CASE WHEN played ISNULL AND skipped ISNULL THEN %(neverPlayed)d
+               ELSE 0
+               END +
+            (CASE WHEN lastPlayed ISNULL THEN 604800 ELSE
+                julianday('now')*86400 - julianday(lastPlayed)*86400 -- seconds since last play
+            END - 604800)/604800*%(lastPlayed)d +
+            CASE WHEN added ISNULL THEN 0 ELSE
+               CASE WHEN julianday('now')*86400 - julianday(added)*86400 < 1209600 THEN
+                  (julianday('now')*86400 - julianday(added)*86400)/1209600*%(songAge)d
+               ELSE
+                  0
+               END
+            END
+               AS score
+         FROM song s LEFT JOIN channel_song_data rel ON ( rel.song_id == s.id )
+         ORDER BY score DESC
+         LIMIT 10 OFFSET 0
+      """ % {
+         'neverPlayed': self.__neverPlayed,
+         'playRatio':   self.__playRatio,
+         'lastPlayed':  self.__lastPlayed,
+         'songAge':     self.__songAge
+      }
+
+      # I won't use ORDER BY RAND() as it is way too dependent on the dbms!
+      import random
+      random.seed()
+      resultProxy = dbText(query, engine=dbMeta.engine).execute()
+      res = resultProxy.fetchall()
+      randindex = random.randint(1, len(res)) -1
+      try:
+         out = (res[randindex][0], res[randindex][1], float(res[randindex][2]))
+         log.msg("Selected song (%d, %s) via smartget. Score was %4.3f" % out)
+         self.__predictionQueue.append(out)
+      except IndexError:
+         log.err('No song returned from query. Is the database empty?')
+         pass
 
    def __dequeue(self):
       """
@@ -281,13 +355,13 @@ class Channel(threading.Thread):
    def isStopped(self):
       return self._Thread__stopped
 
-   def stop(self):
+   def close(self):
       log.msg( "Syncronising channel" )
       self.sess.save( self.__dbModel )
       self.sess.flush()
-      log.msg( "Stopping channel" )
+      log.msg( "Closing channel" )
       if self._Thread__started:
-         self.keepRunning = False
+         self.__keepRunning = False
 
    def setBackend(self, backend):
       raise
@@ -295,9 +369,79 @@ class Channel(threading.Thread):
    def setPlaymode(self, playmode):
       raise
 
+   def startPlayback(self):
+      self.__playStatus = 'playing'
+      self.__player.startPlayback()
+
+   def stopPlayback(self):
+      self.__playStatus = 'stopped'
+      self.__player.stopPlayback()
+
    def run(self):
-      while self.keepRunning:
-         time.sleep(1)
-         print "1"
+      cycleTime = int(getSetting('channel_cycle', '1'))
+      lastCreditGiveaway = datetime.now()
+      lastPing           = datetime.now()
+
+      # while we are alive, do the loop
+      while self.__keepRunning:
+
+         # ping the database every 10 seconds
+         if (datetime.now() - lastPing).seconds > 10:
+            lastPing = datetime.now()
+            self.__dbModel.ping = lastPing
+
+         # check if the player accidentally went into the "stop" state
+         if self.__player.status() == 'stop' and self.__playStatus == 'playing':
+            self.__player.startPlayback()
+
+         # or if it accidentally wen into the play state
+         if self.__player.status() == 'play' and self.__playStatus == 'stopped':
+            self.__player.stopPlayback()
+
+         # If we are not playing stuff, we can skip the rest
+         if self.__playStatus != 'playing':
+            time.sleep(cycleTime)
+            log.msg( "Player status is '%s'" % self.__player.status() )
+            continue;
+
+         # -------------------------------------------------------------------
+         if self.__currentSongFile != self.__player.getSong() \
+               and self.__player.getSong() is not None:
+            song = self.sess.query(Song).selectfirst_by( Song.c.localpath == self.__player.getSong() )
+            if song is not None:
+               self.__currentSongID       = song.id
+            else:
+               self.__currentSongID       = 0
+            self.__currentSongRecorded = False
+            self.__currentSongFile     = self.__player.getSong()
+
+         # if prediction queue is empty we add a new song to it
+         if len(self.__predictionQueue) == 0:
+            #TODO - This is semantically bad!
+            self.__smartGet()
+
+         # if the song is soon finished, update stats and pick the next one
+         currentPosition = self.__player.getPosition()
+         if (currentPosition[1] - currentPosition[0]) < 3:
+            if self.__currentSongID != 0 and not self.__currentSongRecorded:
+               currentSong = self.sess.query(Song).get(self.__currentSongID)
+               currentSong.lastPlayed = datetime.now()
+               #currentSong.played     = currentSong.played + 1
+               # tmp = LastFMQueue(song = currentSong, time_played=datetime.utcnow())
+               # self.sess.save(tmp)
+               self.__currentSongRecorded = True
+               self.sess.save(currentSong)
+            #TODO - This is semantically bad!
+            self.__dequeue()
+
+         # if we handed out credits more than 5mins ago, we give out some more
+         if (datetime.now() - lastCreditGiveaway).seconds > 300:
+            q = "UPDATE users SET credits=credits+5 WHERE credits<30"
+            conn = Users._connection
+            lastCreditGiveaway = datetime.now()
+            conn.query(q)
+
+         self.sess.flush()
+
       log.msg( "Channel stopped" )
 
