@@ -83,7 +83,7 @@ class MPD:
       while True:
          try:
             if self.__connection.getCurrentSong() is False:
-               return False
+               return None
 
             return os.path.join(
                   self.__rootFolder,
@@ -105,7 +105,7 @@ class MPD:
                raise
          break
 
-      return ''
+      return None
 
    def playlistPosition(self):
       """
