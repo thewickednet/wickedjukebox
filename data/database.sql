@@ -185,7 +185,7 @@ COMMIT;
 
 BEGIN;
    INSERT INTO playmode (name) VALUES ( 'strictQueue' );
-   INSERT INTO channel  (name,backend,backend_params,playmode) VALUES ( 'exhuma', 'mpd', 'host=localhost, port=6600, rootFolder=/mp3s', 1 );
+   INSERT INTO channel  (name,backend,backend_params,playmode) VALUES ( 'exhuma', 'mpd', 'host=localhost, port=6600, rootFolder=/mp3', 1 );
    INSERT INTO setting  (var, value, comment) VALUES ( 'mediadir', '/mp3', 'Folders that contain the media files. Separated by commas' );
 
    INSERT INTO groups (title, admin, nocredits, queue_skip, queue_remove, queue_add) VALUES ('anonymous', 0, 0, 0, 0, 0);
