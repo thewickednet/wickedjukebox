@@ -87,7 +87,7 @@ class MPD:
 
             return os.path.join(
                   self.__rootFolder,
-                  self.__connection.getCurrentSong().path)
+                  self.__connection.getCurrentSong().path.decode(sys.getfilesystemencoding()))
          except mpdclient.MpdError, ex:
             if str(ex).find('not done processing current command') > 0:
                log.msg('"not done processing current command" received. Retrying')
@@ -124,6 +124,7 @@ class MPD:
       """
       # with MPD, filenames are relative to the path specified in the mpd
       # config!! This is handled here.
+      filename = filename.encode(sys.getfilesystemencoding())
       if filename.startswith(self.__rootFolder):
          filename = filename[len(self.__rootFolder)+1:]
       log.msg("queuing %s" % filename)
@@ -253,10 +254,10 @@ class Icecast:
          return (0, 100)
 
    def getSong(self):
-      return self.__player.currentSong()
+      return self.__player.currentSong().decode(sys.getfilesystemencoding())
 
    def queue(self, filename):
-      return self.__player.queue(filename)
+      return self.__player.queue(filename.encode(sys.getfilesystemencoding()))
 
    def skipSong(self):
       self.__player.skip()
