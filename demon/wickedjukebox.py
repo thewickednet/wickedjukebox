@@ -1,43 +1,11 @@
 import sys, os, threading, mutagen, time
-from model import create_session, Artist, Album, Song, Setting, Channel as dbChannel
+from model import create_session, Artist, Album, Song, Channel as dbChannel, getSetting
 from datetime import datetime
+from util import Scrobbler
+import player
 
 def wjblog( text ):
    print text
-
-def getSetting(param_in, default=None):
-   """
-   Retrieves a setting from the database.
-
-   PARAMETERS
-      param_in - The name of the setting as string
-      default  - (optional) If it's set, it provides the default value in case
-                 the value was not found in the database.
-   """
-   try:
-      session = create_session()
-      setting = session.query(Setting).selectfirst_by( var=param_in )
-      if setting is None:
-         # The parameter was not found in the database. Do we have a default?
-         if default is not None:
-            # yes, we have a default. Return that instead the database value.
-            return default
-         else:
-            print
-            print "Required parameter %s was not found in the settings table!" % param_in
-            print
-            raise
-      return setting.value
-   except Exception, ex:
-      if str(ex).lower().find('connect') > 0:
-         logging.critical('Unable to connect to the database. Error was: \n%s' % ex)
-         sys.exit(0)
-      if str(ex).lower().find('exist') > 0:
-         logging.critical('Settings table not found. Did you create the database tables?')
-         sys.exit(0)
-      else:
-         # An unknown error occured. We raise it again
-         raise
 
 class Librarian(object):
 
@@ -249,6 +217,7 @@ class Librarian(object):
 class Channel(threading.Thread):
 
    __dbModel   = None
+   __scrobbler = None
    sess        = None
    name        = None
    keepRunning = True
@@ -259,7 +228,57 @@ class Channel(threading.Thread):
       if self.__dbModel is not None:
          self.name = self.__dbModel.name
          print "Loaded channel %s" % self.__dbModel
+
+      u = getSetting('lastfm_user', '', self.__dbModel.id)
+      p = getSetting('lastfm_pass', '', self.__dbModel.id)
+      if u == '' or p == '' or u is None or p is None:
+         print 'No lastFM user and password specified. Disabling support...'
+      else:
+         self.__scrobbler = Scrobbler(u, p); scrobbler.start()
+
+      # setup song scoring coefficients
+      self.__neverPlayed = int(getSetting('scoring_neverPlayed', 10))
+      self.__playRatio   = int(getSetting('scoring_ratio',        4))
+      self.__lastPlayed  = int(getSetting('scoring_lastPlayed',   7))
+      self.__songAge     = int(getSetting('scoring_songAge',      0))
+
+      # initialise the player
+      self.__player  = player.createPlayer(self.__dbModel.backend,
+                                           self.__dbModel.backend_params)
       threading.Thread.__init__(self)
+
+   def __dequeue(self):
+      """
+      Return the filename of the next item on the queue. If the queue is empty,
+      pick one from the prediction queue
+      """
+
+      try:
+         nextSong = self.sess.query(QueueItem).select(order_by=['added', 'position'], limit=1, offset=0)[0]
+         filename = nextSong.song.localpath
+         songID   = nextSong.song.id
+         self.sess.delete(nextSong)
+         self.sess.flush()
+      except IndexError:
+         # no item on the main queue. Use the internal prediction queue
+         if len(self.__predictionQueue) == 0:
+            self.__smartGet()
+         nextSong = self.sess.query(Song).get( self.__predictionQueue.pop(0)[0] )
+         filename = nextSong.localpath
+         songID   = nextSong.id
+
+
+      #TODO# The following is based on a wrong assumption of the "position" field.
+      ## This needs to be discussed!
+      ## ok, we got the top of the queue. We can now shift the queue by 1
+      #      UPDATE QueueItem SET position = position - 1
+      ## ok. queue is shifted. now drop all items having a position smaller than
+      ## -6
+      #      DELETE FROM QueueItem WHERE position < -6
+
+      self.__player.queue(filename)
+
+      return (songID, filename)
 
    def isStopped(self):
       return self._Thread__stopped

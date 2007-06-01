@@ -7,6 +7,9 @@ DROP TABLE IF EXISTS genre;
 DROP TABLE IF EXISTS song;
 DROP TABLE IF EXISTS channel_song_data;
 DROP TABLE IF EXISTS channel_album_data;
+DROP TABLE IF EXISTS queue;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS groups;
 
 ----------------------------------------------------------------------------
 
@@ -38,7 +41,7 @@ CREATE TABLE setting(
    var VARCHAR(32) NOT NULL PRIMARY KEY,
    value TEXT NOT NULL,
    comment TEXT,
-   channel INTEGER
+   channel_id INTEGER
       REFERENCES channel(id)
          ON UPDATE CASCADE
          ON DELETE RESTRICT
@@ -128,6 +131,52 @@ CREATE TABLE channel_album_data(
    PRIMARY KEY( channel_id, album_id )
 );
 
+CREATE TABLE groups (
+  id INTEGER NOT NULL PRIMARY KEY,
+  title VARCHAR(32) NOT NULL,
+  admin        INTEGER(1) NOT NULL default 0,
+  nocredits    INTEGER NOT NULL default 0,
+  queue_skip   INTEGER NOT NULL default 0,
+  queue_remove INTEGER NOT NULL default 0,
+  queue_add    INTEGER NOT NULL default 0
+);
+
+CREATE TABLE users (
+   id  INTEGER NOT NULL PRIMARY KEY,
+   username VARCHAR(32) NOT NULL UNIQUE,
+   cookie   VARCHAR(32) NOT NULL UNIQUE,
+   password VARCHAR(32) NOT NULL,
+   fullname VARCHAR(64) NOT NULL,
+   credits  INTEGER(5) NOT NULL,
+   group_id INTEGER(3) NOT NULL
+       REFERENCES groups(id)
+         ON UPDATE CASCADE
+         ON DELETE RESTRICT,
+   downloads INTEGER NOT NULL DEFAULT 0,
+   votes     INTEGER NOT NULL DEFAULT 0,
+   skips     INTEGER NOT NULL DEFAULT 0,
+   selects   INTEGER NOT NULL DEFAULT 0,
+   added DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE queue (
+   id INTEGER NOT NULL PRIMARY KEY,
+   song_id INTEGER NOT NULL
+      REFERENCES song(id)
+         ON UPDATE CASCADE
+         ON DELETE RESTRICT,
+   user_id INTEGER DEFAULT NULL
+      REFERENCES user(id)
+         ON UPDATE CASCADE
+         ON DELETE RESTRICT,
+   channel_id INTEGER NOT NULL
+      REFERENCES channel(id)
+         ON UPDATE CASCADE
+         ON DELETE RESTRICT,
+   position INTEGER(5) DEFAULT 0,
+   added DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 COMMIT;
 
 ------------------------------------------------------------------------------
@@ -136,6 +185,12 @@ COMMIT;
 
 BEGIN;
    INSERT INTO playmode (name) VALUES ( 'strictQueue' );
-   INSERT INTO channel  (name,backend,playmode) VALUES ( 'exhuma', 'mpd', 1 );
+   INSERT INTO channel  (name,backend,backend_params,playmode) VALUES ( 'exhuma', 'mpd', 'host=localhost, port=6600, rootFolder=/mp3s', 1 );
    INSERT INTO setting  (var, value, comment) VALUES ( 'mediadir', '/mp3', 'Folders that contain the media files. Separated by commas' );
+
+   INSERT INTO groups (title, admin, nocredits, queue_skip, queue_remove, queue_add) VALUES ('anonymous', 0, 0, 0, 0, 0);
+   INSERT INTO groups (title, admin, nocredits, queue_skip, queue_remove, queue_add) VALUES ('User', 0, 0, 0, 0, 1);
+   INSERT INTO groups (title, admin, nocredits, queue_skip, queue_remove, queue_add) VALUES ('VIP', 0, 0, 1, 1, 1);
+   INSERT INTO groups (title, admin, nocredits, queue_skip, queue_remove, queue_add) VALUES ('DJ', 0, 1, 1, 1, 1);
+   INSERT INTO groups (title, admin, nocredits, queue_skip, queue_remove, queue_add) VALUES ('Admin', 1, 0, 1, 1, 1);
 COMMIT;

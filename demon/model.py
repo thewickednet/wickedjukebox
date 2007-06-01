@@ -1,6 +1,7 @@
 from sqlalchemy import *
 from util import config
 from datetime import datetime
+from twisted.python import log
 
 if config['database.type'] == 'sqlite':
    dburi = "%s:///%s" % (
@@ -16,13 +17,50 @@ else:
          config['database.base'],
          )
 
+
+def getSetting(param_in, default=None, channel=None):
+   """
+   Retrieves a setting from the database.
+
+   PARAMETERS
+      param_in - The name of the setting as string
+      default  - (optional) If it's set, it provides the default value in case
+                 the value was not found in the database.
+      channel  - the channel id if the setting is bound to a channel.
+   """
+   try:
+      session = create_session()
+      if channel is None:
+         setting = session.query(Setting).selectfirst_by( Setting.c.var==param_in )
+      else:
+         setting = session.query(Setting).selectfirst_by( Setting.c.var==param_in, Setting.c.channel_id==channel )
+      if setting is None:
+         # The parameter was not found in the database. Do we have a default?
+         if default is not None:
+            # yes, we have a default. Return that instead the database value.
+            return default
+         else:
+            log.msg( "\nRequired parameter %s was not found in the settings table!" % param_in )
+            raise
+      return setting.value
+   except Exception, ex:
+      if str(ex).lower().find('connect') > 0:
+         logging.critical('Unable to connect to the database. Error was: \n%s' % ex)
+         sys.exit(0)
+      if str(ex).lower().find('exist') > 0:
+         logging.critical('Settings table not found. Did you create the database tables?')
+         sys.exit(0)
+      else:
+         # An unknown error occured. We raise it again
+         raise
+
 # ----------------------------------------------------------------------------
 # Table definitions
 # ----------------------------------------------------------------------------
 
 metadata = BoundMetaData(dburi, encoding='utf-8', echo=True)
 if int(config['core.debug']) > 0:
-   print "Echoing database queries"
+   log.msg( "Echoing database queries" )
    metadata.engine.echo = True
 else:
    metadata.engine.echo = False
@@ -33,6 +71,7 @@ settingTable  = Table( 'setting', metadata, autoload=True )
 artistTable   = Table( 'artist', metadata, autoload=True )
 albumTable    = Table( 'album', metadata, autoload=True )
 songTable     = Table( 'song', metadata, autoload=True )
+queueTable    = Table( 'queue', metadata, autoload=True )
 
 # ----------------------------------------------------------------------------
 # Mappers
@@ -73,7 +112,11 @@ class Song(object):
    def __repr__(self):
       return "<Song %s path=%s>" % (self.id, repr(self.localpath))
 
+class QueueItem(object):
+   def __repr__(self):
+      return "<QueueItem %s>" % (self.id)
 
+mapper(QueueItem, queueTable)
 mapper(Setting, settingTable)
 mapper(Channel, channelTable)
 mapper(Album, albumTable, properties=dict(
