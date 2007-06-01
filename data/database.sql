@@ -166,7 +166,7 @@ CREATE TABLE queue (
          ON UPDATE CASCADE
          ON DELETE RESTRICT,
    user_id INTEGER DEFAULT NULL
-      REFERENCES user(id)
+      REFERENCES users(id)
          ON UPDATE CASCADE
          ON DELETE RESTRICT,
    channel_id INTEGER NOT NULL
