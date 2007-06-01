@@ -4,6 +4,7 @@
 from twisted.application import internet, service
 from twisted.protocols import basic
 from twisted.internet import protocol, reactor, defer
+from twisted.python   import log
 import os
 from demon.wickedjukebox import Librarian
 from demon.util import config
@@ -24,7 +25,7 @@ class Gatekeeper(object):
       if config['demon.default_channel'] != '':
          channel = Channel( config['demon.default_channel'] )
          if channel.name is not None:
-            print "Channel %s selected (from config.ini)" % channel.name
+            log.msg( "Channel %s selected (from config.ini)" % channel.name )
             self.channels.append(channel)
             self.activeChannel = self.channels[-1]
             if config['demon.start_channel'] == '1':
@@ -118,7 +119,7 @@ class WJBProtocol(basic.LineReceiver):
       self.transport.write("No rest for the wicked.\r\n")
 
    def lineReceived( self, line ):
-      print "<", line
+      log.msg( "<", line )
       if line in 'q bye exit quit'.split(): self.transport.loseConnection()
       self.factory.processLine(line
             ).addErrback( lambda _: self.transport.write("Internal server error\r\n")
@@ -151,13 +152,13 @@ class WJBFactory( protocol.ServerFactory ):
 
 application = None
 if os.getuid() == 0:
-   print "WARNING: Process started as root. Trying to change to a less priviledged user..."
+   log.err( "WARNING: Process started as root. Trying to change to a less priviledged user..." )
    try:
       application = service.Application('wickedjukebox', uid=1, gid=1)
    except:
-      print "... failed to switch user."
+      log.err( "... failed to switch user." )
       if config['core.allow_root_exec'] == 1:
-         print "Running as superuser instead. THIS IS DANGEROUS! To disable this behaviour, set 'allow_root_exec' to 0 in config.ini"
+         log.err( "Running as superuser instead. THIS IS DANGEROUS! To disable this behaviour, set 'allow_root_exec' to 0 in config.ini" )
          application = service.Application('wickedjukebox')
 else:
    application = service.Application('wickedjukebox')
@@ -167,5 +168,5 @@ if application is not None:
    internet.TCPServer(int(config['demon.port']), factory).setServiceParent(
        service.IServiceCollection(application))
 else:
-   print "Application failed to start up."
+   log.err( "Application failed to start up." )
 

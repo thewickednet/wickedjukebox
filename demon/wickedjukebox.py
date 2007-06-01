@@ -3,9 +3,7 @@ from model import create_session, Artist, Album, Song, Channel as dbChannel, get
 from datetime import datetime
 from util import Scrobbler
 import player
-
-def wjblog( text ):
-   print text
+from twisted.python import log
 
 class Librarian(object):
 
@@ -64,7 +62,7 @@ class Librarian(object):
          try:
             return meta.info.bitrate
          except AttributeError, ex:
-            print "ERROR:", str(ex)
+            log.err()
             return None
 
       def __crawl_directory(self, dir):
@@ -73,7 +71,7 @@ class Librarian(object):
          metadata into the library (DB)
          """
 
-         wjblog( "-------- scanning %s ---------" % (dir) )
+         log.msg( "-------- scanning %s ---------" % (dir) )
 
          # Only scan the files specified in the settings table
          recognizedTypes = getSetting('recognizedTypes', 'mp3 ogg flac').split()
@@ -89,7 +87,7 @@ class Librarian(object):
                if name.split('.')[-1] in recognizedTypes:
                   # we have a valid file
                   filename = os.path.join(root,name)
-                  wjblog( "Scanning %s" % repr(filename) )
+                  log.msg( "Scanning %s" % repr(filename) )
                   metadata = mutagen.File( filename )
                   title  = self.getTitle(metadata)
                   album  = self.getAlbum(metadata)
@@ -132,7 +130,7 @@ class Librarian(object):
                      song.filesize = filesize
                      session.save(song)
                      scancount += 1
-                     wjblog( "Scanned %s" % ( repr(filename) ) )
+                     log.msg( "Scanned %s" % ( repr(filename) ) )
 
                   else:
                      # we found the song in the DB. Load it so we can update it's
@@ -153,7 +151,7 @@ class Librarian(object):
                         ##song.genre       = genre
                         song.lastScanned = datetime.now()
                         session.save(song)
-                        wjblog( "Updated %s" % ( filename ) )
+                        log.msg( "Updated %s" % ( filename ) )
                         scancount += 1
 
                   try:
@@ -167,7 +165,7 @@ class Librarian(object):
 
             session.flush()
 
-         wjblog( "--- done scanning (%7d songs scanned, %7d errors)" % (scancount, errorCount) )
+         log.msg( "--- done scanning (%7d songs scanned, %7d errors)" % (scancount, errorCount) )
 
       def run(self):
          for folder in self.__folders:
@@ -227,12 +225,12 @@ class Channel(threading.Thread):
       self.__dbModel = self.sess.query(dbChannel).selectfirst_by( dbChannel.c.name == name )
       if self.__dbModel is not None:
          self.name = self.__dbModel.name
-         print "Loaded channel %s" % self.__dbModel
+         log.msg( "Loaded channel %s" % self.__dbModel )
 
       u = getSetting('lastfm_user', '', self.__dbModel.id)
       p = getSetting('lastfm_pass', '', self.__dbModel.id)
       if u == '' or p == '' or u is None or p is None:
-         print 'No lastFM user and password specified. Disabling support...'
+         log.msg( 'No lastFM user and password specified. Disabling support...' )
       else:
          self.__scrobbler = Scrobbler(u, p); scrobbler.start()
 
@@ -284,10 +282,10 @@ class Channel(threading.Thread):
       return self._Thread__stopped
 
    def stop(self):
-      print "Syncronising channel"
+      log.msg( "Syncronising channel" )
       self.sess.save( self.__dbModel )
       self.sess.flush()
-      print "Stopping channel"
+      log.msg( "Stopping channel" )
       if self._Thread__started:
          self.keepRunning = False
 
@@ -301,5 +299,5 @@ class Channel(threading.Thread):
       while self.keepRunning:
          time.sleep(1)
          print "1"
-      print "Channel stopped"
+      log.msg( "Channel stopped" )
 

@@ -1,4 +1,5 @@
 import os,ConfigParser, threading
+from twisted.python import log
 
 def loadConfig(file, config={}):
     """
@@ -44,7 +45,7 @@ class Scrobbler(threading.Thread):
 
       url = "post.audioscrobbler.com"
 
-      print "opening last.fm handshake uri"
+      log.msg( "opening last.fm handshake uri" )
 
       params = urllib.urlencode({
          'hs': 'true',
@@ -57,9 +58,9 @@ class Scrobbler(threading.Thread):
       conn.request("GET", "/?%s" % params )
       r = conn.getresponse()
       data = r.read()
-      print "Last.FM response: \n %s" % data
+      log.msg( "Last.FM response: \n %s" % data )
       conn.close()
-      print "... response received. Authencitating... "
+      log.msg( "... response received. Authencitating... " )
 
       challenge = data.split()[1]
       posturl   = data.split()[2]
@@ -73,7 +74,7 @@ class Scrobbler(threading.Thread):
       if '.' in pltime:
          pltime = pltime.split('.')[0]
       try:
-         print 'Scrobbling %s - %s' % (song.artist.name, song.title)
+         log.msg( 'Scrobbling %s - %s' % (song.artist.name, song.title) )
          while True:
             try:
                conn = httplib.HTTPConnection(self.__posturl.split('/')[2])
@@ -87,16 +88,16 @@ class Scrobbler(threading.Thread):
                   'l[0]': song.duration,
                   'i[0]': pltime
                })
-               print "params: %s" % params
+               log.msg( "params: %s" % params )
                headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
                conn.request("POST", '/' + '/'.join(self.__posturl.split('/')[3:]), params, headers)
                r = conn.getresponse()
                data = r.read()
-               print "Last.FM response: \n %s" % data
+               log.msg( "Last.FM response: \n %s" % data )
                conn.close()
             except Exception, ex:
                # Wait 3 seconds, the loop
-               print 'Exception caught (%s). Retrying...' % str(ex)
+               log.msg( 'Exception caught (%s). Retrying...' % str(ex) )
                time.sleep(3)
                continue
             ## except BadStatusLine:
@@ -108,7 +109,7 @@ class Scrobbler(threading.Thread):
             break
       except UnicodeDecodeError:
          import traceback
-         print "UTF-8 error when scrobbling. Skipping this song\n%s" % traceback.format_exc()
+         log.msg( "UTF-8 error when scrobbling. Skipping this song\n%s" % traceback.format_exc() )
 
    def run(self):
       """
@@ -118,7 +119,7 @@ class Scrobbler(threading.Thread):
       """
 
       self.__cr, self.__posturl, self.__interval = self.getConnection(self.__user, self.__pwd)
-      print "Scrobbler started"
+      log.msg( "Scrobbler started" )
 
       while self.__keepRunning:
          try:
@@ -129,7 +130,7 @@ class Scrobbler(threading.Thread):
             # nothing to scrobble
             pass
          time.sleep(5)
-      print "Scrobbler stopped"
+      log.msg( "Scrobbler stopped" )
 
    def stop(self):
       self.__keepRunning = False
