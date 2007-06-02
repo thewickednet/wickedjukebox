@@ -127,6 +127,14 @@ class Gatekeeper(object):
             return self.activeChannel.stopPlayback()
          return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
 
+      #
+      # Skip song
+      #
+      elif command == 'next':
+         if self.activeChannel is not None:
+            return self.activeChannel.skipSong()
+         return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
+
       else:
          return "ER: '%s' is an unknown command" % repr(command)
 

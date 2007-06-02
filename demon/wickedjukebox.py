@@ -350,7 +350,7 @@ class Channel(threading.Thread):
 
       self.__player.queue(filename)
 
-      return (songID, filename)
+      return 'OK'
 
    def isStopped(self):
       return self._Thread__stopped
@@ -372,10 +372,34 @@ class Channel(threading.Thread):
    def startPlayback(self):
       self.__playStatus = 'playing'
       self.__player.startPlayback()
+      return 'OK'
 
    def stopPlayback(self):
       self.__playStatus = 'stopped'
       self.__player.stopPlayback()
+      return 'OK'
+
+   def skipSong(self):
+      """
+      Updates play statistics and sends a "next" command to the player backend
+      """
+      stat = self.sess.query(ChannelStat).select( and_(
+               songTable.c.id == channelSongs.c.song_id,
+               songTable.c.id == self.__currentSongID,
+               channelSongs.c.channel_id == self.__dbModel.id) )
+      if stat == [] :
+         stat = ChannelStat( songid = self.__currentSongID,
+                             channelid = self.__dbModel.id)
+         stat.skipped = 1
+      else:
+         stat = stat[0]
+         stat.skipped = stat.skipped + 1
+      self.sess.save(stat)
+
+      # set "current song" to the next in the queue
+      self.__dequeue()
+      self.__player.skipSong()
+      return 'OK'
 
    def run(self):
       cycleTime = int(getSetting('channel_cycle', '1'))

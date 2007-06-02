@@ -142,6 +142,8 @@ class MPD:
 
       # keep the playlist clean
       try:
+         print self.__connection
+         print self.__connection.getStatus()
          if self.__connection.getStatus().playlistLength > 2:
             self.__connection.delete([0])
       except mpdclient.MpdError, ex:
