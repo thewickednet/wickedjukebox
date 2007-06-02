@@ -72,6 +72,7 @@ artistTable   = Table( 'artist', metadata, autoload=True )
 albumTable    = Table( 'album', metadata, autoload=True )
 songTable     = Table( 'song', metadata, autoload=True )
 queueTable    = Table( 'queue', metadata, autoload=True )
+channelSongs  = Table( 'channel_song_data', metadata, autoload=True )
 
 # ----------------------------------------------------------------------------
 # Mappers
@@ -116,6 +117,16 @@ class QueueItem(object):
    def __repr__(self):
       return "<QueueItem %s>" % (self.id)
 
+class ChannelStat(object):
+
+   def __init__( self, songid, channelid ):
+      self.song_id    = songid
+      self.channel_id = channelid
+
+   def __repr__(self):
+      return "<ShannelStat song_id=%s channel_id=%s>" % (self.song_id, self.channel_id)
+
+mapper( ChannelStat, channelSongs )
 mapper(QueueItem, queueTable)
 mapper(Setting, settingTable)
 mapper(Channel, channelTable)
@@ -126,4 +137,6 @@ mapper(Artist, artistTable, properties=dict(
    albums=relation(Album, backref='artist'),
    songs = relation(Song, backref='artist')
    ))
-mapper(Song, songTable)
+mapper(Song, songTable, properties=dict(
+   channelstat=relation( ChannelStat, backref='song' )
+   ))

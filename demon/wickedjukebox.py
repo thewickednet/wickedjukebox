@@ -1,6 +1,6 @@
 import sys, os, threading, mutagen, time
-from model import create_session, Artist, Album, Song, QueueItem, Channel as dbChannel, getSetting, metadata as dbMeta
-from sqlalchemy import text as dbText
+from model import create_session, Artist, Album, Song, QueueItem, ChannelStat, Channel as dbChannel, getSetting, metadata as dbMeta, songTable, channelSongs
+from sqlalchemy import text as dbText, and_
 from datetime import datetime
 from util import Scrobbler
 import player
@@ -424,13 +424,24 @@ class Channel(threading.Thread):
          currentPosition = self.__player.getPosition()
          if (currentPosition[1] - currentPosition[0]) < 3:
             if self.__currentSongID != 0 and not self.__currentSongRecorded:
-               currentSong = self.sess.query(Song).get(self.__currentSongID)
-               currentSong.lastPlayed = datetime.now()
-               #currentSong.played     = currentSong.played + 1
+               stat = self.sess.query(ChannelStat).select( and_(
+                        songTable.c.id == channelSongs.c.song_id,
+                        songTable.c.id==self.__currentSongID,
+                        channelSongs.c.channel_id==self.__dbModel.id) )
+               if stat == [] :
+                  stat = ChannelStat( songid = self.__currentSongID,
+                                      channelid = self.__dbModel.id)
+                  stat.lastPlayed = datetime.now()
+                  stat.played     = 1
+               else:
+                  stat = stat[0]
+                  stat.lastPlayed = datetime.now()
+                  stat.played     = stat.played + 1
                # tmp = LastFMQueue(song = currentSong, time_played=datetime.utcnow())
                # self.sess.save(tmp)
                self.__currentSongRecorded = True
-               self.sess.save(currentSong)
+               self.sess.save(stat)
+               self.sess.flush()
             #TODO - This is semantically bad!
             self.__dequeue()
 
