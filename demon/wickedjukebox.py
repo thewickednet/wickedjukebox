@@ -49,6 +49,8 @@ class Librarian(object):
          if meta.has_key('TRCK'):
             return meta.get('TRCK').text[0].split('/')[0]
          else:
+            if meta.get('tracknumber') is None:
+               return None
             if type(meta.get('tracknumber')) == type([]):
                return meta.get('tracknumber')[0].split('/')[0]
             else:
@@ -80,8 +82,15 @@ class Librarian(object):
          # walk through the directories
          scancount  = 0
          errorCount = 0
-         session  = create_session()
-         for root, dirs, files in os.walk(dir):
+
+         # TODO - getfilesystemencoding is *not* guaranteed to return the
+         # correct encodings on *nix systems as the FS-encodings are not
+         # enforced on these systems! It will crash here with a
+         # UnicodeDecodeError if an unexpected encoding is found. Instead, it
+         # should skip that file and print an print a useful message.
+         for root, dirs, files in os.walk(dir.encode(sys.getfilesystemencoding())):
+            session  = create_session()
+            root = root.decode( sys.getfilesystemencoding() )
             for name in files:
                if type(name) != type( u'' ):
                   name = name.decode(sys.getfilesystemencoding())
@@ -89,7 +98,11 @@ class Librarian(object):
                   # we have a valid file
                   filename = os.path.join(root,name)
                   log.msg( "Scanning %s" % repr(filename) )
-                  metadata = mutagen.File( filename )
+                  try:
+                     metadata = mutagen.File( filename )
+                  except:
+                     log.err( "%s contained no valid metadata!" % filename )
+                     continue
                   title  = self.getTitle(metadata)
                   album  = self.getAlbum(metadata)
                   artist = self.getArtist(metadata)
@@ -165,6 +178,7 @@ class Librarian(object):
                      song.isDirty = True
 
             session.flush()
+            session.close()
 
          log.msg( "--- done scanning (%7d songs scanned, %7d errors)" % (scancount, errorCount) )
 
@@ -335,7 +349,7 @@ class Channel(threading.Thread):
          # no item on the main queue. Use the internal prediction queue
          if len(self.__predictionQueue) == 0:
             self.__smartGet()
-         nextSong = self.sess.query(Song).get( self.__predictionQueue.pop(0)[0] )
+         nextSong = self.sess.query(Song).selectfirst_by( songTable.c.id == self.__predictionQueue.pop(0)[0] )
          filename = nextSong.localpath
          songID   = nextSong.id
 
