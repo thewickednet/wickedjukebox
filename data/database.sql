@@ -113,7 +113,7 @@ CREATE TABLE channel_song_data(
    played     INTEGER NOT NULL DEFAULT 0,
    voted      INTEGER NOT NULL DEFAULT 0,
    skipped    INTEGER NOT NULL DEFAULT 0,
-   lastPlayed DATETIME DEFAULT NULL,
+   lastPlayed DATETIME DEFAULT CURRENT_TIMESTAMP,
    cost       INTEGER DEFAULT 5,
    PRIMARY KEY( channel_id, song_id )
 );
