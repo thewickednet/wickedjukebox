@@ -1,5 +1,5 @@
 import sys, os, threading, mutagen, time
-from model import create_session, Artist, Album, Song, QueueItem, ChannelStat, Channel as dbChannel, getSetting, metadata as dbMeta, songTable, channelSongs
+from model import create_session, Artist, Album, Song, QueueItem, ChannelStat, Channel as dbChannel, getSetting, metadata as dbMeta, songTable, channelSongs, LastFMQueue
 from sqlalchemy import text as dbText, and_
 from datetime import datetime
 from util import Scrobbler
@@ -437,8 +437,8 @@ class Channel(threading.Thread):
                   stat = stat[0]
                   stat.lastPlayed = datetime.now()
                   stat.played     = stat.played + 1
-               # tmp = LastFMQueue(song = currentSong, time_played=datetime.utcnow())
-               # self.sess.save(tmp)
+               lfm = LastFMQueue( self.__currentSongID )
+               self.sess.save(lfm)
                self.__currentSongRecorded = True
                self.sess.save(stat)
                self.sess.flush()

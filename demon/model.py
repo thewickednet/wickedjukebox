@@ -73,6 +73,7 @@ albumTable    = Table( 'album', metadata, autoload=True )
 songTable     = Table( 'song', metadata, autoload=True )
 queueTable    = Table( 'queue', metadata, autoload=True )
 channelSongs  = Table( 'channel_song_data', metadata, autoload=True )
+lastfmTable   = Table( 'lastfm_queue', metadata, autoload=True )
 
 # ----------------------------------------------------------------------------
 # Mappers
@@ -126,6 +127,13 @@ class ChannelStat(object):
    def __repr__(self):
       return "<ShannelStat song_id=%s channel_id=%s>" % (self.song_id, self.channel_id)
 
+class LastFMQueue(object):
+
+   def __init__( self, songid ):
+      self.song_id = songid
+      self.time_played = datetime.utcnow()
+
+mapper( LastFMQueue, lastfmTable )
 mapper( ChannelStat, channelSongs )
 mapper(QueueItem, queueTable)
 mapper(Setting, settingTable)

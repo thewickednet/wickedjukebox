@@ -10,6 +10,7 @@ DROP TABLE IF EXISTS channel_album_data;
 DROP TABLE IF EXISTS queue;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS groups;
+DROP TABLE IF EXISTS lastfm_queue;
 
 ----------------------------------------------------------------------------
 
@@ -175,6 +176,15 @@ CREATE TABLE queue (
          ON DELETE RESTRICT,
    position INTEGER(5) DEFAULT 0,
    added DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE lastfm_queue(
+   queue_id INTEGER NOT NULL PRIMARY KEY,
+   song_id INTEGER NOT NULL
+      REFERENCES song(id)
+         ON UPDATE CASCADE
+         ON DELETE RESTRICT,
+   time_played DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 COMMIT;
