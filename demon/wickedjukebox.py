@@ -1,5 +1,5 @@
 import sys, os, threading, mutagen, time
-from model import create_session, Artist, Album, Song, QueueItem, ChannelStat, Channel as dbChannel, getSetting, metadata as dbMeta, songTable, channelSongs, LastFMQueue
+from model import create_session, Artist, Album, Song, QueueItem, ChannelStat, Channel as dbChannel, getSetting, metadata as dbMeta, songTable, channelSongs, LastFMQueue, usersTable
 from sqlalchemy import text as dbText, and_
 from datetime import datetime
 from util import Scrobbler
@@ -423,6 +423,8 @@ class Channel(threading.Thread):
       # while we are alive, do the loop
       while self.__keepRunning:
 
+         time.sleep(cycleTime)
+
          # ping the database every 10 seconds
          if (datetime.now() - lastPing).seconds > 10:
             lastPing = datetime.now()
@@ -438,7 +440,6 @@ class Channel(threading.Thread):
 
          # If we are not playing stuff, we can skip the rest
          if self.__playStatus != 'playing':
-            time.sleep(cycleTime)
             log.msg( "Player status is '%s'" % self.__player.status() )
             continue;
 
@@ -485,10 +486,11 @@ class Channel(threading.Thread):
 
          # if we handed out credits more than 5mins ago, we give out some more
          if (datetime.now() - lastCreditGiveaway).seconds > 300:
-            q = "UPDATE users SET credits=credits+5 WHERE credits<30"
-            conn = Users._connection
+            usersTable.update(
+                  usersTable.c.credits<30,
+                  values={usersTable.c.credits: usersTable.c.credits+5}
+                  ).execute( )
             lastCreditGiveaway = datetime.now()
-            conn.query(q)
 
          self.sess.flush()
 
