@@ -74,6 +74,7 @@ songTable     = Table( 'song', metadata, autoload=True )
 queueTable    = Table( 'queue', metadata, autoload=True )
 channelSongs  = Table( 'channel_song_data', metadata, autoload=True )
 lastfmTable   = Table( 'lastfm_queue', metadata, autoload=True )
+usersTable    = Table( 'users', metadata, autoload=True )
 
 # ----------------------------------------------------------------------------
 # Mappers
