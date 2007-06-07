@@ -11,6 +11,7 @@ DROP TABLE IF EXISTS queue;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS groups;
 DROP TABLE IF EXISTS lastfm_queue;
+DROP TABLE IF EXISTS dynamicPlaylist;
 
 ----------------------------------------------------------------------------
 
@@ -185,6 +186,13 @@ CREATE TABLE lastfm_queue(
          ON UPDATE CASCADE
          ON DELETE RESTRICT,
    time_played DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE dynamicPlaylist(
+   id INTEGER NOT NULL PRIMARY KEY,
+   group_id INTEGER NOT NULL,
+   label VARCHAR(64),
+   query TEXT
 );
 
 COMMIT;

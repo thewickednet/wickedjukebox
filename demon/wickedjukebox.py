@@ -1,10 +1,15 @@
 import sys, os, threading, mutagen, time
-from model import create_session, Artist, Album, Song, QueueItem, ChannelStat, Channel as dbChannel, getSetting, metadata as dbMeta, songTable, channelSongs, LastFMQueue, usersTable
+from model import create_session, Artist, Album, Song, \
+                  QueueItem, ChannelStat, Channel as dbChannel,\
+                  getSetting, metadata as dbMeta,\
+                  songTable, channelSongs, LastFMQueue, usersTable,\
+                  DynamicPlaylist, dynamicPLTable
 from sqlalchemy import text as dbText, and_
 from datetime import datetime
 from util import Scrobbler
 import player
 from twisted.python import log
+from plparser import parseQuery
 
 class Librarian(object):
 
@@ -272,6 +277,16 @@ class Channel(threading.Thread):
       prediction queue
       """
 
+      # Retrieve dynamic playlists
+      whereClause = ''
+
+      res = self.sess.query(DynamicPlaylist).select(dynamicPLTable.c.group_id > 0, order_by=['group_id'])
+      for dpl in res:
+         whereClause = "AND (%s)" % parseQuery( dpl.query )
+         break; # only one query will be parsed. for now.... this is a big TODO
+                # as it triggers an unexpected behaviour (bug). i.e.: Why the
+                # heck does it only activate one playlist?!?
+
       ## -- MySQL Query WAS:
       ##   SELECT
       ##      song_id,
@@ -285,7 +300,7 @@ class Channel(threading.Thread):
       ##   LIMIT 0,10
       query = """
          SELECT
-            id,
+            s.id,
             localpath,
             CASE
                WHEN played ISNULL OR skipped ISNULL THEN 0
@@ -301,22 +316,26 @@ class Channel(threading.Thread):
             (CASE WHEN lastPlayed ISNULL THEN 604800 ELSE
                 julianday('now')*86400 - julianday(lastPlayed)*86400 -- seconds since last play
             END - 604800)/604800*%(lastPlayed)d +
-            CASE WHEN added ISNULL THEN 0 ELSE
-               CASE WHEN julianday('now')*86400 - julianday(added)*86400 < 1209600 THEN
-                  (julianday('now')*86400 - julianday(added)*86400)/1209600*%(songAge)d
+            CASE WHEN s.added ISNULL THEN 0 ELSE
+               CASE WHEN julianday('now')*86400 - julianday(s.added)*86400 < 1209600 THEN
+                  (julianday('now')*86400 - julianday(s.added)*86400)/1209600*%(songAge)d
                ELSE
                   0
                END
             END
                AS score
          FROM song s LEFT JOIN channel_song_data rel ON ( rel.song_id == s.id )
+         INNER JOIN artist a ON ( a.id == s.artist_id )
+         INNER JOIN album b ON ( b.id == s.album_id )
+         %(where)s
          ORDER BY score DESC, RANDOM()
          LIMIT 10 OFFSET 0
       """ % {
          'neverPlayed': self.__neverPlayed,
          'playRatio':   self.__playRatio,
          'lastPlayed':  self.__lastPlayed,
-         'songAge':     self.__songAge
+         'songAge':     self.__songAge,
+         'where':       whereClause,
       }
 
       # I won't use ORDER BY RAND() as it is way too dependent on the dbms!

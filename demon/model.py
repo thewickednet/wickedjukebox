@@ -75,6 +75,7 @@ queueTable    = Table( 'queue', metadata, autoload=True )
 channelSongs  = Table( 'channel_song_data', metadata, autoload=True )
 lastfmTable   = Table( 'lastfm_queue', metadata, autoload=True )
 usersTable    = Table( 'users', metadata, autoload=True )
+dynamicPLTable= Table( 'dynamicPlaylist', metadata, autoload=True )
 
 # ----------------------------------------------------------------------------
 # Mappers
@@ -119,6 +120,10 @@ class QueueItem(object):
    def __repr__(self):
       return "<QueueItem %s>" % (self.id)
 
+class DynamicPlaylist(object):
+   def __repr__(self):
+      return "<DynamicPlaylist %s>" % (self.id)
+
 class ChannelStat(object):
 
    def __init__( self, songid, channelid ):
@@ -136,6 +141,7 @@ class LastFMQueue(object):
 
 mapper( LastFMQueue, lastfmTable )
 mapper( ChannelStat, channelSongs )
+mapper( DynamicPlaylist, dynamicPLTable )
 mapper(QueueItem, queueTable)
 mapper(Setting, settingTable)
 mapper(Channel, channelTable)
