@@ -310,7 +310,7 @@ class Channel(threading.Thread):
             END
                AS score
          FROM song s LEFT JOIN channel_song_data rel ON ( rel.song_id == s.id )
-         ORDER BY score DESC
+         ORDER BY score DESC, RANDOM()
          LIMIT 10 OFFSET 0
       """ % {
          'neverPlayed': self.__neverPlayed,
