@@ -65,21 +65,29 @@ if int(config['core.debug']) > 0:
 else:
    metadata.engine.echo = False
 
-playmodeTable = Table( 'playmode', metadata, autoload=True )
-channelTable  = Table( 'channel', metadata, autoload=True )
-settingTable  = Table( 'setting', metadata, autoload=True )
-artistTable   = Table( 'artist', metadata, autoload=True )
-albumTable    = Table( 'album', metadata, autoload=True )
-songTable     = Table( 'song', metadata, autoload=True )
-queueTable    = Table( 'queue', metadata, autoload=True )
-channelSongs  = Table( 'channel_song_data', metadata, autoload=True )
-lastfmTable   = Table( 'lastfm_queue', metadata, autoload=True )
-usersTable    = Table( 'users', metadata, autoload=True )
-dynamicPLTable= Table( 'dynamicPlaylist', metadata, autoload=True )
+playmodeTable  = Table( 'playmode', metadata, autoload=True )
+channelTable   = Table( 'channel', metadata, autoload=True )
+settingTable   = Table( 'setting', metadata, autoload=True )
+artistTable    = Table( 'artist', metadata, autoload=True )
+albumTable     = Table( 'album', metadata, autoload=True )
+songTable      = Table( 'song', metadata, autoload=True )
+queueTable     = Table( 'queue', metadata, autoload=True )
+channelSongs   = Table( 'channel_song_data', metadata, autoload=True )
+lastfmTable    = Table( 'lastfm_queue', metadata, autoload=True )
+usersTable     = Table( 'users', metadata, autoload=True )
+dynamicPLTable = Table( 'dynamicPlaylist', metadata, autoload=True )
+song_has_genre = Table( 'song_has_genre', metadata, autoload=True )
+genreTable     = Table( 'genre', metadata, autoload=True )
 
 # ----------------------------------------------------------------------------
 # Mappers
 # ----------------------------------------------------------------------------
+
+class Genre(object):
+   def __init__(self, name):
+      self.name = name
+   def __repr__(self):
+      return "<Genre %s name=%s>" % (self.id, repr(self.name))
 
 class Setting(object):
    pass
@@ -139,10 +147,15 @@ class LastFMQueue(object):
       self.song_id = songid
       self.time_played = datetime.utcnow()
 
-mapper( LastFMQueue, lastfmTable )
+mapper( Genre, genreTable )
+mapper( LastFMQueue, lastfmTable, properties={
+      'song': relation(Song)
+      } )
 mapper( ChannelStat, channelSongs )
 mapper( DynamicPlaylist, dynamicPLTable )
-mapper(QueueItem, queueTable)
+mapper(QueueItem, queueTable, properties={
+         'song': relation(Song)
+      })
 mapper(Setting, settingTable)
 mapper(Channel, channelTable)
 mapper(Album, albumTable, properties=dict(
@@ -153,5 +166,6 @@ mapper(Artist, artistTable, properties=dict(
    songs = relation(Song, backref='artist')
    ))
 mapper(Song, songTable, properties=dict(
-   channelstat=relation( ChannelStat, backref='song' )
+   channelstat=relation( ChannelStat, backref='song' ),
+   genres = relation( Genre, secondary=song_has_genre )
    ))

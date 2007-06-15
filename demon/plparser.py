@@ -4,6 +4,9 @@ Methods to convert a simplified filter string into an SQL query
 import ply.lex as lex
 import ply.yacc as yacc
 
+class ParserSyntaxError(Exception):
+   pass
+
 # list of tokens
 tokens = (
    'FIELD',
@@ -89,7 +92,7 @@ def p_expression(p):
       p[0] = "%s LIKE '%%%s%%'" % (p[1], p[3])
 
 def p_error(t):
-   print "Syntax error at '%s'" % t.value
+   raise ParserSyntaxError("Syntax error at '%s'" % t.value)
 
 yacc.yacc()
 

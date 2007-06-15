@@ -1,5 +1,6 @@
 import os,ConfigParser, threading
 from twisted.python import log
+import urllib, httplib, md5, time
 
 def loadConfig(file, config={}):
     """
@@ -81,9 +82,9 @@ class Scrobbler(threading.Thread):
                params = urllib.urlencode({
                   'u': 'exhuma',
                   's': self.__cr,
-                  'a[0]': unicode(song.artist.name),
-                  't[0]': unicode(song.title),
-                  'b[0]': unicode(song.album.title),
+                  'a[0]': song.artist.name.encode('utf-8'),
+                  't[0]': song.title.encode('utf-8'),
+                  'b[0]': song.album.name.encode('utf-8'),
                   'm[0]': '',
                   'l[0]': song.duration,
                   'i[0]': pltime
@@ -109,7 +110,7 @@ class Scrobbler(threading.Thread):
             break
       except UnicodeDecodeError:
          import traceback
-         log.msg( "UTF-8 error when scrobbling. Skipping this song\n%s" % traceback.format_exc() )
+         log.msg( "Unicode error when scrobbling. Skipping this song\n%s" % traceback.format_exc() )
 
    def run(self):
       """
@@ -118,18 +119,23 @@ class Scrobbler(threading.Thread):
       that should be submitted, then submits them.
       """
 
+      from model import LastFMQueue, lastfmTable, create_session
+
       self.__cr, self.__posturl, self.__interval = self.getConnection(self.__user, self.__pwd)
       log.msg( "Scrobbler started" )
 
+      sess = create_session()
       while self.__keepRunning:
          try:
-            nextScrobble = LastFMQueue.select(orderBy=LastFMQueue.q.id)[0]
+            nextScrobble = sess.query(LastFMQueue).selectfirst(order_by=lastfmTable.c.queue_id)
             self.scrobble( song = nextScrobble.song, time_played=nextScrobble.time_played )
-            nextScrobble.destroySelf()
+            sess.delete(nextScrobble)
+            sess.flush()
          except IndexError:
             # nothing to scrobble
             pass
          time.sleep(5)
+      sess.close()
       log.msg( "Scrobbler stopped" )
 
    def stop(self):

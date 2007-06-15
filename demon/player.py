@@ -36,7 +36,7 @@ class MPD:
       # set up the connection to the daemon
       self.__host       = params['host']
       self.__port       = int(params['port'])
-      self.__rootFolder = params['rootFolder']
+      self.__rootFolder = params['rootFolder'].decode(sys.getfilesystemencoding())
       self.__connect()
 
    def __connect(self):
@@ -94,11 +94,13 @@ class MPD:
                time.sleep(1)
                continue
             elif str(ex).find('playlistLength not found') > 0:
-               log.msg('"playlistLength not found" received. Retrying')
+               log.msg('"playlistLength not found" received. Rconnecting to backend...')
+               self.__connection.clearError()
                time.sleep(1)
                continue
             elif str(ex).find('problem parsing song info') > 0:
                log.msg('"problem parsing song info" received. Retrying')
+               self.__connection.clearError()
                time.sleep(1)
                continue
             else:
@@ -124,21 +126,15 @@ class MPD:
       """
       # with MPD, filenames are relative to the path specified in the mpd
       # config!! This is handled here.
-      filename = filename.encode(sys.getfilesystemencoding())
-      if filename.startswith(self.__rootFolder):
+      if filename[0:len(self.__rootFolder)] == self.__rootFolder:
          filename = filename[len(self.__rootFolder)+1:]
       log.msg("queuing %s" % filename)
-      while True:
-         try:
-            self.__connection.add([filename])
-         except mpdclient.MpdError, ex:
-            if str(ex).find('done processing current command') > 0:
-               # retry in 1 seconds
-               time.sleep(1)
-               continue
-            else:
-               raise
-         break
+      try:
+         self.__connection.add([filename])
+         return True
+      except Exception, ex:
+         log.err( "error queuing (%s)." % ex )
+         return False
 
       # keep the playlist clean
       try:
@@ -165,8 +161,8 @@ class MPD:
          if self.__connection.getStatus().playlistLength > length:
             self.__connection.delete(range(0,
                self.__connection.getStatus().playlistLength - length))
-      except MpdError, ex:
-         pass
+      except mpdclient.MpdError, ex:
+         print str(ex)
 
    def clearPlaylist(self):
       """
@@ -222,7 +218,10 @@ class MPD:
                time.sleep(1)
                continue
             else:
-               raise
+               try:
+                  raise
+               except mpdclient.MpdStoredError:
+                  return 'stop'
          break;
 
       return 'unknown'

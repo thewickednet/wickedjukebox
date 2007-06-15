@@ -34,6 +34,7 @@ class Gatekeeper(object):
             del(channel)
 
    def stopThreads(self):
+      self.lib.abortAll()
       for c in self.channels:
          c.close()
 
@@ -48,7 +49,7 @@ class Gatekeeper(object):
       # Rescanning the library
       #
       if command == 'rescanlib':
-         return self.lib.rescanLib()
+         return self.lib.rescanLib(args)
 
       #
       # Selecting a Channel

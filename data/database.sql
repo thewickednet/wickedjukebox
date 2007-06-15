@@ -12,6 +12,7 @@ DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS groups;
 DROP TABLE IF EXISTS lastfm_queue;
 DROP TABLE IF EXISTS dynamicPlaylist;
+DROP TABLE IF EXISTS song_has_genre;
 
 ----------------------------------------------------------------------------
 
@@ -82,10 +83,6 @@ CREATE TABLE song(
          ON DELETE RESTRICT,
    album_id INTEGER NOT NULL
       REFERENCES album(id)
-         ON UPDATE CASCADE
-         ON DELETE RESTRICT,
-   genre_id INTEGER
-      REFERENCES genre(id)
          ON UPDATE CASCADE
          ON DELETE RESTRICT,
    track_no INTEGER(3) DEFAULT NULL,
@@ -193,6 +190,18 @@ CREATE TABLE dynamicPlaylist(
    group_id INTEGER NOT NULL,
    label VARCHAR(64),
    query TEXT
+);
+
+CREATE TABLE song_has_genre(
+   song_id INTEGER NOT NULL
+      REFERENCES song(id)
+         ON UPDATE CASCADE
+         ON DELETE RESTRICT,
+   genre_id INTEGER NOT NULL
+      REFERENCES genre(id)
+         ON UPDATE CASCADE
+         ON DELETE RESTRICT,
+   PRIMARY KEY (song_id, genre_id)
 );
 
 COMMIT;

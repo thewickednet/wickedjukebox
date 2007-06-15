@@ -3,13 +3,14 @@ from model import create_session, Artist, Album, Song, \
                   QueueItem, ChannelStat, Channel as dbChannel,\
                   getSetting, metadata as dbMeta,\
                   songTable, channelSongs, LastFMQueue, usersTable,\
-                  DynamicPlaylist, dynamicPLTable
+                  DynamicPlaylist, dynamicPLTable,\
+                  Genre, genreTable
 from sqlalchemy import text as dbText, and_
 from datetime import datetime
 from util import Scrobbler
 import player
 from twisted.python import log
-from plparser import parseQuery
+from plparser import parseQuery, ParserSyntaxError
 
 class Librarian(object):
 
@@ -17,7 +18,13 @@ class Librarian(object):
 
    class Scanner(threading.Thread):
 
-      def __init__(self, folders):
+      __abort = False
+
+      def abort(self):
+         self.__abort = True
+
+      def __init__(self, folders, args=None):
+         if args is not None: self.__cap = args[0]
          self.__folders = folders
          threading.Thread.__init__(self)
 
@@ -47,7 +54,8 @@ class Librarian(object):
 
       def getGenre( self, meta ):
          if meta.has_key( 'TCON' ):
-            return meta.get( 'TCON' ).text[0]
+            if meta.get( 'TCON' ).text[0] != '':
+               return meta.get( 'TCON' ).text[0]
          return None
 
       def getTrack(self, meta):
@@ -73,16 +81,43 @@ class Librarian(object):
             log.err()
             return None
 
-      def __crawl_directory(self, dir):
+      def __crawl_directory(self, dir, cap=''):
          """
          Scans a directory and all its subfolders for media files and stores their
          metadata into the library (DB)
-         """
 
-         log.msg( "-------- scanning %s ---------" % (dir) )
+         PARAMETERS
+            dir - the root directory from which to start the scan
+            cap - limit crawling to the subset of <dir> starting with <cap>
+                  so when scanning "/foo/bar" with a <cap> of 'ba' will scan:
+                      /foo/bar/baz
+                      /foo/bar/battery
+                      /foo/bar/ba/nished
+                  but not
+                      /foo/bar/jane
+         """
+         if type(cap) != type( u'' ):
+            cap = cap.decode(sys.getfilesystemencoding())
+
+         log.msg( "-------- scanning %s (cap='%s')---------" % (dir,cap) )
 
          # Only scan the files specified in the settings table
          recognizedTypes = getSetting('recognizedTypes', 'mp3 ogg flac').split()
+
+         # count files
+         log.msg( "-- counting..." )
+         filecount = 0
+         for root, dirs, files in os.walk(dir.encode(sys.getfilesystemencoding())):
+            root = root.decode( sys.getfilesystemencoding() )
+            for name in files:
+               if type(name) != type( u'' ):
+                  name = name.decode(sys.getfilesystemencoding())
+               localname = os.path.join(root,name)[ len(dir)+1: ]
+               if name.split('.')[-1] in recognizedTypes and localname.startswith(cap):
+                  filecount += 1
+               for x in dirs:
+                  x = x.decode(sys.getfilesystemencoding())
+                  if not x.startswith(cap): dirs.remove(x.encode(sys.getfilesystemencoding()))
 
          # walk through the directories
          scancount  = 0
@@ -93,16 +128,37 @@ class Librarian(object):
          # enforced on these systems! It will crash here with a
          # UnicodeDecodeError if an unexpected encoding is found. Instead, it
          # should skip that file and print an print a useful message.
+         totalcount = 0
          for root, dirs, files in os.walk(dir.encode(sys.getfilesystemencoding())):
+
+            # if an abort is requested we exit right away
+            if self.__abort is True: break;
+
             session  = create_session()
             root = root.decode( sys.getfilesystemencoding() )
             for name in files:
                if type(name) != type( u'' ):
                   name = name.decode(sys.getfilesystemencoding())
-               if name.split('.')[-1] in recognizedTypes:
+               filename = os.path.join(root,name)
+               localname = os.path.join(root,name)[ len(dir)+1: ]
+               if name.split('.')[-1] in recognizedTypes and localname.startswith(cap):
                   # we have a valid file
-                  filename = os.path.join(root,name)
-                  log.msg( "Scanning %s" % repr(filename) )
+                  totalcount += 1
+                  try:
+                     log.msg( "[%6d/%6d (%03.2f%%)] %s" % (
+                        totalcount,
+                        filecount,
+                        totalcount/float(filecount)*100,
+                        repr(os.path.basename(filename))
+                        ))
+                  except ZeroDivisionError:
+                     log.msg( "[%6d/%6d (%5s )] %s" % (
+                        totalcount,
+                        filecount,
+                        '?',
+                        repr(os.path.basename(filename))
+                        ))
+
                   try:
                      metadata = mutagen.File( filename )
                   except:
@@ -134,7 +190,14 @@ class Librarian(object):
 
                   trackNo  = self.getTrack( metadata )
                   title    = self.getTitle( metadata )
-                  genre    = self.getGenre( metadata )
+                  genreNm  = self.getGenre( metadata )
+                  genre    = None
+                  if genreNm is not None:
+                     genre    = session.query(Genre).selectfirst_by( genreTable.c.name == genreNm )
+                     if genre is None:
+                        genre = Genre( name = genreNm )
+                        session.save(genre)
+                        session.flush()
 
                   # check if it is already in the database
                   if session.query(Song).selectfirst_by( localpath=filename ) is None:
@@ -142,6 +205,8 @@ class Librarian(object):
                      # it was not in the DB, create a newentry
                      song = Song( localpath = filename, artist=dbArtist, album=dbAlbum )
                      song.trackNo = trackNo
+                     if genre is not None:
+                        song.genres.append( genre )
                      song.title   = title
                      song.bitrate = bitrate
                      song.duration = duration
@@ -163,11 +228,12 @@ class Librarian(object):
                         song.title       = title
                         song.artist_id   = dbArtist.id
                         song.album_id    = dbAlbum.id
+                        if genre is not None and genre not in song.genres:
+                           song.genres      = []
+                           song.genres.append( genre )
                         song.bitrate     = bitrate
                         song.filesize    = filesize
                         song.duration    = duration
-                        song.checksum    = get_hash(filename)
-                        ##song.genre       = genre
                         song.lastScanned = datetime.now()
                         session.save(song)
                         log.msg( "Updated %s" % ( filename ) )
@@ -185,11 +251,15 @@ class Librarian(object):
             session.flush()
             session.close()
 
-         log.msg( "--- done scanning (%7d songs scanned, %7d errors)" % (scancount, errorCount) )
+            for x in dirs:
+               x = x.decode(sys.getfilesystemencoding())
+               if not x.startswith(cap): dirs.remove(x.encode(sys.getfilesystemencoding()))
+
+         log.msg( "--- done scanning (%7d/%7d songs scanned, %7d errors)" % (scancount, filecount, errorCount) )
 
       def run(self):
          for folder in self.__folders:
-            self.__crawl_directory(folder)
+            self.__crawl_directory(folder, self.__cap)
 
          ##for song in list(Songs.select()):
          ##   if not os.path.exists(song.localpath):
@@ -228,8 +298,12 @@ class Librarian(object):
    def __init__(self):
       pass
 
-   def rescanLib(self):
-      self.__activeScans.append( self.Scanner( getSetting('mediadir').split(' ') ) )
+   def abortAll(self):
+      for x in self.__activeScans:
+         x.abort()
+
+   def rescanLib(self, args=[]):
+      self.__activeScans.append( self.Scanner( getSetting('mediadir').split(' '), args ) )
       self.__activeScans[-1].start()
 
 class Channel(threading.Thread):
@@ -243,7 +317,6 @@ class Channel(threading.Thread):
    __currentSongFile = ''
    __predictionQueue = []
 
-   sess              = None
    name              = None
 
    def __init__(self, name):
@@ -255,10 +328,12 @@ class Channel(threading.Thread):
 
       u = getSetting('lastfm_user', '', self.__dbModel.id)
       p = getSetting('lastfm_pass', '', self.__dbModel.id)
+      print u
+      print p
       if u == '' or p == '' or u is None or p is None:
          log.msg( 'No lastFM user and password specified. Disabling support...' )
       else:
-         self.__scrobbler = Scrobbler(u, p); scrobbler.start()
+         self.__scrobbler = Scrobbler(u, p); self.__scrobbler.start()
 
       # setup song scoring coefficients
       self.__neverPlayed = int(getSetting('scoring_neverPlayed', 10))
@@ -269,6 +344,7 @@ class Channel(threading.Thread):
       # initialise the player
       self.__player  = player.createPlayer(self.__dbModel.backend,
                                            self.__dbModel.backend_params)
+      self.sess.flush()
       threading.Thread.__init__(self)
 
    def __smartGet(self):
@@ -280,12 +356,19 @@ class Channel(threading.Thread):
       # Retrieve dynamic playlists
       whereClause = ''
 
-      res = self.sess.query(DynamicPlaylist).select(dynamicPLTable.c.group_id > 0, order_by=['group_id'])
+      sess = create_session()
+      res = sess.query(DynamicPlaylist).select(dynamicPLTable.c.group_id > 0, order_by=['group_id'])
+      sess.close()
       for dpl in res:
-         whereClause = "AND (%s)" % parseQuery( dpl.query )
-         break; # only one query will be parsed. for now.... this is a big TODO
-                # as it triggers an unexpected behaviour (bug). i.e.: Why the
-                # heck does it only activate one playlist?!?
+         try:
+            if parseQuery( dpl.query ) is not None:
+               whereClause = "AND (%s)" % parseQuery( dpl.query )
+            break; # only one query will be parsed. for now.... this is a big TODO
+                   # as it triggers an unexpected behaviour (bug). i.e.: Why the
+                   # heck does it only activate one playlist?!?
+         except ParserSyntaxError, ex:
+            log.err( str(ex) )
+            log.err( 'Query was: %s' % dpl.query )
 
       ## -- MySQL Query WAS:
       ##   SELECT
@@ -358,17 +441,17 @@ class Channel(threading.Thread):
       pick one from the prediction queue
       """
 
-      try:
-         nextSong = self.sess.query(QueueItem).select(order_by=['added', 'position'], limit=1, offset=0)[0]
+      sess = create_session()
+      nextSong = sess.query(QueueItem).selectfirst(order_by=['added', 'position'])
+      if nextSong is not None:
          filename = nextSong.song.localpath
          songID   = nextSong.song.id
-         self.sess.delete(nextSong)
-         self.sess.flush()
-      except IndexError:
+         sess.delete(nextSong)
+      else:
          # no item on the main queue. Use the internal prediction queue
          if len(self.__predictionQueue) == 0:
             self.__smartGet()
-         nextSong = self.sess.query(Song).selectfirst_by( songTable.c.id == self.__predictionQueue.pop(0)[0] )
+         nextSong = sess.query(Song).selectfirst_by( songTable.c.id == self.__predictionQueue.pop(0)[0] )
          filename = nextSong.localpath
          songID   = nextSong.id
 
@@ -381,9 +464,12 @@ class Channel(threading.Thread):
       ## -6
       #      DELETE FROM QueueItem WHERE position < -6
 
-      self.__player.queue(filename)
+      res = self.__player.queue(filename.encode(sys.getfilesystemencoding()))
 
-      return 'OK'
+      sess.flush()
+      sess.close()
+
+      return res
 
    def isStopped(self):
       return self._Thread__stopped
@@ -392,6 +478,7 @@ class Channel(threading.Thread):
       log.msg( "Syncronising channel" )
       self.sess.save( self.__dbModel )
       self.sess.flush()
+      self.sess.close()
       log.msg( "Closing channel" )
       if self._Thread__started:
          self.__keepRunning = False
@@ -416,7 +503,8 @@ class Channel(threading.Thread):
       """
       Updates play statistics and sends a "next" command to the player backend
       """
-      stat = self.sess.query(ChannelStat).select( and_(
+      sess = create_session()
+      stat = sess.query(ChannelStat).select( and_(
                songTable.c.id == channelSongs.c.song_id,
                songTable.c.id == self.__currentSongID,
                channelSongs.c.channel_id == self.__dbModel.id) )
@@ -427,10 +515,16 @@ class Channel(threading.Thread):
       else:
          stat = stat[0]
          stat.skipped = stat.skipped + 1
-      self.sess.save(stat)
+      sess.save(stat)
+      sess.flush()
+      sess.close()
 
       # set "current song" to the next in the queue
-      self.__dequeue()
+      success = self.__dequeue()
+      while success is False:
+         success = self.__dequeue()
+      self.__player.cropPlaylist()
+
       self.__player.skipSong()
       return 'OK'
 
@@ -438,6 +532,7 @@ class Channel(threading.Thread):
       cycleTime = int(getSetting('channel_cycle', '1'))
       lastCreditGiveaway = datetime.now()
       lastPing           = datetime.now()
+      sess               = create_session()
 
       # while we are alive, do the loop
       while self.__keepRunning:
@@ -465,7 +560,7 @@ class Channel(threading.Thread):
          # -------------------------------------------------------------------
          if self.__currentSongFile != self.__player.getSong() \
                and self.__player.getSong() is not None:
-            song = self.sess.query(Song).selectfirst_by( Song.c.localpath == self.__player.getSong() )
+            song = sess.query(Song).selectfirst_by( Song.c.localpath == self.__player.getSong() )
             if song is not None:
                self.__currentSongID       = song.id
             else:
@@ -482,7 +577,7 @@ class Channel(threading.Thread):
          currentPosition = self.__player.getPosition()
          if (currentPosition[1] - currentPosition[0]) < 3:
             if self.__currentSongID != 0 and not self.__currentSongRecorded:
-               stat = self.sess.query(ChannelStat).select( and_(
+               stat = sess.query(ChannelStat).select( and_(
                         songTable.c.id == channelSongs.c.song_id,
                         songTable.c.id==self.__currentSongID,
                         channelSongs.c.channel_id==self.__dbModel.id) )
@@ -496,12 +591,15 @@ class Channel(threading.Thread):
                   stat.lastPlayed = datetime.now()
                   stat.played     = stat.played + 1
                lfm = LastFMQueue( self.__currentSongID )
-               self.sess.save(lfm)
+               sess.save(lfm)
                self.__currentSongRecorded = True
-               self.sess.save(stat)
-               self.sess.flush()
+               sess.save(stat)
+               sess.flush()
             #TODO - This is semantically bad!
-            self.__dequeue()
+            success = self.__dequeue()
+            while success is False:
+               success = self.__dequeue()
+            self.__player.cropPlaylist()
 
          # if we handed out credits more than 5mins ago, we give out some more
          if (datetime.now() - lastCreditGiveaway).seconds > 300:
@@ -511,7 +609,8 @@ class Channel(threading.Thread):
                   ).execute( )
             lastCreditGiveaway = datetime.now()
 
-         self.sess.flush()
+         sess.flush()
+         sess.close()
 
       log.msg( "Channel stopped" )
 
