@@ -206,18 +206,3 @@ CREATE TABLE song_has_genre(
 
 COMMIT;
 
-------------------------------------------------------------------------------
--- DATA
-------------------------------------------------------------------------------
-
-BEGIN;
-   INSERT INTO playmode (name) VALUES ( 'strictQueue' );
-   INSERT INTO channel  (name,backend,backend_params,playmode) VALUES ( 'exhuma', 'mpd', 'host=localhost, port=6600, rootFolder=/mnt/mp3s/Tagged', 1 );
-   INSERT INTO setting  (var, value, comment) VALUES ( 'mediadir', '/mnt/mp3s/Tagged', 'Folders that contain the media files. Separated by commas' );
-
-   INSERT INTO groups (title, admin, nocredits, queue_skip, queue_remove, queue_add) VALUES ('anonymous', 0, 0, 0, 0, 0);
-   INSERT INTO groups (title, admin, nocredits, queue_skip, queue_remove, queue_add) VALUES ('User', 0, 0, 0, 0, 1);
-   INSERT INTO groups (title, admin, nocredits, queue_skip, queue_remove, queue_add) VALUES ('VIP', 0, 0, 1, 1, 1);
-   INSERT INTO groups (title, admin, nocredits, queue_skip, queue_remove, queue_add) VALUES ('DJ', 0, 1, 1, 1, 1);
-   INSERT INTO groups (title, admin, nocredits, queue_skip, queue_remove, queue_add) VALUES ('Admin', 1, 0, 1, 1, 1);
-COMMIT;
