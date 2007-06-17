@@ -12,6 +12,13 @@ import player
 from twisted.python import log
 from plparser import parseQuery, ParserSyntaxError
 
+def fsdecode( string ):
+   try:
+      return string.decode( sys.getfilesystemencoding() )
+   except UnicodeDecodeError:
+      log.err( "Failed to decode %s using %s" % (`string`, sys.getfilesystemencoding()) )
+      return False
+
 class Librarian(object):
 
    __activeScans = []
@@ -19,16 +26,18 @@ class Librarian(object):
    class Scanner(threading.Thread):
 
       __abort = False
+      __cap   = ''
 
       def abort(self):
          self.__abort = True
 
       def __init__(self, folders, args=None):
-         if args is not None: self.__cap = args[0]
+         if args is not None and args != []: self.__cap = args[0]
          self.__folders = folders
          threading.Thread.__init__(self)
 
       def getAlbum( self, meta ):
+         if meta is None: return None
          if meta.has_key( 'TALB' ):
             return meta.get( 'TALB' ).text[0]
          elif meta.has_key( 'album' ):
@@ -36,6 +45,7 @@ class Librarian(object):
          return None
 
       def getArtist( self, meta ):
+         if meta is None: return None
          if meta.has_key( 'TPE1' ):
             return meta.get( 'TPE1' ).text[0]
          elif meta.has_key( 'artist' ):
@@ -43,6 +53,7 @@ class Librarian(object):
          return None
 
       def getTitle( self, meta ):
+         if meta is None: return None
          if meta.has_key( 'TIT2' ):
             return meta.get( 'TIT2' ).text[0]
          elif meta.has_key( 'title' ):
@@ -53,12 +64,16 @@ class Librarian(object):
          return None
 
       def getGenre( self, meta ):
-         if meta.has_key( 'TCON' ):
-            if meta.get( 'TCON' ).text[0] != '':
-               return meta.get( 'TCON' ).text[0]
+	 try:
+            if meta.has_key( 'TCON' ):
+               if meta.get( 'TCON' ).text[0] != '':
+                  return meta.get( 'TCON' ).text[0]
+	 except:
+	    pass
          return None
 
       def getTrack(self, meta):
+         if meta is None: return None
          if meta.has_key('TRCK'):
             return meta.get('TRCK').text[0].split('/')[0]
          else:
@@ -71,10 +86,12 @@ class Librarian(object):
          return None
 
       def getDuration( self, meta ):
+         if meta is None: return None
          if meta.info.length is None: return 0
          else: return meta.info.length
 
       def getBitrate(self, meta ):
+         if meta is None: return None
          try:
             return meta.info.bitrate
          except AttributeError, ex:
@@ -96,7 +113,7 @@ class Librarian(object):
                   but not
                       /foo/bar/jane
          """
-         if type(cap) != type( u'' ):
+         if type(cap) != type( u'' ) and cap is not None:
             cap = cap.decode(sys.getfilesystemencoding())
 
          log.msg( "-------- scanning %s (cap='%s')---------" % (dir,cap) )
@@ -108,15 +125,20 @@ class Librarian(object):
          log.msg( "-- counting..." )
          filecount = 0
          for root, dirs, files in os.walk(dir.encode(sys.getfilesystemencoding())):
-            root = root.decode( sys.getfilesystemencoding() )
-            for name in files:
+
+            root = fsdecode(root)
+	    if root is False: continue
+
+	    for name in files:
                if type(name) != type( u'' ):
-                  name = name.decode(sys.getfilesystemencoding())
+                  name = fsdecode(name)
+		  if name is False: continue
                localname = os.path.join(root,name)[ len(dir)+1: ]
-               if name.split('.')[-1] in recognizedTypes and localname.startswith(cap):
+               if name.split('.')[-1] in recognizedTypes and ( cap != '' and localname.startswith(cap) ):
                   filecount += 1
                for x in dirs:
-                  x = x.decode(sys.getfilesystemencoding())
+                  x = fsdecode(x)
+		  if x is False: continue
                   if not x.startswith(cap): dirs.remove(x.encode(sys.getfilesystemencoding()))
 
          # walk through the directories
@@ -135,13 +157,15 @@ class Librarian(object):
             if self.__abort is True: break;
 
             session  = create_session()
-            root = root.decode( sys.getfilesystemencoding() )
+            root = fsdecode(root)
+	    if root is False: continue
             for name in files:
                if type(name) != type( u'' ):
-                  name = name.decode(sys.getfilesystemencoding())
+                  name = fsdecode(name)
+		  if name is False: continue
                filename = os.path.join(root,name)
                localname = os.path.join(root,name)[ len(dir)+1: ]
-               if name.split('.')[-1] in recognizedTypes and localname.startswith(cap):
+               if name.split('.')[-1] in recognizedTypes and ( cap != '' and localname.startswith(cap)):
                   # we have a valid file
                   totalcount += 1
                   try:
@@ -252,7 +276,8 @@ class Librarian(object):
             session.close()
 
             for x in dirs:
-               x = x.decode(sys.getfilesystemencoding())
+               x = fsdecode(x)
+	       if x is False: continue
                if not x.startswith(cap): dirs.remove(x.encode(sys.getfilesystemencoding()))
 
          log.msg( "--- done scanning (%7d/%7d songs scanned, %7d errors)" % (scancount, filecount, errorCount) )
@@ -303,8 +328,20 @@ class Librarian(object):
          x.abort()
 
    def rescanLib(self, args=[]):
-      self.__activeScans.append( self.Scanner( getSetting('mediadir').split(' '), args ) )
-      self.__activeScans[-1].start()
+      
+      def direxists(dir):
+         if not os.path.exists( dir ):
+	    log.err( "WARNING: '%s' does not exist!" % dir )
+	    return False
+	 else:
+	    return True
+
+
+      mediadirs = [ x for x in getSetting('mediadir').split(' ') if direxists(x) ]
+
+      if mediadirs != []:
+         self.__activeScans.append( self.Scanner( mediadirs, args ) )
+         self.__activeScans[-1].start()
 
 class Channel(threading.Thread):
 

@@ -4,6 +4,14 @@ from datetime import datetime
 from twisted.python import log
 
 if config['database.type'] == 'sqlite':
+   import os
+   if os.path.exists( config['database.file'] ):
+      log.msg("SQLite database found. All good!")
+   else:
+      import sys
+      log.err("SQLite database (as specified in config.ini) does not exist.\
+      Please create it based on the SQL script found in data/database.sql")
+      sys.exit(0)
    dburi = "%s:///%s" % (
          config['database.type'],
          config['database.file'],
