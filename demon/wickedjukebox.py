@@ -523,7 +523,7 @@ class Channel(threading.Thread):
       success = self.__dequeue()
       while success is False:
          success = self.__dequeue()
-      self.__player.cropPlaylist()
+      self.__player.cropPlaylist(1)
 
       self.__player.skipSong()
       return 'OK'
@@ -599,7 +599,7 @@ class Channel(threading.Thread):
             success = self.__dequeue()
             while success is False:
                success = self.__dequeue()
-            self.__player.cropPlaylist()
+            self.__player.cropPlaylist(1)
 
          # if we handed out credits more than 5mins ago, we give out some more
          if (datetime.now() - lastCreditGiveaway).seconds > 300:
