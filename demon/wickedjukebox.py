@@ -7,16 +7,16 @@ from model import create_session, Artist, Album, Song, \
                   Genre, genreTable
 from sqlalchemy import text as dbText, and_
 from datetime import datetime
-from util import Scrobbler
+from util import Scrobbler, fs_encoding
 import player
 from twisted.python import log
 from plparser import parseQuery, ParserSyntaxError
 
 def fsdecode( string ):
    try:
-      return string.decode( sys.getfilesystemencoding() )
+      return string.decode( fs_encoding )
    except UnicodeDecodeError:
-      log.err( "Failed to decode %s using %s" % (`string`, sys.getfilesystemencoding()) )
+      log.err( "Failed to decode %s using %s" % (`string`, fs_encoding) )
       return False
 
 class Librarian(object):
@@ -114,7 +114,7 @@ class Librarian(object):
                       /foo/bar/jane
          """
          if type(cap) != type( u'' ) and cap is not None:
-            cap = cap.decode(sys.getfilesystemencoding())
+            cap = cap.decode(fs_encoding)
 
          log.msg( "-------- scanning %s (cap='%s')---------" % (dir,cap) )
 
@@ -124,7 +124,7 @@ class Librarian(object):
          # count files
          log.msg( "-- counting..." )
          filecount = 0
-         for root, dirs, files in os.walk(dir.encode(sys.getfilesystemencoding())):
+         for root, dirs, files in os.walk(dir.encode(fs_encoding)):
 
             root = fsdecode(root)
 	    if root is False: continue
@@ -139,7 +139,7 @@ class Librarian(object):
                for x in dirs:
                   x = fsdecode(x)
 		  if x is False: continue
-                  if not x.startswith(cap): dirs.remove(x.encode(sys.getfilesystemencoding()))
+                  if not x.startswith(cap): dirs.remove(x.encode(fs_encoding))
 
          # walk through the directories
          scancount  = 0
@@ -151,7 +151,7 @@ class Librarian(object):
          # UnicodeDecodeError if an unexpected encoding is found. Instead, it
          # should skip that file and print an print a useful message.
          totalcount = 0
-         for root, dirs, files in os.walk(dir.encode(sys.getfilesystemencoding())):
+         for root, dirs, files in os.walk(dir.encode(fs_encoding)):
 
             # if an abort is requested we exit right away
             if self.__abort is True: break;
@@ -278,7 +278,7 @@ class Librarian(object):
             for x in dirs:
                x = fsdecode(x)
 	       if x is False: continue
-               if not x.startswith(cap): dirs.remove(x.encode(sys.getfilesystemencoding()))
+               if not x.startswith(cap): dirs.remove(x.encode(fs_encoding))
 
          log.msg( "--- done scanning (%7d/%7d songs scanned, %7d errors)" % (scancount, filecount, errorCount) )
 
@@ -501,7 +501,7 @@ class Channel(threading.Thread):
       ## -6
       #      DELETE FROM QueueItem WHERE position < -6
 
-      res = self.__player.queue(filename.encode(sys.getfilesystemencoding()))
+      res = self.__player.queue(filename.encode(fs_encoding))
 
       sess.flush()
       sess.close()

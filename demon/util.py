@@ -1,6 +1,6 @@
 import os,ConfigParser, threading
 from twisted.python import log
-import urllib, httplib, md5, time
+import urllib, httplib, md5, time, sys
 
 def loadConfig(file, config={}):
     """
@@ -141,3 +141,7 @@ class Scrobbler(threading.Thread):
    def stop(self):
       self.__keepRunning = False
 
+if config.has_key( 'filesystem.force_encoding' ):
+   fs_encoding = config['filesystem.force_encoding']
+else:
+   fs_encoding = sys.getfilesystemencoding()
