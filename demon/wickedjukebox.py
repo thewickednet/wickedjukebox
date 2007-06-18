@@ -92,6 +92,7 @@ class Librarian(object):
 
       def getBitrate(self, meta ):
          if meta is None: return None
+         if 'audio/x-flac' in meta.mime: return None
          try:
             return meta.info.bitrate
          except AttributeError, ex:
@@ -238,7 +239,6 @@ class Librarian(object):
                      song.filesize = filesize
                      session.save(song)
                      scancount += 1
-                     log.msg( "Scanned %s" % ( repr(filename) ) )
 
                   else:
                      # we found the song in the DB. Load it so we can update it's
