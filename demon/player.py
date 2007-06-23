@@ -39,6 +39,10 @@ class MPD:
       self.__rootFolder = params['rootFolder'].decode(sys.getfilesystemencoding())
       self.__connect()
 
+   def __disconnect(self):
+      "Disconnect from mpd-player"
+      self.__connection = None
+
    def __connect(self):
       """
       Connect to the mpd-player.
@@ -94,9 +98,10 @@ class MPD:
                time.sleep(1)
                continue
             elif str(ex).find('playlistLength not found') > 0:
-               log.msg('"playlistLength not found" received. Rconnecting to backend...')
-               self.__connection.clearError()
+               log.msg('"playlistLength not found" received. Reconnecting to backend...')
+               self.__disconnect()
                time.sleep(1)
+               self.__connect()
                continue
             elif str(ex).find('problem parsing song info') > 0:
                log.msg('"problem parsing song info" received. Retrying')
