@@ -43,7 +43,8 @@ class Gatekeeper(object):
       try:
          args = line.split()[1:]
       except IndexError:
-         args = []
+         args = None
+      if args == []: args = None
 
       #
       # Rescanning the library

@@ -32,7 +32,8 @@ class Librarian(object):
          self.__abort = True
 
       def __init__(self, folders, args=None):
-         if args is not None and args != []: self.__cap = args[0]
+         if args is not None:
+            self.__cap = args[0]
          self.__folders = folders
          threading.Thread.__init__(self)
 
@@ -135,7 +136,7 @@ class Librarian(object):
                   name = fsdecode(name)
 		  if name is False: continue
                localname = os.path.join(root,name)[ len(dir)+1: ]
-               if name.split('.')[-1] in recognizedTypes and ( cap != '' and localname.startswith(cap) ):
+               if name.split('.')[-1] in recognizedTypes and localname.startswith(cap):
                   filecount += 1
                for x in dirs:
                   x = fsdecode(x)
@@ -166,7 +167,7 @@ class Librarian(object):
 		  if name is False: continue
                filename = os.path.join(root,name)
                localname = os.path.join(root,name)[ len(dir)+1: ]
-               if name.split('.')[-1] in recognizedTypes and ( cap != '' and localname.startswith(cap)):
+               if name.split('.')[-1] in recognizedTypes and localname.startswith(cap):
                   # we have a valid file
                   totalcount += 1
                   try:
@@ -327,7 +328,7 @@ class Librarian(object):
       for x in self.__activeScans:
          x.abort()
 
-   def rescanLib(self, args=[]):
+   def rescanLib(self, args=None):
       
       def direxists(dir):
          if not os.path.exists( dir ):
