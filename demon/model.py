@@ -175,5 +175,5 @@ mapper(Artist, artistTable, properties=dict(
    ))
 mapper(Song, songTable, properties=dict(
    channelstat=relation( ChannelStat, backref='song' ),
-   genres = relation( Genre, secondary=song_has_genre )
+   genres = relation( Genre, secondary=song_has_genre, backref='songs' )
    ))
