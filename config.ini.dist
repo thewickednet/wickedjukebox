@@ -20,10 +20,3 @@ Pass=
 Base=
 File=library.sqlite
 
-[Cache]
-Type=ezcCacheStorageFileArray
-DirectoryShort=cache/short
-DirectoryLong=cache/long
-TTLShort=600
-TTLLong=7200
-

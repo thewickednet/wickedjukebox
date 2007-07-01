@@ -73,7 +73,6 @@ if int(config['core.debug']) > 0:
 else:
    metadata.engine.echo = False
 
-playmodeTable  = Table( 'playmode', metadata, autoload=True )
 channelTable   = Table( 'channel', metadata, autoload=True )
 settingTable   = Table( 'setting', metadata, autoload=True )
 artistTable    = Table( 'artist', metadata, autoload=True )

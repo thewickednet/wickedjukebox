@@ -1,6 +1,5 @@
 DROP TABLE IF EXISTS setting;
 DROP TABLE IF EXISTS channel;
-DROP TABLE IF EXISTS playmode;
 DROP TABLE IF EXISTS artist;
 DROP TABLE IF EXISTS album;
 DROP TABLE IF EXISTS genre;
@@ -18,12 +17,6 @@ DROP TABLE IF EXISTS song_has_genre;
 
 BEGIN;
 
-CREATE TABLE playmode(
-   id INTEGER NOT NULL PRIMARY KEY,
-   name VARCHAR(32) NOT NULL
-      CONSTRAINT unique_playmode UNIQUE
-);
-
 CREATE TABLE channel(
    id INTEGER NOT NULL PRIMARY KEY,
    name VARCHAR(32) NOT NULL
@@ -33,11 +26,7 @@ CREATE TABLE channel(
    backend_params TEXT,
    ping DATETIME,
    active INTEGER(1) NOT NULL DEFAULT 0,
-   status INTEGER,
-   playmode INTEGER
-      REFERENCES playmode(id)
-         ON DELETE RESTRICT
-         ON UPDATE CASCADE
+   status INTEGER
 );
 
 CREATE TABLE setting(
