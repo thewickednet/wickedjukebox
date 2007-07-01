@@ -550,9 +550,11 @@ class Channel(threading.Thread):
          stat = ChannelStat( songid = self.__currentSongID,
                              channelid = self.__dbModel.id)
          stat.skipped = 1
+         stat.lastPlayed = datetime.now()
       else:
          stat = stat[0]
          stat.skipped = stat.skipped + 1
+         stat.lastPlayed = datetime.now()
       sess.save(stat)
       sess.flush()
       sess.close()
@@ -592,7 +594,6 @@ class Channel(threading.Thread):
 
          # If we are not playing stuff, we can skip the rest
          if self.__playStatus != 'playing':
-            log.msg( "Player status is '%s'" % self.__player.status() )
             continue;
 
          # -------------------------------------------------------------------
