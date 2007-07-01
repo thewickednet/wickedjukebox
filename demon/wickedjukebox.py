@@ -1,16 +1,15 @@
 import sys, os, threading, mutagen, time
 from model import create_session, Artist, Album, Song, \
-                  QueueItem, ChannelStat, Channel as dbChannel,\
+                  ChannelStat, Channel as dbChannel,\
                   getSetting, metadata as dbMeta,\
                   songTable, channelSongs, LastFMQueue, usersTable,\
-                  DynamicPlaylist, dynamicPLTable,\
                   Genre, genreTable
-from sqlalchemy import text as dbText, and_
+from sqlalchemy import and_
 from datetime import datetime
 from util import Scrobbler, fs_encoding
 import player
 from twisted.python import log
-from plparser import parseQuery, ParserSyntaxError
+import playmodes
 
 def fsdecode( string ):
    try:
@@ -65,12 +64,12 @@ class Librarian(object):
          return None
 
       def getGenre( self, meta ):
-	 try:
+         try:
             if meta.has_key( 'TCON' ):
                if meta.get( 'TCON' ).text[0] != '':
                   return meta.get( 'TCON' ).text[0]
-	 except:
-	    pass
+         except:
+            pass
          return None
 
       def getTrack(self, meta):
@@ -129,18 +128,18 @@ class Librarian(object):
          for root, dirs, files in os.walk(dir.encode(fs_encoding)):
 
             root = fsdecode(root)
-	    if root is False: continue
+            if root is False: continue
 
-	    for name in files:
+            for name in files:
                if type(name) != type( u'' ):
                   name = fsdecode(name)
-		  if name is False: continue
+                  if name is False: continue
                localname = os.path.join(root,name)[ len(dir)+1: ]
                if name.split('.')[-1] in recognizedTypes and localname.startswith(cap):
                   filecount += 1
                for x in dirs:
                   x = fsdecode(x)
-		  if x is False: continue
+                  if x is False: continue
                   if not x.startswith(cap): dirs.remove(x.encode(fs_encoding))
 
          # walk through the directories
@@ -160,11 +159,11 @@ class Librarian(object):
 
             session  = create_session()
             root = fsdecode(root)
-	    if root is False: continue
+            if root is False: continue
             for name in files:
                if type(name) != type( u'' ):
                   name = fsdecode(name)
-		  if name is False: continue
+                  if name is False: continue
                filename = os.path.join(root,name)
                localname = os.path.join(root,name)[ len(dir)+1: ]
                if name.split('.')[-1] in recognizedTypes and localname.startswith(cap):
@@ -278,7 +277,7 @@ class Librarian(object):
 
             for x in dirs:
                x = fsdecode(x)
-	       if x is False: continue
+               if x is False: continue
                if not x.startswith(cap): dirs.remove(x.encode(fs_encoding))
 
          log.msg( "--- done scanning (%7d/%7d songs scanned, %7d errors)" % (scancount, filecount, errorCount) )
@@ -329,13 +328,13 @@ class Librarian(object):
          x.abort()
 
    def rescanLib(self, args=None):
-      
+
       def direxists(dir):
          if not os.path.exists( dir ):
-	    log.err( "WARNING: '%s' does not exist!" % dir )
-	    return False
-	 else:
-	    return True
+            log.err( "WARNING: '%s' does not exist!" % dir )
+            return False
+         else:
+            return True
 
 
       mediadirs = [ x for x in getSetting('mediadir').split(' ') if direxists(x) ]
@@ -353,7 +352,8 @@ class Channel(threading.Thread):
    __currentSongID   = 0
    __currentSongRecorded = False
    __currentSongFile = ''
-   __predictionQueue = []
+   __random          = None
+   __queuemodel      = None
 
    name              = None
 
@@ -364,150 +364,21 @@ class Channel(threading.Thread):
          self.name = self.__dbModel.name
          log.msg( "Loaded channel %s" % self.__dbModel )
 
+      self.__random     = playmodes.create( getSetting( 'random_model', 'random_weighed' ) )
+      self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
+
       u = getSetting('lastfm_user', '', self.__dbModel.id)
       p = getSetting('lastfm_pass', '', self.__dbModel.id)
-      print u
-      print p
       if u == '' or p == '' or u is None or p is None:
          log.msg( 'No lastFM user and password specified. Disabling support...' )
       else:
          self.__scrobbler = Scrobbler(u, p); self.__scrobbler.start()
-
-      # setup song scoring coefficients
-      self.__neverPlayed = int(getSetting('scoring_neverPlayed', 10))
-      self.__playRatio   = int(getSetting('scoring_ratio',        4))
-      self.__lastPlayed  = int(getSetting('scoring_lastPlayed',   7))
-      self.__songAge     = int(getSetting('scoring_songAge',      0))
 
       # initialise the player
       self.__player  = player.createPlayer(self.__dbModel.backend,
                                            self.__dbModel.backend_params)
       self.sess.flush()
       threading.Thread.__init__(self)
-
-   def __smartGet(self):
-      """
-      determine a song that would be best to play next and add it to the
-      prediction queue
-      """
-
-      # Retrieve dynamic playlists
-      whereClause = ''
-
-      sess = create_session()
-      res = sess.query(DynamicPlaylist).select(dynamicPLTable.c.group_id > 0, order_by=['group_id'])
-      sess.close()
-      for dpl in res:
-         try:
-            if parseQuery( dpl.query ) is not None:
-               whereClause = "AND (%s)" % parseQuery( dpl.query )
-            break; # only one query will be parsed. for now.... this is a big TODO
-                   # as it triggers an unexpected behaviour (bug). i.e.: Why the
-                   # heck does it only activate one playlist?!?
-         except ParserSyntaxError, ex:
-            log.err( str(ex) )
-            log.err( 'Query was: %s' % dpl.query )
-
-      ## -- MySQL Query WAS:
-      ##   SELECT
-      ##      song_id,
-      ##      localpath,
-      ##      IFNULL( IF(played+skipped>=10, (played/(played+skipped))*%(playRatio)d, 0.5), 0)
-      ##         + (IFNULL( least(604800, time_to_sec(timediff(NOW(), lastPlayed))), 604800)-604800)/604800*%(lastPlayed)d
-      ##         + IF( played+skipped=0, %(neverPlayed)d, 0)
-      ##         + IFNULL( IF( time_to_sec(timediff(NOW(),added))<1209600, time_to_sec(timediff(NOW(),added))/1209600*%(songAge)d, 0), 0) score
-      ##   FROM songs
-      ##   ORDER BY score DESC, rand()
-      ##   LIMIT 0,10
-      query = """
-         SELECT
-            s.id,
-            localpath,
-            CASE
-               WHEN played ISNULL OR skipped ISNULL THEN 0
-            ELSE
-               CASE
-                  WHEN (played+skipped>=10) THEN (( CAST(played as real)/(played+skipped))*%(playRatio)d)
-                  ELSE 0.5
-               END
-            END +
-               CASE WHEN played ISNULL AND skipped ISNULL THEN %(neverPlayed)d
-               ELSE 0
-               END +
-            (CASE WHEN lastPlayed ISNULL THEN 604800 ELSE
-                julianday('now')*86400 - julianday(lastPlayed)*86400 -- seconds since last play
-            END - 604800)/604800*%(lastPlayed)d +
-            CASE WHEN s.added ISNULL THEN 0 ELSE
-               CASE WHEN julianday('now')*86400 - julianday(s.added)*86400 < 1209600 THEN
-                  (julianday('now')*86400 - julianday(s.added)*86400)/1209600*%(songAge)d
-               ELSE
-                  0
-               END
-            END
-               AS score
-         FROM song s LEFT JOIN channel_song_data rel ON ( rel.song_id == s.id )
-         INNER JOIN artist a ON ( a.id == s.artist_id )
-         INNER JOIN album b ON ( b.id == s.album_id )
-         %(where)s
-         ORDER BY score DESC, RANDOM()
-         LIMIT 10 OFFSET 0
-      """ % {
-         'neverPlayed': self.__neverPlayed,
-         'playRatio':   self.__playRatio,
-         'lastPlayed':  self.__lastPlayed,
-         'songAge':     self.__songAge,
-         'where':       whereClause,
-      }
-
-      # I won't use ORDER BY RAND() as it is way too dependent on the dbms!
-      import random
-      random.seed()
-      resultProxy = dbText(query, engine=dbMeta.engine).execute()
-      res = resultProxy.fetchall()
-      randindex = random.randint(1, len(res)) -1
-      try:
-         out = (res[randindex][0], res[randindex][1], float(res[randindex][2]))
-         log.msg("Selected song (%d, %s) via smartget. Score was %4.3f" % out)
-         self.__predictionQueue.append(out)
-      except IndexError:
-         log.err('No song returned from query. Is the database empty?')
-         pass
-
-   def __dequeue(self):
-      """
-      Return the filename of the next item on the queue. If the queue is empty,
-      pick one from the prediction queue
-      """
-
-      sess = create_session()
-      nextSong = sess.query(QueueItem).selectfirst(order_by=['added', 'position'])
-      if nextSong is not None:
-         filename = nextSong.song.localpath
-         songID   = nextSong.song.id
-         sess.delete(nextSong)
-      else:
-         # no item on the main queue. Use the internal prediction queue
-         if len(self.__predictionQueue) == 0:
-            self.__smartGet()
-         nextSong = sess.query(Song).selectfirst_by( songTable.c.id == self.__predictionQueue.pop(0)[0] )
-         filename = nextSong.localpath
-         songID   = nextSong.id
-
-
-      #TODO# The following is based on a wrong assumption of the "position" field.
-      ## This needs to be discussed!
-      ## ok, we got the top of the queue. We can now shift the queue by 1
-      #      UPDATE QueueItem SET position = position - 1
-      ## ok. queue is shifted. now drop all items having a position smaller than
-      ## -6
-      #      DELETE FROM QueueItem WHERE position < -6
-
-      res = self.__player.queue(filename.encode(fs_encoding))
-
-      sess.flush()
-      sess.close()
-
-      return res
 
    def isStopped(self):
       return self._Thread__stopped
@@ -525,6 +396,9 @@ class Channel(threading.Thread):
       raise
 
    def setPlaymode(self, playmode):
+      raise
+
+   def setQueueModel(self, queuemodel):
       raise
 
    def startPlayback(self):
@@ -559,13 +433,14 @@ class Channel(threading.Thread):
       sess.flush()
       sess.close()
 
-      # set "current song" to the next in the queue
-      success = self.__dequeue()
-      while success is False:
-         success = self.__dequeue()
+      # set "current song" to the next in the queue or use random
+      nextSong = self.__queuemodel.dequeue()
+      if nextSong is None:
+         nextSong = self.__random.get()
+      self.__player.queue(nextSong.localpath.encode(fs_encoding))
       self.__player.cropPlaylist(1)
-
       self.__player.skipSong()
+
       return 'OK'
 
    def run(self):
@@ -607,11 +482,6 @@ class Channel(threading.Thread):
             self.__currentSongRecorded = False
             self.__currentSongFile     = self.__player.getSong()
 
-         # if prediction queue is empty we add a new song to it
-         if len(self.__predictionQueue) == 0:
-            #TODO - This is semantically bad!
-            self.__smartGet()
-
          # if the song is soon finished, update stats and pick the next one
          currentPosition = self.__player.getPosition()
          if (currentPosition[1] - currentPosition[0]) < 3:
@@ -634,10 +504,12 @@ class Channel(threading.Thread):
                self.__currentSongRecorded = True
                sess.save(stat)
                sess.flush()
-            #TODO - This is semantically bad!
-            success = self.__dequeue()
-            while success is False:
-               success = self.__dequeue()
+
+            # set "current song" to the next in the queue or use random
+            nextSong = self.__queuemodel.dequeue()
+            if nextSong is None:
+               nextSong = self.__random.get()
+            self.__player.queue(nextSong.localpath.encode(fs_encoding))
             self.__player.cropPlaylist(1)
 
          # if we handed out credits more than 5mins ago, we give out some more
