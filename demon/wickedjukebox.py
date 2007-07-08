@@ -380,6 +380,10 @@ class Channel(threading.Thread):
       self.sess.flush()
       threading.Thread.__init__(self)
 
+   def currentSong(self):
+      #song = self.sess.query(Song).selectfirst_by( Song.c.id == self.__currentSongID )
+      return self.__currentSongID
+
    def isStopped(self):
       return self._Thread__stopped
 

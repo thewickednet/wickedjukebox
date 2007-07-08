@@ -10,6 +10,8 @@ def marshal(str):
 
 class SatelliteAPI:
 
+   channel = None
+
    def get_albums(self, artistName):
       sess = create_session()
       artist = sess.query(Artist).selectfirst_by(Artist.c.name==artistName)
@@ -29,6 +31,10 @@ class SatelliteAPI:
 
    def ping(self):
       return marshal(True)
+
+   def getCurrentSong(self):
+      if self.channel is not None:
+         return marshal(self.channel.currentSong())
 
    def get_songs(self, artist=None, artistID=None, album=None, albumID=None):
       sess = create_session()
@@ -53,16 +59,23 @@ class Satellite(threading.Thread):
    def run(self):
 
       self.keepRunning = True
-      port = getSetting( 'xmlrpc_port', 61112 )
-      ip   = getSetting( 'xmlrpc_iface', '192.168.1.2' )
-      server = SimpleXMLRPCServer.SimpleXMLRPCServer((ip, port))
-      server.register_instance(SatelliteAPI())
+      port = getSetting( 'xmlrpc_port' )
+      if port == '':
+         log.msg( "No port specified for XML-RPC. Disabling support!" )
+         return
+
+      ip   = getSetting( 'xmlrpc_iface', '127.0.0.1' )
+      self.server = SimpleXMLRPCServer.SimpleXMLRPCServer((ip, port))
+      self.server.register_instance(SatelliteAPI())
       log.msg( "Serving XMLRPC on port %s" % port )
       try:
          while self.keepRunning:
-            server.handle_request()
+            self.server.handle_request()
       except:
          log.msg( 'Error in XMLRPC' )
+
+   def setChannel(self, channel):
+      self.server.channel = channel
 
    def stop(self):
       log.msg( 'XMLRPC service stopped' )

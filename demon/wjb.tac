@@ -33,11 +33,14 @@ class Gatekeeper(object):
                self.activeChannel.start()
          else:
             del(channel)
+      self.xmlrpcs = xmlrpc.Satellite()
+      self.xmlrpcs.start()
 
    def stopThreads(self):
       self.lib.abortAll()
       for c in self.channels:
          c.close()
+      self.xmlrpcs.stop()
 
    def route( self, line ):
       command = line.split()[0]
@@ -64,6 +67,7 @@ class Gatekeeper(object):
             if channel.name == args[0]:
                channelFound = True
                self.activeChannel = channel
+               self.xmlrpcs.setChannel( channel )
          if channelFound == False:
             channel = Channel( args[0] )
             if channel.name is None:
@@ -71,6 +75,7 @@ class Gatekeeper(object):
                return "ER: no such channel!"
             self.channels.append( channel )
             self.activeChannel = self.channels[-1]
+            self.xmlrpcs.setChannel( self.channels[-1] )
          return "OK: Selected channel %s" % self.activeChannel.name.encode('utf-8')
 
       #
@@ -165,8 +170,6 @@ class WJBFactory( protocol.ServerFactory ):
 
    def __init__( self ):
       self.gate = Gatekeeper(self)
-      self.xmlrpcs = xmlrpc.Satellite()
-      self.xmlrpcs.start()
 
    def __repr__( self ):
       return "<WJBFactory>"
@@ -179,7 +182,6 @@ class WJBFactory( protocol.ServerFactory ):
          return defer.succeed( self.gate.route( line ) )
 
    def stopFactory(self):
-      self.xmlrpcs.stop()
       self.gate.stopThreads()
 
 application = None
