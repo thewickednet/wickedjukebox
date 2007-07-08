@@ -19,7 +19,7 @@ class Gatekeeper(object):
    channels = []
    lib = Librarian()
    activeChannel = None
-   knownCommands = 'setChannel activeChannel rescanlib play pause next prev stop open close q exit quit bye'.split()
+   knownCommands = 'setChannel activeChannel rescanlib play pause next prev stop open close q exit quit bye currentSong'.split()
 
    def __init__(self, factory):
       self.__factory = factory
@@ -55,6 +55,16 @@ class Gatekeeper(object):
       #
       if command == 'rescanlib':
          return self.lib.rescanLib(args)
+
+      #
+      # Get Current Song
+      #
+      if command == 'currentSong':
+         try:
+            id = self.activeChannel.currentSong()
+            return 'OK: %d' % id
+         except:
+            return 'ERR'
 
       #
       # Selecting a Channel
