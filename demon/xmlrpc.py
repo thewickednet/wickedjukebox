@@ -59,15 +59,15 @@ class Satellite(threading.Thread):
    def run(self):
 
       self.keepRunning = True
-      port = getSetting( 'xmlrpc_port' )
-      if port == '':
+      self.port = getSetting( 'xmlrpc_port' )
+      if self.port == '':
          log.msg( "No port specified for XML-RPC. Disabling support!" )
          return
 
-      ip   = getSetting( 'xmlrpc_iface', '127.0.0.1' )
-      self.server = SimpleXMLRPCServer.SimpleXMLRPCServer((ip, port))
+      self.ip   = getSetting( 'xmlrpc_iface', '127.0.0.1' )
+      self.server = SimpleXMLRPCServer.SimpleXMLRPCServer((self.ip, int(self.port)))
       self.server.register_instance(SatelliteAPI())
-      log.msg( "Serving XMLRPC on port %s" % port )
+      log.msg( "Serving XMLRPC on port %s" % self.port )
       try:
          while self.keepRunning:
             self.server.handle_request()
@@ -80,3 +80,9 @@ class Satellite(threading.Thread):
    def stop(self):
       log.msg( 'XMLRPC service stopped' )
       self.keepRunning = False
+
+      # send a bogus request to the server, as the "handle_request" method is
+      # blocking. So it it still there waiting for a final request.
+      import xmlrpclib
+      s = xmlrpclib.Server('http://%s:%s' % (self.ip, self.port))
+      s.ping()
