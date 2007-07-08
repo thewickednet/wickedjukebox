@@ -33,7 +33,7 @@ class Gatekeeper(object):
                self.activeChannel.start()
          else:
             del(channel)
-      self.xmlrpcs = xmlrpc.Satellite()
+      self.xmlrpcs = xmlrpc.Satellite(self.activeChannel)
       self.xmlrpcs.start()
 
    def stopThreads(self):

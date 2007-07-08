@@ -1,16 +1,27 @@
 # -*- coding: utf-8 -*-
-import SimpleXMLRPCServer
+import SimpleXMLRPCServer, threading
 from model import create_session, getSetting, Artist, Album, Song
 from sqlalchemy import and_
-import simplejson, threading
 from twisted.python import log
 
-def marshal(str):
-   return simplejson.dumps( str )
+try:
+   import simplejson
+   jsonEnabled = False
+except:
+   jsonEnabled = False
+
+def marshal(data):
+   if jsonEnabled:
+      return simplejson.dumps( data )
+   else:
+      return data
 
 class SatelliteAPI:
 
    channel = None
+
+   def __init__(self, channel):
+      self.channel = channel
 
    def get_albums(self, artistName):
       sess = create_session()
@@ -36,6 +47,19 @@ class SatelliteAPI:
       if self.channel is not None:
          return marshal(self.channel.currentSong())
 
+   def getSongData(self, songID):
+      sess = create_session()
+      song = sess.query(Song).selectfirst_by(Song.c.id == songID )
+      output = None
+      if song is not None:
+         output = {
+            'artist': song.artist.name,
+            'album': song.album.name,
+            'title': song.title
+         }
+      sess.close()
+      return marshal(output)
+
    def get_songs(self, artist=None, artistID=None, album=None, albumID=None):
       sess = create_session()
 
@@ -56,26 +80,38 @@ class SatelliteAPI:
 
 class Satellite(threading.Thread):
 
-   def run(self):
-
-      self.keepRunning = True
+   def __init__(self, channel):
       self.port = getSetting( 'xmlrpc_port' )
       if self.port == '':
          log.msg( "No port specified for XML-RPC. Disabling support!" )
          return
 
       self.ip   = getSetting( 'xmlrpc_iface', '127.0.0.1' )
-      self.server = SimpleXMLRPCServer.SimpleXMLRPCServer((self.ip, int(self.port)))
-      self.server.register_instance(SatelliteAPI())
+
+      log.msg( "XML-RPC service starting up..." )
+      while True:
+         try:
+            self.server = SimpleXMLRPCServer.SimpleXMLRPCServer((self.ip, int(self.port)))
+            log.msg( '... done' )
+            break;
+         except:
+            import time
+            log.msg( "Retrying..." )
+            time.sleep(1)
+            pass
+
+      self.server.register_instance(SatelliteAPI(channel))
       log.msg( "Serving XMLRPC on port %s" % self.port )
+      threading.Thread.__init__(self)
+
+   def run(self):
+
+      self.keepRunning = True
       try:
          while self.keepRunning:
             self.server.handle_request()
       except:
          log.msg( 'Error in XMLRPC' )
-
-   def setChannel(self, channel):
-      self.server.channel = channel
 
    def stop(self):
       log.msg( 'XMLRPC service stopped' )
