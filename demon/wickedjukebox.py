@@ -363,6 +363,11 @@ class Channel(threading.Thread):
       if self.__dbModel is not None:
          self.name = self.__dbModel.name
          log.msg( "Loaded channel %s" % self.__dbModel )
+      else:
+         log.err( "Failed to load channel from database. Please make sure that\
+the named channel exists in the database table called 'channel'" )
+         self.__keepRunning = False
+
 
       self.__random     = playmodes.create( getSetting( 'random_model', 'random_weighed' ) )
       self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )

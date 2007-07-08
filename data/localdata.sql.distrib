@@ -1,6 +1,5 @@
 BEGIN;
-   INSERT INTO playmode (name) VALUES ( 'strictQueue' );
-   INSERT INTO channel  (name,backend,backend_params,playmode) VALUES ( 'exhuma', 'mpd', 'host=localhost, port=6600, rootFolder=/var/samba/media/adio', 1 );
+   INSERT INTO channel  (name,backend,backend_params) VALUES ( 'exhuma', 'mpd', 'host=localhost, port=6600, rootFolder=/var/samba/media/adio' );
    INSERT INTO setting  (var, value, comment) VALUES ( 'mediadir', '/var/samba/media/adio', 'Folders that contain the media files. Separated by commas' );
 
    INSERT INTO groups (title, admin, nocredits, queue_skip, queue_remove, queue_add) VALUES ('anonymous', 0, 0, 0, 0, 0);

@@ -82,8 +82,11 @@ class Satellite(threading.Thread):
 
    def __init__(self, channel):
       self.port = getSetting( 'xmlrpc_port' )
+      self.keepRunning = True
       if self.port == '':
          log.msg( "No port specified for XML-RPC. Disabling support!" )
+	 self.keepRunning = False
+         threading.Thread.__init__(self)
          return
 
       self.ip   = getSetting( 'xmlrpc_iface', '127.0.0.1' )
@@ -106,7 +109,6 @@ class Satellite(threading.Thread):
 
    def run(self):
 
-      self.keepRunning = True
       try:
          while self.keepRunning:
             self.server.handle_request()
@@ -114,6 +116,8 @@ class Satellite(threading.Thread):
          log.msg( 'Error in XMLRPC' )
 
    def stop(self):
+      if self.keepRunning == False:
+         return
       log.msg( 'XMLRPC service stopped' )
       self.keepRunning = False
 
