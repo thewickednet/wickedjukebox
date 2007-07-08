@@ -1,0 +1,141 @@
+<ui version="4.0" >
+ <class>wndWhisker</class>
+ <widget class="QMainWindow" name="wndWhisker" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>785</width>
+    <height>362</height>
+   </rect>
+  </property>
+  <property name="acceptDrops" >
+   <bool>false</bool>
+  </property>
+  <property name="windowTitle" >
+   <string>Whisker</string>
+  </property>
+  <widget class="QWidget" name="centralwidget" >
+   <layout class="QVBoxLayout" >
+    <property name="margin" >
+     <number>9</number>
+    </property>
+    <property name="spacing" >
+     <number>6</number>
+    </property>
+    <item>
+     <widget class="QTreeWidget" name="triFavourites" >
+      <column>
+       <property name="text" >
+        <string>Artist</string>
+       </property>
+      </column>
+      <column>
+       <property name="text" >
+        <string>Album</string>
+       </property>
+      </column>
+      <column>
+       <property name="text" >
+        <string>Song</string>
+       </property>
+      </column>
+      <column>
+       <property name="text" >
+        <string>I like it</string>
+       </property>
+      </column>
+      <column>
+       <property name="text" >
+        <string>Available on server</string>
+       </property>
+      </column>
+      <column>
+       <property name="text" >
+        <string>Date Added</string>
+       </property>
+      </column>
+      <column>
+       <property name="text" >
+        <string>Score Weight</string>
+       </property>
+      </column>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QToolBar" name="toolBar" >
+   <property name="orientation" >
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <attribute name="toolBarArea" >
+    <number>4</number>
+   </attribute>
+   <addaction name="actionAdd_Item" />
+   <addaction name="actionPull" />
+   <addaction name="actionSave" />
+   <addaction name="actionUpdate" />
+   <addaction name="separator" />
+   <addaction name="actionExit" />
+  </widget>
+  <action name="actionAdd_Item" >
+   <property name="icon" >
+    <iconset>icons/add.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Add Item</string>
+   </property>
+  </action>
+  <action name="actionExit" >
+   <property name="icon" >
+    <iconset>icons/exit.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionUpdate" >
+   <property name="icon" >
+    <iconset>icons/reload.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Update</string>
+   </property>
+  </action>
+  <action name="actionSave" >
+   <property name="icon" >
+    <iconset>icons/save_all.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionPull" >
+   <property name="icon" >
+    <iconset>icons/wizard.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Pull from Jukebox</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>activated()</signal>
+   <receiver>wndWhisker</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>182</x>
+     <y>180</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
