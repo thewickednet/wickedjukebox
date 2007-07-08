@@ -197,11 +197,11 @@ COMMIT;
 
 BEGIN;
    INSERT INTO setting (var,value,comment) VALUES ( 'recognizedTypes','mp3 ogg flac','Space separated list of recognised filetypes');
-   INSERT INTO setting (var,value,comment) VALUES ( 'mediadir','comma separated list of folders containing audio files');
+   INSERT INTO setting (var,value,comment) VALUES ( 'mediadir', '/media/mp3', 'comma separated list of folders containing audio files');
    INSERT INTO setting (var,value,comment) VALUES ( 'random_model','random_weighed', 'python module to use for random song selection. Module must be located in demon/playmodes');
    INSERT INTO setting (var,value,comment) VALUES ( 'queue_model','queue_strict','python module to use for song queuing. Module must be located in demon/playmodes');
-   INSERT INTO setting (var,value,comment) VALUES ( 'lastfm_user','LastFM user name');
-   INSERT INTO setting (var,value,comment) VALUES ( 'lastfm_pass','LastFM password');
+   INSERT INTO setting (var,value,comment) VALUES ( 'lastfm_user', '', 'LastFM user name');
+   INSERT INTO setting (var,value,comment) VALUES ( 'lastfm_pass', '', 'LastFM password');
    INSERT INTO setting (var,value,comment) VALUES ( 'channel_cycle',        1, 'Sleep time between channel updates.');
    INSERT INTO setting (var,value,comment) VALUES ( 'scoring_ratio',        4, 'weight of the play/skipped ratio for scoring in the random_weighed module.');
    INSERT INTO setting (var,value,comment) VALUES ( 'scoring_lastPlayed',   7, 'weight of the time since song was last played in the random_weighed module');
