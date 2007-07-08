@@ -2,12 +2,20 @@ import sys, pickle, os
 from PyQt4 import QtCore, QtGui
 from ui_whisker import Ui_wndWhisker
 import xmlrpclib
-import simplejson
 from datetime import datetime
 from time import strptime
 
-def unmarshal( str ):
-   return simplejson.loads( str )
+try:
+   import simplejson
+   jsonEnabled = False
+except:
+   jsonEnabled = False
+
+def unmarshal( data ):
+   if jsonEnabled:
+      return simplejson.loads( data )
+   else:
+      return data
 
 class StartQT4(QtGui.QMainWindow):
 
