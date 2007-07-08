@@ -206,6 +206,8 @@ BEGIN;
    INSERT INTO setting (var,value,comment) VALUES ( 'scoring_ratio',        4, 'weight of the play/skipped ratio for scoring in the random_weighed module.');
    INSERT INTO setting (var,value,comment) VALUES ( 'scoring_lastPlayed',   7, 'weight of the time since song was last played in the random_weighed module');
    INSERT INTO setting (var,value,comment) VALUES ( 'scoring_songAge',      0, 'weight of the song age (when the song was added to the db) for the random_weighed module');
-   INSERT INTO setting (var,value,comment) VALUES ( 'scoring_neverPlayed', 10, 'weight of the fact that a song has never been played for the random_weighed module');
+   INSERT INTO setting (var,value,comment) VALUES ( 'xmlrpc_port',   61112,        'XML-RPC Port');
+   INSERT INTO setting (var,value,comment) VALUES ( 'xmlrpc_iface', '192.168.1.2', 'XML-RPC bound interface');
+
 
 COMMIT;

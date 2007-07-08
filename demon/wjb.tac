@@ -9,6 +9,7 @@ import os
 from demon.wickedjukebox import Librarian
 from demon.util import config
 from demon.wickedjukebox import Channel
+import demon.xmlrpc as xmlrpc
 
 class Gatekeeper(object):
    """
@@ -164,6 +165,8 @@ class WJBFactory( protocol.ServerFactory ):
 
    def __init__( self ):
       self.gate = Gatekeeper(self)
+      self.xmlrpcs = xmlrpc.Satellite()
+      self.xmlrpcs.start()
 
    def __repr__( self ):
       return "<WJBFactory>"
@@ -176,6 +179,7 @@ class WJBFactory( protocol.ServerFactory ):
          return defer.succeed( self.gate.route( line ) )
 
    def stopFactory(self):
+      self.xmlrpcs.stop()
       self.gate.stopThreads()
 
 application = None
