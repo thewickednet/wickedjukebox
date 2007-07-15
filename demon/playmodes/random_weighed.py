@@ -9,6 +9,7 @@ from demon.plparser import parseQuery, ParserSyntaxError
 from demon.model import create_session, DynamicPlaylist, dynamicPLTable, getSetting, metadata as dbMeta, Song
 from sqlalchemy import text as dbText
 from twisted.python import log
+import threading
 
 # setup song scoring coefficients
 playRatio   = int(getSetting('scoring_ratio',        4))
@@ -16,10 +17,9 @@ lastPlayed  = int(getSetting('scoring_lastPlayed',   7))
 songAge     = int(getSetting('scoring_songAge',      0))
 neverPlayed = int(getSetting('scoring_neverPlayed', 10))
 
-def get():
+def findSong():
    """
-   determine a song that would be best to play next and add it to the
-   prediction queue
+   determine a song that would be best to play next and return it
    """
 
    # Retrieve dynamic playlists
@@ -106,3 +106,21 @@ def get():
    except IndexError:
       log.err('No song returned from query. Is the database empty?')
       return None
+
+# as the query can take fscking long, we prefetch one song
+log.msg( 'prefetching...' )
+prefetch = findSong()
+
+class Prefetcher( threading.Thread ):
+   def run(self):
+      findSong()
+
+def get():
+   pref = Prefetcher()
+   pref.start()
+
+   # wait until a song is prefetched (in case two 'gets' are called quickly
+   # after another)
+   while prefetch is None: pass
+
+   return prefetch
