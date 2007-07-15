@@ -18,9 +18,10 @@ def dequeue():
    if nextSong is not None:
       sess.delete(nextSong)
 
-   sess.flush()
-   sess.close()
+      sess.flush()
+      sess.close()
 
-   return nextSong
+      return nextSong.song
 
+   return None
 
