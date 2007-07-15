@@ -109,11 +109,12 @@ def findSong():
 
 # as the query can take fscking long, we prefetch one song
 log.msg( 'prefetching...' )
-prefetch = findSong()
+prefetch = [findSong()]
 
 class Prefetcher( threading.Thread ):
    def run(self):
-      findSong()
+      global prefetch
+      prefetch.append(findSong())
 
 def get():
    pref = Prefetcher()
@@ -121,6 +122,8 @@ def get():
 
    # wait until a song is prefetched (in case two 'gets' are called quickly
    # after another)
-   while prefetch is None: pass
+   while len(prefetch) == 0:
+      pass
 
-   return prefetch
+   log.msg( "Random song: %s" % prefetch )
+   return prefetch.pop()
