@@ -95,6 +95,7 @@ class MPD:
          except mpdclient.MpdError, ex:
             if str(ex).find('not done processing current command') > 0:
                log.msg('"not done processing current command" received. Retrying')
+               self.__connection.clearError()
                time.sleep(1)
                continue
             elif str(ex).find('playlistLength not found') > 0:

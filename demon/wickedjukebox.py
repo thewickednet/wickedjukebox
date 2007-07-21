@@ -2,7 +2,7 @@ import sys, os, threading, mutagen, time
 from model import create_session, Artist, Album, Song, \
                   ChannelStat, Channel as dbChannel,\
                   getSetting, metadata as dbMeta,\
-                  songTable, channelSongs, LastFMQueue, usersTable,\
+                  songTable, LastFMQueue, usersTable,\
                   Genre, genreTable
 from sqlalchemy import and_
 from datetime import datetime
@@ -286,27 +286,40 @@ class Librarian(object):
          for folder in self.__folders:
             self.__crawl_directory(folder, self.__cap)
 
-         ##for song in list(Songs.select()):
-         ##   if not os.path.exists(song.localpath):
-         ##      self.__scanLog.warning('File %s not found on filesystem.' % song.localpath)
-         ##      try:
-         ##         targetSongs = list(Songs.selectBy(
-         ##               title=song.title,
-         ##               artist=song.artist,
-         ##               album=song.album,
-         ##               trackNo=song.trackNo
-         ##               ))
+         session  = create_session()
 
-         ##         for targetSong in targetSongs:
-         ##            if song.localpath != targetSong.localpath:
-         ##               self.__scanLog.info('Song with id %d moved to id %d' % (song.id, targetSong.id))
-         ##               newPath = targetSong.localpath
-         ##               targetSong.destroySelf()
-         ##               song.localpath = newPath
-         ##      except IndexError:
-         ##         # no such song found. We can delete the entry from the database
-         ##         self.__scanLog.warning('File %s disappeared!' % song.localpath)
-         ##         song.isDirty = True
+         log.msg( "--- Checking for orphaned songs... " )
+         for song in session.query(Song).select():
+            if not os.path.exists(song.localpath):
+               log.msg('File %s not found on filesystem.' % song.localpath)
+               try:
+                  targetSongs = session.query(Song).select(and_(
+                        Song.c.title==song.title,
+                        Song.c.artist_id==song.artist_id,
+                        Song.c.album_id==song.album_id,
+                        Song.c.track_no==song.track_no
+                        ))
+
+                  for targetSong in targetSongs:
+                     if song.localpath != targetSong.localpath:
+                        log.msg('Song with id %d moved to id %d' % (song.id, targetSong.id))
+                        newPath = targetSong.localpath
+                        for data in session.query(ChannelStat).select_by(ChannelStat.c.song_id==targetSong.id):
+                           session.delete(data)
+                        session.flush()
+                        session.delete(targetSong)
+                        song.localpath = newPath
+                        session.save(song)
+               except IndexError:
+                  # no such song found. We can delete the entry from the database
+                  log.msg('File %s disappeared!' % song.localpath)
+                  for data in session.query(ChannelStat).select_by(song.c.song_id==song.id):
+                     session.delete(data)
+                  session.flush()
+                  session.delete(song)
+               session.flush()
+         log.msg( "--- ... done checking for orphaned songs. " )
+
          ##for x in list(Genres.select()):
          ##   if len(x.songs) == 0:
          ##      self.__scanLog.info('Genre %-15s was empty' % x.name)
@@ -319,6 +332,7 @@ class Librarian(object):
          ##         x.destroySelf()
          ##except UnicodeDecodeError:
          ##   self.__scanLog.error('UnicodeDecodeError when selecting albums')
+         session.close()
 
    def __init__(self):
       pass
@@ -426,9 +440,9 @@ the named channel exists in the database table called 'channel'" )
       """
       sess = create_session()
       stat = sess.query(ChannelStat).select( and_(
-               songTable.c.id == channelSongs.c.song_id,
+               songTable.c.id == ChannelStat.c.song_id,
                songTable.c.id == self.__currentSongID,
-               channelSongs.c.channel_id == self.__dbModel.id) )
+               ChannelStat.c.channel_id == self.__dbModel.id) )
       if stat == [] :
          stat = ChannelStat( songid = self.__currentSongID,
                              channelid = self.__dbModel.id)
@@ -496,9 +510,9 @@ the named channel exists in the database table called 'channel'" )
          if (currentPosition[1] - currentPosition[0]) < 3:
             if self.__currentSongID != 0 and not self.__currentSongRecorded:
                stat = sess.query(ChannelStat).select( and_(
-                        songTable.c.id == channelSongs.c.song_id,
+                        songTable.c.id == ChannelStat.c.song_id,
                         songTable.c.id==self.__currentSongID,
-                        channelSongs.c.channel_id==self.__dbModel.id) )
+                        ChannelStat.c.channel_id==self.__dbModel.id) )
                if stat == [] :
                   stat = ChannelStat( songid = self.__currentSongID,
                                       channelid = self.__dbModel.id)
