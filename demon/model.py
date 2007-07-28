@@ -93,6 +93,7 @@ genreTable     = Table( 'genre', metadata, autoload=True )
 class Genre(object):
    def __init__(self, name):
       self.name = name
+      self.added = datetime.now()
    def __repr__(self):
       return "<Genre %s name=%s>" % (self.id, repr(self.name))
 
@@ -117,6 +118,7 @@ class Album(object):
    def __init__( self, name, artist ):
       self.name  = name
       self.artist_id = artist.id
+      self.added = datetime.now()
 
    def __repr__(self):
       return "<Album %s name=%s>" % (self.id, repr(self.name))
@@ -125,6 +127,7 @@ class Song(object):
    def __init__( self, localpath, artist, album ):
       self.localpath = localpath
       self.artist_id = artist.id
+      self.added = datetime.now()
       if album is not None:
          self.album_id  = album.id
 
@@ -132,6 +135,9 @@ class Song(object):
       return "<Song %s path=%s>" % (self.id, repr(self.localpath))
 
 class QueueItem(object):
+   def __init__(self):
+      self.added = datetime.now()
+
    def __repr__(self):
       return "<QueueItem %s>" % (self.id)
 
