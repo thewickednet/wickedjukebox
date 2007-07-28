@@ -7,7 +7,6 @@ SET collation_server="utf8_unicode_ci";
 SET storage_engine="InnoDB";
 
 DROP TABLE IF EXISTS setting;
-DROP TABLE IF EXISTS genre;
 DROP TABLE IF EXISTS channel_song_data;
 DROP TABLE IF EXISTS channel_album_data;
 DROP TABLE IF EXISTS queue;
@@ -20,6 +19,7 @@ DROP TABLE IF EXISTS channel;
 DROP TABLE IF EXISTS song;
 DROP TABLE IF EXISTS album;
 DROP TABLE IF EXISTS artist;
+DROP TABLE IF EXISTS genre;
 
 BEGIN;
 
@@ -45,13 +45,13 @@ BEGIN;
    );
 
    CREATE TABLE artist(
-      id INTEGER UNSIGNED NOT NULL PRIMARY KEY,
+      id INTEGER UNSIGNED NOT NULL auto_increment PRIMARY KEY,
       name VARCHAR(128) UNIQUE,
       added DATETIME NOT NULL
    );
 
    CREATE TABLE album(
-      id INTEGER UNSIGNED NOT NULL PRIMARY KEY,
+      id INTEGER UNSIGNED NOT NULL auto_increment PRIMARY KEY,
       artist_id INTEGER UNSIGNED NOT NULL,
       name VARCHAR(128),
       added DATETIME NOT NULL,
@@ -64,13 +64,13 @@ BEGIN;
    );
 
    CREATE TABLE genre(
-      id INTEGER UNSIGNED NOT NULL PRIMARY KEY,
+      id INTEGER UNSIGNED NOT NULL auto_increment PRIMARY KEY,
       name VARCHAR(128) UNIQUE,
       added DATETIME NOT NULL
    );
 
    CREATE TABLE song(
-      id INTEGER UNSIGNED NOT NULL PRIMARY KEY,
+      id INTEGER UNSIGNED NOT NULL auto_increment PRIMARY KEY,
       artist_id INTEGER UNSIGNED NOT NULL,
       album_id INTEGER UNSIGNED NOT NULL,
       track_no INTEGER(3) DEFAULT NULL,
@@ -133,7 +133,7 @@ BEGIN;
    );
 
    CREATE TABLE groups (
-     id INTEGER UNSIGNED NOT NULL PRIMARY KEY,
+     id INTEGER UNSIGNED NOT NULL auto_increment PRIMARY KEY,
      title VARCHAR(32) NOT NULL,
      admin        INTEGER(1) NOT NULL default 0,
      nocredits    INTEGER NOT NULL default 0,
@@ -143,7 +143,7 @@ BEGIN;
    );
 
    CREATE TABLE users (
-      id  INTEGER UNSIGNED NOT NULL PRIMARY KEY,
+      id  INTEGER UNSIGNED NOT NULL auto_increment PRIMARY KEY,
       username VARCHAR(32) NOT NULL UNIQUE,
       cookie   VARCHAR(32) NOT NULL UNIQUE,
       password VARCHAR(32) NOT NULL,
@@ -163,7 +163,7 @@ BEGIN;
    );
 
    CREATE TABLE queue (
-      id INTEGER UNSIGNED NOT NULL PRIMARY KEY,
+      id INTEGER UNSIGNED NOT NULL auto_increment PRIMARY KEY,
       song_id INTEGER UNSIGNED NOT NULL,
       user_id INTEGER UNSIGNED DEFAULT NULL,
       channel_id INTEGER UNSIGNED NOT NULL,
@@ -185,7 +185,7 @@ BEGIN;
    );
 
    CREATE TABLE lastfm_queue(
-      queue_id INTEGER UNSIGNED NOT NULL PRIMARY KEY,
+      queue_id INTEGER UNSIGNED NOT NULL auto_increment PRIMARY KEY,
       song_id INTEGER UNSIGNED NOT NULL,
       time_played DATETIME NOT NULL,
       INDEX(song_id),
@@ -195,7 +195,7 @@ BEGIN;
    );
 
    CREATE TABLE dynamicPlaylist(
-      id INTEGER UNSIGNED NOT NULL PRIMARY KEY,
+      id INTEGER UNSIGNED NOT NULL auto_increment PRIMARY KEY,
       group_id INTEGER NOT NULL,
       label VARCHAR(64),
       query TEXT
@@ -219,4 +219,19 @@ BEGIN;
       FOREIGN KEY (genre_id) REFERENCES genre(id)
          ON UPDATE CASCADE ON DELETE RESTRICT
    );
+COMMIT;
+
+BEGIN;
+   INSERT INTO setting (var,value,comment) VALUES ( 'recognizedTypes','mp3 ogg flac','Space separated list of recognised filetypes');
+   INSERT INTO setting (var,value,comment) VALUES ( 'random_model','random_weighed', 'python module to use for random song selection. Module must be located in demon/playmodes');
+   INSERT INTO setting (var,value,comment) VALUES ( 'mediadir', '', 'comma separated list of folders containing audio files');
+   INSERT INTO setting (var,value,comment) VALUES ( 'queue_model','queue_strict','python module to use for song queuing. Module must be located in demon/playmodes');
+   INSERT INTO setting (var,value,comment) VALUES ( 'lastfm_user', '', 'LastFM user name');
+   INSERT INTO setting (var,value,comment) VALUES ( 'lastfm_pass', '', 'LastFM password');
+   INSERT INTO setting (var,value,comment) VALUES ( 'channel_cycle',        1, 'Sleep time between channel updates.');
+   INSERT INTO setting (var,value,comment) VALUES ( 'scoring_ratio',        4, 'weight of the play/skipped ratio for scoring in the random_weighed module.');
+   INSERT INTO setting (var,value,comment) VALUES ( 'scoring_lastPlayed',   7, 'weight of the time since song was last played in the random_weighed module');
+   INSERT INTO setting (var,value,comment) VALUES ( 'scoring_songAge',      0, 'weight of the song age (when the song was added to the db) for the random_weighed module');
+   INSERT INTO setting (var,value,comment) VALUES ( 'xmlrpc_port',  '',          'XML-RPC Port');
+   INSERT INTO setting (var,value,comment) VALUES ( 'xmlrpc_iface', '127.0.0.1', 'XML-RPC bound interface');
 COMMIT;
