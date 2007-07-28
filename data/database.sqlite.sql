@@ -80,7 +80,7 @@ CREATE TABLE song(
    year INTEGER(4),
    localpath TEXT NOT NULL UNIQUE,
    downloaded INTEGER DEFAULT 0,
-   lastScanned DATETIME DEFAULT NULL DEFAULT CURRENT_TIMESTAMP,
+   lastScanned DATETIME DEFAULT NULL,
    bitrate INTEGER(5),
    filesize INTEGER(32),
    checksum VARCHAR(14),
