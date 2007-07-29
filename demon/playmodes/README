@@ -1,0 +1,79 @@
+This folder contains playmodes for queue-selection and random play.
+The files in this folder are dynamically loaded and determined py the
+"queue_model" and "random_model" settings.
+
+In order to activate a (new) file in this directory, all that is needed is to
+set the corresponding setting-variable the name of the file (leaving out the
+"py" extension).
+
+Example:
+   You create a new random model in a file called "random_fubar.py".
+   To activate it go to the settings and set the value of "random_model" to
+   "random_fubar".
+   From that point onwards, the new model will be active. Even without
+   restarting the daemon.
+
+------------------------------------------------------------------------------
+Queue selection
+------------------------------------------------------------------------------
+
+First off, as a convention files for queue-selection should begin with
+"queue_".  These file only need to implement the "dequeue" function. This
+method should return a valid "Song" instance, or "None" if no queue item could
+be determined of if nothing was on the queue.
+
+If this method returns "None", the system will try to play a song at random
+next. The behaviour can be influenced by the random_* files (read the next
+section for details)
+
+------------------------------------------------------------------------------
+Random selection
+------------------------------------------------------------------------------
+
+Convention for the random-selection files are names starting with "random_".
+These methods only need to implement a "get" method. This should return a valid
+"Song" instance as well. This should not return "None".
+
+------------------------------------------------------------------------------
+"Skeletons"
+------------------------------------------------------------------------------
+Next to the default playmodes, there are some "skeleton" files. These are
+"no-op" files that contain the bare-minimum to write a new playmode from
+scratch. Make sure to read through them as they may contain more detailed
+explanations as the default playmodes.
+
+------------------------------------------------------------------------------
+Combining files
+------------------------------------------------------------------------------
+As the two methods have different names ("get" and "dequeue") it is by all
+means possible to write both in one file.
+
+------------------------------------------------------------------------------
+Database queries
+------------------------------------------------------------------------------
+The system uses an object relational mapper called "SQLAlchemy" [1]. Queries
+might seem a bit unintuitive, but you have the option to write normal SQL code
+(see random_weighed.py) for an example usage.
+
+The key is to import "text" from sqlalchemy and the database metadata from
+"demon.model".
+
+Then you can execute the SQL query by writing the following:
+
+   resultProxy = text(query, engine=metadata.engine).execute()
+
+where "query" is the SQL query, and "metadata" is the database metadata.
+To fetch the rows from the resultProxy, you write
+    result = resultProxy.fetchall()
+or: row = resultProxy.fetchone()
+
+To retrieve a "Song" instance by id (the primary key), write:
+
+   song = session.query(Song).get(id)
+
+where "id" is the id-number of the song.
+
+
+This, in combination with the "random_weighed" playmode should get you started.
+Naturally, if you know the sqlalchemy syntax, it is recommendet to make use of
+it.
