@@ -57,7 +57,6 @@ BEGIN;
       added DATETIME NOT NULL,
       downloaded INTEGER UNSIGNED NOT NULL DEFAULT 0,
       type VARCHAR(32),
-      UNIQUE( id, artist_id),
       INDEX (artist_id),
       FOREIGN KEY (artist_id) REFERENCES artist(id)
          ON UPDATE CASCADE ON DELETE RESTRICT

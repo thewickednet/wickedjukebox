@@ -54,8 +54,7 @@ CREATE TABLE album(
    name VARCHAR(128),
    added DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
    downloaded INTEGER NOT NULL DEFAULT 0,
-   type VARCHAR(32),
-   UNIQUE( id, artist_id)
+   type VARCHAR(32)
 );
 
 CREATE TABLE genre(
