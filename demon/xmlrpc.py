@@ -85,7 +85,7 @@ class Satellite(threading.Thread):
       self.keepRunning = True
       if self.port == '':
          log.msg( "No port specified for XML-RPC. Disabling support!" )
-	 self.keepRunning = False
+         self.keepRunning = False
          threading.Thread.__init__(self)
          return
 
