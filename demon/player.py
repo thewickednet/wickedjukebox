@@ -2,7 +2,12 @@ import mpdclient
 import os, sys, time, traceback
 import threading
 from twisted.python import log
-import shoutpy
+
+try:
+   import shoutpy
+   shoutpy_available = True
+except:
+   shoutpy_available = False
 
 def createPlayer(playerName, backend_params):
 
@@ -297,18 +302,22 @@ class Icecast:
 class Shoutcast_Player(threading.Thread):
 
    def __init__(self, password='hackme', mount='/wicked.mp3', port=8000):
-      self.__server           = shoutpy.Shout()
-      self.__server.user      = "source"
-      self.__server.password  = password
-      self.__server.mount     = mount
-      self.__server.port      = port
-      self.__server.format    = shoutpy.FORMAT_MP3
-      self.__server.open()
       self.__keepRunning      = True
       self.__progress         = (0,0) # (streamed_bytes, total_bytes)
       self.__queue            = []
       self.__currentSong      = ''
       self.__triggerSkip      = False
+
+      if shoutpy_available:
+         self.__server           = shoutpy.Shout()
+         self.__server.format    = shoutpy.FORMAT_MP3
+         self.__server.user      = "source"
+         self.__server.password  = password
+         self.__server.mount     = mount
+         self.__server.port      = port
+         self.__server.open()
+      else:
+         log.err( "ERROR: Trying to create a shoupy-instance, but shoutpy is not installed!" )
       threading.Thread.__init__(self)
 
    def run(self):
