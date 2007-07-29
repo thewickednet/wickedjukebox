@@ -9,6 +9,7 @@ from demon.plparser import parseQuery, ParserSyntaxError
 from demon.model import create_session, DynamicPlaylist, dynamicPLTable, getSetting, metadata as dbMeta, Song
 from sqlalchemy import text as dbText
 from twisted.python import log
+from demon.util import config
 
 # setup song scoring coefficients
 playRatio   = int(getSetting('scoring_ratio',        4))
@@ -39,65 +40,69 @@ def get():
          log.err( str(ex) )
          log.err( 'Query was: %s' % dpl.query )
 
-   ## -- MySQL Query WAS:
-   ##   SELECT
-   ##      song_id,
-   ##      localpath,
-   ##      IFNULL( IF(played+skipped>=10, (played/(played+skipped))*%(playRatio)d, 0.5), 0)
-   ##         + (IFNULL( least(604800, time_to_sec(timediff(NOW(), lastPlayed))), 604800)-604800)/604800*%(lastPlayed)d
-   ##         + IF( played+skipped=0, %(neverPlayed)d, 0)
-   ##         + IFNULL( IF( time_to_sec(timediff(NOW(),added))<1209600, time_to_sec(timediff(NOW(),added))/1209600*%(songAge)d, 0), 0) score
-   ##   FROM songs
-   ##   ORDER BY score DESC, rand()
-   ##   LIMIT 0,10
-   query = """
-      SELECT
-         s.id,
-         localpath,
-         CASE
-            WHEN played ISNULL OR skipped ISNULL THEN 0
-         ELSE
+   if config['database.type'] == 'sqlite':
+      query = """
+         SELECT
+            s.id,
+            localpath,
             CASE
-               WHEN (played+skipped>=10) THEN (( CAST(played as real)/(played+skipped))*%(playRatio)d)
-               ELSE 0.5
-            END
-         END +
-            CASE WHEN played ISNULL AND skipped ISNULL THEN %(neverPlayed)d
-            ELSE 0
-            END +
-         (CASE WHEN lastPlayed ISNULL THEN 604800 ELSE
-             julianday('now')*86400 - julianday(lastPlayed)*86400 -- seconds since last play
-         END - 604800)/604800*%(lastPlayed)d +
-         CASE WHEN s.added ISNULL THEN 0 ELSE
-            CASE WHEN julianday('now')*86400 - julianday(s.added)*86400 < 1209600 THEN
-               (julianday('now')*86400 - julianday(s.added)*86400)/1209600*%(songAge)d
+               WHEN played ISNULL OR skipped ISNULL THEN 0
             ELSE
-               0
+               CASE
+                  WHEN (played+skipped>=10) THEN (( CAST(played as real)/(played+skipped))*%(playRatio)d)
+                  ELSE 0.5*%(playRatio)d
+               END
+            END +
+               CASE WHEN played ISNULL AND skipped ISNULL THEN %(neverPlayed)d
+               ELSE 0
+               END +
+            (CASE WHEN lastPlayed ISNULL THEN 604800 ELSE
+                julianday('now')*86400 - julianday(lastPlayed)*86400 -- seconds since last play
+            END - 604800)/604800*%(lastPlayed)d +
+            CASE WHEN s.added ISNULL THEN 0 ELSE
+               CASE WHEN julianday('now')*86400 - julianday(s.added)*86400 < 1209600 THEN
+                  (julianday('now')*86400 - julianday(s.added)*86400)/1209600*%(songAge)d
+               ELSE
+                  0
+               END
             END
-         END
-            AS score
-      FROM song s LEFT JOIN channel_song_data rel ON ( rel.song_id == s.id )
-      INNER JOIN artist a ON ( a.id == s.artist_id )
-      INNER JOIN album b ON ( b.id == s.album_id )
-      %(where)s
-      ORDER BY score DESC, RANDOM()
-      LIMIT 10 OFFSET 0
-   """ % {
-      'neverPlayed': neverPlayed,
-      'playRatio':   playRatio,
-      'lastPlayed':  lastPlayed,
-      'songAge':     songAge,
-      'where':       whereClause,
-   }
+               AS score
+         FROM song s LEFT JOIN channel_song_data rel ON ( rel.song_id == s.id )
+         INNER JOIN artist a ON ( a.id == s.artist_id )
+         INNER JOIN album b ON ( b.id == s.album_id )
+         %(where)s
+         ORDER BY score DESC, RANDOM()
+         LIMIT 10 OFFSET 0
+      """ % {
+         'neverPlayed': neverPlayed,
+         'playRatio':   playRatio,
+         'lastPlayed':  lastPlayed,
+         'songAge':     songAge,
+         'where':       whereClause,
+      }
+   elif config['database.type'] == 'mysql':
+      query = """
+        SELECT s.id, s.localpath,
+           IFNULL( IF(played+skipped>=10, (played/(played+skipped))*%(playRatio)d, 0.5*%(playRatio)d), 0)
+              + (IFNULL( least(604800, time_to_sec(timediff(NOW(), lastPlayed))), 604800)-604800)/604800*%(lastPlayed)d
+              + IF( lastPlayed IS NULL, %(neverPlayed)d, 0)
+              * IFNULL( IF( time_to_sec(timediff(NOW(),added))<1209600, time_to_sec(timediff(NOW(),added))/1209600*%(songAge)d, 0), 0) AS score
+        FROM song s LEFT JOIN channel_song_data c ON (c.song_id=s.id)
+        %(where)s
+        ORDER BY score DESC, rand()
+        LIMIT 10 OFFSET 0
+      """ % {
+         'neverPlayed': neverPlayed,
+         'playRatio':   playRatio,
+         'lastPlayed':  lastPlayed,
+         'songAge':     songAge,
+         'where':       whereClause,
+      }
 
-   # I won't use ORDER BY RAND() as it is way too dependent on the dbms!
-   import random
-   random.seed()
    resultProxy = dbText(query, engine=dbMeta.engine).execute()
    res = resultProxy.fetchall()
-   randindex = random.randint(1, len(res)) -1
    try:
-      out = (res[randindex][0], res[randindex][1], float(res[randindex][2]))
+      out = (res[0][0], res[0][1], float(res[0][2]))
       log.msg("Selected song (%d, %s) via smartget. Score was %4.3f" % out)
       sess = create_session()
       selectedSong = sess.query(Song).selectfirst_by(Song.c.id == out[0] )
