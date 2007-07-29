@@ -2,6 +2,7 @@ import mpdclient
 import os, sys, time, traceback
 import threading
 from twisted.python import log
+import shoutpy
 
 def createPlayer(playerName, backend_params):
 
@@ -238,12 +239,24 @@ class MPD:
 class Icecast:
 
    def __init__(self, params):
+      log.msg( "connection to icecast server (params = %s)" % params )
       self.__port     = int(params['port'])
-      self.__mount    = params['mount']
-      self.__password = params['pwd']
+      self.__mount    = str(params['mount'])
+      self.__password = str(params['pwd'])
       self.__player   = Shoutcast_Player(self.__password,
                                          self.__mount,
                                          self.__port)
+
+   def cropPlaylist(self, length=2):
+      """
+      Removes items from the *beginning* of the playlist to ensure it has only
+      a fixed number of entries.
+
+      PARAMETERS
+         length - The new size of the playlist (optional, default=2)
+      """
+      log.msg( "[Icecast] cropping pl to %d songs" % length )
+      self.__player.cropPlaylist(length)
 
    def getPosition(self):
       # now, the position is a challenge. If we have a CBR file, all is fine
@@ -259,101 +272,111 @@ class Icecast:
          return (0, 100)
 
    def getSong(self):
-      return self.__player.currentSong().decode(sys.getfilesystemencoding())
+      return self.__player.currentSong()
 
    def queue(self, filename):
-      return self.__player.queue(filename.encode(sys.getfilesystemencoding()))
+      log.msg( "[Icecast] received a queue (%s)" % filename[0:10] )
+      return self.__player.queue(filename)
 
    def skipSong(self):
-      self.__player.skip()
+      log.msg( "[Icecast] received a skip request" )
+      return self.__player.skip()
 
    def stopPlayback(self):
-      pass
+      self.__player.stop()
 
    def pausePlayback(self):
       pass
 
    def startPlayback(self):
-      pass
+      self.__player.start()
 
    def status(self):
       pass
 
-##class Shoutcast_Player(threading.Thread):
-##
-##   def __init__(self, password='hackme', mount='/wicked.mp3', port=8000):
-##      self.__server           = shoutpy.Shout()
-##      self.__server.user      = "source"
-##      self.__server.password  = password
-##      self.__server.mount     = mount
-##      self.__server.port      = port
-##      self.__server.format    = shoutpy.FORMAT_MP3
-##      self.__server.open()
-##      self.__keepRunning      = True
-##      self.__progress         = (0,0) # (streamed_bytes, total_bytes)
-##      self.__queue            = []
-##      self.__currentSong      = ''
-##      self.__triggerSkip      = False
-##      threading.Thread.__init__(self)
-##
-##   def run(self):
-##
-##      while self.__keepRunning is True:
-##
-##         if len(self.__queue) > 0:
-##            self.__currentSong = self.__queue.pop(0)
-##
-##            f = open(self.__currentSong, "rb")
-##
-##            buf = f.read(4096)
-##            self.__progress = (0, os.stat(arg).st_size)
-##
-##            # stream the file as long as the player is running, or as long as
-##            # it's been skipped
-##            while buf and self.__keepRunning and not self.__triggerSkip:
-##
-##               self.__server.send(buf)
-##               self.__progress = (self.__progress[0]+len(buf),
-##                                  self.__progress[1])
-##               buf = f.read(512)
-##               self.__server.sync()
-##            f.close()
-##
-##            # if we fell through the previous loop because a skip was
-##            # requested, we need to reset that value. Otherwise we keep
-##            # skipping
-##            if self.__triggerSkip:
-##               self.__triggerSkip = False
-##
-##
-##      self.__server.close()
-##
-##   def skip(self):
-##      self.__triggerSkip = True
-##
-##   def queue(self, filename):
-##      self.__queue.append(filename)
-##
-##   def currentSong(self):
-##      return self.__currentSong
-##
-##   def position(self):
-##      """
-##      Returns a percentage of how far we are in the song
-##      """
-##      return float(self.__progress[0]) / float(self.__progress[1]) * 100.0
-##
-##   def pause(self):
-##      pass
-##
-##   def skip(self):
-##      pass
-##
-##   def stop(self):
-##      pass
-##
-##   def play(self):
-##      pass
-##
-##   def disconnect(self):
-##      self.__keepRunning = False
+class Shoutcast_Player(threading.Thread):
+
+   def __init__(self, password='hackme', mount='/wicked.mp3', port=8000):
+      self.__server           = shoutpy.Shout()
+      self.__server.user      = "source"
+      self.__server.password  = password
+      self.__server.mount     = mount
+      self.__server.port      = port
+      self.__server.format    = shoutpy.FORMAT_MP3
+      self.__server.open()
+      self.__keepRunning      = True
+      self.__progress         = (0,0) # (streamed_bytes, total_bytes)
+      self.__queue            = []
+      self.__currentSong      = ''
+      self.__triggerSkip      = False
+      threading.Thread.__init__(self)
+
+   def run(self):
+
+      while self.__keepRunning is True:
+
+         if len(self.__queue) > 0:
+            self.__currentSong = self.__queue.pop(0)
+
+            f = open(self.__currentSong, "rb")
+
+            buf = f.read(32)
+            self.__progress = (0, os.stat(self.__currentSong).st_size)
+
+            # stream the file as long as the player is running, or as long as
+            # it's not skipped
+            while not self.__triggerSkip and self.__keepRunning and buf:
+
+               self.__server.send(buf)
+               self.__progress = (self.__progress[0]+len(buf),
+                                  self.__progress[1])
+               buf = f.read(16)
+               self.__server.sync()
+            f.close()
+
+            log.msg( "Shoutcast song finished" )
+
+            # if we fell through the previous loop because a skip was
+            # requested, we need to reset that value. Otherwise we keep
+            # skipping
+            if self.__triggerSkip:
+               self.__triggerSkip = False
+
+
+      self.__server.close()
+
+   def skip(self):
+      log.msg( "Shoutcast player got a skip request" )
+      self.__triggerSkip = True
+
+   def queue(self, filename):
+      self.__queue.append(filename)
+
+   def currentSong(self):
+      return self.__currentSong
+
+   def position(self):
+      """
+      Returns a percentage of how far we are in the song
+      """
+      return float(self.__progress[0]) / float(self.__progress[1]) * 100.0
+
+   def pause(self):
+      pass
+
+   def skip(self):
+      pass
+
+   def stop(self):
+      log.msg( "Shoutcast player got a stop request" )
+      self.__keepRunning = False
+
+   def play(self):
+      pass
+
+   def disconnect(self):
+      self.__keepRunning = False
+
+   def cropPlaylist(self, length):
+      while len(self.__queue) > length:
+         self.__queue = self.__queue[1:]

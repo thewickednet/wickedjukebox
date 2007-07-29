@@ -404,6 +404,8 @@ the named channel exists in the database table called 'channel'" )
       return self._Thread__stopped
 
    def close(self):
+      log.msg( "Channel closing requested." )
+      self.__player.stopPlayback()
       log.msg( "Syncronising channel" )
       self.sess.save( self.__dbModel )
       self.sess.flush()
@@ -460,6 +462,7 @@ the named channel exists in the database table called 'channel'" )
       nextSong = self.__queuemodel.dequeue()
       if nextSong is None:
          nextSong = self.__random.get()
+      log.msg( "[channel] skipping song" )
       self.__player.queue(nextSong.localpath.encode(fs_encoding))
       self.__player.cropPlaylist(1)
       self.__player.skipSong()
