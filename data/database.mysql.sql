@@ -3,7 +3,7 @@
 --
 
 SET character_set_database="utf8";
-SET collation_server="utf8_unicode_ci";
+SET collation_server="utf8_bin";
 SET storage_engine="InnoDB";
 
 DROP TABLE IF EXISTS setting;
@@ -32,7 +32,7 @@ BEGIN;
       ping DATETIME,
       active BOOL NOT NULL DEFAULT FALSE,
       status INTEGER
-   );
+   ) CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
    CREATE TABLE setting(
       var VARCHAR(32) NOT NULL PRIMARY KEY,
@@ -42,13 +42,13 @@ BEGIN;
       INDEX (channel_id),
       FOREIGN KEY (channel_id) REFERENCES channel(id)
          ON UPDATE CASCADE ON DELETE RESTRICT
-   );
+   ) CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
    CREATE TABLE artist(
       id INTEGER UNSIGNED NOT NULL auto_increment PRIMARY KEY,
       name VARCHAR(128) UNIQUE,
       added DATETIME NOT NULL
-   );
+   ) CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
    CREATE TABLE album(
       id INTEGER UNSIGNED NOT NULL auto_increment PRIMARY KEY,
@@ -61,13 +61,13 @@ BEGIN;
       INDEX (artist_id),
       FOREIGN KEY (artist_id) REFERENCES artist(id)
          ON UPDATE CASCADE ON DELETE RESTRICT
-   );
+   ) CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
    CREATE TABLE genre(
       id INTEGER UNSIGNED NOT NULL auto_increment PRIMARY KEY,
       name VARCHAR(128) UNIQUE,
       added DATETIME NOT NULL
-   );
+   ) CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
    CREATE TABLE song(
       id INTEGER UNSIGNED NOT NULL auto_increment PRIMARY KEY,
@@ -95,7 +95,7 @@ BEGIN;
       FOREIGN KEY (album_id) REFERENCES album(id)
          ON UPDATE CASCADE ON DELETE RESTRICT
 
-   );
+   ) CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
    CREATE TABLE channel_song_data(
       channel_id INTEGER UNSIGNED NOT NULL,
@@ -115,7 +115,7 @@ BEGIN;
       FOREIGN KEY (song_id) REFERENCES song(id)
          ON UPDATE CASCADE ON DELETE RESTRICT
 
-   );
+   ) CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
    CREATE TABLE channel_album_data(
       channel_id INTEGER UNSIGNED NOT NULL,
@@ -130,7 +130,7 @@ BEGIN;
       FOREIGN KEY (album_id) REFERENCES album(id)
          ON UPDATE CASCADE ON DELETE RESTRICT
 
-   );
+   ) CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
    CREATE TABLE groups (
      id INTEGER UNSIGNED NOT NULL auto_increment PRIMARY KEY,
@@ -140,7 +140,7 @@ BEGIN;
      queue_skip   INTEGER NOT NULL default 0,
      queue_remove INTEGER NOT NULL default 0,
      queue_add    INTEGER NOT NULL default 0
-   );
+   ) CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
    CREATE TABLE users (
       id  INTEGER UNSIGNED NOT NULL auto_increment PRIMARY KEY,
@@ -160,7 +160,7 @@ BEGIN;
       FOREIGN KEY (group_id) REFERENCES groups(id)
          ON UPDATE CASCADE ON DELETE RESTRICT
 
-   );
+   ) CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
    CREATE TABLE queue (
       id INTEGER UNSIGNED NOT NULL auto_increment PRIMARY KEY,
@@ -182,7 +182,7 @@ BEGIN;
       FOREIGN KEY (channel_id) REFERENCES channel(id)
          ON UPDATE CASCADE ON DELETE RESTRICT
 
-   );
+   ) CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
    CREATE TABLE lastfm_queue(
       queue_id INTEGER UNSIGNED NOT NULL auto_increment PRIMARY KEY,
@@ -192,14 +192,14 @@ BEGIN;
       FOREIGN KEY (song_id) REFERENCES song(id)
          ON UPDATE CASCADE ON DELETE RESTRICT
 
-   );
+   ) CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
    CREATE TABLE dynamicPlaylist(
       id INTEGER UNSIGNED NOT NULL auto_increment PRIMARY KEY,
       group_id INTEGER NOT NULL,
       label VARCHAR(64),
       query TEXT
-   );
+   ) CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
    CREATE TABLE song_has_genre(
       song_id INTEGER UNSIGNED NOT NULL
@@ -218,7 +218,7 @@ BEGIN;
       INDEX(genre_id),
       FOREIGN KEY (genre_id) REFERENCES genre(id)
          ON UPDATE CASCADE ON DELETE RESTRICT
-   );
+   ) CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 COMMIT;
 
 BEGIN;

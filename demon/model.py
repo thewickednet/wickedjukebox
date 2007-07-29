@@ -25,6 +25,8 @@ else:
          config['database.base'],
          )
 
+# MySQL unicode fix
+if config['database.type'] == 'mysql': dburi = dburi + "?use_unicode=1"
 
 def getSetting(param_in, default=None, channel=None):
    """
@@ -73,16 +75,35 @@ if int(config['core.debug']) > 0:
 else:
    metadata.engine.echo = False
 
-channelTable   = Table( 'channel', metadata, autoload=True )
-settingTable   = Table( 'setting', metadata, autoload=True )
-artistTable    = Table( 'artist', metadata, autoload=True )
-albumTable     = Table( 'album', metadata, autoload=True )
-songTable      = Table( 'song', metadata, autoload=True )
+channelTable   = Table( 'channel', metadata,
+      Column( 'name', Unicode(32) ),
+      Column( 'backend', Unicode(64) ),
+      Column( 'backend_params', Unicode() ),
+      autoload=True )
+settingTable   = Table( 'setting', metadata,
+      Column( 'value', Unicode()),
+      Column( 'comment', Unicode()),
+      autoload=True )
+artistTable    = Table( 'artist', metadata,
+      Column('name', Unicode(128)),
+      autoload=True )
+albumTable     = Table( 'album', metadata,
+      Column( 'name', Unicode(128) ),
+      Column( 'type', Unicode(32) ),
+      autoload=True )
+songTable      = Table( 'song', metadata, 
+      Column( 'title', Unicode(128) ),
+      Column( 'localpath', Unicode(255) ),
+      Column( 'lyrics', Unicode() ),
+      autoload=True )
 queueTable     = Table( 'queue', metadata, autoload=True )
 channelSongs   = Table( 'channel_song_data', metadata, autoload=True )
 lastfmTable    = Table( 'lastfm_queue', metadata, autoload=True )
 usersTable     = Table( 'users', metadata, autoload=True )
-dynamicPLTable = Table( 'dynamicPlaylist', metadata, autoload=True )
+dynamicPLTable = Table( 'dynamicPlaylist', metadata,
+      Column( 'label', Unicode(64) ),
+      Column( 'query', Unicode() ),
+      autoload=True )
 song_has_genre = Table( 'song_has_genre', metadata, autoload=True )
 genreTable     = Table( 'genre', metadata, autoload=True )
 

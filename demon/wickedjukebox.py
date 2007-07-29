@@ -383,9 +383,6 @@ the named channel exists in the database table called 'channel'" )
          self.__keepRunning = False
 
 
-      self.__random     = playmodes.create( getSetting( 'random_model', 'random_weighed' ) )
-      self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
-
       u = getSetting('lastfm_user', '', self.__dbModel.id)
       p = getSetting('lastfm_pass', '', self.__dbModel.id)
       if u == '' or p == '' or u is None or p is None:
@@ -457,6 +454,9 @@ the named channel exists in the database table called 'channel'" )
       sess.close()
 
       # set "current song" to the next in the queue or use random
+      self.__random     = playmodes.create( getSetting( 'random_model', 'random_weighed' ) )
+      self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
+
       nextSong = self.__queuemodel.dequeue()
       if nextSong is None:
          nextSong = self.__random.get()
@@ -529,6 +529,9 @@ the named channel exists in the database table called 'channel'" )
                sess.flush()
 
             # set "current song" to the next in the queue or use random
+            self.__random     = playmodes.create( getSetting( 'random_model', 'random_weighed' ) )
+            self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
+
             nextSong = self.__queuemodel.dequeue()
             if nextSong is None:
                nextSong = self.__random.get()
