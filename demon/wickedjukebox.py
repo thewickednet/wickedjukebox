@@ -7,9 +7,8 @@ from model import create_session, Artist, Album, Song, \
 from sqlalchemy import and_
 from datetime import datetime
 from util import Scrobbler, fs_encoding
-import player
 from twisted.python import log
-import playmodes
+import playmodes, players
 
 def fsdecode( string ):
    try:
@@ -275,6 +274,7 @@ class Librarian(object):
             session.flush()
             session.close()
 
+            # remove subdirectories from list that do not match the capping
             for x in dirs:
                x = fsdecode(x)
                if x is False: continue
@@ -320,18 +320,22 @@ class Librarian(object):
                session.flush()
          log.msg( "--- ... done checking for orphaned songs. " )
 
-         ##for x in list(Genres.select()):
-         ##   if len(x.songs) == 0:
-         ##      self.__scanLog.info('Genre %-15s was empty' % x.name)
-         ##      x.destroySelf()
+         log.msg( "--- Checking for empty genres... " )
+         for x in session.query(Genre):
+            if len(x.songs) == 0:
+               log.msg('Genre %-15s was empty' % x.name)
+               session.delete(x)
+         session.flush()
+         log.msg( "--- ... done checking for empty genres. " )
 
-         ##try:
-         ##   for x in list(Albums.select()):
-         ##      if len(x.songs) == 0:
-         ##         self.__scanLog.info('Album %-15s was empty' % x.title)
-         ##         x.destroySelf()
-         ##except UnicodeDecodeError:
-         ##   self.__scanLog.error('UnicodeDecodeError when selecting albums')
+         log.msg( "--- Checking for empty albums... " )
+         for x in session.query(Albums):
+            if len(x.songs) == 0:
+               log.msg('Album %-15s was empty' % x.name)
+               session.delete(x)
+         session.flush()
+         log.msg( "--- ... done checking for empty albums. " )
+
          session.close()
 
    def __init__(self):
@@ -391,8 +395,8 @@ the named channel exists in the database table called 'channel'" )
          self.__scrobbler = Scrobbler(u, p); self.__scrobbler.start()
 
       # initialise the player
-      self.__player  = player.createPlayer(self.__dbModel.backend,
-                                           self.__dbModel.backend_params)
+      self.__player = players.create( self.__dbModel.backend, self.__dbModel.backend_params)
+
       self.sess.flush()
       threading.Thread.__init__(self)
 
