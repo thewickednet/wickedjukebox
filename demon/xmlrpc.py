@@ -84,10 +84,11 @@ class Satellite(threading.Thread):
       self.port = getSetting( 'xmlrpc_port' )
       self.keepRunning = True
       if self.port == '':
-         log.msg( "No port specified for XML-RPC. Disabling support!" )
+         log.msg( '%-20s %20s %s' % ( 'XML-RPC support:', 'disabled', '(no port specified)' ) )
          self.keepRunning = False
          threading.Thread.__init__(self)
          return
+      log.msg( '%-20s %30s' % ( 'XML-RPC support:', 'enabled' ) )
 
       self.ip   = getSetting( 'xmlrpc_iface', '127.0.0.1' )
 

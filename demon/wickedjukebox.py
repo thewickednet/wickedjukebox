@@ -390,8 +390,9 @@ the named channel exists in the database table called 'channel'" )
       u = getSetting('lastfm_user', '', self.__dbModel.id)
       p = getSetting('lastfm_pass', '', self.__dbModel.id)
       if u == '' or p == '' or u is None or p is None:
-         log.msg( 'No lastFM user and password specified. Disabling support...' )
+         log.msg( '%-20s %20s %s' % ( 'lastFM support:', 'disabled', '(username or password empty)' ) )
       else:
+         log.msg( '%-20s %20s' % ( 'lastFM support:', 'enabled' ) )
          self.__scrobbler = Scrobbler(u, p); self.__scrobbler.start()
 
       # initialise the player
