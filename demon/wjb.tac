@@ -41,6 +41,15 @@ class Gatekeeper(object):
          c.close()
       self.xmlrpcs.stop()
 
+   def do_help(self, args):
+      lst = [ (f[3:], self.__getattribute__(f).__doc__) for f in dir(self) if f.startswith('do_') ]
+      lines = []
+      for func, doc in lst:
+         if doc is None: doc = "[undocumented]"
+         lines.append( "%-30s: %s" % (func, doc) )
+      return "%s" % '\n'.join(lines)
+   do_h = do_help # alias
+
    def do_quit(self, args):
       "exit"
       return "bye"
