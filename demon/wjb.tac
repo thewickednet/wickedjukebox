@@ -19,7 +19,6 @@ class Gatekeeper(object):
    channels = []
    lib = Librarian()
    activeChannel = None
-   knownCommands = 'setChannel activeChannel rescanlib play pause next prev stop open close q exit quit bye currentSong'.split()
 
    def __init__(self, factory):
       self.__factory = factory
@@ -42,119 +41,107 @@ class Gatekeeper(object):
          c.close()
       self.xmlrpcs.stop()
 
-   def route( self, line ):
-      command = line.split()[0]
+   def do_quit(self, args):
+      "exit"
+      return "bye"
+   do_q = do_quit # alias
+
+   def do_play(self, args=None):
+      "Start playing music"
+
+      if self.activeChannel is not None:
+         return self.activeChannel.startPlayback()
+      return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
+
+   def do_rescanlib(self, args=None):
+      "Rescanning the library"
+
+      return self.lib.rescanLib(args)
+
+   def do_currentSong(self, args=None):
+      "Get Current Song"
+
       try:
-         args = line.split()[1:]
-      except IndexError:
-         args = None
-      if args == []: args = None
+         id = self.activeChannel.currentSong()
+         return 'OK: %d' % id
+      except:
+         return 'ERR'
 
-      #
-      # Rescanning the library
-      #
-      if command == 'rescanlib':
-         return self.lib.rescanLib(args)
+   def do_setChannel(self, args=None):
+      "Selecting a Channel"
 
-      #
-      # Get Current Song
-      #
-      if command == 'currentSong':
-         try:
-            id = self.activeChannel.currentSong()
-            return 'OK: %d' % id
-         except:
-            return 'ERR'
+      if len(args) != 1:
+         return "ER: setChannel only takes one argument (name of channel)!"
 
-      #
-      # Selecting a Channel
-      #
-      elif command == 'setChannel':
-         if len(args) != 1:
-            return "ER: setChannel only takes one argument (name of channel)!"
-         channelFound = False
-         for channel in self.channels:
-            if channel.name == args[0]:
-               channelFound = True
-               self.activeChannel = channel
-               self.xmlrpcs.setChannel( channel )
-         if channelFound == False:
-            channel = Channel( args[0] )
-            if channel.name is None:
-               del(channel)
-               return "ER: no such channel!"
-            self.channels.append( channel )
-            self.activeChannel = self.channels[-1]
-            self.xmlrpcs.setChannel( self.channels[-1] )
-         return "OK: Selected channel %s" % self.activeChannel.name.encode('utf-8')
+      channelFound = False
+      for channel in self.channels:
+         if channel.name == args[0]:
+            channelFound = True
+            self.activeChannel = channel
+            self.xmlrpcs.setChannel( channel )
 
-      #
-      # Querying the active channel
-      #
-      elif command == 'activeChannel':
-         if self.activeChannel is None:
-            return "OK: %s" % self.activeChannel
-         else:
-            return "OK: %s" % self.activeChannel.name.encode('utf-8')
+      if channelFound == False:
+         channel = Channel( args[0] )
+         if channel.name is None:
+            del(channel)
+            return "ER: no such channel!"
+         self.channels.append( channel )
+         self.activeChannel = self.channels[-1]
+         self.xmlrpcs.setChannel( self.channels[-1] )
 
-      #
-      # Starting the active channel
-      #
-      elif command == 'open':
-         if self.activeChannel is not None:
-            try:
-               if self.activeChannel.isStopped():
-                  n = self.activeChannel.name
-                  self.channels.remove(self.activeChannel)
-                  self.activeChannel = None
-                  self.channels.append( Channel(n) )
-                  self.activeChannel = self.channels[-1]
-                  del(n)
-               self.activeChannel.open()
-               return "OK: %s opened" % self.activeChannel.name.encode('utf-8')
-            except Exception, ex:
-               return "ER: %s" % str(ex)
-         return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
+      return "OK: Selected channel %s" % self.activeChannel.name.encode('utf-8')
 
-      #
-      # Stopping the active channel
-      #
-      elif command == 'close':
-         if self.activeChannel is not None:
-            try:
-               self.activeChannel.close()
-               self.activeChannel.join()
-               return "OK: %s closed" % self.activeChannel.name.encode('utf-8')
-            except Exception, ex:
-               return "ER: %s" % str(ex)
-         return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
+   def do_activeChannel(self, args=None):
+      "Querying the active channel"
 
-      #
-      # Start playing music
-      #
-      elif command == 'play':
-         if self.activeChannel is not None:
-            return self.activeChannel.startPlayback()
-         return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
-
-      #
-      # Stop playing music
-      #
-      elif command == 'stop':
-         if self.activeChannel is not None:
-            return self.activeChannel.stopPlayback()
-         return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
-
-      #
-      # Skip song
-      #
-      elif command == 'next':
-         if self.activeChannel is not None:
-            return self.activeChannel.skipSong()
-         return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
-
+      if self.activeChannel is None:
+         return "OK: %s" % self.activeChannel
       else:
-         return "ER: '%s' is an unknown command" % repr(command)
+         return "OK: %s" % self.activeChannel.name.encode('utf-8')
+
+   def do_open(self, args=None):
+      "Starting the active channel"
+
+      if self.activeChannel is not None:
+         try:
+            if self.activeChannel.isStopped():
+               n = self.activeChannel.name
+               self.channels.remove(self.activeChannel)
+               self.activeChannel = None
+               self.channels.append( Channel(n) )
+               self.activeChannel = self.channels[-1]
+               del(n)
+            self.activeChannel.open()
+            return "OK: %s opened" % self.activeChannel.name.encode('utf-8')
+         except Exception, ex:
+            return "ER: %s" % str(ex)
+      return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
+
+   def do_close(self, args=None):
+      "Stopping the active channel"
+
+      if self.activeChannel is not None:
+         try:
+            self.activeChannel.close()
+            self.activeChannel.join()
+            return "OK: %s closed" % self.activeChannel.name.encode('utf-8')
+         except Exception, ex:
+            return "ER: %s" % str(ex)
+      return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
+
+   def do_stop(self, args=None):
+      "Stop playing music"
+
+      if self.activeChannel is not None:
+         return self.activeChannel.stopPlayback()
+      return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
+
+   def do_next(self, args=None):
+      "Skip song"
+
+      if self.activeChannel is not None:
+         return self.activeChannel.skipSong()
+      return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
 
 
 class WJBProtocol(basic.LineReceiver):
@@ -184,12 +171,26 @@ class WJBFactory( protocol.ServerFactory ):
    def __repr__( self ):
       return "<WJBFactory>"
 
+   def gateCall(self, line):
+      command = line.split()[0]
+      try:
+         args = line.split()[1:]
+      except IndexError:
+         args = None
+      if args == []: args = None
+
+      # call a function on the gatekeeper object matching do_<command>(args)
+      try:
+         funcname = "do_%s" % command
+         f = self.gate.__getattribute__( funcname )
+         return f(args)
+      except AttributeError:
+         return "ERR: Unknown command '%s'" % repr(command)
+
+
    def processLine( self, line ):
       if line == '': return defer.succeed( "ER: Unknown Command" )
-      if line.split()[0] not in self.gate.knownCommands:
-         return defer.succeed( "ER: Unknown Command" )
-      else:
-         return defer.succeed( self.gate.route( line ) )
+      return defer.succeed( self.gateCall( line ) )
 
    def stopFactory(self):
       self.gate.stopThreads()
