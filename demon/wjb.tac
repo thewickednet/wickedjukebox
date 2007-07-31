@@ -41,34 +41,108 @@ class Gatekeeper(object):
          c.close()
       self.xmlrpcs.stop()
 
-   def do_help(self, args):
-      lst = [ (f[3:], self.__getattribute__(f).__doc__) for f in dir(self) if f.startswith('do_') ]
+   def do_doc(self, args):
+      """
+      Shows the available commands. Hopefully with some documentation.
+
+      PARAMETERS
+         [none]
+
+      RETURNS
+         This help text
+      """
+      lst = [ (f[3:], self.__getattribute__(f), self.__getattribute__(f).__doc__) for f in dir(self) if f.startswith('do_') ]
       lines = []
-      for func, doc in lst:
+      for fname, func, doc in lst:
          if doc is None: doc = "[undocumented]"
-         lines.append( "%-30s: %s" % (func, doc) )
-      return "%s" % '\n'.join(lines)
+         lines.append( "" )
+         lines.append( "" )
+
+         fparms = func.func_code.co_varnames[0:func.func_code.co_argcount]
+         lines.append( "%s(%s)" % (fname, ', '.join(fparms) ) )
+
+         for l in doc.split('\n'):
+            lines.append( "   %s" % (l.replace('\n', '').strip() ) )
+
+      return "%s\n === End of help ===" % '\n'.join(lines)
+
+   def do_help(self, args):
+      """
+      Lists the available commands.
+
+      PARAMETERS
+         [none]
+
+      RETURNS
+         This help text
+      """
+
+      if args is not None and len(args) == 1:
+         try:
+            doc = self.__getattribute__("do_%s" % args[0]).__doc__
+            doclines = [x.strip() for x in doc.split('\n')]
+            lines = [
+               79*"-",
+               "Help on %s" % args[0],
+               79*"-"
+               ]
+            for x in doclines:
+               lines.append( x )
+         except AttributeError:
+            return "No such command!"
+      else:
+         lst = [ (f[3:], self.__getattribute__(f), self.__getattribute__(f).__doc__) for f in dir(self) if f.startswith('do_') ]
+         lines = [
+            "Available commands",
+            79*"-"
+            ]
+         for fname, func, doc in lst:
+            if doc is None: doc = "[undocumented]"
+            else:
+               doclines = [x.strip() for x in doc.split('\n')]
+               for x in doclines:
+                  if x != '':
+                     doc = x
+                     break
+
+            lines.append( "%-30s : %s" % (fname, doc) )
+
+      return "%s\n === End of help ===" % '\n'.join(lines)
+
    do_h = do_help # alias
 
    def do_quit(self, args):
-      "exit"
+      """
+      Closes the remote connection
+
+      RETURNS
+         the text string "bye"
+      """
+
       return "bye"
+
    do_q = do_quit # alias
 
    def do_play(self, args=None):
-      "Start playing music"
+      """
+      Starts music playback
+      """
 
       if self.activeChannel is not None:
          return self.activeChannel.startPlayback()
       return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
 
    def do_rescanlib(self, args=None):
-      "Rescanning the library"
+      """
+      Starts a rescan of the library
+      """
 
       return self.lib.rescanLib(args)
 
    def do_currentSong(self, args=None):
-      "Get Current Song"
+      """
+      Retrieves the id of the current song
+      """
 
       try:
          id = self.activeChannel.currentSong()
@@ -77,7 +151,10 @@ class Gatekeeper(object):
          return 'ERR'
 
    def do_setChannel(self, args=None):
-      "Selecting a Channel"
+      """
+      Selectis a channel. Forthcoming commands will be targeted applied to that
+      channel.
+      """
 
       if len(args) != 1:
          return "ER: setChannel only takes one argument (name of channel)!"
@@ -101,7 +178,9 @@ class Gatekeeper(object):
       return "OK: Selected channel %s" % self.activeChannel.name.encode('utf-8')
 
    def do_activeChannel(self, args=None):
-      "Querying the active channel"
+      """
+      Displays the name of the currently selected channel
+      """
 
       if self.activeChannel is None:
          return "OK: %s" % self.activeChannel
@@ -109,7 +188,9 @@ class Gatekeeper(object):
          return "OK: %s" % self.activeChannel.name.encode('utf-8')
 
    def do_open(self, args=None):
-      "Starting the active channel"
+      """
+      Activates/Starts the currently selected channel.
+      """
 
       if self.activeChannel is not None:
          try:
@@ -127,7 +208,9 @@ class Gatekeeper(object):
       return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
 
    def do_close(self, args=None):
-      "Stopping the active channel"
+      """
+      Deactivates/Stops the currently selected channel.
+      """
 
       if self.activeChannel is not None:
          try:
@@ -139,14 +222,18 @@ class Gatekeeper(object):
       return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
 
    def do_stop(self, args=None):
-      "Stop playing music"
+      """
+      Stops music playback
+      """
 
       if self.activeChannel is not None:
          return self.activeChannel.stopPlayback()
       return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
 
    def do_next(self, args=None):
-      "Skip song"
+      """
+      Skips a song
+      """
 
       if self.activeChannel is not None:
          return self.activeChannel.skipSong()
