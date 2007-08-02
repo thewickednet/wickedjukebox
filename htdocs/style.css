@@ -142,7 +142,7 @@ li {
 }
 
 #content {
-	width:970px;
+	width:990px;
 	margin:0 auto 0 auto;
 	text-align:left;
 }
@@ -171,7 +171,7 @@ li {
 }
 
 #sidebar {
-	width:160px;
+	width:240px;
 	float:right;
 	font-size:95%;
 	color:#6C534A;
@@ -197,7 +197,7 @@ li {
   line-height: 12px;
 }
 #mainbar {
-	margin-right:185px;
+	margin-right:250px;
 	padding-right:35px;
 	background-image:url(../images/backgrounds/mainbar.jpg);
 	background-position:top right;
@@ -266,7 +266,7 @@ li {
 }
 
 #results table {
-  width: 740px;
+  width: 700px;
   border: 0px solid black;
 
 }
@@ -276,8 +276,8 @@ li {
 }
 
 
-				#controls 					{ margin: 0px 40px 0px 0px;}
-				#controls a 				{ float:left; height:40px; display:block; margin: 0px 0px 0px 2px; line-height:28px; background-repeat:no-repeat; }
+				#controls 					{ margin: 0px 0px 0px 0px;}
+				#controls a 				{ float:left; height:40px; display:block; margin: 0px 0px 0px 8px; line-height:28px; background-repeat:no-repeat; }
 				#controls a:hover 			{ text-decoration:none; } 	
 
 				a#control_stop.active	{ background:url(/images/control_stop_blue.png) no-repeat; }						
@@ -295,3 +295,4 @@ li {
 				a#control_pause.active	{ background:url(/images/control_pause_blue.png) no-repeat; }						
 				a#control_pause		    { width:16px; background:url(/images/control_pause.png) no-repeat; }	
 				a#control_pause:hover	{ background:url(/images/control_pause_blue.png) no-repeat; }
+                img.button              { border: 0px; }

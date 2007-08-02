@@ -1,4 +1,3 @@
-  <script type="text/javascript" src="/javascript/md5.js"></script>
 
           <h1>My Jukebox</h1>
           <form name="loginform" onsubmit="return login();">

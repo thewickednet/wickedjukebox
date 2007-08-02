@@ -10,7 +10,7 @@
 {literal}
   <script type="text/javascript" src="/javascript/prototype.js"></script>
   <script type="text/javascript" src="/javascript/jukebox.js"></script>
-
+  <script type="text/javascript" src="/javascript/md5.js"></script>
 {/literal}
 </head>
 
@@ -20,7 +20,7 @@
 <a name="top" id="top"></a>
 <center>
 		<div id="menu">
-				<a href="/browse/artists/">artists</a> <a href="/browse/albums/">albums</a> <a href="/browse/genres/">genres</a> <a href="/browse/latest/">latest additions</a> <a href="/stats/">statistics</a>{if $PERMISSIONS.admin eq '1'} <a href="/?section=admin">admin</a>{/if}
+				<a href="/browse/artists/">artists</a> <a href="/browse/albums/">albums</a> <a href="/browse/genres/">genres</a> {if count($USERINFO) ne '0'}<a href="/browse/favorites/">favorites</a> {/if}<a href="/browse/latest/">latest additions</a> <a href="/stats/">statistics</a>{if $PERMISSIONS.admin eq '1'} <a href="/?section=admin">admin</a>{/if}
 		</div>
 
 		<div id="header">
@@ -39,10 +39,12 @@
 
 				<div id="sidebar">
           <div id="controls">
+          {if $CORE->user_id ne '-1'}
           <a href="#" onclick="javascript:control('stop');" id="control_stop">&nbsp;</a>
           <a href="#" onclick="javascript:control('pause');" id="control_pause">&nbsp;</a>
           <a href="#" onclick="javascript:control('play');" id="control_play">&nbsp;</a>
           <a href="#" onclick="javascript:control('next');" id="control_next">&nbsp;</a>
+          {/if}
           </div>
 
 					<h1>Search</h1>
@@ -58,7 +60,7 @@
           </form>
 
           <div id="login">
-          {if count($USERINFO) eq '0'}
+          {if $CORE->user_id eq '-1'}
           {include file='login.tpl'}
           {else}
           {include file='profile.tpl'}
@@ -74,7 +76,7 @@
 
 				<div id="mainbar">
 
-				{if $BODY_TEMPLATE ne ''}
+		  {if $BODY_TEMPLATE ne ''}
 	      {include file=$BODY_TEMPLATE}
 	      {/if}
 
@@ -93,3 +95,4 @@
 </div>
 </body>
 </html>
+{debug}

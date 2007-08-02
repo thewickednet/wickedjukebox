@@ -3,6 +3,7 @@ allow_root_exec = 0
 debug = 0
 
 [demon]
+host            = localhost
 port            = 61111
 default_channel = exhuma
 open_channel    = 0
@@ -12,11 +13,10 @@ open_channel    = 0
 ;; use this encoding instead of the one from the locale settings (LC_*)
 ; force_encoding  = utf-8
 
-[Database]
-Type=sqlite
-Host=
-User=
+[database]
+Type=mysql
+Host=localhost
+User=jukebox
 Pass=
-Base=
-File=library.sqlite
-
+Base=jukebox
+File=
