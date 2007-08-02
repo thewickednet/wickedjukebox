@@ -1,4 +1,0 @@
-php_flag register_globals off
-
-php_value auto_prepend_file /var/www/wicked.lu/jukebox/trunk/phpdata/auto_prepend.php
-php_value auto_append_file /var/www/wicked.lu/jukebox/trunk/phpdata/auto_append.php
