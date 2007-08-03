@@ -115,6 +115,9 @@ class Gatekeeper(object):
       """
       Closes the remote connection
 
+      PARAMETERS
+         [none]
+
       RETURNS
          the text string "bye"
       """
@@ -126,6 +129,13 @@ class Gatekeeper(object):
    def do_play(self, args=None):
       """
       Starts music playback
+
+      PARAMETERS
+         [none]
+
+      RETURNS
+         "OK" on success
+         "ER: <msg>" on error
       """
 
       if self.activeChannel is not None:
@@ -135,6 +145,16 @@ class Gatekeeper(object):
    def do_rescanlib(self, args=None):
       """
       Starts a rescan of the library
+
+      PARAMETERS
+         $1 - The "cap" string. Example: "rescanlib Th" only rescans file
+              matching "Th*". Note that this caping only applies to the top
+              level.
+
+      RETURNS
+         "OK" - This always returns OK, as all the command does is start a new
+                thread in the background. Possible errors that happen in this
+                thread are unknown at the time this command is executed.
       """
 
       return self.lib.rescanLib(args)
@@ -142,18 +162,32 @@ class Gatekeeper(object):
    def do_currentSong(self, args=None):
       """
       Retrieves the id of the current song
+
+      PARAMETERS
+         [none]
+
+      RETURNS
+         "OK: <id>" on success
+         "ER" on error
       """
 
       try:
          id = self.activeChannel.currentSong()
          return 'OK: %d' % id
       except:
-         return 'ERR'
+         return 'ER'
 
    def do_setChannel(self, args=None):
       """
       Selectis a channel. Forthcoming commands will be targeted applied to that
       channel.
+
+      PARAMETERS
+         $1 - the name of the channel
+
+      RETURNS
+         "ER: <msg>" on error
+         "OK: <msg>" on success
       """
 
       if len(args) != 1:
@@ -180,6 +214,12 @@ class Gatekeeper(object):
    def do_activeChannel(self, args=None):
       """
       Displays the name of the currently selected channel
+
+      PARAMETERS
+         [none]
+
+      RETURNS
+         "OK: <msg>" on success
       """
 
       if self.activeChannel is None:
@@ -190,6 +230,13 @@ class Gatekeeper(object):
    def do_open(self, args=None):
       """
       Activates/Starts the currently selected channel.
+
+      PARAMETERS
+         [none]
+
+      RETURNS
+         "OK: <msg>" on success
+         "ER: <msg>" on error
       """
 
       if self.activeChannel is not None:
@@ -210,6 +257,13 @@ class Gatekeeper(object):
    def do_close(self, args=None):
       """
       Deactivates/Stops the currently selected channel.
+
+      PARAMETERS
+         [none]
+
+      RETURNS
+         "OK: <msg>" on success
+         "ER: <msg>" on error
       """
 
       if self.activeChannel is not None:
@@ -224,6 +278,13 @@ class Gatekeeper(object):
    def do_stop(self, args=None):
       """
       Stops music playback
+
+      PARAMETERS
+         [none]
+
+      RETURNS
+         "OK" on success
+         "ER: <msg>" on error
       """
 
       if self.activeChannel is not None:
@@ -233,12 +294,18 @@ class Gatekeeper(object):
    def do_next(self, args=None):
       """
       Skips a song
+
+      PARAMETERS
+         [none]
+
+      RETURNS
+         "OK" on success
+         "ER: <msg>" on error
       """
 
       if self.activeChannel is not None:
          return self.activeChannel.skipSong()
       return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
-
 
 class WJBProtocol(basic.LineReceiver):
 
