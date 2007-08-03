@@ -198,7 +198,10 @@ class Gatekeeper(object):
          if channel.name == args[0]:
             channelFound = True
             self.activeChannel = channel
-            self.xmlrpcs.setChannel( channel )
+            try:
+               self.xmlrpcs.setChannel( channel )
+            except:
+               pass
 
       if channelFound == False:
          channel = Channel( args[0] )
@@ -207,7 +210,10 @@ class Gatekeeper(object):
             return "ER: no such channel!"
          self.channels.append( channel )
          self.activeChannel = self.channels[-1]
-         self.xmlrpcs.setChannel( self.channels[-1] )
+         try:
+            self.xmlrpcs.setChannel( self.channels[-1] )
+         except:
+            pass
 
       return "OK: Selected channel %s" % self.activeChannel.name.encode('utf-8')
 
@@ -347,8 +353,8 @@ class WJBFactory( protocol.ServerFactory ):
          funcname = "do_%s" % command
          f = self.gate.__getattribute__( funcname )
          return f(args)
-      except AttributeError:
-         return "ERR: Unknown command '%s'" % repr(command)
+      except AttributeError, ex:
+         return "ER: Unable to execute %s: %s" % (repr(command), str(ex))
 
 
    def processLine( self, line ):
