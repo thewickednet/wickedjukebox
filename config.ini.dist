@@ -6,7 +6,7 @@ debug = 0
 host            = localhost
 port            = 61111
 default_channel = exhuma
-open_channel    = 0
+open_channel    = 1
 
 [filesystem]
 ;; If you have trouble with the filesystem encodings, you can tell the system to
