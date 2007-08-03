@@ -355,6 +355,8 @@ class WJBFactory( protocol.ServerFactory ):
          return f(args)
       except AttributeError, ex:
          return "ER: Unable to execute %s: %s" % (repr(command), str(ex))
+      except Exception, ex:
+         return "ER: Unexpected error when executing %s: %s" % (repr(command), str(ex))
 
 
    def processLine( self, line ):
