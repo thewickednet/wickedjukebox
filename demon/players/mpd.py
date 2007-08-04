@@ -5,7 +5,7 @@ and hence it's a simple implementation
 http://www.musicpd.org
 """
 
-import mpdclient
+from demon.lib import mpdclient
 import os, sys, time
 from twisted.python import log
 
