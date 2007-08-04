@@ -6,7 +6,7 @@ from twisted.python import log
 
 try:
    import simplejson
-   if getSetting( 'xmlrpc_json', 1 ) == 1:
+   if getSetting( 'xmlrpc_json', "1" ) == "1":
       jsonEnabled = True
    else:
       jsonEnabled = False
