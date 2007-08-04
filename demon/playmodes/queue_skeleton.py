@@ -13,17 +13,13 @@ and you should be fine.
 
 def dequeue():
    """
-   DESCRIPTION
-      Return the next song from the queue
+   Return the next song from the queue
 
-   PARAMETERS
-      [none]
-
-   RETURNS
-      This should return a valid "Song" instance, which points to the next song
-      on the queue.
-      If nothing was on the queue, or no song could be determnined, then return
-      "None", so the system can fall back to random mode.
+   @rtype:  Song
+   @return: This should return a valid "Song" instance, which points to the next song
+            on the queue.
+            If nothing was on the queue, or no song could be determnined, then return
+            "None", so the system can fall back to random mode.
    """
 
    return None

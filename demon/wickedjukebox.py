@@ -103,15 +103,20 @@ class Librarian(object):
          Scans a directory and all its subfolders for media files and stores their
          metadata into the library (DB)
 
-         PARAMETERS
-            dir - the root directory from which to start the scan
-            cap - limit crawling to the subset of <dir> starting with <cap>
-                  so when scanning "/foo/bar" with a <cap> of 'ba' will scan:
-                      /foo/bar/baz
-                      /foo/bar/battery
-                      /foo/bar/ba/nished
-                  but not
-                      /foo/bar/jane
+         @type  dir: str
+         @param dir: the root directory from which to start the scan
+
+         @type  cap: str
+         $param cap: limit crawling to the subset of <dir> starting with <cap>
+                     so when scanning "/foo/bar" with a <cap> of 'ba' will scan::
+
+                        /foo/bar/baz
+                        /foo/bar/battery
+                        /foo/bar/ba/nished
+
+                     but not::
+
+                        /foo/bar/jane
          """
          if type(cap) != type( u'' ) and cap is not None:
             cap = cap.decode(fs_encoding)

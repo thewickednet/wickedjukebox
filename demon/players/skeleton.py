@@ -36,8 +36,8 @@ def queue(filename):
    playlist if it's becoming too large. This prevents having huge playlists
    after a while playing.
 
-   PARAMETERS
-      filename -  The full path of the file
+   @type  filename: str
+   @param filename: The full path of the file
    """
 
    success = True
@@ -54,8 +54,8 @@ def cropPlaylist(length=2):
    Removes items from the *beginning* of the playlist to ensure it has only
    a fixed number of entries.
 
-   PARAMETERS
-      length - The new size of the playlist (optional, default=2)
+   @type  length: int
+   @param length: The new size of the playlist
    """
 
    pass #no-op

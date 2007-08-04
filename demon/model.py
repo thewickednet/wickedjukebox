@@ -32,11 +32,12 @@ def getSetting(param_in, default=None, channel=None):
    """
    Retrieves a setting from the database.
 
-   PARAMETERS
-      param_in - The name of the setting as string
-      default  - (optional) If it's set, it provides the default value in case
-                 the value was not found in the database.
-      channel  - the channel id if the setting is bound to a channel.
+   @type  param_in: str
+   @param param_in: The name of the setting as string
+   @param default:  If it's set, it provides the default value in case the
+                    value was not found in the database.
+   @type  channel:  int
+   @param channel:  The channel id if the setting is bound to a channel.
    """
    try:
       session = create_session()

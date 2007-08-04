@@ -112,8 +112,8 @@ def cropPlaylist(length=2):
    Removes items from the *beginning* of the playlist to ensure it has only
    a fixed number of entries.
 
-   PARAMETERS
-      length - The new size of the playlist (optional, default=2)
+   @type  length: int
+   @param length: The new size of the playlist
    """
    log.msg( "[Icecast] cropping pl to %d songs" % length )
    __player.cropPlaylist(length)

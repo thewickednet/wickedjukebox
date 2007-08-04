@@ -115,8 +115,8 @@ def queue(filename):
    playlist if it's becoming too large. This prevents having huge playlists
    after a while playing.
 
-   PARAMETERS
-      filename -  The full path of the file
+   @type  filename: str
+   @param filename: The full path of the file
    """
    # with MPD, filenames are relative to the path specified in the mpd
    # config!! This is handled here.
@@ -148,8 +148,8 @@ def cropPlaylist(length=2):
    Removes items from the *beginning* of the playlist to ensure it has only
    a fixed number of entries.
 
-   PARAMETERS
-      length - The new size of the playlist (optional, default=2)
+   @type  length: int
+   @param length: The new size of the playlist
    """
    try:
       if connection.getStatus().playlistLength > length:

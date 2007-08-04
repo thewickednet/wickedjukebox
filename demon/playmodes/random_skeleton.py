@@ -12,17 +12,13 @@ and you should be fine.
 
 def get():
    """
-   DESCRIPTION
-      Returns a random song.
-      NOTE: This method should *always* return a valid Song instance. Only
-            return "None" if something seriously went wrong.
+   Returns a random song.
+   @note: This method should *always* return a valid Song instance. Only
+          return "None" if something seriously went wrong.
 
-   PARAMETERS
-      [none]
-
-   RETURNS
-      Either "None" if no random song could be determined,
-      or a "Song" instance (as imported from demon.model --> see above)
+   @rtype:  None | Song
+   @return: Either "None" if no random song could be determined,
+            or a "Song" instance (as imported from demon.model --> see above)
    """
 
    return None
