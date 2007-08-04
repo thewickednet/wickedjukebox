@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+"""
+XMLRpc-Service
+
+If both settings "xmlrpc_port" and "xmlrpc_iface are set, this service will
+automatically start up with the jukebox daemon.
+"""
 import SimpleXMLRPCServer, threading
 from model import create_session, getSetting, Artist, Album, Song
 from sqlalchemy import and_
@@ -14,19 +20,41 @@ except:
    jsonEnabled = False
 
 def marshal(data):
+   """
+   Defines how the data is marshalled before sending it over the wire.
+   @type  data: str
+   @param data: The data that is to be marshalled
+   @return:     The marshalled data
+   """
    if jsonEnabled:
       return simplejson.dumps( data )
    else:
       return data
 
 class SatelliteAPI:
+   """
+   This class is bound to the XMLRpc service and contains the remotely
+   accessible methods.
+   """
 
    channel = None
 
    def __init__(self, channel):
+      """
+      Constructor.
+
+      @type  channel: Channel
+      @param channel: The channel this service is initially bound to
+      """
       self.channel = channel
 
    def get_albums(self, artistName):
+      """
+      @type    artistName: str
+      @param   artistName: The name of the artist
+      @return: A list of albums of the named artist. Each item of the list is a
+               tuple of the form "id, albumName".
+      """
       sess = create_session()
       artist = sess.query(Artist).selectfirst_by(Artist.c.name==artistName)
 
@@ -37,6 +65,14 @@ class SatelliteAPI:
       return marshal(output)
 
    def get_album_songs( self, albumID ):
+      """
+      Returns a list of songs of the named album id.
+
+      @type  albumID: int
+      @param albumID: the database ID of the album
+      @return: A list of songs of the named album. Each item of the list is a
+               tuple of the form "id, song-title"
+      """
       sess = create_session()
       album = sess.query(Album).selectfirst_by(Album.c.id == albumID)
       output = [ (a.id, a.title) for a in album.songs ]
@@ -44,29 +80,62 @@ class SatelliteAPI:
       return marshal(output)
 
    def ping(self):
+      """
+      A no-op. Useful to see if the xml-rpc service is running fine.
+
+      @return: True
+      """
       return marshal(True)
 
    def getCurrentSong(self):
+      """
+      Returns the currently playing song
+      @return: The ID of the playing song
+      """
       if self.channel is not None:
          return marshal(self.channel.currentSong())
 
    def next(self):
+      """
+      Tells the channel to skip the current song.
+      @return: Success value
+      """
       if self.channel is not None:
          return marshal(self.channel.skipSong())
 
    def play(self):
+      """
+      Tells the channel to begin playback.
+      @return: Success value
+      """
       if self.channel is not None:
          return marshal(self.channel.startPlayback())
 
    def pause(self):
+      """
+      Tells the channel to pause playback.
+      @return: Success value
+      """
       if self.channel is not None:
          return marshal(self.channel.pausePlayback())
 
    def stop(self):
+      """
+      Tells the channel to stop playback.
+      @return: Success value
+      """
       if self.channel is not None:
          return marshal(self.channel.stopPlayback())
 
    def getSongData(self, songID):
+      """
+      Returns basic data of the named song
+      @type  songID: int
+      @param songID: The database-ID of the song
+      @return: An dictionary (assoc. array) containing the elements "artist",
+               "album" and "title". All of these are the literal values as
+               strings (no IDs)
+      """
       sess = create_session()
       song = sess.query(Song).selectfirst_by(Song.c.id == songID )
       output = None
@@ -80,6 +149,10 @@ class SatelliteAPI:
       return marshal(output)
 
    def get_songs(self, artist=None, artistID=None, album=None, albumID=None):
+      """
+      No clue what this method is supposed to do...
+      TODO: figure it out!
+      """
       sess = create_session()
 
       if artistID is not None:
@@ -98,8 +171,15 @@ class SatelliteAPI:
       return marshal(output)
 
 class Satellite(threading.Thread):
+   """
+   The XML-Rpc service itself. None of these methods are exposed.
+   """
 
    def __init__(self, channel):
+      """
+      @type  channel: Channel
+      @param channel: The channel to bind to the service.
+      """
       self.port = getSetting( 'xmlrpc_port' )
       self.keepRunning = True
       if self.port == '':
@@ -128,6 +208,7 @@ class Satellite(threading.Thread):
       threading.Thread.__init__(self)
 
    def run(self):
+      "Main application loop"
 
       try:
          while self.keepRunning:
@@ -136,6 +217,7 @@ class Satellite(threading.Thread):
          log.msg( 'Error in XMLRPC' )
 
    def stop(self):
+      "Triggers the stopping of the service."
       if self.keepRunning == False:
          return
       log.msg( 'XMLRPC service stopped' )
