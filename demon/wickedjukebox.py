@@ -519,7 +519,7 @@ the named channel exists in the database table called 'channel'" )
 
          # if the song is soon finished, update stats and pick the next one
          currentPosition = self.__player.getPosition()
-         if (currentPosition[1] - currentPosition[0]) < 3:
+         if (currentPosition[1] - currentPosition[0]) < 5:
             if self.__currentSongID != 0 and not self.__currentSongRecorded:
                stat = sess.query(ChannelStat).select( and_(
                         songTable.c.id == ChannelStat.c.song_id,
