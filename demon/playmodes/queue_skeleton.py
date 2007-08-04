@@ -11,6 +11,22 @@ and you should be fine.
 ## from twisted.python import log
 ## from demon.model import create_session, QueueItem
 
+def enqueue(songID, userID, channelID):
+   """
+   Enqueues a song onto a queue of a given channel
+
+   @type  songID: int
+   @param songID: The id of the song to be enqueued
+
+   @type  channelID: int
+   @param channelID: The id of the channel
+
+   @type  userID: int
+   @param userID: The user who added the queue action
+   """
+
+   pass
+
 def dequeue():
    """
    Return the next song from the queue

@@ -436,6 +436,17 @@ the named channel exists in the database table called 'channel'" )
       self.__player.stopPlayback()
       return 'OK'
 
+   def enqueue(self, songID, userID=0):
+
+      self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
+      self.__queuemodel.enqueue(
+            songID,
+            userID,
+            self.__dbModel.id)
+      return 'OK: queued song <%d> for user <%d> on channel <%d>' % (
+            songID, userID, self.__dbModel.id
+            )
+
    def skipSong(self):
       """
       Updates play statistics and sends a "next" command to the player backend

@@ -127,6 +127,19 @@ class SatelliteAPI:
       if self.channel is not None:
          return marshal(self.channel.stopPlayback())
 
+   def enqueue(self, songID, userID):
+      """
+      Enqueues a song.
+
+      @type  songID: int
+      @param songID: The ID of the song
+
+      @type  userID: int
+      @param userID: The ID of the user
+      """
+      if self.channel is not None:
+         return marshal(self.channel.enqueue(songID, userID))
+
    def getSongData(self, songID):
       """
       Returns basic data of the named song

@@ -7,6 +7,41 @@ each item and finally removes all items with an id smaller than -10
 """
 
 from demon.model import create_session, QueueItem, queueTable
+from datetime import datetime
+
+def enqueue(songID, userID, channelID):
+   """
+   Enqueues a song onto a queue of a given channel
+
+   @type  songID: int
+   @param songID: The id of the song to be enqueued
+
+   @type  channelID: int
+   @param channelID: The id of the channel
+
+   @type  userID: int
+   @param userID: The user who added the queue action
+   """
+
+   sess = create_session()
+
+   # determine the next position
+   old = sess.query(QueueItem).select( QueueItem.c.position > 0, order_by=['-position'] )
+   if old != []:
+      nextPos = old[0].position + 1
+   else:
+      nextPos = 1
+
+   qi = QueueItem()
+   qi.position = nextPos
+   qi.added    = datetime.now()
+   qi.song_id  = songID
+   qi.user_id  = userID
+   qi.channel_id = channelID
+
+   sess.save(qi)
+   sess.flush()
+   sess.close()
 
 def dequeue():
    """

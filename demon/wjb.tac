@@ -142,6 +142,21 @@ class Gatekeeper(object):
          return self.activeChannel.startPlayback()
       return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
 
+   def do_enqueue(self, args):
+      """
+      Enqueues a song
+
+      PARAMETERS
+         $1: The song ID
+         $2: The user ID
+      """
+      if len(args) < 2:
+         return 'ER: 2 arguments required. Consult the help!'
+      if self.activeChannel is not None:
+         return self.activeChannel.enqueue(int(args[0]), int(args[1]))
+      return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
+
+
    def do_rescanlib(self, args=None):
       """
       Starts a rescan of the library
