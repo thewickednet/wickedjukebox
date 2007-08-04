@@ -60,6 +60,9 @@
           </form>
 
           <div id="login">
+          <img src="/images/carousel.gif" width="0" height="0" />
+          <img src="/images/tick.png" width="0" height="0" />
+          <img src="/images/exclamation.png" width="0" height="0" />
           {if $CORE->user_id eq '-1'}
           {include file='login.tpl'}
           {else}
@@ -95,4 +98,3 @@
 </div>
 </body>
 </html>
-{debug}

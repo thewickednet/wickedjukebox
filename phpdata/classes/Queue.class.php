@@ -26,9 +26,22 @@ class Queue {
 
 
     function addSong($song_id = null) {
+        if (!isset($song_id) || count(Song::get($song_id)) == 0)
+            return false;        
+
+        $core   = Zend_Registry::get('core');
+        $db     = Zend_Registry::get('database');
+
+        $data = array(
+            'added'         => new Zend_Db_Expr('NOW()'),
+            'song_id'       => $song_id,
+            'user_id'       => $core->user_id,
+            'channel_id'    => $core->channel_id,
+            'position'      => self::lastPosition()+1
+        );
         
-        
-        
+        $db->insert('queue', $data);        
+
     }
 
 
@@ -47,9 +60,17 @@ class Queue {
 
     private function lastPosition() {
         
+        $db     = Zend_Registry::get('database');
         
-        
-        
+        $select = $db->select('position')
+                     ->from('queue')
+                     ->where('channel_id = ?', $core->channel_id)
+                     ->order('position DESC')
+                     ->limit(1);
+                     
+        $stmt = $select->query();
+        $result = $stmt->fetchAll();
+        return $result[0]['position'];
         
     }
 

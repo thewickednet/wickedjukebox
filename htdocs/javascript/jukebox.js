@@ -2,7 +2,7 @@
 
 function addsong(id) {
 
-  new Ajax.Updater('queue', '/index.php?section=queue&module=song&mode=add&ajax=1&param='+id, {asynchronous:true, evalScripts:true });
+  new Ajax.Updater('queue', '/index.php?module=queue&action=addsong&param='+id, {asynchronous:true, evalScripts:true });
   return false;
 
 }

@@ -47,7 +47,9 @@ class Auth {
                      
         $stmt = $select->query();
         $result = $stmt->fetchAll();
-        return $result[0];
+        if (count($result) == 1)
+            return $result[0];
+        return array();
         
     }
 

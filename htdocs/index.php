@@ -3,10 +3,22 @@
 header('Content-Type: text/html; charset=utf-8');
 session_start();
 
+//////////////////////////////////
+// Zend Framework includes
+
+require_once 'Zend/Db.php';
+require_once 'Zend/Registry.php';
+require_once 'Zend/Config/Ini.php';
+
+
+//////////////////////////////////
+// Local includes
+
 require_once('../phpdata/classes/Auth.class.php');
 require_once('../phpdata/classes/Core.class.php');
 require_once('../phpdata/classes/Artist.class.php');
 require_once('../phpdata/classes/Album.class.php');
+require_once('../phpdata/classes/Song.class.php');
 require_once('../phpdata/classes/Genre.class.php');
 require_once('../phpdata/classes/Queue.class.php');
 require_once('../phpdata/classes/Channel.class.php');
@@ -17,7 +29,6 @@ require_once('../phpdata/classes/User.class.php');
 //
 // Retrieve the configuration data from the INI file
 
-require_once 'Zend/Config/Ini.php';
 $db_config = new Zend_Config_Ini('../config.ini', 'database');
 $demon_config = new Zend_Config_Ini('../config.ini', 'demon');
 
@@ -27,7 +38,6 @@ $demon_config = new Zend_Config_Ini('../config.ini', 'demon');
 // 
 // initiate the Database connection
 
-require_once 'Zend/Db.php';
 
 $params = array (
                  'dbname'   => $db_config->Base,
@@ -39,6 +49,10 @@ $params = array (
 $db = Zend_Db::factory('Pdo_Mysql', $params);
 unset($db_config);
 
+$registry = new Zend_Registry(array('database' => $db));
+
+Zend_Registry::setInstance($registry);
+
 
 //////////////////////////////////
 // CORE
@@ -48,12 +62,7 @@ unset($db_config);
 $core = new Core($demon_config);
 unset($demon_config);
 
-
-require_once 'Zend/Registry.php';
-
-$registry = new Zend_Registry(array('database' => $db, 'core' => $core));
-
-Zend_Registry::setInstance($registry);
+$registry->set('core', $core);
 
 
 //////////////////////////////////
@@ -91,6 +100,9 @@ switch ($_GET['module']) {
     break;
     case "channel":
         include "../phpdata/modules/channel/index.php";
+    break;
+    case "queue":
+        include "../phpdata/modules/queue/index.php";
     break;
     case "album":
         include "../phpdata/modules/album/index.php";
