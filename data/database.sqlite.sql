@@ -207,4 +207,5 @@ BEGIN;
    INSERT INTO setting (var,value,comment) VALUES ( 'scoring_songAge',      0, 'weight of the song age (when the song was added to the db) for the random_weighed module');
    INSERT INTO setting (var,value,comment) VALUES ( 'xmlrpc_port',  '',          'XML-RPC Port');
    INSERT INTO setting (var,value,comment) VALUES ( 'xmlrpc_iface', '127.0.0.1', 'XML-RPC bound interface');
+   INSERT INTO setting (var,value,comment) VALUES ( 'xmlrpc_json',  '1', 'XML-RPC returns json-strings. Requires "simplejson" to be installed');
 COMMIT;
