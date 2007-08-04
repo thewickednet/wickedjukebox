@@ -47,6 +47,22 @@ class SatelliteAPI:
       if self.channel is not None:
          return marshal(self.channel.currentSong())
 
+   def next(self):
+      if self.channel is not None:
+         return marshal(self.channel.skipSong())
+
+   def play(self):
+      if self.channel is not None:
+         return marshal(self.channel.startPlayback())
+
+   def pause(self):
+      if self.channel is not None:
+         return marshal(self.channel.pausePlayback())
+
+   def stop(self):
+      if self.channel is not None:
+         return marshal(self.channel.stopPlayback())
+
    def getSongData(self, songID):
       sess = create_session()
       song = sess.query(Song).selectfirst_by(Song.c.id == songID )
