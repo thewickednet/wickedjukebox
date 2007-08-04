@@ -422,15 +422,14 @@ the named channel exists in the database table called 'channel'" )
    def setBackend(self, backend):
       raise
 
-   def setPlaymode(self, playmode):
-      raise
-
-   def setQueueModel(self, queuemodel):
-      raise
-
    def startPlayback(self):
       self.__playStatus = 'playing'
       self.__player.startPlayback()
+      return 'OK'
+
+   def pausePlayback(self):
+      self.__playStatus = 'paused'
+      self.__player.pausePlayback()
       return 'OK'
 
    def stopPlayback(self):
