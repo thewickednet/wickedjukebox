@@ -217,7 +217,7 @@ class Librarian(object):
                   filesize = os.stat(filename).st_size
                   bitrate  = self.getBitrate( metadata )
 
-                  trackNo  = self.getTrack( metadata )
+                  track_no = self.getTrack( metadata )
                   title    = self.getTitle( metadata )
                   genreNm  = self.getGenre( metadata )
                   genre    = None
@@ -229,52 +229,46 @@ class Librarian(object):
                         session.flush()
 
                   # check if it is already in the database
-                  if session.query(Song).selectfirst_by( localpath=filename ) is None:
+                  song = session.query(Song).selectfirst_by( localpath=filename )
+                  if song is None:
 
-                     # it was not in the DB, create a newentry
+                     # it was not in the DB, create a new entry
                      song = Song( localpath = filename, artist=dbArtist, album=dbAlbum )
-                     song.trackNo = trackNo
                      if genre is not None:
                         song.genres.append( genre )
-                     song.title   = title
-                     song.bitrate = bitrate
-                     song.duration = duration
-                     song.lastScanned = datetime.now()
-                     song.filesize = filesize
-                     session.save(song)
-                     scancount += 1
 
                   else:
                      # we found the song in the DB. Load it so we can update it's
                      # metadata. If it has changed since it was added to the DB!
-                     song = session.query(Song).selectfirst_by( localpath=filename )
                      if song.lastScanned is None \
                            or datetime.fromtimestamp(os.stat(filename).st_ctime) > song.lastScanned:
 
                         song.localpath   = filename
-                        song.trackNo     = trackNo
-                        song.title       = title
                         song.artist_id   = dbArtist.id
                         song.album_id    = dbAlbum.id
                         if genre is not None and genre not in song.genres:
                            song.genres      = []
                            song.genres.append( genre )
-                        song.bitrate     = bitrate
-                        song.filesize    = filesize
-                        song.duration    = duration
-                        song.lastScanned = datetime.now()
-                        session.save(song)
                         log.msg( "Updated %s" % ( filename ) )
-                        scancount += 1
+
+                  song.title       = title
+                  song.track_no    = track_no
+                  song.bitrate     = bitrate
+                  song.duration    = duration
+                  song.filesize    = filesize
+                  song.lastScanned = datetime.now()
+                  scancount       += 1
 
                   try:
                      if song.title is not None \
                            and song.artist is not None \
                            and song.album is not None \
-                           and song.trackNo != 0:
+                           and song.track_no != 0:
                         song.isDirty = False
                   except:
                      song.isDirty = True
+
+                  session.save(song)
 
             session.flush()
             session.close()
@@ -293,53 +287,53 @@ class Librarian(object):
 
          session  = create_session()
 
-         log.msg( "--- Checking for orphaned songs... " )
-         for song in session.query(Song).select():
-            if not os.path.exists(song.localpath):
-               log.msg('File %s not found on filesystem.' % song.localpath)
-               try:
-                  targetSongs = session.query(Song).select(and_(
-                        Song.c.title==song.title,
-                        Song.c.artist_id==song.artist_id,
-                        Song.c.album_id==song.album_id,
-                        Song.c.track_no==song.track_no
-                        ))
+         #log.msg( "--- Checking for orphaned songs... " )
+         #for song in session.query(Song).select():
+         #   if not os.path.exists(song.localpath):
+         #      log.msg('File %s not found on filesystem.' % song.localpath)
+         #      try:
+         #         targetSongs = session.query(Song).select(and_(
+         #               Song.c.title==song.title,
+         #               Song.c.artist_id==song.artist_id,
+         #               Song.c.album_id==song.album_id,
+         #               Song.c.track_no==song.track_no
+         #               ))
 
-                  for targetSong in targetSongs:
-                     if song.localpath != targetSong.localpath:
-                        log.msg('Song with id %d moved to id %d' % (song.id, targetSong.id))
-                        newPath = targetSong.localpath
-                        for data in session.query(ChannelStat).select_by(ChannelStat.c.song_id==targetSong.id):
-                           session.delete(data)
-                        session.flush()
-                        session.delete(targetSong)
-                        song.localpath = newPath
-                        session.save(song)
-               except IndexError:
-                  # no such song found. We can delete the entry from the database
-                  log.msg('File %s disappeared!' % song.localpath)
-                  for data in session.query(ChannelStat).select_by(song.c.song_id==song.id):
-                     session.delete(data)
-                  session.flush()
-                  session.delete(song)
-               session.flush()
-         log.msg( "--- ... done checking for orphaned songs. " )
+         #         for targetSong in targetSongs:
+         #            if song.localpath != targetSong.localpath:
+         #               log.msg('Song with id %d moved to id %d' % (song.id, targetSong.id))
+         #               newPath = targetSong.localpath
+         #               for data in session.query(ChannelStat).select_by(ChannelStat.c.song_id==targetSong.id):
+         #                  session.delete(data)
+         #               session.flush()
+         #               session.delete(targetSong)
+         #               song.localpath = newPath
+         #               session.save(song)
+         #      except IndexError:
+         #         # no such song found. We can delete the entry from the database
+         #         log.msg('File %s disappeared!' % song.localpath)
+         #         for data in session.query(ChannelStat).select_by(song.c.song_id==song.id):
+         #            session.delete(data)
+         #         session.flush()
+         #         session.delete(song)
+         #      session.flush()
+         #log.msg( "--- ... done checking for orphaned songs. " )
 
-         log.msg( "--- Checking for empty genres... " )
-         for x in session.query(Genre):
-            if len(x.songs) == 0:
-               log.msg('Genre %-15s was empty' % x.name)
-               session.delete(x)
-         session.flush()
-         log.msg( "--- ... done checking for empty genres. " )
+         #log.msg( "--- Checking for empty genres... " )
+         #for x in session.query(Genre):
+         #   if len(x.songs) == 0:
+         #      log.msg('Genre %-15s was empty' % x.name)
+         #      session.delete(x)
+         #session.flush()
+         #log.msg( "--- ... done checking for empty genres. " )
 
-         log.msg( "--- Checking for empty albums... " )
-         for x in session.query(Albums):
-            if len(x.songs) == 0:
-               log.msg('Album %-15s was empty' % x.name)
-               session.delete(x)
-         session.flush()
-         log.msg( "--- ... done checking for empty albums. " )
+         #log.msg( "--- Checking for empty albums... " )
+         #for x in session.query(Albums):
+         #   if len(x.songs) == 0:
+         #      log.msg('Album %-15s was empty' % x.name)
+         #      session.delete(x)
+         #session.flush()
+         #log.msg( "--- ... done checking for empty albums. " )
 
          session.close()
 
