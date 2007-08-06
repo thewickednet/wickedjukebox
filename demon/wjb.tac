@@ -328,6 +328,38 @@ class Gatekeeper(object):
          return self.activeChannel.skipSong()
       return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
 
+   def do_moveup(self, args=None):
+      """
+      Moves a song up the queue by <n> steps
+
+      PARAMETERS
+         $1 - queue-id
+         $2 - the "n" in steps
+      """
+
+      if self.activeChannel is not None:
+         return self.activeChannel.moveup(int(args[0]), int(args[1]))
+      return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
+
+   def do_movedown(self, args=None):
+      pass
+
+   def do_movetop(self, args=None):
+      pass
+
+   def do_movebottom(self, args=None):
+      pass
+
+   def do_enqueue_album(self, args=None):
+      pass
+
+   def do_queue_delete(self, args=None):
+      pass
+
+   def do_queue_clear(self, args=None):
+      pass
+
+
 class WJBProtocol(basic.LineReceiver):
 
    def connectionMade(self):

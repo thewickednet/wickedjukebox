@@ -140,6 +140,28 @@ class SatelliteAPI:
       if self.channel is not None:
          return marshal(self.channel.enqueue(songID, userID))
 
+   def moveup(self, queueID, delta):
+      if self.channel is not None:
+         return marshal(self.channel.moveup(queueID, delta))
+
+   def movedown(self, queueID, delta):
+      pass
+
+   def movetop(self, queueID):
+      pass
+
+   def movebottom(self, queueID):
+      pass
+
+   def enqueue_album(self, albumID):
+      pass
+
+   def queue_delete(self, queueID):
+      pass
+
+   def queue_clear(self):
+      pass
+
    def getSongData(self, songID):
       """
       Returns basic data of the named song

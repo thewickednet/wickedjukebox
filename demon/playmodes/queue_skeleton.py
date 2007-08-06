@@ -40,3 +40,46 @@ def dequeue():
 
    return None
 
+def moveup(qid, delta):
+   """
+   Move a song upwards in the queue by <delta> steps
+   (meaning it will be played earlier).
+
+   @type  delta: int
+   @param delta: How many steps the song is move up in the queue
+
+   @type  qid: int
+   @param qid: The database ID of the queue item (*not* the song!)
+   """
+   pass
+
+def movedown(qid, delta):
+   """
+   Move a song downwards in the queue by <delta> steps
+   (meaning it will be played later).
+
+   @type  delta: int
+   @param delta: How many steps the song is move down in the queue
+
+   @type  qid: int
+   @param qid: The database ID of the queue item (*not* the song!)
+   """
+   pass
+
+def movetop(qid):
+   """
+   Move a song to the top of the queue (meaning it will be played next)
+
+   @type  qid: int
+   @param qid: The database ID of the queue item (*not* the song!)
+   """
+   pass
+
+def movebottom(qid):
+   """
+   Move a song to the bottom of the queue (meaning it will be played last)
+
+   @type  qid: int
+   @param qid: The database ID of the queue item (*not* the song!)
+   """
+   pass

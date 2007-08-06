@@ -415,6 +415,10 @@ the named channel exists in the database table called 'channel'" )
       self.sess.flush()
       self.sess.close()
       log.msg( "Closing channel" )
+
+      if self.__scrobbler is not None:
+         self.__scrobbler.stop()
+
       if self._Thread__started:
          self.__keepRunning = False
 
@@ -482,6 +486,10 @@ the named channel exists in the database table called 'channel'" )
       self.__player.skipSong()
 
       return 'OK'
+
+   def moveup(self, qid, delta):
+      self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
+      self.__queuemodel.moveup(qid, delta)
 
    def run(self):
       cycleTime = int(getSetting('channel_cycle', '1'))
