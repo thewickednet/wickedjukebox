@@ -57,6 +57,28 @@ Return the next song from the queue</td></tr>
           <span class=summary-sig-arg>channelID</span>)</span></code>
 <br />
 Enqueues a song onto a queue of a given channel</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="demon.playmodes.queue_skeleton-module.html#movebottom" class="summary-sig-name"><code>movebottom</code></a>(<span class=summary-sig-arg>qid</span>)</span></code>
+<br />
+Move a song to the bottom of the queue (meaning it will be played 
+last)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="demon.playmodes.queue_skeleton-module.html#movedown" class="summary-sig-name"><code>movedown</code></a>(<span class=summary-sig-arg>qid</span>,
+          <span class=summary-sig-arg>delta</span>)</span></code>
+<br />
+Move a song downwards in the queue by &lt;delta&gt; steps (meaning it 
+will be played later).</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="demon.playmodes.queue_skeleton-module.html#movetop" class="summary-sig-name"><code>movetop</code></a>(<span class=summary-sig-arg>qid</span>)</span></code>
+<br />
+Move a song to the top of the queue (meaning it will be played 
+next)</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="demon.playmodes.queue_skeleton-module.html#moveup" class="summary-sig-name"><code>moveup</code></a>(<span class=summary-sig-arg>qid</span>,
+          <span class=summary-sig-arg>delta</span>)</span></code>
+<br />
+Move a song upwards in the queue by &lt;delta&gt; steps (meaning it 
+will be played earlier).</td></tr>
 </table><br />
 
 
@@ -110,6 +132,84 @@ Enqueues a song onto a queue of a given channel</td></tr>
     </dl>
   </dd></dl>
 </td></tr></table>
+
+<a name="movebottom"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">movebottom</span>(<span class=sig-arg>qid</span>)</span>
+  </h3>
+  Move a song to the bottom of the queue (meaning it will be played 
+  last)
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>qid</b></code> -
+         The database ID of the queue item (*not* the song!)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="movedown"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">movedown</span>(<span class=sig-arg>qid</span>,
+          <span class=sig-arg>delta</span>)</span>
+  </h3>
+  Move a song downwards in the queue by &lt;delta&gt; steps (meaning 
+  it will be played later).
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>qid</b></code> -
+         The database ID of the queue item (*not* the song!)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      <dd><code><b>delta</b></code> -
+         How many steps the song is move down in the queue
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="movetop"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">movetop</span>(<span class=sig-arg>qid</span>)</span>
+  </h3>
+  Move a song to the top of the queue (meaning it will be played 
+  next)
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>qid</b></code> -
+         The database ID of the queue item (*not* the song!)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="moveup"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">moveup</span>(<span class=sig-arg>qid</span>,
+          <span class=sig-arg>delta</span>)</span>
+  </h3>
+  Move a song upwards in the queue by &lt;delta&gt; steps (meaning it 
+  will be played earlier).
+  <dl><dt></dt><dd>
+    <dl><dt><b>Parameters:</b></dt>
+      <dd><code><b>qid</b></code> -
+         The database ID of the queue item (*not* the song!)
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      <dd><code><b>delta</b></code> -
+         How many steps the song is move up in the queue
+        <br /><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        (type=int)</i>
+      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
 <br />
 
 
@@ -126,7 +226,7 @@ Enqueues a song onto a queue of a given channel</td></tr>
 
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
   <tr>
-    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Sat Aug  4 21:17:06 2007</font></td>
+    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Tue Aug  7 18:36:30 2007</font></td>
     <td align="right"><a href="http://epydoc.sourceforge.net"
                       ><font size="-2">http://epydoc.sf.net</font></a></td>
   </tr>
