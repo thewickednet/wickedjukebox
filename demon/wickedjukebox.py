@@ -451,6 +451,10 @@ the named channel exists in the database table called 'channel'" )
             songID, userID, self.dbModel.id
             )
 
+   def current_queue(self):
+      self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
+      return self.__queuemodel.list()
+
    def skipSong(self):
       """
       Updates play statistics and sends a "next" command to the player backend

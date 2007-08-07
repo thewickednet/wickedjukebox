@@ -6,7 +6,8 @@ Pops off the song with position 1, then substracts 1 from the position field of
 each item and finally removes all items with an id smaller than -10
 """
 
-from demon.model import create_session, QueueItem, queueTable
+from demon.model import create_session, QueueItem, queueTable, songTable, \
+                        artistTable, albumTable
 from datetime import datetime
 from sqlalchemy import and_
 
@@ -43,6 +44,37 @@ def enqueue(songID, userID, channelID):
    sess.save(qi)
    sess.flush()
    sess.close()
+
+def list():
+   """
+   Returns an ordered list of the items on the queue including position.
+   """
+   from sqlalchemy import eagerload
+   q = queueTable.join(songTable) \
+       .join(artistTable)         \
+       .join(albumTable, onclause=songTable.c.album_id==albumTable.c.id) \
+       .select(order_by=queueTable.c.position, use_labels=True)
+   items = q.execute()
+   out = []
+   for item in items:
+      data = {
+         'position': item[queueTable.c.position],
+         'song': {
+               'id':       item[songTable.c.id],
+               'title':    item[songTable.c.title].encode('utf-8'),
+               'duration': item[songTable.c.duration],
+            },
+         'album': {
+               'id':   item[albumTable.c.id],
+               'name': item[albumTable.c.name].encode('utf-8')
+            },
+         'artist': {
+               'id':   item[artistTable.c.id],
+               'name': item[artistTable.c.name].encode('utf-8')
+            }
+      }
+      out.append( data )
+   return out
 
 def dequeue():
    """

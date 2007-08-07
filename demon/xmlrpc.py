@@ -240,6 +240,14 @@ class SatelliteAPI(object):
       sess.close()
       return marshal(output)
 
+   def current_queue(self, channelID):
+      song_list = self._jukebox.getChannelByID(channelID).current_queue()
+      out = []
+      if song_list is not None:
+         for data in song_list:
+            out.append(data)
+      return marshal(out)
+
 class Satellite(threading.Thread):
    """
    The XML-Rpc service itself. None of these methods are exposed.
