@@ -1,5 +1,6 @@
 <?php
 
+$core->active_node = "album";
 
 switch ($_GET['action']) {
     case "detail":

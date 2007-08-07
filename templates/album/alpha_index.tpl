@@ -26,8 +26,5 @@
             <a href="/browse/album/w/">W</a> -
             <a href="/browse/album/x/">X</a> -
             <a href="/browse/album/y/">Y</a> -
-            <a href="/browse/album/z/">Z</a><br />
-            <a href="/browse/album/various/">Various</a> -
-            <a href="/browse/album/ost/">Soundtrack</a> -
-            <a href="/browse/album/videogame/">Video Games</a>
+            <a href="/browse/album/z/">Z</a>
             </p>

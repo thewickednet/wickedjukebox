@@ -2,12 +2,15 @@
 
 
 
-$artist = Artist::getById($_GET['param']);
+$album = Album::getById($_GET['param']);
 
-$songs = Artist::getSongs($_GET['param']);
+$songs = Album::getSongs($_GET['param']);
 
-$smarty->assign("SONGS", $songs);
+$artist = Artist::getById($album['artist_id']);
+
+$smarty->assign("ALBUM", $album);
 $smarty->assign("ARTIST", $artist);
-$body_template = "artist/detail.tpl";
+$smarty->assign("SONGS", $songs);
+$body_template = "album/detail.tpl";
 
 ?>

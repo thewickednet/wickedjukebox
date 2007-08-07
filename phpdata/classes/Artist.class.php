@@ -53,7 +53,7 @@ class Artist {
         
         $select = $db->select()
                      ->from(array('s' => 'song'), array('title', 'song_id' => 'id', 'track_no', 'duration'))
-                     ->joinLeft(array('a' => 'album'), 's.album_id = a.id', array('album_name' => 'name'))
+                     ->joinLeft(array('a' => 'album'), 's.album_id = a.id', array('album_name' => 'name', 'album_id' => 'id'))
                      ->where('s.artist_id = ?', $artist_id)
                      ->order('album_name', 'track_no');
                      

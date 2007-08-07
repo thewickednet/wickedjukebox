@@ -112,6 +112,17 @@ li {
 	background-image:url(../images/backgrounds/a_hover.jpg);
 }
 
+#menu a.active {
+	border-bottom:1px solid #ffffff;
+	border-left:1px solid #728d40;
+	border-right:1px solid #e9ffb7;
+	padding-left:9px;
+	padding-right:9px;
+	color:#000000;
+	background-color:#FFFFFF;
+	background-image:url(../images/backgrounds/a_hover.jpg);
+}
+
 #header {
 	width:970px;
 	margin:0 auto 0 auto;
@@ -296,3 +307,6 @@ li {
 				a#control_pause		    { width:16px; background:url(/images/control_pause.png) no-repeat; }	
 				a#control_pause:hover	{ background:url(/images/control_pause_blue.png) no-repeat; }
                 img.button              { border: 0px; }
+                
+                #queue li 			{ border-bottom: dotted black 1px;}
+                #queue_list         { list-style: none; margin: 0; padding: 0; }

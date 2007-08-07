@@ -67,3 +67,14 @@ function loaded(id, src) {
   img.src = src;
 }
 
+
+
+function updateQueue()
+{
+    var options = {
+                    method : 'post',
+                    parameters : Sortable.serialize('queue_list')
+                  };
+ 
+    new Ajax.Request('/?module=queue&action=resort', options);
+}

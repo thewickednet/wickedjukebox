@@ -1,5 +1,7 @@
 <?php
 
+$core->active_node = "artist";
+
 
 switch ($_GET['action']) {
     case "detail":

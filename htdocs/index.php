@@ -79,8 +79,7 @@ $smarty->compile_dir  = '../httpd_data/templates/';
 
 $core->template = "base.tpl";
 
-$smarty->assign("USERINFO", $core->userinfo);
-
+$smarty->register_modifier('bytesToHumanReadable', array('core','bytesToHumanReadable'));
 
 if (Auth::isAuthed()) {
     $core->user_id = Auth::getAuth();
@@ -106,6 +105,9 @@ switch ($_GET['module']) {
     break;
     case "album":
         include "../phpdata/modules/album/index.php";
+    break;
+    case "song":
+        include "../phpdata/modules/song/index.php";
     break;
     case "genre":
         include "../phpdata/modules/genre/index.php";

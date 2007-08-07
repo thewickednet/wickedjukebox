@@ -11,6 +11,7 @@
   <script type="text/javascript" src="/javascript/prototype.js"></script>
   <script type="text/javascript" src="/javascript/jukebox.js"></script>
   <script type="text/javascript" src="/javascript/md5.js"></script>
+  <script type="text/javascript" src="/javascript/scriptaculous/scriptaculous.js"></script>
 {/literal}
 </head>
 
@@ -20,11 +21,11 @@
 <a name="top" id="top"></a>
 <center>
 		<div id="menu">
-				<a href="/browse/artist/">artists</a> <a href="/browse/album/">albums</a> <a href="/browse/genres/">genres</a> {if count($USERINFO) ne '0'}<a href="/browse/favorites/">favorites</a> {/if}<a href="/browse/latest/">latest additions</a> <a href="/stats/">statistics</a>{if $PERMISSIONS.admin eq '1'} <a href="/?section=admin">admin</a>{/if}
+				<a href="/browse/artist/" {if $CORE->active_node eq 'artist'}class="active"{/if}>artists</a> <a href="/browse/album/" {if $CORE->active_node eq 'album'}class="active"{/if}>albums</a> <a href="/browse/genres/">genres</a> {if $CORE->user_id ne '-1'}<a href="/browse/favorites/">favorites</a> {/if}<a href="/browse/latest/">latest additions</a> <a href="/stats/">statistics</a>{if $CORE->permissions.admin eq '1'} <a href="/?section=admin">admin</a>{/if}
 		</div>
 
 		<div id="header">
-				<h1>wicked jukebox</h1>
+				<h1>wicked jukebox 2.o</h1>
 				<h2>hei spillt d'mus&eacute;k</h2>
 		</div>
 

@@ -142,7 +142,15 @@ class Queue {
         
     }
 
-
+    private function setPosition($queue_id = 0, $position = 0) {
+        
+        $db     = Zend_Registry::get('database');
+        
+        $data = array('position' => $position);
+        
+        $n = $db->update('queue', $data, 'id = ' . $queue_id);
+        
+    }
     private function shiftAfter($position = 0) {
         
         $core   = Zend_Registry::get('core');
@@ -152,6 +160,16 @@ class Queue {
         
         $db->query($query, array($core->channel_id, $position));
         
+    }
+    
+    function resort($queue) {
+        
+        $ranking = 1;
+        
+        foreach ($queue as $item) {
+            self::setPosition($item, $ranking);
+            $ranking++;
+        }
     }
 
 

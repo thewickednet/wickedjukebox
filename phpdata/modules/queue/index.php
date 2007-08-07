@@ -11,6 +11,9 @@ switch ($_GET['action']) {
     case "addsong":
         Queue::addSong($_GET['param']);
     break;
+    case "resort":
+        Queue::resort($_POST['queue_list']);
+    break;
     case "addalbum":
         Queue::addAlbum($_GET['param']);
     break;
