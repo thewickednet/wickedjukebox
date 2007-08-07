@@ -31,13 +31,13 @@ def marshal(data):
    else:
       return data
 
-class SatelliteAPI:
+class SatelliteAPI(object):
    """
    This class is bound to the XMLRpc service and contains the remotely
    accessible methods.
    """
 
-   channel = None
+   _channel = None
 
    def __init__(self, channel):
       """
@@ -46,7 +46,18 @@ class SatelliteAPI:
       @type  channel: Channel
       @param channel: The channel this service is initially bound to
       """
-      self.channel = channel
+      self._channel = channel
+
+   def help(self):
+      """
+      Returns the list of functions in this class
+      """
+      from types import FunctionType
+      lst = [ (f,
+               self.__getattribute__(f).__doc__
+               ) for f in dir(self) if not f.startswith('_') ]
+             #and type(self.__getattribute__(f)) == FunctionType
+      return marshal(lst)
 
    def get_albums(self, artistName):
       """
@@ -92,40 +103,40 @@ class SatelliteAPI:
       Returns the currently playing song
       @return: The ID of the playing song
       """
-      if self.channel is not None:
-         return marshal(self.channel.currentSong())
+      if self._channel is not None:
+         return marshal(self._channel.currentSong())
 
    def next(self):
       """
       Tells the channel to skip the current song.
       @return: Success value
       """
-      if self.channel is not None:
-         return marshal(self.channel.skipSong())
+      if self._channel is not None:
+         return marshal(self._channel.skipSong())
 
    def play(self):
       """
       Tells the channel to begin playback.
       @return: Success value
       """
-      if self.channel is not None:
-         return marshal(self.channel.startPlayback())
+      if self._channel is not None:
+         return marshal(self._channel.startPlayback())
 
    def pause(self):
       """
       Tells the channel to pause playback.
       @return: Success value
       """
-      if self.channel is not None:
-         return marshal(self.channel.pausePlayback())
+      if self._channel is not None:
+         return marshal(self._channel.pausePlayback())
 
    def stop(self):
       """
       Tells the channel to stop playback.
       @return: Success value
       """
-      if self.channel is not None:
-         return marshal(self.channel.stopPlayback())
+      if self._channel is not None:
+         return marshal(self._channel.stopPlayback())
 
    def enqueue(self, songID, userID):
       """
@@ -137,15 +148,16 @@ class SatelliteAPI:
       @type  userID: int
       @param userID: The ID of the user
       """
-      if self.channel is not None:
-         return marshal(self.channel.enqueue(songID, userID))
+      if self._channel is not None:
+         return marshal(self._channel.enqueue(songID, userID))
 
    def moveup(self, queueID, delta):
-      if self.channel is not None:
-         return marshal(self.channel.moveup(queueID, delta))
+      if self._channel is not None:
+         return marshal(self._channel.moveup(queueID, delta))
 
    def movedown(self, queueID, delta):
-      pass
+      if self._channel is not None:
+         return marshal(self._channel.movedown(queueID, delta))
 
    def movetop(self, queueID):
       pass

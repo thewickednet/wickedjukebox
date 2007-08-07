@@ -123,7 +123,43 @@ def movedown(qid, delta):
    @type  qid: int
    @param qid: The database ID of the queue item (*not* the song!)
    """
-   pass
+   sess = create_session()
+   qitem = sess.query(QueueItem).get(qid)
+
+   qitem_bot = sess.query(QueueItem).select(order_by=['-position'])
+   if qitem_bot != []:
+      bottom = qitem_bot[0].position
+   else:
+      bottom = 1
+
+   sess.close()
+
+   # we only need to do this for songs that are not already at the end of the queue
+   if qitem.position < bottom and (qitem.position + delta) < bottom:
+      old_position = qitem.position
+      min = old_position
+      max = old_position + delta
+      queueTable.update( and_( queueTable.c.position <= max,
+                               queueTable.c.position >= min
+                             ),
+                         values = {
+                            queueTable.c.position:queueTable.c.position-1
+                         } ).execute()
+      queueTable.update( queueTable.c.id == qitem.id,
+                         values = {
+                            queueTable.c.position:max
+                         } ).execute()
+   elif qitem.position < bottom and (qitem.position + delta) > bottom:
+      queueTable.update( and_( queueTable.c.position <= bottom,
+                               queueTable.c.position > qitem.position
+                             ),
+                         values = {
+                            queueTable.c.position:queueTable.c.position-1
+                         } ).execute()
+      queueTable.update( queueTable.c.id == qitem.id,
+                         values = {
+                            queueTable.c.position:bottom
+                         } ).execute()
 
 def movetop(qid):
    """

@@ -491,6 +491,10 @@ the named channel exists in the database table called 'channel'" )
       self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
       self.__queuemodel.moveup(qid, delta)
 
+   def movedown(self, qid, delta):
+      self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
+      self.__queuemodel.movedown(qid, delta)
+
    def run(self):
       cycleTime = int(getSetting('channel_cycle', '1'))
       lastCreditGiveaway = datetime.now()
