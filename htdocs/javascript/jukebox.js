@@ -9,28 +9,21 @@ function addsong(id) {
 
 function delsong(id) {
 
-  new Ajax.Updater('queue', '/index.php?section=queue&module=song&mode=del&ajax=1&param='+id, {asynchronous:true, evalScripts:true });
+  new Ajax.Updater('queue', '/index.php?module=queue&action=remove&param='+id, {asynchronous:true, evalScripts:true });
   return false;
 
 }
 
 function addalbum(id) {
 
-  new Ajax.Updater('queue', '/index.php?section=queue&module=album&mode=add&ajax=1&param='+id, {asynchronous:true, evalScripts:true });
-  return false;
-
-}
-
-function delalbum(id) {
-
-  new Ajax.Updater('queue', '/index.php?section=queue&module=album&mode=del&ajax=1&param='+id, {asynchronous:true, evalScripts:true });
+  new Ajax.Updater('queue', '/index.php?module=queue&action=addalbum&param='+id, {asynchronous:true, evalScripts:true });
   return false;
 
 }
 
 function cleanqueue() {
 
-  new Ajax.Updater('queue', '/index.php?section=queue&module=queue&mode=clean&ajax=1', {asynchronous:true, evalScripts:true });
+  new Ajax.Updater('queue', '/index.php?module=queue&action=clear', {asynchronous:true, evalScripts:true });
   return false;
 
 }
@@ -40,10 +33,8 @@ function control(what){
   return false;
 }
 
-
-
 function refreshQueue(){
-  new Ajax.Updater('queue', '/index.php?section=queue&ajax=1', {asynchronous:true, evalScripts:true });
+  new Ajax.Updater('queue', '/index.php?module=queue', {asynchronous:true, evalScripts:true });
   return false;
 }
 

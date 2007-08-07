@@ -90,7 +90,7 @@ if (Auth::isAuthed()) {
 
 
 /////////////////////////////////////////////////////////////
-// AUTO-PREPEND ENDS HERE 
+// AUTO-PREPEND ENDS HERE
 /////////////////////////////////////////////////////////////
 
 
@@ -118,10 +118,12 @@ switch ($_GET['module']) {
 
 
 /////////////////////////////////////////////////////////////
-// AUTO-PREPEND STARTS HERE 
+// AUTO-APPEND STARTS HERE
 /////////////////////////////////////////////////////////////
 $smarty->assign("CORE", $core);
+
 $smarty->assign("QUEUE", Queue::getCurrent());
+$smarty->assign("QUEUE_TOTAL", Queue::getTotalTime());
 
 $smarty->assign("BODY_TEMPLATE", $body_template);
 
