@@ -362,7 +362,7 @@ class Librarian(object):
 
 class Channel(threading.Thread):
 
-   __dbModel         = None
+   dbModel         = None
    __scrobbler       = None
    __keepRunning     = True
    __playStatus      = 'stopped'
@@ -376,18 +376,18 @@ class Channel(threading.Thread):
 
    def __init__(self, name):
       self.sess = create_session()
-      self.__dbModel = self.sess.query(dbChannel).selectfirst_by( dbChannel.c.name == name )
-      if self.__dbModel is not None:
-         self.name = self.__dbModel.name
-         log.msg( "Loaded channel %s" % self.__dbModel )
+      self.dbModel = self.sess.query(dbChannel).selectfirst_by( dbChannel.c.name == name )
+      if self.dbModel is not None:
+         self.name = self.dbModel.name
+         log.msg( "Loaded channel %s" % self.dbModel )
       else:
          log.err( "Failed to load channel from database. Please make sure that\
 the named channel exists in the database table called 'channel'" )
          self.__keepRunning = False
 
 
-      u = getSetting('lastfm_user', '', self.__dbModel.id)
-      p = getSetting('lastfm_pass', '', self.__dbModel.id)
+      u = getSetting('lastfm_user', '', self.dbModel.id)
+      p = getSetting('lastfm_pass', '', self.dbModel.id)
       if u == '' or p == '' or u is None or p is None:
          log.msg( '%-20s %20s %s' % ( 'lastFM support:', 'disabled', '(username or password empty)' ) )
       else:
@@ -395,7 +395,7 @@ the named channel exists in the database table called 'channel'" )
          self.__scrobbler = Scrobbler(u, p); self.__scrobbler.start()
 
       # initialise the player
-      self.__player = players.create( self.__dbModel.backend, self.__dbModel.backend_params)
+      self.__player = players.create( self.dbModel.backend, self.dbModel.backend_params)
 
       self.sess.flush()
       threading.Thread.__init__(self)
@@ -411,7 +411,7 @@ the named channel exists in the database table called 'channel'" )
       log.msg( "Channel closing requested." )
       self.__player.stopPlayback()
       log.msg( "Syncronising channel" )
-      self.sess.save( self.__dbModel )
+      self.sess.save( self.dbModel )
       self.sess.flush()
       self.sess.close()
       log.msg( "Closing channel" )
@@ -446,9 +446,9 @@ the named channel exists in the database table called 'channel'" )
       self.__queuemodel.enqueue(
             songID,
             userID,
-            self.__dbModel.id)
+            self.dbModel.id)
       return 'OK: queued song <%d> for user <%d> on channel <%d>' % (
-            songID, userID, self.__dbModel.id
+            songID, userID, self.dbModel.id
             )
 
    def skipSong(self):
@@ -459,10 +459,10 @@ the named channel exists in the database table called 'channel'" )
       stat = sess.query(ChannelStat).select( and_(
                songTable.c.id == ChannelStat.c.song_id,
                songTable.c.id == self.__currentSongID,
-               ChannelStat.c.channel_id == self.__dbModel.id) )
+               ChannelStat.c.channel_id == self.dbModel.id) )
       if stat == [] :
          stat = ChannelStat( songid = self.__currentSongID,
-                             channelid = self.__dbModel.id)
+                             channelid = self.dbModel.id)
          stat.skipped = 1
          stat.lastPlayed = datetime.now()
       else:
@@ -509,7 +509,7 @@ the named channel exists in the database table called 'channel'" )
          # ping the database every 10 seconds
          if (datetime.now() - lastPing).seconds > 10:
             lastPing = datetime.now()
-            self.__dbModel.ping = lastPing
+            self.dbModel.ping = lastPing
 
          # check if the player accidentally went into the "stop" state
          if self.__player.status() == 'stop' and self.__playStatus == 'playing':
@@ -541,10 +541,10 @@ the named channel exists in the database table called 'channel'" )
                stat = sess.query(ChannelStat).select( and_(
                         songTable.c.id == ChannelStat.c.song_id,
                         songTable.c.id==self.__currentSongID,
-                        ChannelStat.c.channel_id==self.__dbModel.id) )
+                        ChannelStat.c.channel_id==self.dbModel.id) )
                if stat == [] :
                   stat = ChannelStat( songid = self.__currentSongID,
-                                      channelid = self.__dbModel.id)
+                                      channelid = self.dbModel.id)
                   stat.lastPlayed = datetime.now()
                   stat.played     = 1
                else:

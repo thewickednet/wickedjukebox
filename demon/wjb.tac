@@ -32,7 +32,7 @@ class Gatekeeper(object):
                self.activeChannel.start()
          else:
             del(channel)
-      self.xmlrpcs = xmlrpc.Satellite(self.activeChannel)
+      self.xmlrpcs = xmlrpc.Satellite(self)
       self.xmlrpcs.start()
 
    def stopThreads(self):
@@ -231,6 +231,18 @@ class Gatekeeper(object):
             pass
 
       return "OK: Selected channel %s" % self.activeChannel.name.encode('utf-8')
+
+   def getChannelByID(self, channelID):
+      """
+      Returns a channel by id from the known channel-list
+
+      @type  channelID: int
+      @param channelID: the channel-id
+      """
+
+      for chan in self.channels:
+         if chan.dbModel.id == channelID:
+            return chan
 
    def do_activeChannel(self, args=None):
       """

@@ -37,16 +37,11 @@ class SatelliteAPI(object):
    accessible methods.
    """
 
-   _channel = None
-
-   def __init__(self, channel):
+   def __init__(self, jukebox):
       """
       Constructor.
-
-      @type  channel: Channel
-      @param channel: The channel this service is initially bound to
       """
-      self._channel = channel
+      self._jukebox = jukebox
 
    def help(self):
       """
@@ -98,49 +93,68 @@ class SatelliteAPI(object):
       """
       return marshal(True)
 
-   def getCurrentSong(self):
+   def getCurrentSong(self, channelID):
       """
       Returns the currently playing song
+
+      @type  channelID: int
+      @param channelID: the channel-id
+
       @return: The ID of the playing song
       """
-      if self._channel is not None:
-         return marshal(self._channel.currentSong())
 
-   def next(self):
+      return marshal(self._jukebox.getChannelByID(channelID).currentSong())
+
+   def next(self, channelID):
       """
       Tells the channel to skip the current song.
+
+      @type  channelID: int
+      @param channelID: the channel-id
+
       @return: Success value
       """
-      if self._channel is not None:
-         return marshal(self._channel.skipSong())
+      return marshal(self._jukebox.getChannelByID(channelID).skipSong())
 
-   def play(self):
+   def play(self, channelID):
       """
       Tells the channel to begin playback.
+
+      @type  channelID: int
+      @param channelID: the channel-id
+
       @return: Success value
       """
-      if self._channel is not None:
-         return marshal(self._channel.startPlayback())
+      return marshal(self._jukebox.getChannelByID(channelID).startPlayback())
 
-   def pause(self):
+   def pause(self, channelID):
       """
       Tells the channel to pause playback.
+
+      @type  channelID: int
+      @param channelID: the channel-id
+
       @return: Success value
       """
-      if self._channel is not None:
-         return marshal(self._channel.pausePlayback())
+      return marshal(self._jukebox.getChannelByID(channelID).pausePlayback())
 
-   def stop(self):
+   def stop(self, channelID):
       """
       Tells the channel to stop playback.
+
+      @type  channelID: int
+      @param channelID: the channel-id
+
       @return: Success value
       """
-      if self._channel is not None:
-         return marshal(self._channel.stopPlayback())
+      return marshal(self._jukebox.getChannelByID(channelID).stopPlayback())
 
-   def enqueue(self, songID, userID):
+   def enqueue(self, channelID, songID, userID):
       """
       Enqueues a song.
+
+      @type  channelID: int
+      @param channelID: the channel-id
 
       @type  songID: int
       @param songID: The ID of the song
@@ -148,16 +162,25 @@ class SatelliteAPI(object):
       @type  userID: int
       @param userID: The ID of the user
       """
-      if self._channel is not None:
-         return marshal(self._channel.enqueue(songID, userID))
+      return marshal(self._jukebox.getChannelByID(channelID).enqueue(songID, userID))
 
-   def moveup(self, queueID, delta):
-      if self._channel is not None:
-         return marshal(self._channel.moveup(queueID, delta))
+   def moveup(self, channelID, queueID, delta):
+      """
+      Move a song higher up in the queue (meaning it's played earlier)
 
-   def movedown(self, queueID, delta):
-      if self._channel is not None:
-         return marshal(self._channel.movedown(queueID, delta))
+      @type  channelID: int
+      @param channelID: the channel-id
+
+      @type  queueID: int
+      @param queueID: the queue-id
+
+      @type  delta: int
+      @param delta: the amount of steps to move an item in the queue
+      """
+      return marshal(self._jukebox.getChannelByID(channelID).moveup(queueID, delta))
+
+   def movedown(self, channelID, queueID, delta):
+      return marshal(self._jukebox.getChannelByID(channelID).movedown(queueID, delta))
 
    def movetop(self, queueID):
       pass
@@ -222,10 +245,10 @@ class Satellite(threading.Thread):
    The XML-Rpc service itself. None of these methods are exposed.
    """
 
-   def __init__(self, channel):
+   def __init__(self, jukebox):
       """
-      @type  channel: Channel
-      @param channel: The channel to bind to the service.
+      @type  jukebox: Gatekeeper
+      @param jukebox: The gatekeeper (central daemon) that controls all channels
       """
       self.port = getSetting( 'xmlrpc_port' )
       self.keepRunning = True
@@ -250,7 +273,7 @@ class Satellite(threading.Thread):
             time.sleep(1)
             pass
 
-      self.server.register_instance(SatelliteAPI(channel))
+      self.server.register_instance(SatelliteAPI(jukebox))
       log.msg( "Serving XMLRPC on port %s" % self.port )
       threading.Thread.__init__(self)
 
