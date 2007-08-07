@@ -1,0 +1,63 @@
+<ui version="4.0" >
+ <class>wndSimpleController</class>
+ <widget class="QMainWindow" name="wndSimpleController" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>135</width>
+    <height>57</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Simple Controller</string>
+  </property>
+  <widget class="QWidget" name="centralwidget" >
+   <layout class="QHBoxLayout" >
+    <property name="margin" >
+     <number>9</number>
+    </property>
+    <property name="spacing" >
+     <number>6</number>
+    </property>
+   </layout>
+  </widget>
+  <widget class="QToolBar" name="toolBar" >
+   <property name="orientation" >
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <attribute name="toolBarArea" >
+    <number>4</number>
+   </attribute>
+   <addaction name="actionStop" />
+   <addaction name="actionPlay" />
+   <addaction name="actionSkip" />
+  </widget>
+  <action name="actionSkip" >
+   <property name="icon" >
+    <iconset>icons/player_fwd.png</iconset>
+   </property>
+   <property name="text" >
+    <string>skip</string>
+   </property>
+  </action>
+  <action name="actionPlay" >
+   <property name="icon" >
+    <iconset>icons/player_play.png</iconset>
+   </property>
+   <property name="text" >
+    <string>play</string>
+   </property>
+  </action>
+  <action name="actionStop" >
+   <property name="icon" >
+    <iconset>icons/player_stop.png</iconset>
+   </property>
+   <property name="text" >
+    <string>stop</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
