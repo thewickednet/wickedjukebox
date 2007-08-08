@@ -241,12 +241,16 @@ class SatelliteAPI(object):
       return marshal(output)
 
    def current_queue(self, channelID):
-      song_list = self._jukebox.getChannelByID(channelID).current_queue()
-      out = []
-      if song_list is not None:
-         for data in song_list:
-            out.append(data)
-      return marshal(out)
+      channel = self._jukebox.getChannelByID(channelID)
+      if channel is not None:
+         song_list = channel.current_queue()
+         out = []
+         if song_list is not None:
+            for data in song_list:
+               out.append(data)
+         return marshal(out)
+      else:
+         return marshal( "ER: Error retrieving channel #%s" % channelID )
 
 class Satellite(threading.Thread):
    """
