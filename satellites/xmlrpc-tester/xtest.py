@@ -58,24 +58,54 @@ class StartQT4(QtGui.QMainWindow):
                                     int(args[2])
                                     )
 
-   def call_enqueue_album(self, args): pass
+   def call_enqueue_album(self, args):
+      return self.__server.enqueue_album( int(args[0]) )
+
    def call_get_album_songs(self, args):
       return self.__server.get_album_songs( int(args[0]) )
 
-   def call_get_albums(self, args): pass
-   def call_get_songs(self, args): pass
-   def call_getCurrentSong(self, args): pass
-   def call_getSongData(self, args): pass
-   def call_movebottom(self, args): pass
-   def call_movedown(self, args): pass
-   def call_moveup(self, args): pass
-   def call_pause(self, args): pass
-   def call_ping(self, args): pass
-   def call_play(self, args): pass
-   def call_queue_clear(self, args): pass
-   def call_queue_delete(self, args): pass
+   def call_get_albums(self, args):
+      return self.__server.get_albums( int(args[0]) )
+
+   def call_getCurrentSong(self, args):
+      return self.__server.getCurrentSong( int(args[0]) )
+
+   def call_getSongData(self, args):
+      return self.__server.getSongData( int(args[0]) )
+
+   def call_movebottom(self, args):
+      return self.__server.movebottom( int(args[0]) )
+
+   def call_movetop(self, args):
+      return self.__server.movetop( int(args[0]) )
+
+   def call_movedown(self, args):
+      return self.__server.movedown( int(args[0]),
+                                     int(args[1]),
+                                     int(args[2]) )
+
+   def call_moveup(self, args):
+      return self.__server.moveup( int(args[0]),
+                                   int(args[1]),
+                                   int(args[2]) )
+
+   def call_pause(self, args):
+      return self.__server.pause( int(args[0]) )
+
+   def call_ping(self, args):
+      return self.__server.ping()
+
+   def call_play(self, args):
+      return self.__server.play( int(args[0]) )
+
+   def call_queue_delete(self, args):
+      return self.__server.queue_delete( int(args[0]) )
+
    def call_stop(self, args):
-      return self.__server.stop( args[0] )
+      return self.__server.stop( int(args[0]) )
+
+   def call_current_queue(self, args):
+      return self.__server.current_queue( int(args[0]) )
 
    def execute(self):
       func = self.ui.lstMethods.selectedItems()[0].text()
