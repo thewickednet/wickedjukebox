@@ -11,11 +11,10 @@
   <script type="text/javascript" src="/javascript/prototype.js"></script>
   <script type="text/javascript" src="/javascript/jukebox.js"></script>
   <script type="text/javascript" src="/javascript/md5.js"></script>
-  <script type="text/javascript" src="/javascript/scriptaculous/scriptaculous.js"></script>
 {/literal}
 </head>
 
-<body>
+<body onload="javascript:refreshQueuePeriodical();">
 <div id="hiddenDiv" style="position:absolute; visibility:hidden; z-index:1000"></div>
 <div id="container">
 <a name="top" id="top"></a>
@@ -79,14 +78,14 @@
 				</div>
 
 				<div id="mainbar">
-
+				<div id="helper">
+				
+				</div>
+				<div id="body">
 		  {if $BODY_TEMPLATE ne ''}
 	      {include file=$BODY_TEMPLATE}
 	      {/if}
-
-      <p>&nbsp;</p>
-      <p>&nbsp;</p>
-      <p>&nbsp;</p>
+	      </div>
 		  </div>
 
   </div>

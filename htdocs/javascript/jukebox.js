@@ -7,11 +7,12 @@ function addsong(id) {
 
 }
 
+
 function delsong(id) {
-
-  new Ajax.Updater('queue', '/index.php?module=queue&action=remove&param='+id, {asynchronous:true, evalScripts:true });
-  return false;
-
+  QueueUpdates.stop();
+  Effect.Fade('queue_' + id);
+  new Ajax.Request('/index.php?module=queue&action=remove&param='+id, {asynchronous:true, evalScripts:true });
+  QueueUpdates.start();
 }
 
 function addalbum(id) {
@@ -29,12 +30,16 @@ function cleanqueue() {
 }
 
 function control(what){
-  new Ajax.Updater('queue', '/index.php?section=backend&param='+what, {asynchronous:true, evalScripts:true });
-  return false;
+  new Ajax.Request('/index.php?module=backend&action='+what, {asynchronous:true, evalScripts:true });
 }
 
 function refreshQueue(){
   new Ajax.Updater('queue', '/index.php?module=queue', {asynchronous:true, evalScripts:true });
+  return false;
+}
+
+function refreshQueuePeriodical(){
+  QueueUpdates = new Ajax.PeriodicalUpdater('queue', '/index.php?module=queue', { method: 'get', frequency: 10, decay: 1, asynchronous:true, evalScripts:true });
   return false;
 }
 
@@ -68,8 +73,25 @@ function loaded(id, src) {
 }
 
 
+function listAlpha(alpha) {
+    
+  var module = document.helperform.active_node.value;
+  
+  new Ajax.Updater('body', '/browse/'+module+'/'+alpha+'/', {asynchronous:true, evalScripts:true });
+  return false;
+    
+}
 
-function updateQueue()
+function blaatOver(page) {
+    
+  var alpha = document.helperform.alpha.value;
+  var module = document.helperform.active_node.value;
+  
+  new Ajax.Updater('alpha_results', '/browse/'+module+'/'+alpha+'/bypage/'+page+'/', {asynchronous:true, evalScripts:true });
+    
+}
+
+function resortQueue()
 {
     var options = {
                     method : 'post',

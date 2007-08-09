@@ -33,6 +33,7 @@ class Queue {
                      ->join(array('a' => 'artist'), 's.artist_id = a.id')
                      ->join(array('u' => 'users'), 'q.user_id = u.id')
                      ->where('q.channel_id = ?', $core->channel_id)
+                     ->where('position > 0')
                      ->order('position');
                      
                      
@@ -51,6 +52,7 @@ class Queue {
                      ->from(array('q' => 'queue'), array('channel_id'))
                      ->join(array('s' => 'song'), 'q.song_id = s.id', array('totaltime' => 'SUM(duration)'))
                      ->where('q.channel_id = ?', $core->channel_id)
+                     ->where('position > 0')
                      ->group('q.channel_id');
                      
         $stmt = $select->query();

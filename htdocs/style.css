@@ -308,5 +308,7 @@ li {
 				a#control_pause:hover	{ background:url(/images/control_pause_blue.png) no-repeat; }
                 img.button              { border: 0px; }
                 
-                #queue li 			{ border-bottom: dotted black 1px;}
+                #queue li 			{ border-bottom: dotted black 1px; padding: 5px;}
                 #queue_list         { list-style: none; margin: 0; padding: 0; }
+                
+                .sortable-list li   { cursor: move; }

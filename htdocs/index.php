@@ -8,6 +8,7 @@ session_start();
 
 require_once 'Zend/Db.php';
 require_once 'Zend/Registry.php';
+require_once 'Zend/Cache.php';
 require_once 'Zend/Config/Ini.php';
 
 
@@ -16,6 +17,7 @@ require_once 'Zend/Config/Ini.php';
 
 require_once('../phpdata/classes/Auth.class.php');
 require_once('../phpdata/classes/Core.class.php');
+require_once('../phpdata/classes/Backend.class.php');
 require_once('../phpdata/classes/Artist.class.php');
 require_once('../phpdata/classes/Album.class.php');
 require_once('../phpdata/classes/Song.class.php');
@@ -54,6 +56,12 @@ $registry = new Zend_Registry(array('database' => $db));
 Zend_Registry::setInstance($registry);
 
 
+require_once 'Zend/XmlRpc/Client.php';
+
+$xmlrpc = new Zend_XmlRpc_Client('http://localhost:65222/');
+
+$registry->set('xmlrpc', $xmlrpc);
+
 //////////////////////////////////
 // CORE
 //
@@ -63,6 +71,14 @@ $core = new Core($demon_config);
 unset($demon_config);
 
 $registry->set('core', $core);
+
+$cacheFrontendOptions = array(
+   'lifetime' => 7200, // cache lifetime of 2 hours
+   'automatic_serialization' => true
+);
+$cache = Zend_Cache::factory('Core', 'Memcached', $cacheFrontendOptions);
+
+$registry->set('cache', $cache);
 
 
 //////////////////////////////////
@@ -100,6 +116,9 @@ switch ($_GET['module']) {
     case "channel":
         include "../phpdata/modules/channel/index.php";
     break;
+    case "backend":
+        include "../phpdata/modules/backend/index.php";
+    break;
     case "queue":
         include "../phpdata/modules/queue/index.php";
     break;
@@ -123,6 +142,7 @@ switch ($_GET['module']) {
 // AUTO-APPEND STARTS HERE
 /////////////////////////////////////////////////////////////
 $smarty->assign("CORE", $core);
+$smarty->assign("PLAYER_STATUS", Backend::getCurrentSong(1));
 
 $smarty->assign("QUEUE", Queue::getCurrent());
 $smarty->assign("QUEUE_TOTAL", Queue::getTotalTime());
