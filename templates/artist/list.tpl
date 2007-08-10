@@ -2,7 +2,7 @@
 
 						{include file='artist/alpha_index.tpl'}
 
-
+            <h2>{$ALPHA} ({$RESULT_COUNT} results)</h2>
 			<div id="alpha_results">
 						{include file='artist/list_results.tpl'}
             </div>

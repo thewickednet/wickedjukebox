@@ -38,11 +38,11 @@ if (!empty($_GET['pagenum']))
 
     $smarty->assign("LINKS", $links['all']);
 
+    $smarty->assign("ALPHA_INDEX", Core::buildAlphaList());
+    $smarty->assign("ALPHA", $alpha);
+    $smarty->assign("RESULT_COUNT", count($artists));
+    $smarty->assign("ARTISTS", $data);
 
-
-$smarty->assign("ALPHA_INDEX", Core::buildAlphaList());
-$smarty->assign("ALPHA", $alpha);
-$smarty->assign("ARTISTS", $data);
-$body_template = "artist/list.tpl";
+    $body_template = "artist/list.tpl";
 
 ?>

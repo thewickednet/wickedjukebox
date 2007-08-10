@@ -8,8 +8,9 @@ class Artist {
         $db = Zend_Registry::get('database');
         
         $select = $db->select()
-                     ->distinct()
-                     ->from(array('a' => 'artist'), array('id', 'name'))
+                     ->from(array('a' => 'artist'), array('id', 'name', 'added'))
+                     ->join(array('s' => 'song'), 's.artist_id = a.id', array('songs' => 'COUNT(*)'))
+                     ->group('a.name')
                      ->where('substr(name, 1, 1) = ?', $alpha)
                      ->order('name');
 
@@ -65,6 +66,23 @@ class Artist {
 
 
 
+  function findCover($artist_id = 0){
+
+    $filemasks = array('/../folder.jpg', '/../Folder.jpg', '/artist.jpg');
+
+    $songs = self::getSongs($artist_id);
+    foreach($songs as $song) {
+      foreach($filemasks as $filemask){
+        $check = dirname($song['localpath']) . $filemask;
+        if (file_exists($check))
+          return $check;
+      }
+
+    }
+
+    return "";
+
+  }
 
 
 

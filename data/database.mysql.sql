@@ -20,6 +20,7 @@ DROP TABLE IF EXISTS song;
 DROP TABLE IF EXISTS album;
 DROP TABLE IF EXISTS artist;
 DROP TABLE IF EXISTS genre;
+DROP TABLE IF EXISTS render_presets;
 
 BEGIN;
 
@@ -218,6 +219,19 @@ BEGIN;
       FOREIGN KEY (genre_id) REFERENCES genre(id)
          ON UPDATE CASCADE ON DELETE RESTRICT
    ) CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+
+   CREATE TABLE render_presets (
+      id INTEGER UNSIGNED NOT NULL auto_increment PRIMARY KEY,
+      category VARCHAR(64) NOT NULL,
+      preset VARCHAR(64) NOT NULL,
+      hmax SMALLINT(4) NOT NULL,
+      wmax SMALLINT(4) NOT NULL,
+      placeholder VARCHAR(64) DEFAULT NULL,
+      noproportion TINYINT(1) UNSIGNED NOT NULL default '0',
+      force_mime ENUM('image/jpeg','image/gif','image/png') NOT NULL,
+      KEY category (category,preset)
+   ) CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+   
 COMMIT;
 
 BEGIN;

@@ -2,6 +2,7 @@
 
 						{include file='album/alpha_index.tpl'}
 
+            <h2>{$ALPHA} ({$RESULT_COUNT} results)</h2>
             <div id="alpha_results">
 						{include file='album/list_results.tpl'}
             </div>

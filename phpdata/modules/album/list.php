@@ -9,10 +9,10 @@ else {
 
 $cache_key = sprintf("list_album_%s", $alpha);
 
-if(!$artists = $cache->load($cache_key)) {
+if(!$albums = $cache->load($cache_key)) {
     
     $albums = Album::getByAlpha($alpha);
-    $cache->save($artists, $cache_key);
+    $cache->save($albums, $cache_key);
 }
 
 if (!empty($_GET['pagenum']))
@@ -37,9 +37,11 @@ if (!empty($_GET['pagenum']))
 
     $smarty->assign("LINKS", $links['all']);
 
-$smarty->assign("ALPHA_INDEX", Core::buildAlphaList());
-$smarty->assign("ALPHA", $alpha);
-$smarty->assign("ALBUMS", $data);
-$body_template = "album/list.tpl";
+    $smarty->assign("ALPHA_INDEX", Core::buildAlphaList());
+    $smarty->assign("ALPHA", $alpha);
+    $smarty->assign("RESULT_COUNT", count($albums));
+    $smarty->assign("ALBUMS", $data);
+
+    $body_template = "album/list.tpl";
 
 ?>
