@@ -192,6 +192,19 @@ CREATE TABLE song_has_genre(
    PRIMARY KEY (song_id, genre_id)
 );
 
+CREATE TABLE render_presets (
+   id INTEGER NOT NULL PRIMARY KEY,
+   category VARCHAR(64) NOT NULL,
+   preset VARCHAR(64) NOT NULL,
+   hmax INTEGER NOT NULL,
+   wmax INTEGER NOT NULL,
+   placeholder VARCHAR(64) DEFAULT NULL,
+   noproportion INTEGER NOT NULL default 0,
+   force_mime VARCHAR(20) NOT NULL,
+   UNIQUE (category,preset)
+);
+
+
 COMMIT;
 
 BEGIN;
