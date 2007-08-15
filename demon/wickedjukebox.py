@@ -500,7 +500,7 @@ the named channel exists in the database table called 'channel'" )
       self.__queuemodel.movedown(qid, delta)
 
    def run(self):
-      cycleTime = int(getSetting('channel_cycle', '1'))
+      cycleTime = int(getSetting('channel_cycle', '3'))
       lastCreditGiveaway = datetime.now()
       lastPing           = datetime.now()
       sess               = create_session()
@@ -538,9 +538,13 @@ the named channel exists in the database table called 'channel'" )
             self.__currentSongRecorded = False
             self.__currentSongFile     = self.__player.getSong()
 
-         # if the song is soon finished, update stats and pick the next one
+         # if the song is running for a while, crop the playlist
          currentPosition = self.__player.getPosition()
-         if (currentPosition[1] - currentPosition[0]) < 5:
+         if (currentPosition[1] - currentPosition[0]) > 3:
+            self.__player.cropPlaylist(1)
+
+         # if the song is soon finished, update stats and pick the next one
+         if (currentPosition[1] - currentPosition[0]) < 3:
             if self.__currentSongID != 0 and not self.__currentSongRecorded:
                stat = sess.query(ChannelStat).select( and_(
                         songTable.c.id == ChannelStat.c.song_id,
@@ -569,7 +573,6 @@ the named channel exists in the database table called 'channel'" )
             if nextSong is None:
                nextSong = self.__random.get()
             self.__player.queue(nextSong.localpath.encode(fs_encoding))
-            self.__player.cropPlaylist(1)
 
          # if we handed out credits more than 5mins ago, we give out some more
          if (datetime.now() - lastCreditGiveaway).seconds > 300:
