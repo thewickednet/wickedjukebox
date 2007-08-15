@@ -10,7 +10,5 @@ BEGIN;
    INSERT INTO users(username,cookie,password,fullname,credits,group_id) VALUES ('exhuma','','','',30,1);
 
    UPDATE setting SET value='/mnt/mp3s/Tagged' WHERE var='mediadir';
-   UPDATE setting SET value='61112' WHERE var='xmlrpc_port';
-   UPDATE setting SET value='127.0.0.1' WHERE var='xmlrpc_iface';
 COMMIT;
 

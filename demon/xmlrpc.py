@@ -1,23 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-XMLRpc-Service
+XMLRpc-API
 
-If both settings "xmlrpc_port" and "xmlrpc_iface are set, this service will
-automatically start up with the jukebox daemon.
+This module contains the XML-RPC "Satellite" API. To activate the xml-rpc
+interface all you need to do is set the port in the config.ini
 """
-import SimpleXMLRPCServer, threading
 from model import create_session, getSetting, Artist, Album, Song
 from sqlalchemy import and_
-from twisted.python import log
 
-try:
-   import simplejson
-   if getSetting( 'xmlrpc_json', "1" ) == "1":
-      jsonEnabled = True
-   else:
-      jsonEnabled = False
-except:
-   jsonEnabled = False
+from twisted.python import log
+from twisted.web import xmlrpc
+import simplejson
 
 def marshal(data):
    """
@@ -26,24 +19,24 @@ def marshal(data):
    @param data: The data that is to be marshalled
    @return:     The marshalled data
    """
-   if jsonEnabled:
-      return simplejson.dumps( data )
-   else:
-      return data
+   return simplejson.dumps( data )
 
-class SatelliteAPI(object):
+class SatelliteAPI(xmlrpc.XMLRPC):
    """
    This class is bound to the XMLRpc service and contains the remotely
    accessible methods.
    """
 
-   def __init__(self, jukebox):
-      """
-      Constructor.
-      """
-      self._jukebox = jukebox
+   #def __init__(self, jukebox):
+   #   """
+   #   Constructor.
+   #   """
+   #   self._jukebox = jukebox
 
-   def help(self):
+   def setGate( self, gate ):
+      self._jukebox = gate
+
+   def xmlrpc_help(self):
       """
       Returns the list of functions in this class
       """
@@ -54,7 +47,7 @@ class SatelliteAPI(object):
              #and type(self.__getattribute__(f)) == FunctionType
       return marshal(lst)
 
-   def get_albums(self, artistName):
+   def xmlrpc_get_albums(self, artistName):
       """
       @type    artistName: str
       @param   artistName: The name of the artist
@@ -70,7 +63,7 @@ class SatelliteAPI(object):
       sess.close()
       return marshal(output)
 
-   def get_album_songs( self, albumID ):
+   def xmlrpc_get_album_songs( self, albumID ):
       """
       Returns a list of songs of the named album id.
 
@@ -85,7 +78,7 @@ class SatelliteAPI(object):
       sess.close()
       return marshal(output)
 
-   def ping(self):
+   def xmlrpc_ping(self):
       """
       A no-op. Useful to see if the xml-rpc service is running fine.
 
@@ -93,7 +86,7 @@ class SatelliteAPI(object):
       """
       return marshal(True)
 
-   def getCurrentSong(self, channelID):
+   def xmlrpc_getCurrentSong(self, channelID):
       """
       Returns the currently playing song
 
@@ -105,7 +98,7 @@ class SatelliteAPI(object):
 
       return marshal(self._jukebox.getChannelByID(channelID).currentSong())
 
-   def next(self, channelID):
+   def xmlrpc_next(self, channelID):
       """
       Tells the channel to skip the current song.
 
@@ -116,7 +109,7 @@ class SatelliteAPI(object):
       """
       return marshal(self._jukebox.getChannelByID(channelID).skipSong())
 
-   def play(self, channelID):
+   def xmlrpc_play(self, channelID):
       """
       Tells the channel to begin playback.
 
@@ -127,7 +120,7 @@ class SatelliteAPI(object):
       """
       return marshal(self._jukebox.getChannelByID(channelID).startPlayback())
 
-   def pause(self, channelID):
+   def xmlrpc_pause(self, channelID):
       """
       Tells the channel to pause playback.
 
@@ -138,7 +131,7 @@ class SatelliteAPI(object):
       """
       return marshal(self._jukebox.getChannelByID(channelID).pausePlayback())
 
-   def stop(self, channelID):
+   def xmlrpc_stop(self, channelID):
       """
       Tells the channel to stop playback.
 
@@ -149,7 +142,7 @@ class SatelliteAPI(object):
       """
       return marshal(self._jukebox.getChannelByID(channelID).stopPlayback())
 
-   def enqueue(self, channelID, songID, userID):
+   def xmlrpc_enqueue(self, channelID, songID, userID):
       """
       Enqueues a song.
 
@@ -164,7 +157,7 @@ class SatelliteAPI(object):
       """
       return marshal(self._jukebox.getChannelByID(channelID).enqueue(songID, userID))
 
-   def moveup(self, channelID, queueID, delta):
+   def xmlrpc_moveup(self, channelID, queueID, delta):
       """
       Move a song higher up in the queue (meaning it's played earlier)
 
@@ -179,25 +172,25 @@ class SatelliteAPI(object):
       """
       return marshal(self._jukebox.getChannelByID(channelID).moveup(queueID, delta))
 
-   def movedown(self, channelID, queueID, delta):
+   def xmlrpc_movedown(self, channelID, queueID, delta):
       return marshal(self._jukebox.getChannelByID(channelID).movedown(queueID, delta))
 
-   def movetop(self, queueID):
+   def xmlrpc_movetop(self, queueID):
       pass
 
-   def movebottom(self, queueID):
+   def xmlrpc_movebottom(self, queueID):
       pass
 
-   def enqueue_album(self, albumID):
+   def xmlrpc_enqueue_album(self, albumID):
       pass
 
-   def queue_delete(self, queueID):
+   def xmlrpc_queue_delete(self, queueID):
       pass
 
-   def queue_clear(self):
+   def xmlrpc_queue_clear(self):
       pass
 
-   def getSongData(self, songID):
+   def xmlrpc_getSongData(self, songID):
       """
       Returns basic data of the named song
       @type  songID: int
@@ -218,7 +211,7 @@ class SatelliteAPI(object):
       sess.close()
       return marshal(output)
 
-   def get_songs(self, artist=None, artistID=None, album=None, albumID=None):
+   def xmlrpc_get_songs(self, artist=None, artistID=None, album=None, albumID=None):
       """
       No clue what this method is supposed to do...
       TODO: figure it out!
@@ -240,7 +233,7 @@ class SatelliteAPI(object):
       sess.close()
       return marshal(output)
 
-   def current_queue(self, channelID):
+   def xmlrpc_current_queue(self, channelID):
       channel = self._jukebox.getChannelByID(channelID)
       if channel is not None:
          song_list = channel.current_queue()
@@ -252,68 +245,3 @@ class SatelliteAPI(object):
       else:
          return marshal( "ER: Error retrieving channel #%s" % channelID )
 
-class Satellite(threading.Thread):
-   """
-   The XML-Rpc service itself. None of these methods are exposed.
-   """
-
-   def __init__(self, jukebox):
-      """
-      @type  jukebox: Gatekeeper
-      @param jukebox: The gatekeeper (central daemon) that controls all channels
-      """
-      self.port = getSetting( 'xmlrpc_port' )
-      self.keepRunning = True
-      if self.port == '':
-         log.msg( '%-20s %20s %s' % ( 'XML-RPC support:', 'disabled', '(no port specified)' ) )
-         self.keepRunning = False
-         threading.Thread.__init__(self)
-         return
-      log.msg( '%-20s %30s' % ( 'XML-RPC support:', 'enabled' ) )
-
-      self.ip   = getSetting( 'xmlrpc_iface', '' )
-
-      log.msg( "XML-RPC service starting up..." )
-      while True:
-         try:
-            self.server = SimpleXMLRPCServer.SimpleXMLRPCServer((self.ip, int(self.port)))
-            log.msg( '... done' )
-            break;
-         except:
-            import time
-            log.msg( "Retrying..." )
-            time.sleep(1)
-            pass
-
-      self.server.register_introspection_functions()
-      self.server.register_instance(SatelliteAPI(jukebox))
-
-      if self.ip == '':
-         iface = 'all'
-      else:
-         iface = self.ip
-
-      log.msg( "Serving XMLRPC on interface [%s:%s]" % (iface, self.port) )
-      threading.Thread.__init__(self)
-
-   def run(self):
-      "Main application loop"
-
-      try:
-         while self.keepRunning:
-            self.server.handle_request()
-      except:
-         log.msg( 'Error in XMLRPC' )
-
-   def stop(self):
-      "Triggers the stopping of the service."
-      if self.keepRunning == False:
-         return
-      log.msg( 'XMLRPC service stopped' )
-      self.keepRunning = False
-
-      # send a bogus request to the server, as the "handle_request" method is
-      # blocking. So it it still there waiting for a final request.
-      import xmlrpclib
-      s = xmlrpclib.Server('http://%s:%s' % (self.ip, self.port))
-      s.ping()

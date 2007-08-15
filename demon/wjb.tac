@@ -2,14 +2,18 @@
 # -*- coding: utf-8 -*-
 
 from twisted.application import internet, service
-from twisted.protocols import basic
-from twisted.internet import protocol, reactor, defer
-from twisted.python   import log
+from twisted.protocols   import basic
+from twisted.internet    import protocol, defer
+from twisted.python      import log
+from twisted.web         import server
+
 import os
 from demon.wickedjukebox import Librarian
 from demon.util import config
 from demon.wickedjukebox import Channel
-import demon.xmlrpc as xmlrpc
+from demon.xmlrpc import SatelliteAPI
+
+gate = None
 
 class Gatekeeper(object):
    """
@@ -32,14 +36,11 @@ class Gatekeeper(object):
                self.activeChannel.start()
          else:
             del(channel)
-      self.xmlrpcs = xmlrpc.Satellite(self)
-      self.xmlrpcs.start()
 
    def stopThreads(self):
       self.lib.abortAll()
       for c in self.channels:
          c.close()
-      self.xmlrpcs.stop()
 
    def do_doc(self, args):
       """
@@ -213,10 +214,6 @@ class Gatekeeper(object):
          if channel.name == args[0]:
             channelFound = True
             self.activeChannel = channel
-            try:
-               self.xmlrpcs.setChannel( channel )
-            except:
-               pass
 
       if channelFound == False:
          channel = Channel( args[0] )
@@ -225,10 +222,6 @@ class Gatekeeper(object):
             return "ER: no such channel!"
          self.channels.append( channel )
          self.activeChannel = self.channels[-1]
-         try:
-            self.xmlrpcs.setChannel( self.channels[-1] )
-         except:
-            pass
 
       return "OK: Selected channel %s" % self.activeChannel.name.encode('utf-8')
 
@@ -391,15 +384,16 @@ class WJBProtocol(basic.LineReceiver):
 class WJBFactory( protocol.ServerFactory ):
 
    protocol = WJBProtocol
-   gate     = None
 
    def __init__( self ):
-      self.gate = Gatekeeper(self)
+      global gate
+      gate = Gatekeeper(self)
 
    def __repr__( self ):
       return "<WJBFactory>"
 
    def gateCall(self, line):
+      global gate
       command = line.split()[0]
       try:
          args = line.split()[1:]
@@ -410,7 +404,7 @@ class WJBFactory( protocol.ServerFactory ):
       # call a function on the gatekeeper object matching do_<command>(args)
       try:
          funcname = "do_%s" % command
-         f = self.gate.__getattribute__( funcname )
+         f = gate.__getattribute__( funcname )
          return f(args)
       except AttributeError, ex:
          return "ER: Unable to execute %s: %s" % (repr(command), str(ex))
@@ -419,11 +413,13 @@ class WJBFactory( protocol.ServerFactory ):
 
 
    def processLine( self, line ):
+      global gate
       if line == '': return defer.succeed( "ER: Unknown Command" )
       return defer.succeed( self.gateCall( line ) )
 
    def stopFactory(self):
-      self.gate.stopThreads()
+      global gate
+      gate.stopThreads()
 
 application = None
 if os.getuid() == 0:
@@ -440,8 +436,16 @@ else:
 
 if application is not None:
    factory = WJBFactory()
-   internet.TCPServer(int(config['demon.port']), factory).setServiceParent(
+   internet.TCPServer( int(config['demon.port']), factory).setServiceParent(
        service.IServiceCollection(application))
+   sapi = SatelliteAPI()
+   sapi.setGate( gate )
+   if config['xmlrpc.port'] != '':
+      log.msg( '%-20s %30s' % ( 'XML-RPC support:', 'enabled' ) )
+      internet.TCPServer( int(config['xmlrpc.port']), server.Site(sapi)).setServiceParent(
+          service.IServiceCollection(application))
+   else:
+      log.msg( '%-20s %20s %s' % ( 'XML-RPC support:', 'disabled', '(no port specified)' ) )
 else:
    log.err( "Application failed to start up." )
 
