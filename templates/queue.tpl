@@ -4,6 +4,9 @@
             <a href="/browse/albums/byid/{$PLAYER_STATUS.song_info.album_id}/"><img src="/browse/albums/thumb/{$PLAYER_STATUS.song_info.album_id}/" border="0" id="img_queue"/></a>
             {/if}
             <p class="nowplaying"><a href="/details/song/{$PLAYER_STATUS.song_info.id}/">{$PLAYER_STATUS.artistinfo.name}<br />{$PLAYER_STATUS.songinfo.title} ({$PLAYER_STATUS.songinfo.duration|date_format:"%M:%S"})</a></p>
+            <script>
+            document.title = '{$PLAYER_STATUS.artistinfo.name|escape:javascript} - {$PLAYER_STATUS.songinfo.title|escape:javascript}';
+            </script>
             {else}
             <p>Status: not available</p>
             {/if}
