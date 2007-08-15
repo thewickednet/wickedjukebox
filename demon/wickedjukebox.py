@@ -31,9 +31,15 @@ class Librarian(object):
          self.__abort = True
 
       def __init__(self, folders, args=None):
+
          if args is not None:
             self.__forceScan = args[0] != '0'
-            self.__cap       = args[1]
+            try:
+               self.__cap       = args[1]
+            except IndexError:
+               # no cap was specified. We can live with that
+               pass
+
          self.__folders = folders
          threading.Thread.__init__(self)
 
