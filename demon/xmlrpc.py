@@ -271,7 +271,7 @@ class Satellite(threading.Thread):
          return
       log.msg( '%-20s %30s' % ( 'XML-RPC support:', 'enabled' ) )
 
-      self.ip   = getSetting( 'xmlrpc_iface', '127.0.0.1' )
+      self.ip   = getSetting( 'xmlrpc_iface', '' )
 
       log.msg( "XML-RPC service starting up..." )
       while True:
@@ -285,8 +285,15 @@ class Satellite(threading.Thread):
             time.sleep(1)
             pass
 
+      self.server.register_introspection_functions()
       self.server.register_instance(SatelliteAPI(jukebox))
-      log.msg( "Serving XMLRPC on port %s" % self.port )
+
+      if self.ip == '':
+         iface = 'all'
+      else:
+         iface = self.ip
+
+      log.msg( "Serving XMLRPC on interface [%s:%s]" % (iface, self.port) )
       threading.Thread.__init__(self)
 
    def run(self):
