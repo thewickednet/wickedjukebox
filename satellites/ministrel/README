@@ -1,0 +1,2 @@
+Polls the jukebox on a regular interval and writes the current song info in a
+text-file. This may be useful for other programs (f.ex a WoW-Addon ;) )
