@@ -5,10 +5,13 @@
             {/if}
             <p class="nowplaying"><a href="/details/song/{$PLAYER_STATUS.song_info.id}/">{$PLAYER_STATUS.artistinfo.name}<br />{$PLAYER_STATUS.songinfo.title} ({$PLAYER_STATUS.songinfo.duration|date_format:"%M:%S"})</a></p>
             <script>
-            document.title = '{$PLAYER_STATUS.artistinfo.name|escape:javascript} - {$PLAYER_STATUS.songinfo.title|escape:javascript}';
+            document.title = '{$PLAYER_STATUS.artistinfo.name|escape:javascript} - {$PLAYER_STATUS.songinfo.title|escape:javascript}' + ' is currently playing @ Wicked Jukebox';
             </script>
             {else}
             <p>Status: not available</p>
+            <script>
+            document.title = 'Wicked Jukebox';
+            </script>
             {/if}
 
             <h1>Queue</h1>
