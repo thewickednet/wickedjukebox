@@ -163,7 +163,10 @@ class Gatekeeper(object):
       Starts a rescan of the library
 
       PARAMETERS
-         $1 - The "cap" string. Example: "rescanlib Th" only rescans file
+         $1 - force a scan even if the file has not been changed on disk since
+              last scan (boolean)
+
+         $2 - The "cap" string. Example: "rescanlib Th" only rescans file
               matching "Th*". Note that this caping only applies to the top
               level.
 

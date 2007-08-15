@@ -23,15 +23,17 @@ class Librarian(object):
 
    class Scanner(threading.Thread):
 
-      __abort = False
-      __cap   = ''
+      __abort     = False
+      __cap       = ''
+      __forceScan = False
 
       def abort(self):
          self.__abort = True
 
       def __init__(self, folders, args=None):
          if args is not None:
-            self.__cap = args[0]
+            self.__forceScan = args[0] != '0'
+            self.__cap       = args[1]
          self.__folders = folders
          threading.Thread.__init__(self)
 
@@ -98,7 +100,7 @@ class Librarian(object):
             log.err()
             return None
 
-      def __crawl_directory(self, dir, cap=''):
+      def __crawl_directory(self, dir, cap='', forceScan=False):
          """
          Scans a directory and all its subfolders for media files and stores their
          metadata into the library (DB)
@@ -240,7 +242,8 @@ class Librarian(object):
                   else:
                      # we found the song in the DB. Load it so we can update it's
                      # metadata. If it has changed since it was added to the DB!
-                     if song.lastScanned is None \
+                     if forceScan \
+                           or song.lastScanned is None \
                            or datetime.fromtimestamp(os.stat(filename).st_ctime) > song.lastScanned:
 
                         song.localpath   = filename
@@ -283,7 +286,7 @@ class Librarian(object):
 
       def run(self):
          for folder in self.__folders:
-            self.__crawl_directory(folder, self.__cap)
+            self.__crawl_directory(folder, self.__cap, self.__forceScan)
 
          session  = create_session()
 
@@ -486,7 +489,7 @@ the named channel exists in the database table called 'channel'" )
          nextSong = self.__random.get()
       log.msg( "[channel] skipping song" )
       self.__player.queue(nextSong.localpath.encode(fs_encoding))
-      self.__player.cropPlaylist(1)
+      self.__player.cropPlaylist(2)
       self.__player.skipSong()
 
       return 'OK'
@@ -541,7 +544,7 @@ the named channel exists in the database table called 'channel'" )
          # if the song is running for a while, crop the playlist
          currentPosition = self.__player.getPosition()
          if (currentPosition[1] - currentPosition[0]) > 3:
-            self.__player.cropPlaylist(1)
+            self.__player.cropPlaylist(2)
 
          # if the song is soon finished, update stats and pick the next one
          if (currentPosition[1] - currentPosition[0]) < 3:
