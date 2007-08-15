@@ -5,6 +5,10 @@ import xmlrpclib
 import simplejson
 import pprint
 
+default_ip   = "192.168.1.2"
+default_port = "65222"
+autoconnect  = True
+
 def unmarshal( data ):
    return simplejson.loads( data )
 
@@ -16,11 +20,15 @@ class StartQT4(QtGui.QMainWindow):
       self.ui.setupUi(self)
       QtCore.QObject.connect(self.ui.btnConnect, QtCore.SIGNAL('clicked()'), self.connect )
       QtCore.QObject.connect(self.ui.btnExecute, QtCore.SIGNAL('clicked()'), self.execute )
+      QtCore.QObject.connect(self.ui.lstMethods, QtCore.SIGNAL('itemSelectionChanged()'), self.methodHelp )
       self.__server = None
-      self.ui.txtIP.setText("192.168.1.2")
-      self.ui.txtPort.setText("61112")
+      self.ui.txtIP.setText(default_ip)
+      self.ui.txtPort.setText(default_port)
       self.updateFuncList()
       self.enableCalls(False)
+
+      if autoconnect:
+         self.connect()
 
    def enableCalls(self, state):
       self.ui.lstMethods.setEnabled(state)
@@ -41,10 +49,18 @@ class StartQT4(QtGui.QMainWindow):
          print ex
          self.enableCalls(False)
 
+   def methodHelp(self):
+      funcname = self.ui.lstMethods.selectedItems()[0].text()
+      docstring = self.__server.system.methodHelp(str(funcname))
+      self.ui.txtDocstring.setText( docstring )
+
    def updateFuncList(self):
       funcs = [ x[5:] for x in dir(self) if x.startswith('call_') ]
       for f in funcs:
          QtGui.QListWidgetItem(f, self.ui.lstMethods)
+
+   #def call_lsm(self, args):
+   #   return self.__server.system.listMethods()
 
    def call_help(self, args):
       return self.__server.help()
@@ -125,7 +141,6 @@ class StartQT4(QtGui.QMainWindow):
       except Exception, ex:
          self.ui.txtError.setText( "%s" % ex )
          self.ui.tabWidget.setCurrentIndex(2)
-
 
 if __name__ == "__main__":
    app = QtGui.QApplication(sys.argv)
