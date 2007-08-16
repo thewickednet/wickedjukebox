@@ -1,5 +1,7 @@
 <?php
 
+error_reporting(0);
+
 //////////////////////////////////
 // Zend Framework includes
 
@@ -55,20 +57,44 @@ $cache = Zend_Cache::factory('Core', 'Memcached', $cacheFrontendOptions);
 
 $registry->set('cache', $cache);
 
-error_reporting(0);
 $category   = $_GET['category'];
 $preset     = $_GET['preset'];
 $id         = $_GET['id'];
 
-$cache_key = sprintf("coverart-%s_%s-%s", $category, $preset, $id);
+$cover = "";
 
-$memcache = $kernel->cache;
-if ($_GET['flush'] == '1')
-	$memcache->delete($cache_key);
-
-if (!($data = $memcache->get($cache_key))) {
+switch ($category) {
+    case "song":
+        $song = Song::get($id);
+        $album_cover = Album::findCover($song['album_id']);
+        $artist_cover = Artist::findCover($song['artist_id']);
+        if (!empty($album_cover)) {
+            $cover = $album_cover;
+        } elseif (!empty($artist_cover)) {
+            $cover = $artist_cover;
+        }
+    break;
+    case "album":
+        $album_cover = Album::findCover($id);
+        if (!empty($album_cover))
+            $cover = $album_cover;
+    break;
+    case "artist":
+        $artist_cover = Artist::findCover($id);
+        if (!empty($artist_cover))
+            $cover = $artist_cover;
+    break;
     
-	$img = new Renderer($category, $preset, $filename, $folder);
+}
+
+$cache_key = sprintf("coverart_%s_%s_%s", $category, $preset, $id);
+
+if ($_GET['flush'] == '1')
+	$cache->remove($cache_key);
+
+//if(!$data = $cache->load($cache_key)) {
+    
+	$img = new Renderer($category, $preset, $cover);
 	$img->true_color   = true;
 	$img->out_file	   = $cache_key;
 	
@@ -83,12 +109,9 @@ if (!($data = $memcache->get($cache_key))) {
     $header = ob_get_contents();
     ob_end_clean();
     $data = $header . $image;
-	$data = base64_encode($data);
-	$memcache->set($cache_key, $data, MEMCACHE_UNCOMPRESSED, $kernel->img_ttl);
-    $kernel->log->info(sprintf("[RENDERER] - Category: %s - Filename: %s - Preset: %s - Folder: %s", $category, $filename, $preset, $folder));
-}
+//	$cache->save($data, $cache_key, 30);
+//}
 
-$data = base64_decode($data);
 echo $data;
 
 exit();

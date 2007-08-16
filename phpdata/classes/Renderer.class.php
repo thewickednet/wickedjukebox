@@ -23,45 +23,22 @@ class Renderer {
     private $preset         = null;
     
 
-    function __construct($category, $preset, $filename, $folder = "") {
+    function __construct($category, $preset, $filename = "") {
         
         $this->preset = $this->getPreset($category, $preset);
         
         if (count($this->preset) == 0)
-            die("invalid request");
+            die("invalid request - preset empty");
         
-        $kernel = Kernel::instance();
-                
-        if ($category == 'picasa') {
-            
-            if ($preset == 'thumb')
-                $filename .= "?imgmax=160&crop=1";
-            
-            $source_file = file_get_contents(urldecode($filename));
-            
-            $original = tempnam("/tmp", "picasa");
-            
-            $handle = fopen($original, "w");
-            fwrite($handle, $source_file);
-            fclose($handle);
-            
-        } else {
-            if (!empty($folder))
-                $original = sprintf("../%s%s/%s/%s", $kernel->config['data']['images'], $category, $folder, $filename);
-            else
-                $original = sprintf("../%s/%s/%s", $kernel->config['data']['images'], $category, $filename);
-        }
-        //print($original);
-        $blank = sprintf("../%s%s", $kernel->config['data']['images'], "blank.gif");
         
-        if (file_exists($original))
-            $src_file = $original;
+        if (!empty($filename))
+            $src_file = $filename;
         elseif ($this->preset['placeholder'] != '') {
-            $src_file = sprintf("../%s%s/%s", $kernel->config['data']['images'], 'placeholder', $this->preset['placeholder']);
+            $src_file = sprintf("../httpd_data/placeholder/%s", $this->preset['placeholder']);
             if (!file_exists($src_file))
-                $src_file = $blank;
+                die("invalid request");
         } else 
-            $src_file = $blank;
+                die("invalid request");
         //print($src_file);
         //print_r($info);
         $info = getimagesize($src_file);
@@ -151,13 +128,21 @@ class Renderer {
     }
 
     function getPreset($category, $preset) {
+
+        $db = Zend_Registry::get('database');
         
-      $mdb2 =& MDB2::singleton();
-
-      $data = $mdb2->extended->getRow("SELECT * FROM render_presets WHERE category = ? AND preset = ?", null, array($category, $preset));
-      return $data;
-
+        $select = $db->select()
+                     ->from('render_presets')
+                     ->where('category = ?', $category)
+                     ->where('preset = ?', $preset);
+                     
+        $stmt = $select->query();
+        $result = $stmt->fetchAll();
+        if (count($result) == 1)
+            return $result[0];
+        return array();
     }
+
 }
 
 ?>

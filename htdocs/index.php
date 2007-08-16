@@ -31,6 +31,7 @@ require_once('../phpdata/classes/User.class.php');
 //
 // Retrieve the configuration data from the INI file
 
+$xml_config = new Zend_Config_Ini('../config.ini', 'xmlrpc');
 $db_config = new Zend_Config_Ini('../config.ini', 'database');
 $demon_config = new Zend_Config_Ini('../config.ini', 'demon');
 
@@ -58,7 +59,7 @@ Zend_Registry::setInstance($registry);
 
 require_once 'Zend/XmlRpc/Client.php';
 
-$xmlrpc = new Zend_XmlRpc_Client('http://localhost:65222/');
+$xmlrpc = new Zend_XmlRpc_Client(sprintf("http://localhost:%s", $xml_config->port));
 
 $registry->set('xmlrpc', $xmlrpc);
 

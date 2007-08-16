@@ -53,7 +53,7 @@ class Artist {
         $db = Zend_Registry::get('database');
         
         $select = $db->select()
-                     ->from(array('s' => 'song'), array('title', 'song_id' => 'id', 'track_no', 'duration'))
+                     ->from(array('s' => 'song'), array('title', 'song_id' => 'id', 'track_no', 'duration', 'localpath'))
                      ->joinLeft(array('a' => 'album'), 's.album_id = a.id', array('album_name' => 'name', 'album_id' => 'id'))
                      ->where('s.artist_id = ?', $artist_id)
                      ->order('album_name', 'track_no');
@@ -87,7 +87,6 @@ class Artist {
 
 
 }
-
 
 
 ?>

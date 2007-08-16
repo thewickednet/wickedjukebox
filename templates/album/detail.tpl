@@ -2,13 +2,11 @@
 
             <h2>{$ALBUM.name}{if $CORE->permissions.queue_add eq '1'} <a href="#" onclick="javascript:addalbum({$ALBUM.id});"><img src="/images/bullet_add.png" class="button" /></a>{/if}</h2>
 
-            <table cellspacing="6" width="750">
+            <table cellspacing="6" width="700">
             <tr>
               <td>Artist:</b> <a href="/details/artist/{$ARTIST.id}/">{$ARTIST.name}</a></td>
               <td rowspan="4" align="right">
-              {if $COVER ne ''}
-              <img src="/browse/albums/cover/{$ALBUM.album_id}/" border="0" id="img_album"/>
-              {/if}
+                <img src="/img.php?category=album&preset=detail&id={$ALBUM.id}" style="border: 1px solid #cccccc; background-color: #ffffff; padding: 3px; margin-right: 2px; margin-top: 3px;" id="img_album"/>
               </td>
             </tr>
             <tr>

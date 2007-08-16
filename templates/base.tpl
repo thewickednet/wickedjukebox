@@ -11,6 +11,7 @@
   <script type="text/javascript" src="/javascript/prototype.js"></script>
   <script type="text/javascript" src="/javascript/jukebox.js"></script>
   <script type="text/javascript" src="/javascript/md5.js"></script>
+  <script type="text/javascript" src="/javascript/scriptaculous/scriptaculous.js"></script>
 {/literal}
 </head>
 
@@ -24,7 +25,8 @@
 		</div>
 
 		<div id="header">
-				<h1>wicked jukebox 2.o</h1>
+				<h1>wicked jukebox 2.o<br />
+				</h1>
 				<h2>hei spillt d'mus&eacute;k</h2>
 		</div>
 
@@ -92,7 +94,7 @@
   <div style="height: 50px; clear:both;">&nbsp;</div>
   <div id="footer">
  		wicked jukebox 2.o<br />
-  Designed by <a href="http://www.jameskoster.co.uk">James Koster</a>, all the rest by exhuma.twn & doc.twn - The Wicked Net</div>
+  Design based on <a href="http://www.oswd.org/design/preview/id/2087" target="_blank">Plain 1.0</a> by <a href="http://www.jameskoster.co.uk">James Koster</a> - all the rest by exhuma.twn & doc.twn - <a href="http://www.wicked.lu" target="_blank">The Wicked Net</a></div>
  </center>
 
 </div>

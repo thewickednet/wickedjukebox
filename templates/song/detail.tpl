@@ -6,14 +6,10 @@
             <table width="750" cellspacing="8">
               <tr>
                 <td width="50%" colspan="2">
-                {if $ARTIST_COVER ne ''}
-                <img src="/cover/artist/{$SONG.artist_id}/" border="0" id="img_artist"/>
-                {/if}
+                <a href="/details/artist/{$ARTIST.id}/"><img src="/img.php?category=artist&preset=detail&id={$ARTIST.id}" style="border: 1px solid #cccccc; background-color: #ffffff; padding: 3px; margin-right: 2px; margin-top: 3px;" id="img_artist"/></a>
                 </td>
                 <td width="50%" colspan="2">
-                {if $ALBUM_COVER ne ''}
-                <img src="/cover/album/{$SONG.album_id}/" border="0" id="img_album"/>
-                {/if}
+                <a href="/details/album/{$ALBUM.id}/"><img src="/img.php?category=album&preset=detail&id={$ALBUM.id}" style="border: 1px solid #cccccc; background-color: #ffffff; padding: 3px; margin-right: 2px; margin-top: 3px;" id="img_album"/></a>
                 </td>
               </tr>
               <tr>

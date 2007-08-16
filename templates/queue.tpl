@@ -3,7 +3,10 @@
             {if $PLAYER_STATUS.cover ne ''}
             <a href="/browse/albums/byid/{$PLAYER_STATUS.song_info.album_id}/"><img src="/browse/albums/thumb/{$PLAYER_STATUS.song_info.album_id}/" border="0" id="img_queue"/></a>
             {/if}
-            <p class="nowplaying"><a href="/details/song/{$PLAYER_STATUS.song_info.id}/">{$PLAYER_STATUS.artistinfo.name}<br />{$PLAYER_STATUS.songinfo.title} ({$PLAYER_STATUS.songinfo.duration|date_format:"%M:%S"})</a></p>
+            <p class="nowplaying">
+            <a href="/details/song/{$PLAYER_STATUS.songinfo.id}/">
+            <img src="/img.php?category=song&preset=queue&id={$PLAYER_STATUS.songinfo.id}" align="left" vspace="7" hspace="7" style="border: 1px solid #cccccc; background-color: #ffffff; padding: 3px; margin-right: 2px; margin-top: 3px;" />
+            {$PLAYER_STATUS.artistinfo.name}<br />{$PLAYER_STATUS.songinfo.title}<br />({$PLAYER_STATUS.songinfo.duration|date_format:"%M:%S"})</a></p>
             <script>
             document.title = '{$PLAYER_STATUS.artistinfo.name|escape:javascript} - {$PLAYER_STATUS.songinfo.title|escape:javascript}' + ' is currently playing @ Wicked Jukebox';
             </script>
@@ -13,7 +16,7 @@
             document.title = 'Wicked Jukebox';
             </script>
             {/if}
-
+            <p>&nbsp;<br />&nbsp;</p>
             <h1>Queue</h1>
             {if count($QUEUE) ne '0'}
             <ul id="queue_list" {if $CORE->permissions.admin eq '1'}class="sortable-list"{/if}>
@@ -22,16 +25,17 @@
             {/foreach}
             </ul>
                 <li style="border-bottom: 0px solid #eeeeee; padding-top: 5px;"><b>Total:</b> {$QUEUE_TOTAL.totaltime|date_format:"%M:%S"}{if $CORE->permissions.admin eq '1'} - <a href="#" onclick="javascript:cleanqueue();" style="color: red;">clean queue</a>{/if}</li>
+
+            {if $CORE->permissions.admin eq '1'}
+            {literal}
+            <script type="text/javascript">
+                Sortable.create('queue_list', { onUpdate : resortQueue });
+            </script>
+            {/literal}
+            {/if}
+    
             {else}
             the queue is empty.
             {/if}
+            
             <p><a href="#" onclick="javascript:refreshQueue();">refresh queue</a></p>
-
-        {if $CORE->permissions.admin eq '1'}
-        {literal}
-        <script type="text/javascript" src="/javascript/scriptaculous/scriptaculous.js"></script>
-        <script type="text/javascript">
-            Sortable.create('queue_list', { onUpdate : resortQueue });
-        </script>
-        {/literal}
-        {/if}

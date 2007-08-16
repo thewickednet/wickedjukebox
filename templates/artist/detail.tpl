@@ -7,10 +7,8 @@
             {if $ARTIST.name eq 'Various Artists' || $ARTIST.name eq 'Soundtracks' || $ARTIST.name eq 'Video Games'}
             <h3>Songs in this category</h3>
             {else}
-            {if $COVER ne ''}
-              <img src="/browse/artists/cover/{$ARTIST.artist_id}/" border="0" id="img_artist" />
+                <img src="/img.php?category=artist&preset=detail&id={$ARTIST.id}" style="border: 1px solid #cccccc; background-color: #ffffff; padding: 3px; margin-right: 2px; margin-top: 3px;" id="img_artist"/>
             <h3>Songs by this artist</h3>
-            {/if}
 	    {/if}
             <div id="results">
             <table>
