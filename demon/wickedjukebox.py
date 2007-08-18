@@ -412,7 +412,7 @@ the named channel exists in the database table called 'channel'" )
    def currentSong(self):
       res = queueTable.select( and_(
          queueTable.c.song_id == self.__currentSongID,
-         queueTable.c.position == -1 ) ).execute()
+         queueTable.c.position == 0 ) ).execute()
       row = res.fetchone()
 
       userid = None
