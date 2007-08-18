@@ -39,6 +39,8 @@ def get():
       except ParserSyntaxError, ex:
          log.err( str(ex) )
          log.err( 'Query was: %s' % dpl.query )
+      except:
+         log.err()
 
    if config['database.type'] == 'sqlite':
       query = """
