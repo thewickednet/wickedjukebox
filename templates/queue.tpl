@@ -7,6 +7,7 @@
             <a href="/details/song/{$PLAYER_STATUS.songinfo.id}/">
             <img src="/img.php?category=song&preset=queue&id={$PLAYER_STATUS.songinfo.id}" align="left" vspace="7" hspace="7" style="border: 1px solid #cccccc; background-color: #ffffff; padding: 3px; margin-right: 2px; margin-top: 3px;" />
             {$PLAYER_STATUS.artistinfo.name}<br />{$PLAYER_STATUS.songinfo.title}<br />({$PLAYER_STATUS.songinfo.duration|date_format:"%M:%S"})</a></p>
+            [queued by {$PLAYER_STATUS.userinfo.username}]
             <script>
             document.title = '{$PLAYER_STATUS.artistinfo.name|escape:javascript} - {$PLAYER_STATUS.songinfo.title|escape:javascript}' + ' is currently playing @ Wicked Jukebox';
             </script>

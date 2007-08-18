@@ -14,13 +14,24 @@ class Backend {
             $channel_id = $core->channel_id;
         
         $xmlrpc_result = $xmlrpc->call('getCurrentSong', array($channel_id));
-        
-        $songinfo = Song::get($xmlrpc_result);
+        $info = array();
+        preg_match('/\{"userid": (.*), "id": (\d+)\}/', $xmlrpc_result, $info);
+
+        if ($info[1] != 'null'){
+           $userinfo = User::getUser($info[1]);
+        } else {
+           $userinfo = array(
+              'username' => 'the jukebox'
+              );
+        }
+
+        $songinfo = Song::get($info[2]);
         $artistinfo = Artist::getById($songinfo['artist_id']);
         $albuminfo = Artist::getById($songinfo['album_id']);
         
         $result = array(
                         'songinfo'      =>  $songinfo,
+                        'userinfo'      =>  $userinfo,
                         'artistinfo'    =>  $artistinfo,
                         'albuminfo'     =>  $albuminfo
                         );

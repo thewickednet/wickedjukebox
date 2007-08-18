@@ -3,7 +3,7 @@ from model import create_session, Artist, Album, Song, \
                   ChannelStat, Channel as dbChannel,\
                   getSetting, metadata as dbMeta,\
                   songTable, LastFMQueue, usersTable,\
-                  Genre, genreTable
+                  queueTable, Genre, genreTable
 from sqlalchemy import and_
 from datetime import datetime
 from util import Scrobbler, fs_encoding
@@ -410,8 +410,16 @@ the named channel exists in the database table called 'channel'" )
       threading.Thread.__init__(self)
 
    def currentSong(self):
-      #song = self.sess.query(Song).selectfirst_by( Song.c.id == self.__currentSongID )
-      return self.__currentSongID
+      res = queueTable.select( and_(
+         queueTable.c.song_id == self.__currentSongID,
+         queueTable.c.position == -1 ) ).execute()
+      row = res.fetchone()
+
+      userid = None
+      if row is not None:
+         userid = row[queueTable.c.user_id]
+
+      return {"id": self.__currentSongID, "userid": userid }
 
    def isStopped(self):
       return self._Thread__stopped
