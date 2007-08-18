@@ -32,7 +32,7 @@ def get():
    for dpl in res:
       try:
          if parseQuery( dpl.query ) is not None:
-            whereClause = "AND (%s)" % parseQuery( dpl.query )
+            whereClause = "WHERE (" + parseQuery( dpl.query ) + ")"
          break; # only one query will be parsed. for now.... this is a big TODO
                 # as it triggers an unexpected behaviour (bug). i.e.: Why the
                 # heck does it only activate one playlist?!?
@@ -80,7 +80,7 @@ def get():
          'playRatio':   playRatio,
          'lastPlayed':  lastPlayed,
          'songAge':     songAge,
-         'where':       whereClause,
+         'where':       whereClause.replace("%", "%%"),
       }
    elif config['database.type'] == 'mysql':
       query = """
@@ -88,8 +88,10 @@ def get():
            IFNULL( IF(played+skipped>=10, (played/(played+skipped))*%(playRatio)d, 0.5*%(playRatio)d), 0)
               + (IFNULL( least(604800, time_to_sec(timediff(NOW(), lastPlayed))), 604800)-604800)/604800*%(lastPlayed)d
               + IF( lastPlayed IS NULL, %(neverPlayed)d, 0)
-              * IFNULL( IF( time_to_sec(timediff(NOW(),added))<1209600, time_to_sec(timediff(NOW(),added))/1209600*%(songAge)d, 0), 0) AS score
+              * IFNULL( IF( time_to_sec(timediff(NOW(),s.added))<1209600, time_to_sec(timediff(NOW(),s.added))/1209600*%(songAge)d, 0), 0) AS score
         FROM song s LEFT JOIN channel_song_data c ON (c.song_id=s.id)
+        INNER JOIN artist a ON ( a.id = s.artist_id )
+        INNER JOIN album b ON ( b.id = s.album_id )
         %(where)s
         ORDER BY score DESC, rand()
         LIMIT 10 OFFSET 0
@@ -98,7 +100,7 @@ def get():
          'playRatio':   playRatio,
          'lastPlayed':  lastPlayed,
          'songAge':     songAge,
-         'where':       whereClause,
+         'where':       whereClause.replace("%", "%%"),
       }
 
    resultProxy = dbText(query, engine=dbMeta.engine).execute()
