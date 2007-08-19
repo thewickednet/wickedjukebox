@@ -534,6 +534,21 @@ the named channel exists in the database table called 'channel'" )
 
          # check if the player accidentally went into the "stop" state
          if self.__player.status() == 'stop' and self.__playStatus == 'playing':
+            # This most likely means we hit the end of the playlist:
+            #   - clear the playlist
+            #   - add the next song to the playlist and
+            #   - start playback
+
+            self.__player.cropPlaylist(0)
+
+            self.__random     = playmodes.create( getSetting( 'random_model', 'random_weighed' ) )
+            self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
+
+            nextSong = self.__queuemodel.dequeue()
+            if nextSong is None:
+               nextSong = self.__random.get()
+            self.__player.queue(nextSong.localpath.encode(fs_encoding))
+
             self.__player.startPlayback()
 
          # or if it accidentally wen into the play state
@@ -555,17 +570,13 @@ the named channel exists in the database table called 'channel'" )
             self.__currentSongRecorded = False
             self.__currentSongFile     = self.__player.getSong()
 
-         # if the song is running for a while, crop the playlist
-         currentPosition = self.__player.getPosition()
-         if (currentPosition[1] - currentPosition[0]) > 3:
-            self.__player.cropPlaylist(2)
-
          # if the song is soon finished, update stats and pick the next one
+         currentPosition = self.__player.getPosition()
          if (currentPosition[1] - currentPosition[0]) < 3:
             if self.__currentSongID != 0 and not self.__currentSongRecorded:
                stat = sess.query(ChannelStat).select( and_(
                         songTable.c.id == ChannelStat.c.song_id,
-                        songTable.c.id==self.__currentSongID,
+                        songTable.c.id == self.__currentSongID,
                         ChannelStat.c.channel_id==self.dbModel.id) )
                if stat == [] :
                   stat = ChannelStat( songid = self.__currentSongID,
@@ -581,15 +592,6 @@ the named channel exists in the database table called 'channel'" )
                self.__currentSongRecorded = True
                sess.save(stat)
                sess.flush()
-
-            # set "current song" to the next in the queue or use random
-            self.__random     = playmodes.create( getSetting( 'random_model', 'random_weighed' ) )
-            self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
-
-            nextSong = self.__queuemodel.dequeue()
-            if nextSong is None:
-               nextSong = self.__random.get()
-            self.__player.queue(nextSong.localpath.encode(fs_encoding))
 
          # if we handed out credits more than 5mins ago, we give out some more
          if (datetime.now() - lastCreditGiveaway).seconds > 300:
