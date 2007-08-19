@@ -51,7 +51,7 @@ Zend_Registry::setInstance($registry);
 
 $cacheFrontendOptions = array(
    'lifetime' => 7200, // cache lifetime of 2 hours
-   'automatic_serialization' => true
+   'automatic_serialization' => false
 );
 $cache = Zend_Cache::factory('Core', 'Memcached', $cacheFrontendOptions);
 
@@ -87,12 +87,15 @@ switch ($category) {
     
 }
 
+if ($cover == "")
+    $id = "blank";
+
 $cache_key = sprintf("coverart_%s_%s_%s", $category, $preset, $id);
 
 if ($_GET['flush'] == '1')
 	$cache->remove($cache_key);
 
-//if(!$data = $cache->load($cache_key)) {
+if(!$data = $cache->load($cache_key)) {
     
 	$img = new Renderer($category, $preset, $cover);
 	$img->true_color   = true;
@@ -109,10 +112,11 @@ if ($_GET['flush'] == '1')
     $header = ob_get_contents();
     ob_end_clean();
     $data = $header . $image;
-//	$cache->save($data, $cache_key, 30);
-//}
+    $data = base64_encode($data);
+	$cache->save($data, $cache_key);
+}
 
-echo $data;
+echo base64_decode($data);
 
 exit();
 
