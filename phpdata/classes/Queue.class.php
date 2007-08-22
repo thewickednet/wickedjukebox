@@ -29,7 +29,7 @@ class Queue {
         
         $select = $db->select()
                      ->from(array('q' => 'queue'), array('queue_id' => 'id'))
-                     ->join(array('s' => 'song'), 'q.song_id = s.id')
+                     ->join(array('s' => 'song'), 'q.song_id = s.id', array('song_id' => 'id', 'duration', 'title', 'artist_id'))
                      ->join(array('a' => 'artist'), 's.artist_id = a.id')
                      ->join(array('u' => 'users'), 'q.user_id = u.id')
                      ->where('q.channel_id = ?', $core->channel_id)
@@ -40,6 +40,15 @@ class Queue {
         $stmt = $select->query();
         $result = $stmt->fetchAll();
         return $result;
+        
+    }
+
+    function getOwner($queue_id) {
+        
+        $item = self::get($queue_id);
+        if (count(item) == 0)
+            return 0;
+        return $item['user_id'];
         
     }
 

@@ -120,6 +120,15 @@ class Core {
         
     }
 
+    function highLight($params, &$smarty) {
+        
+//        $replace = sprintf("<span class=\"highlight\">%s</span>", $params['mask']);
+        $search = $params['mask'];
+        return preg_replace("/$search/im", '<span class=highlight>$0</span>', $params['string']);
+        
+    }
+
+
 }
 
 ?>

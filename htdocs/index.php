@@ -23,6 +23,7 @@ require_once('../phpdata/classes/Album.class.php');
 require_once('../phpdata/classes/Song.class.php');
 require_once('../phpdata/classes/Genre.class.php');
 require_once('../phpdata/classes/Queue.class.php');
+require_once('../phpdata/classes/Search.class.php');
 require_once('../phpdata/classes/Channel.class.php');
 require_once('../phpdata/classes/User.class.php');
 
@@ -56,6 +57,16 @@ $registry = new Zend_Registry(array('database' => $db));
 
 Zend_Registry::setInstance($registry);
 
+require_once 'Zend/Log.php';
+require_once 'Zend/Log/Writer/Db.php';
+
+$columnMapping = array('priority' => 'priority', 'message' => 'message');
+
+$writer = new Zend_Log_Writer_Db($db, 'log', $columnMapping);
+
+$logger = new Zend_Log($writer);
+
+$registry->set('logger', $logger);
 
 require_once 'Zend/XmlRpc/Client.php';
 
@@ -82,6 +93,7 @@ $cache = Zend_Cache::factory('Core', 'Memcached', $cacheFrontendOptions);
 $registry->set('cache', $cache);
 
 
+
 //////////////////////////////////
 // TEMPLATES
 //
@@ -97,6 +109,7 @@ $smarty->compile_dir  = '../httpd_data/templates/';
 $core->template = "base.tpl";
 
 $smarty->register_modifier('bytesToHumanReadable', array('core','bytesToHumanReadable'));
+$smarty->register_function('highLight', array('core','highLight'));
 
 if (Auth::isAuthed()) {
     $core->user_id = Auth::getAuth();
@@ -114,6 +127,9 @@ switch ($_GET['module']) {
     case "auth":
         include "../phpdata/modules/auth/index.php";
     break;
+    case "authrefresh":
+        include "../phpdata/modules/auth/refresh.php";
+    break;
     case "channel":
         include "../phpdata/modules/channel/index.php";
     break;
@@ -122,6 +138,9 @@ switch ($_GET['module']) {
     break;
     case "queue":
         include "../phpdata/modules/queue/index.php";
+    break;
+    case "search":
+        include "../phpdata/modules/search/index.php";
     break;
     case "album":
         include "../phpdata/modules/album/index.php";
@@ -147,6 +166,8 @@ $smarty->assign("PLAYER_STATUS", Backend::getCurrentSong(1));
 
 $smarty->assign("QUEUE", Queue::getCurrent());
 $smarty->assign("QUEUE_TOTAL", Queue::getTotalTime());
+
+$smarty->assign("RANDOM_SONGS", Song::getRandom());
 
 $smarty->assign("BODY_TEMPLATE", $body_template);
 

@@ -310,5 +310,14 @@ li {
                 
                 #queue li 			{ border-bottom: dotted black 1px; padding: 5px;}
                 #queue_list         { list-style: none; margin: 0; padding: 0; }
+
+                #random li 			{ border-bottom: dotted black 1px; padding: 5px;}
+                #random_list         { list-style: none; margin: 0; padding: 0; }
                 
                 .sortable-list li   { cursor: move; }
+                .highlight          { color: #990066; }
+                .resultlist:hover   { background: #cceecc; }
+                
+                .warning            { color: #fcb415; }
+                .critical           { color: #cc0000; }
+

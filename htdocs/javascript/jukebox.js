@@ -38,8 +38,18 @@ function refreshQueue(){
   return false;
 }
 
+function refreshRandom(){
+  new Ajax.Updater('random', '/index.php?module=song&action=randomize', {asynchronous:true, evalScripts:true, onLoading: showRandomCarousel, onComplete: hideRandomCarousel });
+  return false;
+}
+
 function refreshQueuePeriodical(){
   QueueUpdates = new Ajax.PeriodicalUpdater('queue', '/index.php?module=queue', { method: 'get', frequency: 10, decay: 1, asynchronous:true, evalScripts:true });
+  return false;
+}
+
+function refreshProfile() {
+  new Ajax.Updater('login', '/index.php?module=authrefresh', {asynchronous:true, evalScripts:true });
   return false;
 }
 
@@ -47,7 +57,7 @@ function search(){
   var pattern = document.searchform.pattern.value;
   var mode = document.searchform.mode.value;
 
-  new Ajax.Updater('mainbar', '/index.php?section=search&pattern='+pattern+'&mode='+mode, {asynchronous:true, evalScripts:true });
+  new Ajax.Updater('body', '/index.php?module=search&pattern='+pattern+'&action='+mode, {asynchronous:true, evalScripts:true, onLoading: showSearchCarousel, onComplete: hideSearchCarousel });
   return false;
 
 }
@@ -91,6 +101,24 @@ function blaatOver(page) {
     
 }
 
+function blaatOverDetail(page) {
+    
+  var param = document.helperform.param.value;
+  var module = document.helperform.module.value;
+  
+  new Ajax.Updater('results', '/?module='+module+'&action=detail&param='+param+'&pagenum='+page, {asynchronous:true, evalScripts:true });
+    
+}
+
+function blaatOverSearch(page) {
+    
+  var pattern = document.searchform.pattern.value;
+  var mode = document.searchform.mode.value;
+
+  new Ajax.Updater('body', '/index.php?module=search&pattern='+pattern+'&action='+mode+'&pagenum='+page, {asynchronous:true, evalScripts:true, onLoading: showSearchCarousel, onComplete: hideSearchCarousel });
+    
+}
+
 function resortQueue()
 {
     var options = {
@@ -100,3 +128,27 @@ function resortQueue()
  
     new Ajax.Request('/?module=queue&action=resort', options);
 }
+
+
+function showSearchCarousel() {
+	var loading = document.getElementById('search_carousel');
+	loading.style.display = 'block';
+
+}
+
+function hideSearchCarousel() {
+	var loading = document.getElementById('search_carousel');
+	loading.style.display = 'none';
+}
+
+function showRandomCarousel() {
+	var loading = document.getElementById('random_carousel');
+	loading.style.display = 'block';
+
+}
+
+function hideRandomCarousel() {
+	var loading = document.getElementById('random_carousel');
+	loading.style.display = 'none';
+}
+

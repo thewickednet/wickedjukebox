@@ -11,3 +11,4 @@
             {/foreach}
             {if $smarty.capture.column == "0"}<td></td></tr>{/if}
             </table>
+            <p align="center">{$LINKS}</p>

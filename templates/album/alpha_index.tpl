@@ -2,7 +2,7 @@
             <p>
             {foreach from=$ALPHA_INDEX key=KEY item=VALUE name=alist}
             {if $KEY ne $ALPHA}
-                <a href="#" onclick="javascript:listAlpha('{$KEY}');">{$VALUE}</a>{if !$smarty.foreach.alist.last} -{/if}
+                <a href="javascript:;" onclick="javascript:listAlpha('{$KEY}');">{$VALUE}</a>{if !$smarty.foreach.alist.last} -{/if}
             {else}
                 {$VALUE}{if !$smarty.foreach.alist.last} -{/if}
             {/if}

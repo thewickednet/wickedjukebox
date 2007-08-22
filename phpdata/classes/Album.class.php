@@ -72,6 +72,22 @@ class Album {
 
   }
 
+
+    function getCost($album_id) {
+        $db = Zend_Registry::get('database');
+        
+        $select = $db->select()
+                     ->from(array('s' => 'song'), array('cduration' => 'SUM(duration)'))
+                     ->where('s.album_id = ?', $album_id);
+                     
+        $stmt = $select->query();
+        $result = $stmt->fetchAll();
+        if (count($result) == 1)
+            return round($result[0]['cduration']/60);
+        return 0;
+        
+    }
+
 }
 
 

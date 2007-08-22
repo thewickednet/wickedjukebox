@@ -1,6 +1,6 @@
 						<h1><a name="intro" id="intro"></a>Album Details</h1>
 
-            <h2>{$ALBUM.name}{if $CORE->permissions.queue_add eq '1'} <a href="#" onclick="javascript:addalbum({$ALBUM.id});"><img src="/images/bullet_add.png" class="button" /></a>{/if}</h2>
+            <h2>{if $CORE->permissions.queue_add eq '1'} <a href="#" onclick="javascript:addalbum({$ALBUM.id});"><img src="/images/bullet_add.png" class="button" /></a>{/if} {$ALBUM.name} ({$ALBUM.cost} <img src="/images/money.png" class="button" />)</h2>
 
             <table cellspacing="6" width="700">
             <tr>
@@ -25,9 +25,9 @@
             <table cellspacing="6">
             {foreach from=$SONGS item=SONG}
               <tr>
-                <td width="24">{if $CORE->permissions.queue_add eq '1'}<a href="#" onclick="javascript:addsong({$SONG.id});"><img src="/images/bullet_add.png" class="button" /></a>{/if}</td>
-                <td>{$SONG.track_no} - <a href="/details/song/{$SONG.id}/">{$SONG.title}</a></td>
-                <td align="right">{$SONG.duration|date_format:"%M:%S"}</td>
+                <td width="24">{if $CORE->permissions.queue_add eq '1'}<a href="javascript:;" onclick="javascript:addsong({$SONG.id});"><img src="/images/bullet_add.png" class="button" /></a>{/if}</td>
+                <td>{$SONG.track_no|string_format:"%02d"} - <a href="/details/song/{$SONG.id}/">{$SONG.title}</a></td>
+                <td align="right">{$SONG.duration|date_format:"%M:%S"} ({$SONG.cost} <img src="/images/money.png" class="button" />)</td>
               </tr>
             {/foreach}
             </table>

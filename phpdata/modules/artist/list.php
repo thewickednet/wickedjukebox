@@ -28,6 +28,8 @@ if (!empty($_GET['pagenum']))
         'append'    => false,
         'urlVar'    => 'pagenum',
         'path'      => '',
+        'prevImg'   => '<img src="/images/resultset_previous.png" border="0" />',
+        'nextImg'   => '<img src="/images/resultset_next.png" border="0" />',
         'fileName'  => 'javascript:blaatOver(%d)',
         'itemData'  => $artists
     );

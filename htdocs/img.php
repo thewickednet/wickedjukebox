@@ -109,6 +109,7 @@ if(!$data = $cache->load($cache_key)) {
 	ob_start();
 	header("Content-Transfer-Encoding: binary\n");
 	header('Content-Length: '.$size);
+	header('Content-Disposition: attachment; filename="'.$cache_key.'.png"');
     $header = ob_get_contents();
     ob_end_clean();
     $data = $header . $image;

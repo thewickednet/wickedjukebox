@@ -1,5 +1,5 @@
           <h1>My Jukebox</h1>
-          <p>logged in as <b>{$CORE->userdata.fullname}</b> - <a href="#" onclick="javascript:logout();">logout</a></p>
+          <p><img src="/images/user_gray.png" />&nbsp;&nbsp;<b>{$CORE->userdata.fullname}</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:;" onclick="javascript:logout();"><img src="/images/logout.png" border="0" /></a></p>
           {if count($CHANNEL_LIST) > 1}
           <p><form>
           Channel:
@@ -10,6 +10,5 @@
           </p>
           {/if}
           <p>
-          <b>Group:</b> {$CORE->permissions.title}<br />
-          <b>Credits:</b> {$CORE->userdata.credits}<br />
+          <img src="/images/group.png" />&nbsp;&nbsp;<b>{$CORE->permissions.title}</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="/images/money.png" /></b> <b>{$CORE->userdata.credits}</b>
           </p>

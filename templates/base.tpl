@@ -31,6 +31,9 @@
 		</div>
 
 		<div id="content">
+          <img src="/images/carousel.gif" width="0" height="0" />
+          <img src="/images/tick.png" width="0" height="0" />
+          <img src="/images/exclamation.png" width="0" height="0" />
 <!--
 				<img src="images/logo.jpg" alt="Your Logo" class="logo" />
 
@@ -45,26 +48,27 @@
           <a href="#" onclick="javascript:control('stop');" id="control_stop">&nbsp;</a>
           <a href="#" onclick="javascript:control('pause');" id="control_pause">&nbsp;</a>
           <a href="#" onclick="javascript:control('play');" id="control_play">&nbsp;</a>
+          {if $CORE->permissions.queue_skip eq '1'}
           <a href="#" onclick="javascript:control('next');" id="control_next">&nbsp;</a>
+          {/if}
           {/if}
           </div>
 
 					<h1>Search</h1>
 					<form name="searchform" onsubmit="return search();">
-					<input type="text" name="pattern" /><br />
+					<img src="/images/carousel.gif" align="right" style="display:none;" id="search_carousel" />
+					<input type="text" name="pattern" maxlength="10" /><br />
 					<select name="mode">
             <option value="any">Any</option>
             <option value="artist">Artist</option>
             <option value="album">Album</option>
             <option value="song">Song</option>
+            <option value="lyrics">Lyrics</option>
           </select>
 					<input type="submit" value="Find!"  />
           </form>
 
           <div id="login">
-          <img src="/images/carousel.gif" width="0" height="0" />
-          <img src="/images/tick.png" width="0" height="0" />
-          <img src="/images/exclamation.png" width="0" height="0" />
           {if $CORE->user_id eq '-1'}
           {include file='login.tpl'}
           {else}
@@ -76,6 +80,9 @@
 					{include file='queue.tpl'}
 					</div>
 
+					<div class="submenu" id="random">
+					{include file='song/random.tpl'}
+					</div>
 
 				</div>
 
