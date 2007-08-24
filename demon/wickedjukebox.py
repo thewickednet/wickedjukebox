@@ -527,6 +527,8 @@ the named channel exists in the database table called 'channel'" )
 
          time.sleep(cycleTime)
 
+         maxCredits = int(getSetting('max_credits', '30'))
+
          # ping the database every 10 seconds
          if (datetime.now() - lastPing).seconds > 10:
             lastPing = datetime.now()
@@ -596,7 +598,7 @@ the named channel exists in the database table called 'channel'" )
          # if we handed out credits more than 5mins ago, we give out some more
          if (datetime.now() - lastCreditGiveaway).seconds > 300:
             usersTable.update(
-                  usersTable.c.credits<30,
+                  usersTable.c.credits < maxCredits,
                   values={usersTable.c.credits: usersTable.c.credits+5}
                   ).execute( )
             lastCreditGiveaway = datetime.now()
