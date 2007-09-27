@@ -22,4 +22,7 @@ Host=localhost
 User=jukebox
 Pass=
 Base=jukebox
+
+; the filename for sqlite DBs
+; Will be ignored if a real RDBMS is in use.
 File=
