@@ -444,6 +444,17 @@ the named channel exists in the database table called 'channel'" )
 
    def startPlayback(self):
       self.__playStatus = 'playing'
+
+      # TODO: This block is found as well in "skipSong! --> refactor"
+      # set "current song" to the next in the queue or use random
+      self.__random     = playmodes.create( getSetting( 'random_model', 'random_weighed' ) )
+      self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
+
+      nextSong = self.__queuemodel.dequeue()
+      if nextSong is None:
+         nextSong = self.__random.get()
+      self.__player.queue(nextSong.localpath.encode(fs_encoding))
+
       self.__player.startPlayback()
       return 'OK'
 
@@ -494,6 +505,7 @@ the named channel exists in the database table called 'channel'" )
       sess.flush()
       sess.close()
 
+      # TODO: This block is found as well in "startPlayback"! --> refactor"
       # set "current song" to the next in the queue or use random
       self.__random     = playmodes.create( getSetting( 'random_model', 'random_weighed' ) )
       self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
