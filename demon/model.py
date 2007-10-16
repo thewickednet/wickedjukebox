@@ -178,9 +178,13 @@ class ChannelStat(object):
 
 class LastFMQueue(object):
 
-   def __init__( self, songid ):
+   def __init__( self, songid, started ):
       self.song_id = songid
-      self.time_played = datetime.utcnow()
+      self.time_started = started
+      if getSetting('sys_utctime', 0) == 0:
+         self.time_played = datetime.utcnow()
+      else:
+         self.time_played = datetime.now()
 
 mapper( Genre, genreTable )
 mapper( LastFMQueue, lastfmTable, properties={

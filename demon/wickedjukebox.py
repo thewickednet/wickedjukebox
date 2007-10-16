@@ -442,6 +442,20 @@ the named channel exists in the database table called 'channel'" )
    def setBackend(self, backend):
       raise
 
+   def queueSong(self, song):
+      self.__player.queue(song.localpath.encode(fs_encoding))
+      if self.__scrobbler is not None:
+         sess = create_session()
+         a = sess.query(Artist).selectfirst_by(artist_id=song.artist_id)
+         b = sess.query(Album).selectfirst_by(album_id=song.album_id)
+         if a is not None and b is not None:
+            self.__scrobbler.now_playing(artist=a.name,
+                                         track=song.title,
+                                         album=b.name,
+                                         length=int(song.duration),
+                                         trackno=int(song.track_no))
+         sess.close()
+
    def startPlayback(self):
       self.__playStatus = 'playing'
 
@@ -453,7 +467,7 @@ the named channel exists in the database table called 'channel'" )
       nextSong = self.__queuemodel.dequeue()
       if nextSong is None:
          nextSong = self.__random.get()
-      self.__player.queue(nextSong.localpath.encode(fs_encoding))
+      self.queueSong(nextSong)
 
       self.__player.startPlayback()
       return 'OK'
@@ -503,7 +517,6 @@ the named channel exists in the database table called 'channel'" )
          stat.lastPlayed = datetime.now()
       sess.save(stat)
       sess.flush()
-      sess.close()
 
       # TODO: This block is found as well in "startPlayback"! --> refactor"
       # set "current song" to the next in the queue or use random
@@ -514,9 +527,10 @@ the named channel exists in the database table called 'channel'" )
       if nextSong is None:
          nextSong = self.__random.get()
       log.msg( "[channel] skipping song" )
-      self.__player.queue(nextSong.localpath.encode(fs_encoding))
+      self.queueSong(nextSong)
       self.__player.cropPlaylist(2)
       self.__player.skipSong()
+      sess.close()
 
       return 'OK'
 
@@ -561,8 +575,7 @@ the named channel exists in the database table called 'channel'" )
             nextSong = self.__queuemodel.dequeue()
             if nextSong is None:
                nextSong = self.__random.get()
-            self.__player.queue(nextSong.localpath.encode(fs_encoding))
-
+            self.queueSong(nextSong)
             self.__player.startPlayback()
 
          # or if it accidentally wen into the play state
@@ -601,7 +614,7 @@ the named channel exists in the database table called 'channel'" )
                   stat = stat[0]
                   stat.lastPlayed = datetime.now()
                   stat.played     = stat.played + 1
-               lfm = LastFMQueue( self.__currentSongID )
+               lfm = LastFMQueue( self.__currentSongID, self.__player.songStarted)
                sess.save(lfm)
                self.__currentSongRecorded = True
                sess.save(stat)

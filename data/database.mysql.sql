@@ -188,6 +188,7 @@ BEGIN;
       queue_id INTEGER UNSIGNED NOT NULL auto_increment PRIMARY KEY,
       song_id INTEGER UNSIGNED NOT NULL,
       time_played DATETIME NOT NULL,
+      time_started DATETIME NOT NULL,
       INDEX(song_id),
       FOREIGN KEY (song_id) REFERENCES song(id)
          ON UPDATE CASCADE ON DELETE RESTRICT

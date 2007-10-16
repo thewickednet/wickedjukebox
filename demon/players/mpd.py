@@ -6,6 +6,8 @@ http://www.musicpd.org
 """
 
 from demon.lib import mpdclient
+from demon.model import getSetting
+from datetime import datetime
 import os, sys, time
 from twisted.python import log
 
@@ -13,6 +15,7 @@ connection = None  # The interface to mpd
 host       = None
 port       = None
 rootFolder = None
+songStarted = None
 
 def config(params):
    """
@@ -118,6 +121,7 @@ def queue(filename):
    @type  filename: str
    @param filename: The full path of the file
    """
+   global songStarted
    # with MPD, filenames are relative to the path specified in the mpd
    # config!! This is handled here.
    if filename[0:len(rootFolder)] == rootFolder:
@@ -125,6 +129,10 @@ def queue(filename):
    log.msg("queuing %s" % filename)
    try:
       connection.add([filename])
+      if getSetting('sys_utctime', 0) == 0:
+         songStarted = datetime.utcnow()
+      else:
+         songStarted = datetime.now()
       return True
    except Exception, ex:
       log.err( "error queuing (%s)." % ex )

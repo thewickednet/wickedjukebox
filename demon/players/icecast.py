@@ -68,6 +68,8 @@ class Shoutcast_Player(threading.Thread):
       """
       Returns a percentage of how far we are in the song
       """
+      # TODO: do some real calculations with bitrate (CBR & VBR) to return the
+      #       position in seconds!
       return float(self.__progress[0]) / float(self.__progress[1]) * 100.0
 
    def pause(self):
@@ -119,23 +121,14 @@ def cropPlaylist(length=2):
    __player.cropPlaylist(length)
 
 def getPosition():
-   # now, the position is a challenge. If we have a CBR file, all is fine
-   # and we can easily determine the duration. With VBR's that's very
-   # difficult however. We use a simple cheat to overcome this. We simply
-   # monitor the file position. So when asked for the position we return (0,
-   # 100) so we in fact fool the juggler by telling it we have played 0 out
-   # of 100 seconds. Then if we played a certain percentage, we immediately
-   # jump to (99, 100). It's ugly, but should work.
-   if __player.position > 90.0:
-      return (99, 100)
-   else:
-      return (0, 100)
+   # returning as a percentage value
+   return (int(__player.position), 100)
 
 def getSong():
    return __player.currentSong()
 
 def queue(filename):
-   log.msg( "[Icecast] received a queue (%s)" % filename[0:10] )
+   log.msg( "[Icecast] received a queue (%s)" % filename )
    return __player.queue(filename)
 
 def skipSong():
