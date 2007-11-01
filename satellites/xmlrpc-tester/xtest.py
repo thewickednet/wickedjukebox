@@ -51,8 +51,8 @@ class StartQT4(QtGui.QMainWindow):
 
    def methodHelp(self):
       funcname = self.ui.lstMethods.selectedItems()[0].text()
-      docstring = self.__server.system.methodHelp(str(funcname))
-      self.ui.txtDocstring.setText( docstring )
+      ##docstring = self.__server.system.methodHelp(str(funcname))
+      ##self.ui.txtDocstring.setText( docstring )
 
    def updateFuncList(self):
       funcs = [ x[5:] for x in dir(self) if x.startswith('call_') ]
