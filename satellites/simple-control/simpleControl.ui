@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>135</width>
-    <height>57</height>
+    <width>140</width>
+    <height>82</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -14,11 +14,20 @@
   </property>
   <widget class="QWidget" name="centralwidget" >
    <layout class="QHBoxLayout" >
-    <property name="margin" >
-     <number>9</number>
-    </property>
     <property name="spacing" >
      <number>6</number>
+    </property>
+    <property name="leftMargin" >
+     <number>9</number>
+    </property>
+    <property name="topMargin" >
+     <number>9</number>
+    </property>
+    <property name="rightMargin" >
+     <number>9</number>
+    </property>
+    <property name="bottomMargin" >
+     <number>9</number>
     </property>
    </layout>
   </widget>
@@ -27,15 +36,19 @@
     <enum>Qt::Horizontal</enum>
    </property>
    <attribute name="toolBarArea" >
-    <number>4</number>
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak" >
+    <bool>false</bool>
    </attribute>
    <addaction name="actionStop" />
    <addaction name="actionPlay" />
    <addaction name="actionSkip" />
   </widget>
+  <widget class="QStatusBar" name="statusBar" />
   <action name="actionSkip" >
    <property name="icon" >
-    <iconset>icons/player_fwd.png</iconset>
+    <iconset resource="rc_icons.qrc" >:/icons/icons/player_fwd.png</iconset>
    </property>
    <property name="text" >
     <string>skip</string>
@@ -43,7 +56,7 @@
   </action>
   <action name="actionPlay" >
    <property name="icon" >
-    <iconset>icons/player_play.png</iconset>
+    <iconset resource="rc_icons.qrc" >:/icons/icons/player_play.png</iconset>
    </property>
    <property name="text" >
     <string>play</string>
@@ -51,13 +64,15 @@
   </action>
   <action name="actionStop" >
    <property name="icon" >
-    <iconset>icons/player_stop.png</iconset>
+    <iconset resource="rc_icons.qrc" >:/icons/icons/player_stop.png</iconset>
    </property>
    <property name="text" >
     <string>stop</string>
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="rc_icons.qrc" />
+ </resources>
  <connections/>
 </ui>
