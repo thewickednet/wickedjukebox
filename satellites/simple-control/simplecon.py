@@ -13,9 +13,25 @@ class StartQT4(QtGui.QMainWindow):
       self.ui = Ui_wndSimpleController()
       self.ui.setupUi(self)
 
+      if QtGui.QSystemTrayIcon.isSystemTrayAvailable():
+         # set up system tray icon
+         self.tray_icon = QtGui.QSystemTrayIcon()
+         self.tray_icon.setIcon( QtGui.QIcon(":/icons/icons/player_play.png") )
+         self.tray_icon.show()
+         QtCore.QObject.connect(self.tray_icon, QtCore.SIGNAL('activated(QSystemTrayIcon::ActivationReason)'), self.tray_clicked)
+
       QtCore.QObject.connect(self.ui.actionSkip, QtCore.SIGNAL('activated()'), self.skip )
       QtCore.QObject.connect(self.ui.actionStop, QtCore.SIGNAL('activated()'), self.stop )
       QtCore.QObject.connect(self.ui.actionPlay, QtCore.SIGNAL('activated()'), self.play )
+
+   def tray_clicked(self, reason):
+      if reason == QtGui.QSystemTrayIcon.Trigger:
+         if self.isVisible():
+            self.hide()
+         else:
+            self.show()
+      else:
+         pass
 
    def stop(self):
       try:
