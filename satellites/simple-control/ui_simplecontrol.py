@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'simpleControl.ui'
 #
-# Created: Sat Dec 15 14:51:08 2007
+# Created: Sun Dec 16 13:31:02 2007
 #      by: PyQt4 UI code generator 4.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_wndSimpleController(object):
     def setupUi(self, wndSimpleController):
         wndSimpleController.setObjectName("wndSimpleController")
-        wndSimpleController.resize(QtCore.QSize(QtCore.QRect(0,0,140,82).size()).expandedTo(wndSimpleController.minimumSizeHint()))
+        wndSimpleController.resize(QtCore.QSize(QtCore.QRect(0,0,258,82).size()).expandedTo(wndSimpleController.minimumSizeHint()))
 
         self.centralwidget = QtGui.QWidget(wndSimpleController)
         self.centralwidget.setObjectName("centralwidget")
@@ -43,7 +43,12 @@ class Ui_wndSimpleController(object):
         self.actionStop = QtGui.QAction(wndSimpleController)
         self.actionStop.setIcon(QtGui.QIcon(":/icons/icons/player_stop.png"))
         self.actionStop.setObjectName("actionStop")
+
+        self.actionPause = QtGui.QAction(wndSimpleController)
+        self.actionPause.setIcon(QtGui.QIcon(":/icons/icons/player_pause.png"))
+        self.actionPause.setObjectName("actionPause")
         self.toolBar.addAction(self.actionStop)
+        self.toolBar.addAction(self.actionPause)
         self.toolBar.addAction(self.actionPlay)
         self.toolBar.addAction(self.actionSkip)
 
@@ -55,5 +60,6 @@ class Ui_wndSimpleController(object):
         self.actionSkip.setText(QtGui.QApplication.translate("wndSimpleController", "skip", None, QtGui.QApplication.UnicodeUTF8))
         self.actionPlay.setText(QtGui.QApplication.translate("wndSimpleController", "play", None, QtGui.QApplication.UnicodeUTF8))
         self.actionStop.setText(QtGui.QApplication.translate("wndSimpleController", "stop", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionPause.setText(QtGui.QApplication.translate("wndSimpleController", "pause", None, QtGui.QApplication.UnicodeUTF8))
 
 import rc_icons_rc

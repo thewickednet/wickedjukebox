@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>140</width>
+    <width>258</width>
     <height>82</height>
    </rect>
   </property>
@@ -42,6 +42,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionStop" />
+   <addaction name="actionPause" />
    <addaction name="actionPlay" />
    <addaction name="actionSkip" />
   </widget>
@@ -68,6 +69,14 @@
    </property>
    <property name="text" >
     <string>stop</string>
+   </property>
+  </action>
+  <action name="actionPause" >
+   <property name="icon" >
+    <iconset resource="rc_icons.qrc" >:/icons/icons/player_pause.png</iconset>
+   </property>
+   <property name="text" >
+    <string>pause</string>
    </property>
   </action>
  </widget>
