@@ -41,6 +41,7 @@ class StartQT4(QtGui.QMainWindow):
             display_string = "%(artist)s - %(title)s - %(album)s" % (data)
             if self.old_song_status != data:
                self.tray_icon.showMessage("Currently playing", display_string)
+               self.tray_icon.setToolTip(display_string)
                self.old_song_status = data
                self.ui.statusBar.showMessage(display_string)
       else:
