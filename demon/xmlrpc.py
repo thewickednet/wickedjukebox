@@ -12,26 +12,29 @@ from twisted.python import log
 from twisted.web import xmlrpc
 import simplejson
 
-def marshal(data):
-   """
-   Defines how the data is marshalled before sending it over the wire.
-   @type  data: str
-   @param data: The data that is to be marshalled
-   @return:     The marshalled data
-   """
-   return simplejson.dumps( data )
-
 class SatelliteAPI(xmlrpc.XMLRPC):
    """
    This class is bound to the XMLRpc service and contains the remotely
    accessible methods.
    """
 
-   #def __init__(self, jukebox):
-   #   """
-   #   Constructor.
-   #   """
-   #   self._jukebox = jukebox
+   def __init__(self):
+      """
+      Constructor.
+      """
+      self.return_as_json = True
+
+   def marshal(self, data):
+      """
+      Defines how the data is marshalled before sending it over the wire.
+      @type  data: str
+      @param data: The data that is to be marshalled
+      @return:     The marshalled data
+      """
+      if self.return_as_json is True:
+         return simplejson.dumps( data )
+      else:
+         return data
 
    def setGate( self, gate ):
       self._jukebox = gate
@@ -45,7 +48,7 @@ class SatelliteAPI(xmlrpc.XMLRPC):
                self.__getattribute__(f).__doc__
                ) for f in dir(self) if not f.startswith('_') ]
              #and type(self.__getattribute__(f)) == FunctionType
-      return marshal(lst)
+      return self.marshal(lst)
 
    def xmlrpc_get_albums(self, artistName):
       """
@@ -61,7 +64,7 @@ class SatelliteAPI(xmlrpc.XMLRPC):
          output = [ (x.id, x.name) for x in artist.albums ]
 
       sess.close()
-      return marshal(output)
+      return self.marshal(output)
 
    def xmlrpc_get_album_songs( self, albumID ):
       """
@@ -76,7 +79,7 @@ class SatelliteAPI(xmlrpc.XMLRPC):
       album = sess.query(Album).selectfirst_by(Album.c.id == albumID)
       output = [ (a.id, a.title) for a in album.songs ]
       sess.close()
-      return marshal(output)
+      return self.marshal(output)
 
    def xmlrpc_ping(self):
       """
@@ -84,7 +87,7 @@ class SatelliteAPI(xmlrpc.XMLRPC):
 
       @return: True
       """
-      return marshal(True)
+      return self.marshal(True)
 
    def xmlrpc_getCurrentSong(self, channelID):
       """
@@ -96,7 +99,10 @@ class SatelliteAPI(xmlrpc.XMLRPC):
       @return: The ID of the playing song
       """
 
-      return marshal(self._jukebox.getChannelByID(channelID).currentSong())
+      if channelID is None or self._jukebox.getChannelByID(channelID) is None:
+         return self.marshal(None)
+      else:
+         return self.marshal(self._jukebox.getChannelByID(channelID).currentSong())
 
    def xmlrpc_next(self, channelID):
       """
@@ -107,7 +113,11 @@ class SatelliteAPI(xmlrpc.XMLRPC):
 
       @return: Success value
       """
-      return marshal(self._jukebox.getChannelByID(channelID).skipSong())
+      try:
+         return self.marshal(self._jukebox.getChannelByID(channelID).skipSong())
+      except Exception, ex:
+         print log.msg(ex)
+         return False
 
    def xmlrpc_play(self, channelID):
       """
@@ -118,7 +128,7 @@ class SatelliteAPI(xmlrpc.XMLRPC):
 
       @return: Success value
       """
-      return marshal(self._jukebox.getChannelByID(channelID).startPlayback())
+      return self.marshal(self._jukebox.getChannelByID(channelID).startPlayback())
 
    def xmlrpc_pause(self, channelID):
       """
@@ -129,7 +139,7 @@ class SatelliteAPI(xmlrpc.XMLRPC):
 
       @return: Success value
       """
-      return marshal(self._jukebox.getChannelByID(channelID).pausePlayback())
+      return self.marshal(self._jukebox.getChannelByID(channelID).pausePlayback())
 
    def xmlrpc_stop(self, channelID):
       """
@@ -140,7 +150,7 @@ class SatelliteAPI(xmlrpc.XMLRPC):
 
       @return: Success value
       """
-      return marshal(self._jukebox.getChannelByID(channelID).stopPlayback())
+      return self.marshal(self._jukebox.getChannelByID(channelID).stopPlayback())
 
    def xmlrpc_enqueue(self, channelID, songID, userID):
       """
@@ -155,7 +165,7 @@ class SatelliteAPI(xmlrpc.XMLRPC):
       @type  userID: int
       @param userID: The ID of the user
       """
-      return marshal(self._jukebox.getChannelByID(channelID).enqueue(songID, userID))
+      return self.marshal(self._jukebox.getChannelByID(channelID).enqueue(songID, userID))
 
    def xmlrpc_moveup(self, channelID, queueID, delta):
       """
@@ -170,10 +180,10 @@ class SatelliteAPI(xmlrpc.XMLRPC):
       @type  delta: int
       @param delta: the amount of steps to move an item in the queue
       """
-      return marshal(self._jukebox.getChannelByID(channelID).moveup(queueID, delta))
+      return self.marshal(self._jukebox.getChannelByID(channelID).moveup(queueID, delta))
 
    def xmlrpc_movedown(self, channelID, queueID, delta):
-      return marshal(self._jukebox.getChannelByID(channelID).movedown(queueID, delta))
+      return self.marshal(self._jukebox.getChannelByID(channelID).movedown(queueID, delta))
 
    def xmlrpc_movetop(self, queueID):
       pass
@@ -190,18 +200,29 @@ class SatelliteAPI(xmlrpc.XMLRPC):
    def xmlrpc_queue_clear(self):
       pass
 
-   def xmlrpc_getSongData(self, songID):
+   def xmlrpc_use_json(self, use_json):
+      self.return_as_json = use_json
+      return True
+
+   def xmlrpc_getSongData(self, channelID, songID):
       """
       Returns basic data of the named song
+      @param channelID: Channel ID
       @type  songID: int
-      @param songID: The database-ID of the song
+      @param songID: The database-ID of the song (use -1 to retrieve the
+                     current song data)
       @return: An dictionary (assoc. array) containing the elements "artist",
                "album" and "title". All of these are the literal values as
                strings (no IDs)
       """
+
+
+      output = None
+      if songID == -1:
+         songID = self._jukebox.getChannelByID(channelID).currentSong()['id']
+
       sess = create_session()
       song = sess.query(Song).selectfirst_by(Song.c.id == songID )
-      output = None
       if song is not None:
          output = {
             'artist': song.artist.name,
@@ -209,7 +230,7 @@ class SatelliteAPI(xmlrpc.XMLRPC):
             'title': song.title
          }
       sess.close()
-      return marshal(output)
+      return self.marshal(output)
 
    def xmlrpc_get_songs(self, artist=None, artistID=None, album=None, albumID=None):
       """
@@ -231,7 +252,7 @@ class SatelliteAPI(xmlrpc.XMLRPC):
 
       output = [ dbArtist.name, dbAlbum.name ]
       sess.close()
-      return marshal(output)
+      return self.marshal(output)
 
    def xmlrpc_current_queue(self, channelID):
       channel = self._jukebox.getChannelByID(channelID)
@@ -241,7 +262,7 @@ class SatelliteAPI(xmlrpc.XMLRPC):
          if song_list is not None:
             for data in song_list:
                out.append(data)
-         return marshal(out)
+         return self.marshal(out)
       else:
-         return marshal( "ER: Error retrieving channel #%s" % channelID )
+         return self.marshal( "ER: Error retrieving channel #%s" % channelID )
 
