@@ -9,6 +9,7 @@ from datetime import datetime
 from util import Scrobbler, fs_encoding
 from twisted.python import log
 import playmodes, players
+from urllib2 import URLError
 
 def fsdecode( string ):
    try:
@@ -401,7 +402,10 @@ the named channel exists in the database table called 'channel'" )
          log.msg( '%-20s %20s %s' % ( 'lastFM support:', 'disabled', '(username or password empty)' ) )
       else:
          log.msg( '%-20s %20s' % ( 'lastFM support:', 'enabled' ) )
-         self.__scrobbler = Scrobbler(u, p); self.__scrobbler.start()
+	 try:
+            self.__scrobbler = Scrobbler(u, p); self.__scrobbler.start()
+	 except URLError:
+	    log.msg("Unable to start scrobbler (internet down?)")
 
       # initialise the player
       self.__player = players.create( self.dbModel.backend, self.dbModel.backend_params)
@@ -449,11 +453,14 @@ the named channel exists in the database table called 'channel'" )
          a = sess.query(Artist).selectfirst_by(artist_id=song.artist_id)
          b = sess.query(Album).selectfirst_by(album_id=song.album_id)
          if a is not None and b is not None:
-            self.__scrobbler.now_playing(artist=a.name,
-                                         track=song.title,
-                                         album=b.name,
-                                         length=int(song.duration),
-                                         trackno=int(song.track_no))
+            try:
+               self.__scrobbler.now_playing(artist=a.name,
+                  track=song.title,
+                  album=b.name,
+                  length=int(song.duration),
+                  trackno=int(song.track_no))
+            except TypeError, ex:
+               log.msg(ex)
          sess.close()
 
    def startPlayback(self):
@@ -482,7 +489,7 @@ the named channel exists in the database table called 'channel'" )
       self.__player.stopPlayback()
       return 'OK'
 
-   def enqueue(self, songID, userID=0):
+   def enqueue(self, songID, userID=None):
 
       self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
       self.__queuemodel.enqueue(
@@ -501,6 +508,10 @@ the named channel exists in the database table called 'channel'" )
       """
       Updates play statistics and sends a "next" command to the player backend
       """
+
+      if self.__currentSongID is None or self.__currentSongID == 0:
+         return
+
       sess = create_session()
       stat = sess.query(ChannelStat).select( and_(
                songTable.c.id == ChannelStat.c.song_id,
@@ -527,7 +538,7 @@ the named channel exists in the database table called 'channel'" )
       if nextSong is None:
          nextSong = self.__random.get()
       log.msg( "[channel] skipping song" )
-      self.queueSong(nextSong)
+      self.enqueue(nextSong.id)
       self.__player.cropPlaylist(2)
       self.__player.skipSong()
       sess.close()
