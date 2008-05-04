@@ -67,15 +67,22 @@ class Scrobbler(threading.Thread):
       while self.__keepRunning:
          nextScrobble = sess.query(LastFMQueue).selectfirst(order_by=lastfmTable.c.queue_id)
          if nextScrobble is not None:
-            res = scrobbler.submit(
-                  artist  = nextScrobble.song.artist.name,
-                  track   = nextScrobble.song.title,
-                  time    = int(time.mktime(nextScrobble.time_played.timetuple())),
-                  length  = int(nextScrobble.song.duration),
-                  album   = nextScrobble.song.album.name,
-                  trackno = nextScrobble.song.track_no,
-                  autoflush = True
-                  )
+            while True:
+               try:
+                  res = scrobbler.submit(
+                        artist  = nextScrobble.song.artist.name,
+                        track   = nextScrobble.song.title,
+                        time    = int(time.mktime(nextScrobble.time_played.timetuple())),
+                        length  = int(nextScrobble.song.duration),
+                        album   = nextScrobble.song.album.name,
+                        trackno = nextScrobble.song.track_no,
+                        autoflush = True
+                        )
+                  break;
+               except Exception, ex:
+                  print "Exception caught with Audioscrobbler submission: %s" % str(ex)
+                  time.sleep(1)
+
             if res is True:
                log.msg( "Successfully scrobbled %s - %s" % (nextScrobble.song.artist.name, nextScrobble.song.title) )
                sess.delete(nextScrobble)
