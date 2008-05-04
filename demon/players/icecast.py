@@ -4,6 +4,7 @@ from twisted.python import log
 from datetime import datetime
 from demon.model import getSetting
 import shoutpy
+import mutagen
 
 STATUS_STOPPED=1
 STATUS_PLAYING=2
@@ -29,23 +30,23 @@ class Shoutcast_Player(threading.Thread):
       threading.Thread.__init__(self)
 
    def get_description(self, filename):
+      artist = "unkown artist"
+      title =  "unknown song"
       try:
          meta = mutagen.File( filename )
-         artist = "unkown artist"
          if meta.has_key( 'TPE1' ):
             artist = meta.get( 'TPE1' ).text[0]
          elif meta.has_key( 'artist' ):
             artist = meta.get('artist')[0]
 
-         title =  "unknown song"
          if meta.has_key( 'TIT2' ):
             title = meta.get( 'TIT2' ).text[0]
          elif meta.has_key( 'title' ):
             title = meta.get('title')[0]
-         return "%s - %s" % (artist, title)
-      except:
+      except Exception, ex:
          log.err( "%s contained no valid metadata!" % filename )
-         return "unknown song"
+         log.err( str(ex) )
+      return "%s - %s" % (artist, title)
 
    def run(self):
 
@@ -55,7 +56,6 @@ class Shoutcast_Player(threading.Thread):
             self.__currentSong = self.__queue.pop(0)
 
             f = open(self.__currentSong, "rb")
-	    self.__server.metadata = {'song': self.get_description(self.__currentSong)}
 
             buf = f.read(4096)
             self.__progress = (0, os.stat(self.__currentSong).st_size)
