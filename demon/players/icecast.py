@@ -1,7 +1,13 @@
 import os
 import threading
 from twisted.python import log
+from datetime import datetime
+from demon.model import getSetting
 import shoutpy
+
+STATUS_STOPPED=1
+STATUS_PLAYING=2
+STATUS_PAUSED=3
 
 class Shoutcast_Player(threading.Thread):
 
@@ -17,8 +23,29 @@ class Shoutcast_Player(threading.Thread):
       self.__server.password  = password
       self.__server.mount     = mount
       self.__server.port      = port
+      ##self.__server.nonblocking = True
       self.__server.open()
+      self.__status           = STATUS_STOPPED
       threading.Thread.__init__(self)
+
+   def get_description(self, filename):
+      try:
+         meta = mutagen.File( filename )
+         artist = "unkown artist"
+         if meta.has_key( 'TPE1' ):
+            artist = meta.get( 'TPE1' ).text[0]
+         elif meta.has_key( 'artist' ):
+            artist = meta.get('artist')[0]
+
+         title =  "unknown song"
+         if meta.has_key( 'TIT2' ):
+            title = meta.get( 'TIT2' ).text[0]
+         elif meta.has_key( 'title' ):
+            title = meta.get('title')[0]
+         return "%s - %s" % (artist, title)
+      except:
+         log.err( "%s contained no valid metadata!" % filename )
+         return "unknown song"
 
    def run(self):
 
@@ -28,22 +55,33 @@ class Shoutcast_Player(threading.Thread):
             self.__currentSong = self.__queue.pop(0)
 
             f = open(self.__currentSong, "rb")
+	    self.__server.metadata = {'song': self.get_description(self.__currentSong)}
 
-            buf = f.read(32)
+            buf = f.read(4096)
             self.__progress = (0, os.stat(self.__currentSong).st_size)
+            self.__status = STATUS_PLAYING
 
             # stream the file as long as the player is running, or as long as
             # it's not skipped
             while not self.__triggerSkip and self.__keepRunning and buf:
 
-               self.__server.send(buf)
+               try:
+                  self.__server.send(buf)
+                  self.__server.sync()
+               except RuntimeError, ex:
+                  if (str(ex).find("Socket error") > -1):
+                     log.msg(str(ex))
+                     self.__triggerSkip = True
+                  else:
+                     raise
+
                self.__progress = (self.__progress[0]+len(buf),
                                   self.__progress[1])
-               buf = f.read(16)
-               self.__server.sync()
+               buf = f.read(4096)
             f.close()
 
             log.msg( "Shoutcast song finished" )
+            self.__status = STATUS_STOPPED
 
             # if we fell through the previous loop because a skip was
             # requested, we need to reset that value. Otherwise we keep
@@ -51,15 +89,21 @@ class Shoutcast_Player(threading.Thread):
             if self.__triggerSkip:
                self.__triggerSkip = False
 
+      log.msg("Shoutcast loop finished")
 
       self.__server.close()
+      self.__status = STATUS_STOPPED
 
    def skip(self):
       log.msg( "Shoutcast player got a skip request" )
       self.__triggerSkip = True
 
    def queue(self, filename):
-      self.__queue.append(filename)
+      if filename.endswith("mp3"):
+         self.__queue.append(filename)
+         return True
+      else:
+         return False
 
    def currentSong(self):
       return self.__currentSong
@@ -70,7 +114,10 @@ class Shoutcast_Player(threading.Thread):
       """
       # TODO: do some real calculations with bitrate (CBR & VBR) to return the
       #       position in seconds!
-      return float(self.__progress[0]) / float(self.__progress[1]) * 100.0
+      try:
+         return float(self.__progress[0]) / float(self.__progress[1]) * 100.0
+      except ZeroDivisionError:
+         return 0
 
    def pause(self):
       pass
@@ -92,12 +139,23 @@ class Shoutcast_Player(threading.Thread):
       while len(self.__queue) > length:
          self.__queue = self.__queue[1:]
 
+   def status(self):
+      if self.__status == STATUS_PAUSED:
+         return 'pause'
+      elif self.__status == STATUS_PLAYING:
+         return 'play'
+      elif self.__status == STATUS_STOPPED:
+         return 'stop'
+      else:
+         return 'unknown'
+
 # ----------------------------------------------------------------------------
 
 __port     = None
 __mount    = None
 __password = None
 __player   = None
+songStarted = None
 
 def config(params):
    global __port, __mount, __password, __player
@@ -122,13 +180,22 @@ def cropPlaylist(length=2):
 
 def getPosition():
    # returning as a percentage value
-   return (int(__player.position), 100)
+   try:
+      return (int(__player.position()), 100)
+   except TypeError:
+      log.msg("%r was not a valid number" % __player.position)
+      return 0
 
 def getSong():
    return __player.currentSong()
 
 def queue(filename):
+   global songStarted
    log.msg( "[Icecast] received a queue (%s)" % filename )
+   if getSetting('sys_utctime', 0) == 0:
+      songStarted = datetime.utcnow()
+   else:
+      songStarted = datetime.now()
    return __player.queue(filename)
 
 def skipSong():
@@ -137,13 +204,16 @@ def skipSong():
 
 def stopPlayback():
    __player.stop()
+   if not __player.isAlive():
+      __player.join()
 
 def pausePlayback():
    pass
 
 def startPlayback():
-   __player.start()
+   if not __player.isAlive():
+      __player.start()
 
 def status():
-   pass
+   return __player.status()
 
