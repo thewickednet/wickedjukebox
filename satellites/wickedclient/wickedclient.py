@@ -97,7 +97,7 @@ class StartQT4(QtGui.QMainWindow):
       songs = CUR.fetchall()
       self.ui.lbSongs.clear()
       for s in songs:
-         item = QtGui.QListWidgetItem( "%s - %s - %s" % (s[2], album, s[1]) )
+         item = QtGui.QListWidgetItem( "%s - %s" % (s[2], s[1]) )
          item.setData( QtCore.Qt.UserRole, QtCore.QVariant(s[0]) )
          self.ui.lbSongs.addItem( item )
 
@@ -128,7 +128,7 @@ class StartQT4(QtGui.QMainWindow):
       songs = CUR.fetchall()
       self.ui.lbSongs.clear()
       for s in songs:
-         item = QtGui.QListWidgetItem( "%s - %s - %s" % (artist, s[2], s[1]) )
+         item = QtGui.QListWidgetItem( "%s - %s" % (s[2], s[1]) )
          item.setData( QtCore.Qt.UserRole, QtCore.QVariant(s[0]) )
          self.ui.lbSongs.addItem( item )
 
