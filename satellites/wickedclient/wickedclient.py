@@ -25,8 +25,8 @@ class StartQT4(QtGui.QMainWindow):
 
 
       QtCore.QObject.connect(self.ui.edtFind, QtCore.SIGNAL('returnPressed()'), self.find )
-      QtCore.QObject.connect(self.ui.lbArtists, QtCore.SIGNAL('itemClicked(QListWidgetItem*)'), self.find_by_artist )
-      QtCore.QObject.connect(self.ui.lbAlbums, QtCore.SIGNAL('itemClicked(QListWidgetItem*)'), self.find_by_album )
+      QtCore.QObject.connect(self.ui.lbArtists, QtCore.SIGNAL('currentItemChanged(QListWidgetItem*, QListWidgetItem*)'), self.find_by_artist )
+      QtCore.QObject.connect(self.ui.lbAlbums, QtCore.SIGNAL('currentItemChanged(QListWidgetItem*, QListWidgetItem*)'), self.find_by_album )
       QtCore.QObject.connect(self.ui.lbSongs, QtCore.SIGNAL('itemDoubleClicked(QListWidgetItem*)'), self.enqueue )
       QtCore.QObject.connect(self.ui.btnQueue, QtCore.SIGNAL('clicked()'), self.enqueue )
       QtCore.QObject.connect(self.ui.btnSaveDPL, QtCore.SIGNAL('clicked()'), self.save_dpl )
@@ -85,8 +85,13 @@ class StartQT4(QtGui.QMainWindow):
             item.setData( QtCore.Qt.UserRole, QtCore.QVariant(a[0]) )
             self.ui.lbAlbums.addItem( item )
 
-   def find_by_album(self, item):
-      album = str(item.text())
+   def find_by_album(self, item, previous):
+
+      try:
+         album = str(item.text())
+      except:
+         album = "unknown album"
+
       sql = """SELECT s.id, title, a.name
                FROM song s
                   INNER JOIN artist a ON (s.artist_id = a.id)
@@ -101,8 +106,13 @@ class StartQT4(QtGui.QMainWindow):
          item.setData( QtCore.Qt.UserRole, QtCore.QVariant(s[0]) )
          self.ui.lbSongs.addItem( item )
 
-   def find_by_artist(self, item):
-      artist = str(item.text())
+   def find_by_artist(self, item, previous):
+
+      try:
+         artist = str(item.text())
+      except:
+         artist = "unknown artist"
+
       artist_id = item.data(QtCore.Qt.UserRole).toInt()[0]
 
       # load all albums from this artist
