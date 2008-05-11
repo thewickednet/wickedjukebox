@@ -87,6 +87,9 @@ class StartQT4(QtGui.QMainWindow):
 
    def find_by_album(self, item, previous):
 
+      if item is None:
+         return
+
       try:
          album = str(item.text())
       except:
@@ -107,6 +110,9 @@ class StartQT4(QtGui.QMainWindow):
          self.ui.lbSongs.addItem( item )
 
    def find_by_artist(self, item, previous):
+
+      if item is None:
+         return
 
       try:
          artist = str(item.text())
@@ -203,7 +209,7 @@ class StartQT4(QtGui.QMainWindow):
       sql = "SELECT a.name, s.title, CAST(value as UNSIGNED) FROM state st INNER JOIN song s ON (CAST(value as UNSIGNED) = s.id) INNER JOIN artist a ON (s.artist_id = a.id) WHERE state='current_song'"
       CUR.execute( sql )
       res = CUR.fetchone()
-      return "%s - %s" % (res[0], res[1])
+      return "%s<br />%s" % (res[0], res[1])
 
 if __name__ == "__main__":
 
