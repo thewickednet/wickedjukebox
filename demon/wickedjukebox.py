@@ -3,12 +3,14 @@ from model import create_session, Artist, Album, Song, \
                   ChannelStat, Channel as dbChannel,\
                   getSetting, metadata as dbMeta,\
                   songTable, LastFMQueue, usersTable,\
+                  State, \
                   queueTable, Genre, genreTable
 from sqlalchemy import and_
 from datetime import datetime
 from util import Scrobbler, fs_encoding
 from twisted.python import log
 import playmodes, players
+from demon.util import config
 from urllib2 import URLError
 
 def fsdecode( string ):
@@ -18,15 +20,22 @@ def fsdecode( string ):
       log.err( "Failed to decode %s using %s" % (`string`, fs_encoding) )
       return False
 
-class Librarian(object):
+def direxists(dir):
+   if not os.path.exists( dir ):
+      log.err( "WARNING: '%s' does not exist!" % dir )
+      return False
+   else:
+      return True
 
-   __activeScans = []
-
-   class Scanner(threading.Thread):
+class Scanner(threading.Thread):
 
       __abort     = False
       __cap       = ''
       __forceScan = False
+      __total_files = 0
+      __scanned_files = 0
+      __callback  = None
+      __errors    = []
 
       def abort(self):
          self.__abort = True
@@ -42,6 +51,7 @@ class Librarian(object):
                pass
 
          self.__folders = folders
+         self.__errors  = []
          threading.Thread.__init__(self)
 
       def getAlbum( self, meta ):
@@ -105,6 +115,7 @@ class Librarian(object):
             return meta.info.bitrate
          except AttributeError, ex:
             log.err()
+            self.__errors.append("Error retrieving bitrate: %s", str(ex))
             return None
 
       def __crawl_directory(self, dir, cap='', forceScan=False):
@@ -130,6 +141,10 @@ class Librarian(object):
          if type(cap) != type( u'' ) and cap is not None:
             cap = cap.decode(fs_encoding)
 
+         if not os.path.exists( dir.encode(fs_encoding) ):
+            log.msg( "Folder '%s' not found!" % (dir) )
+            return
+
          log.msg( "-------- scanning %s (cap='%s')---------" % (dir,cap) )
 
          # Only scan the files specified in the settings table
@@ -137,7 +152,7 @@ class Librarian(object):
 
          # count files
          log.msg( "-- counting..." )
-         filecount = 0
+         self.__total_files = 0
          for root, dirs, files in os.walk(dir.encode(fs_encoding)):
 
             root = fsdecode(root)
@@ -149,22 +164,21 @@ class Librarian(object):
                   if name is False: continue
                localname = os.path.join(root,name)[ len(dir)+1: ]
                if name.split('.')[-1] in recognizedTypes and localname.startswith(cap):
-                  filecount += 1
+                  self.__total_files += 1
                for x in dirs:
                   x = fsdecode(x)
                   if x is False: continue
                   if not x.startswith(cap): dirs.remove(x.encode(fs_encoding))
 
          # walk through the directories
-         scancount  = 0
-         errorCount = 0
+         self.__scanned_files  = 0
 
          # TODO - getfilesystemencoding is *not* guaranteed to return the
          # correct encodings on *nix systems as the FS-encodings are not
          # enforced on these systems! It will crash here with a
          # UnicodeDecodeError if an unexpected encoding is found. Instead, it
          # should skip that file and print an print a useful message.
-         totalcount = 0
+         self.__scanned_files = 0
          for root, dirs, files in os.walk(dir.encode(fs_encoding)):
 
             # if an abort is requested we exit right away
@@ -181,34 +195,40 @@ class Librarian(object):
                localname = os.path.join(root,name)[ len(dir)+1: ]
                if name.split('.')[-1] in recognizedTypes and localname.startswith(cap):
                   # we have a valid file
-                  totalcount += 1
-                  try:
-                     log.msg( "[%6d/%6d (%03.2f%%)] %s" % (
-                        totalcount,
-                        filecount,
-                        totalcount/float(filecount)*100,
-                        repr(os.path.basename(filename))
-                        ))
-                  except ZeroDivisionError:
-                     log.msg( "[%6d/%6d (%5s )] %s" % (
-                        totalcount,
-                        filecount,
-                        '?',
-                        repr(os.path.basename(filename))
-                        ))
+                  if config['core.debug'] != "0":
+                     try:
+                        log.msg( "[%6d/%6d (%03.2f%%)] %s" % (
+                           self.__scanned_files,
+                           self.__total_files,
+                           self.__scanned_files/float(self.__total_files)*100,
+                           repr(os.path.basename(filename))
+                           ))
+                     except ZeroDivisionError:
+                        log.msg( "[%6d/%6d (%5s )] %s" % (
+                           self.__scanned_files,
+                           self.__total_files,
+                           '?',
+                           repr(os.path.basename(filename))
+                           ))
+                  elif self.__scanned_files % 1000 == 0:
+                     log.msg("Scanned %d out of %d files" % (self.__scanned_files, self.__total_files))
 
                   try:
-                     metadata = mutagen.File( filename )
-                  except:
-                     log.err( "%s contained no valid metadata!" % filename )
+                     metadata = mutagen.File( filename.encode(fs_encoding) )
+                  except Exception, ex:
+                     log.err( "%r contained no valid metadata! Excetion message: %s" % (filename, str(ex)) )
+                     self.__errors.append( str(ex) )
                      continue
                   title  = self.getTitle(metadata)
                   album  = self.getAlbum(metadata)
                   artist = self.getArtist(metadata)
-                  assert( title is not None,
-                        "Title cannot be empty! (file: %s)" % filename )
-                  assert( artist is not None,
-                        "Artist cannot be empty! (file: %s)" % filename )
+                  if title is None:
+                     self.__errors.append( "Title of %r was empty! Not scanned!" % filename )
+                     continue
+
+                  if artist is None:
+                     self.__errors.append( "Artist of  %r was empty! Not scanned!" % filename )
+                     continue
 
                   dbArtist = session.query(Artist).selectfirst_by( name=artist )
                   if dbArtist is None:
@@ -223,7 +243,7 @@ class Librarian(object):
                      session.flush()
 
                   duration = self.getDuration( metadata )
-                  filesize = os.stat(filename).st_size
+                  filesize = os.stat(filename.encode(fs_encoding)).st_size
                   bitrate  = self.getBitrate( metadata )
 
                   track_no = self.getTrack( metadata )
@@ -251,7 +271,7 @@ class Librarian(object):
                      # metadata. If it has changed since it was added to the DB!
                      if forceScan \
                            or song.lastScanned is None \
-                           or datetime.fromtimestamp(os.stat(filename).st_ctime) > song.lastScanned:
+                           or datetime.fromtimestamp(os.stat(filename.encode(fs_encoding)).st_ctime) > song.lastScanned:
 
                         song.localpath   = filename
                         song.artist_id   = dbArtist.id
@@ -259,7 +279,8 @@ class Librarian(object):
                         if genre is not None and genre not in song.genres:
                            song.genres      = []
                            song.genres.append( genre )
-                        log.msg( "Updated %s" % ( filename ) )
+                        if config['core.debug'] != "0":
+                           log.msg( "Updated %s" % ( filename ) )
 
                   song.title       = title
                   song.track_no    = track_no
@@ -267,7 +288,7 @@ class Librarian(object):
                   song.duration    = duration
                   song.filesize    = filesize
                   song.lastScanned = datetime.now()
-                  scancount       += 1
+                  self.__scanned_files       += 1
 
                   try:
                      if song.title is not None \
@@ -289,7 +310,7 @@ class Librarian(object):
                if x is False: continue
                if not x.startswith(cap): dirs.remove(x.encode(fs_encoding))
 
-         log.msg( "--- done scanning (%7d/%7d songs scanned, %7d errors)" % (scancount, filecount, errorCount) )
+         log.msg( "--- done scanning (%7d/%7d songs scanned, %7d errors)" % (self.__scanned_files, self.__total_files, len(self.__errors)) )
 
       def run(self):
          for folder in self.__folders:
@@ -346,6 +367,22 @@ class Librarian(object):
          #log.msg( "--- ... done checking for empty albums. " )
 
          session.close()
+         if self.__callback is not None:
+            self.__callback()
+
+      def get_status(self):
+         return {
+            "total_files": self.__total_files,
+            "scanned_files": self.__scanned_files,
+            "errors": self.__errors,
+            }
+
+      def add_callback(self, func):
+         self.__callback = func
+
+class Librarian(object):
+
+   __activeScans = []
 
    def __init__(self):
       pass
@@ -356,18 +393,10 @@ class Librarian(object):
 
    def rescanLib(self, args=None):
 
-      def direxists(dir):
-         if not os.path.exists( dir ):
-            log.err( "WARNING: '%s' does not exist!" % dir )
-            return False
-         else:
-            return True
-
-
       mediadirs = [ x for x in getSetting('mediadir').split(' ') if direxists(x) ]
 
       if mediadirs != []:
-         self.__activeScans.append( self.Scanner( mediadirs, args ) )
+         self.__activeScans.append( Scanner( mediadirs, args ) )
          self.__activeScans[-1].start()
 
 class Channel(threading.Thread):
@@ -405,7 +434,7 @@ the named channel exists in the database table called 'channel'" )
 	 try:
             self.__scrobbler = Scrobbler(u, p); self.__scrobbler.start()
 	 except URLError:
-	    log.msg("Unable to start scrobbler (internet down?)")
+	    log.err("Unable to start scrobbler (internet down?)")
 
       # initialise the player
       self.__player = players.create( self.dbModel.backend, self.dbModel.backend_params)
@@ -431,7 +460,8 @@ the named channel exists in the database table called 'channel'" )
    def close(self):
       log.msg( "Channel closing requested." )
       self.__player.stopPlayback()
-      log.msg( "Syncronising channel" )
+      if config['core.debug'] != "0":
+         log.msg( "Syncronising channel" )
       self.sess.save( self.dbModel )
       self.sess.flush()
       self.sess.close()
@@ -447,9 +477,20 @@ the named channel exists in the database table called 'channel'" )
       raise
 
    def queueSong(self, song):
+      sess = create_session()
+
+      # update state in database
+      state = sess.query(State).selectfirst_by(state="current_song")
+      if state is None:
+         state = State()
+      state.state = "current_song"
+      state.value = song.id
+      sess.save(state)
+      sess.flush()
+
+      # queue the song
       self.__player.queue(song.localpath.encode(fs_encoding))
       if self.__scrobbler is not None:
-         sess = create_session()
          a = sess.query(Artist).selectfirst_by(artist_id=song.artist_id)
          b = sess.query(Album).selectfirst_by(album_id=song.album_id)
          if a is not None and b is not None:
@@ -460,8 +501,8 @@ the named channel exists in the database table called 'channel'" )
                   length=int(song.duration),
                   trackno=int(song.track_no))
             except TypeError, ex:
-               log.msg(ex)
-         sess.close()
+               log.err(ex)
+      sess.close()
 
    def startPlayback(self):
       self.__playStatus = 'playing'
@@ -474,6 +515,12 @@ the named channel exists in the database table called 'channel'" )
       nextSong = self.__queuemodel.dequeue()
       if nextSong is None:
          nextSong = self.__random.get()
+
+      # handle orphaned files
+      while not os.path.exists(nextSong.localpath.encode(fs_encoding)):
+         log.err(nextSong.localpath + " not found!")
+         nextSong = self.__random.get()
+
       self.queueSong(nextSong)
 
       self.__player.startPlayback()
@@ -537,7 +584,8 @@ the named channel exists in the database table called 'channel'" )
       nextSong = self.__queuemodel.dequeue()
       if nextSong is None:
          nextSong = self.__random.get()
-      log.msg( "[channel] skipping song" )
+      if config['core.debug'] != "0":
+         log.msg( "[channel] skipping song" )
       self.enqueue(nextSong.id)
       self.__player.cropPlaylist(2)
       self.__player.skipSong()
@@ -586,6 +634,12 @@ the named channel exists in the database table called 'channel'" )
             nextSong = self.__queuemodel.dequeue()
             if nextSong is None:
                nextSong = self.__random.get()
+
+            # handle orphaned files
+            while not os.path.exists(nextSong.localpath.encode(fs_encoding)):
+               log.err(nextSong.localpath + " not found!")
+               nextSong = self.__random.get()
+
             self.queueSong(nextSong)
             self.__player.startPlayback()
 

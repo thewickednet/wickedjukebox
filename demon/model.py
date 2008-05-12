@@ -76,6 +76,8 @@ if int(config['core.debug']) > 0:
 else:
    metadata.engine.echo = False
 
+stateTable     = Table( 'state', metadata,
+      autoload=True )
 channelTable   = Table( 'channel', metadata,
       Column( 'name', Unicode(32) ),
       Column( 'backend', Unicode(64) ),
@@ -186,6 +188,12 @@ class LastFMQueue(object):
       else:
          self.time_played = datetime.now()
 
+class State(object):
+   pass
+
+mapper( State, stateTable, properties={
+      ##'channel': relation(Channel)
+   })
 mapper( Genre, genreTable )
 mapper( LastFMQueue, lastfmTable, properties={
       'song': relation(Song)
