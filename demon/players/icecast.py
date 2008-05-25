@@ -3,8 +3,8 @@ import threading
 from twisted.python import log
 from datetime import datetime
 from demon.model import getSetting
-import shoutpy
 import mutagen
+import shout
 
 STATUS_STOPPED=1
 STATUS_PLAYING=2
@@ -12,21 +12,23 @@ STATUS_PAUSED=3
 
 class Shoutcast_Player(threading.Thread):
 
-   def __init__(self, password='hackme', mount='/wicked.mp3', port=8000):
+   def __init__(self, password='hackme', mount='/wicked.mp3', port=10000, bufsize=1024):
       self.__keepRunning      = True
       self.__progress         = (0,0) # (streamed_bytes, total_bytes)
       self.__queue            = []
       self.__currentSong      = ''
       self.__triggerSkip      = False
-      self.__server           = shoutpy.Shout()
-      self.__server.format    = shoutpy.FORMAT_MP3
+      self.__server           = shout.Shout()
+      self.__server.format    = 'mp3'
       self.__server.user      = "source"
       self.__server.password  = password
       self.__server.mount     = mount
       self.__server.port      = port
-      ##self.__server.nonblocking = True
-      self.__server.open()
+      self.__server.nonblocking = False
       self.__status           = STATUS_STOPPED
+      self.__bufsize          = bufsize
+
+      self.__server.open()
       threading.Thread.__init__(self)
 
    def get_description(self, filename):
@@ -54,10 +56,12 @@ class Shoutcast_Player(threading.Thread):
 
          if len(self.__queue) > 0:
             self.__currentSong = self.__queue.pop(0)
+            self.__bufsize = int(getSetting('icecast_bufsize', 1024))
 
             f = open(self.__currentSong, "rb")
 
-            buf = f.read(4096)
+            self.__server.set_metadata({"song": self.__currentSong})
+            buf = f.read(self.__bufsize)
             self.__progress = (0, os.stat(self.__currentSong).st_size)
             self.__status = STATUS_PLAYING
 
@@ -67,6 +71,9 @@ class Shoutcast_Player(threading.Thread):
 
                try:
                   self.__server.send(buf)
+                  if self.__server.nonblocking:
+                     while self.__server.queuelen() > 1:
+                        pass
                   self.__server.sync()
                except RuntimeError, ex:
                   if (str(ex).find("Socket error") > -1):
@@ -77,7 +84,7 @@ class Shoutcast_Player(threading.Thread):
 
                self.__progress = (self.__progress[0]+len(buf),
                                   self.__progress[1])
-               buf = f.read(4096)
+               buf = f.read(self.__bufsize)
             f.close()
 
             log.msg( "Shoutcast song finished" )
