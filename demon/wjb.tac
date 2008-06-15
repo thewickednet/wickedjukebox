@@ -34,6 +34,8 @@ class Gatekeeper(object):
             self.activeChannel = self.channels[-1]
             if config['demon.open_channel'] == '1':
                self.activeChannel.start()
+            if config['demon.auto_play'] == '1':
+               self.activeChannel.startPlayback()
          else:
             del(channel)
 
