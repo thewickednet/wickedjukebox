@@ -28,6 +28,9 @@ class Shoutcast_Player(threading.Thread):
       self.__status           = STATUS_STOPPED
       self.__bufsize          = bufsize
 
+      self.__status           = STATUS_STOPPED
+      self.__bufsize          = bufsize
+
       self.__server.open()
       threading.Thread.__init__(self)
 
@@ -60,7 +63,7 @@ class Shoutcast_Player(threading.Thread):
 
             f = open(self.__currentSong, "rb")
 
-            self.__server.set_metadata({"song": self.__currentSong})
+            self.__server.set_metadata({"song": self.get_description(self.__currentSong).encode("utf-8")})
             buf = f.read(self.__bufsize)
             self.__progress = (0, os.stat(self.__currentSong).st_size)
             self.__status = STATUS_PLAYING
@@ -219,7 +222,11 @@ def pausePlayback():
 
 def startPlayback():
    if not __player.isAlive():
-      __player.start()
+      try:
+         __player.start()
+      except AssertionError, e:
+         log.err(e)
+         stopPlayback()
 
 def status():
    return __player.status()
