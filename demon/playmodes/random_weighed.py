@@ -13,6 +13,7 @@ from demon.util import config
 
 # setup song scoring coefficients
 playRatio   = int(getSetting('scoring_ratio',        4))
+userRating  = int(getSetting('scoring_userRating',   3))
 lastPlayed  = int(getSetting('scoring_lastPlayed',   7))
 songAge     = int(getSetting('scoring_songAge',      0))
 neverPlayed = int(getSetting('scoring_neverPlayed', 10))
@@ -83,21 +84,26 @@ def get():
          'where':       whereClause.replace("%", "%%"),
       }
    elif config['database.type'] == 'mysql':
+      #todo# add where clause for "broken" songs
       query = """
         SELECT s.id, s.localpath,
-           IFNULL( IF(played+skipped>=10, (played/(played+skipped))*%(playRatio)d, 0.5*%(playRatio)d), 0)
-              + (IFNULL( least(604800, time_to_sec(timediff(NOW(), lastPlayed))), 604800)-604800)/604800*%(lastPlayed)d
+           ((IFNULL( least(604800, time_to_sec(timediff(NOW(), lastPlayed))), 604800)-604800)/604800*%(lastPlayed)d)
+              + ((IFNULL(ls.loves,0)-IFNULL(hs.hates,0)) / (SELECT COUNT(*) FROM users) * %(userRating)d)
               + IF( lastPlayed IS NULL, %(neverPlayed)d, 0)
-              * IFNULL( IF( time_to_sec(timediff(NOW(),s.added))<1209600, time_to_sec(timediff(NOW(),s.added))/1209600*%(songAge)d, 0), 0) AS score
-        FROM song s LEFT JOIN channel_song_data c ON (c.song_id=s.id)
-        INNER JOIN artist a ON ( a.id = s.artist_id )
-        INNER JOIN album b ON ( b.id = s.album_id )
+              + IFNULL( IF( time_to_sec(timediff(NOW(),s.added))<1209600, time_to_sec(timediff(NOW(),s.added))/1209600*%(songAge)d, 0), 0)
+           AS score
+        FROM song s
+           LEFT JOIN channel_song_data c ON (c.song_id=s.id)
+           LEFT JOIN (SELECT song_id,COUNT(*) AS loves FROM user_song_standing WHERE standing='love' GROUP BY song_id) ls ON (s.id=ls.song_id) 
+           LEFT JOIN (SELECT song_id,COUNT(*) AS hates FROM user_song_standing WHERE standing='hate' GROUP BY song_id) hs ON (s.id=hs.song_id) 
+           INNER JOIN artist a ON ( a.id = s.artist_id )
+           INNER JOIN album b ON ( b.id = s.album_id )
         %(where)s
         ORDER BY score DESC, rand()
         LIMIT 10 OFFSET 0
       """ % {
          'neverPlayed': neverPlayed,
-         'playRatio':   playRatio,
+         'userRating':  userRating,
          'lastPlayed':  lastPlayed,
          'songAge':     songAge,
          'where':       whereClause.replace("%", "%%"),
