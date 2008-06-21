@@ -5,6 +5,7 @@ from datetime import datetime
 from demon.model import getSetting
 import mutagen
 import shout
+import time
 
 STATUS_STOPPED=1
 STATUS_PLAYING=2
@@ -79,8 +80,14 @@ class Shoutcast_Player(threading.Thread):
                         pass
                   self.__server.sync()
                except RuntimeError, ex:
+                  # for shoutpy module
                   if (str(ex).find("Socket error") > -1):
-                     log.msg(str(ex))
+                     self.__triggerSkip = True
+                  else:
+                     raise
+               except ShoutException, ex:
+                  # for shout module
+                  if (str(ex).find("Socket error") > -1):
                      self.__triggerSkip = True
                   else:
                      raise
