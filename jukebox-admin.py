@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import cmd
 from os import path
+import sys
 from demon.model import getSetting, \
                         genreTable, \
                         songTable, \
@@ -204,7 +205,10 @@ SYNOPSIS
             )
       r = s.execute()
       for s in r.fetchall():
-         print "%5d | %-30s | %-30s | %-30s" % (s.id, s.aname.encode("utf-8"), s.bname.encode("utf-8"), s.title.encode("utf-8"))
+         aname = s.aname is not None and s.aname.encode("utf-8") or "None"
+         bname = s.bname is not None and s.bname.encode("utf-8") or "None"
+         title = s.title is not None and s.title.encode("utf-8") or "None"
+         print "%5d | %-30s | %-30s | %-30s" % (s.id, aname, bname, title)
 
    def do_rename_genre(self, line):
       """
@@ -228,6 +232,61 @@ SYNOPSIS
                values = {'name': bindparam("name")}
             )
       u.execute(gid=gid, name=name)
+
+   def do_find_duplicates(self, line):
+      """
+      Finds duplicates based on artist/track name.
+
+      SYNOPSIS
+         find_duplicates [log_file]
+
+      PARAMETERS
+         log_file -- path to a log file
+      """
+
+      hashtable = {}
+      logfile = None
+      default_out = sys.stdout
+      if line != '':
+         try:
+            if path.exists(line):
+               print "File %s exists" % line
+               return
+            logfile = open(line, 'w')
+            sys.stdout = logfile
+         except IOError:
+            print "Unable to open %r" % line
+            return
+
+      s = select([
+            songTable.c.id,
+            songTable.c.localpath,
+            songTable.c.title,
+            artistTable.c.name
+         ],
+         and_(
+            songTable.c.artist_id == artistTable.c.id
+         )
+      )
+
+      result = s.execute().fetchall()
+
+      for row in result:
+         key = "%s - %s" % (row[3], row[2])
+         if key in hashtable:
+            hashtable[key].append(row[1])
+         else:
+            hashtable[key] = [ row[1] ]
+
+      for key in hashtable:
+         if len(hashtable[key]) == 1:
+            continue
+
+         print "key: %r" % key
+         for localpath in hashtable[key]:
+            print "   %r" % localpath
+         print 80*"-"
+      sys.stdout = default_out
 
    def do_cd(self, line):
       """
