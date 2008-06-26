@@ -26,7 +26,7 @@ else:
          )
 
 # MySQL unicode fix
-if config['database.type'] == 'mysql': dburi = dburi + "?use_unicode=1"
+#if config['database.type'] == 'mysql': dburi = dburi + "?use_unicode=1"
 
 def getSetting(param_in, default=None, channel=None):
    """

@@ -12,12 +12,23 @@ from twisted.python import log
 import playmodes, players
 from demon.util import config
 from urllib2 import URLError
+from random import choice, random
 
 def fsdecode( string ):
    try:
+      if type(string) == type(u''):
+         print "%r is already a unicode object!" % (string)
+         return string
       return string.decode( fs_encoding )
    except UnicodeDecodeError:
-      log.err( "Failed to decode %s using %s" % (`string`, fs_encoding) )
+      print  "Failed to decode %s using %s" % (`string`, fs_encoding)
+      return False
+
+def fsencode( string ):
+   try:
+      return string.encode( fs_encoding )
+   except UnicodeEncodeError:
+      print  "Failed to encode %s using %s" % (`string`, fs_encoding)
       return False
 
 def direxists(dir):
@@ -410,6 +421,9 @@ class Channel(threading.Thread):
    __currentSongFile = ''
    __random          = None
    __queuemodel      = None
+   __jingles_folder  = None
+   __jingles_interval = 0
+   __no_jingle_count = 0
 
    name              = None
 
@@ -477,6 +491,16 @@ the named channel exists in the database table called 'channel'" )
       raise
 
    def queueSong(self, song):
+
+      if song.__class__.__name__ == "str":
+         # we were passed a string. Most likely a file system path
+         self.__player.queue(song)
+         return
+      elif song.__class__.__name__ == 'unicode':
+         # we were passed a string. Most likely a file system path
+         self.__player.queue(song.encode(fs_encoding))
+         return
+
       sess = create_session()
 
       # update state in database
@@ -517,8 +541,8 @@ the named channel exists in the database table called 'channel'" )
          nextSong = self.__random.get()
 
       # handle orphaned files
-      while not os.path.exists(nextSong.localpath.encode(fs_encoding)):
-         log.err(nextSong.localpath + " not found!")
+      while not os.path.exists(fsencode(nextSong.localpath)):
+         log.err("%r not found!" % nextSong.localpath)
          nextSong = self.__random.get()
 
       self.queueSong(nextSong)
@@ -601,6 +625,30 @@ the named channel exists in the database table called 'channel'" )
       self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
       self.__queuemodel.movedown(qid, delta)
 
+   def get_jingle(self):
+      self.__jingles_folder = getSetting('jingles_folder', None)
+      self.__jingles_interval = getSetting('jingles_interval', None)
+      if self.__jingles_interval == '':
+         self.__jingles_interval = None
+      elif self.__jingles_interval.find("-") > -1:
+         jingle_boundary = [ int(x) for x in '-'.split(self.__jingles_interval) ]
+      else:
+         jingle_boundary = [ int(self.__jingles_interval), int(self.__jingles_interval) ]
+      if self.__jingles_folder == '': self.__jingles_folder = None
+
+      if (self.__jingles_interval is not None and self.__jingles_folder is not None):
+
+         rnd = int(random()*(jingle_boundary[1]-jingle_boundary[0])) + self.__no_jingle_count
+         if jingle_boundary[0] <= rnd:
+            available_jingles = os.listdir( self.__jingles_folder )
+            if available_jingles != []:
+               random_file = choice(available_jingles)
+               self.__no_jingle_count = 0
+               return os.path.join( self.__jingles_folder, random_file )
+         else:
+            self.__no_jingle_count += 1
+            log.msg("No jingle count increased to %d" % self.__no_jingle_count)
+
    def run(self):
       cycleTime = int(getSetting('channel_cycle', '3'))
       lastCreditGiveaway = datetime.now()
@@ -631,17 +679,31 @@ the named channel exists in the database table called 'channel'" )
             self.__random     = playmodes.create( getSetting( 'random_model', 'random_weighed' ) )
             self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
 
-            nextSong = self.__queuemodel.dequeue()
+            nextSong = self.get_jingle()
+
             if nextSong is None:
+               log.msg("No jingle selected. Trying to dequeue")
+               nextSong = self.__queuemodel.dequeue()
+
+            if nextSong is None:
+               log.msg("Apparently there was nothing on the queue. I'm going to take somethin at random then")
                nextSong = self.__random.get()
 
-            # handle orphaned files
-            while not os.path.exists(nextSong.localpath.encode(fs_encoding)):
-               log.err(nextSong.localpath + " not found!")
-               nextSong = self.__random.get()
+            if nextSong is None:
+               log.msg("What? Still nothing? This is bad. Maybe you should scan you media library first? I'll just sit here and wait then!")
+               continue
 
-            self.queueSong(nextSong)
-            self.__player.startPlayback()
+            if nextSong.__class__.__name__ == "str" or nextSong.__class__.__name__ == "unicode":
+               # we got a simple file. Not a tracked library song!
+               self.queueSong(nextSong)
+               self.__player.startPlayback()
+            else:
+               # handle orphaned files
+               while not os.path.exists(fsencode(nextSong.localpath)):
+                  log.err("%r not found!" % nextSong.localpath)
+                  nextSong = self.__random.get()
+               self.queueSong(nextSong)
+               self.__player.startPlayback()
 
          # or if it accidentally wen into the play state
          if self.__player.status() == 'play' and self.__playStatus == 'stopped':
@@ -673,10 +735,12 @@ the named channel exists in the database table called 'channel'" )
                if stat == [] :
                   stat = ChannelStat( songid = self.__currentSongID,
                                       channelid = self.dbModel.id)
+                  log.msg("Setting last played date")
                   stat.lastPlayed = datetime.now()
                   stat.played     = 1
                else:
                   stat = stat[0]
+                  log.msg("Setting last played date")
                   stat.lastPlayed = datetime.now()
                   stat.played     = stat.played + 1
                lfm = LastFMQueue( self.__currentSongID, self.__player.songStarted)

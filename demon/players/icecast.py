@@ -85,7 +85,8 @@ class Shoutcast_Player(threading.Thread):
                      self.__triggerSkip = True
                   else:
                      raise
-               except ShoutException, ex:
+               #todo# obviously this wo'n't work if the shout module is not imported!
+               except shout.ShoutException, ex:
                   # for shout module
                   if (str(ex).find("Socket error") > -1):
                      self.__triggerSkip = True

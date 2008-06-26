@@ -25,7 +25,7 @@ def get():
    """
 
    # Retrieve dynamic playlists
-   whereClause = ''
+   whereClauses = [ "NOT broken" ]
 
    sess = create_session()
    res = sess.query(DynamicPlaylist).select(dynamicPLTable.c.group_id > 0, order_by=['group_id'])
@@ -33,7 +33,7 @@ def get():
    for dpl in res:
       try:
          if parseQuery( dpl.query ) is not None:
-            whereClause = "WHERE (" + parseQuery( dpl.query ) + ")"
+            whereClauses.append("(" + parseQuery( dpl.query ) + ")")
          break; # only one query will be parsed. for now.... this is a big TODO
                 # as it triggers an unexpected behaviour (bug). i.e.: Why the
                 # heck does it only activate one playlist?!?
@@ -73,7 +73,7 @@ def get():
          FROM song s LEFT JOIN channel_song_data rel ON ( rel.song_id == s.id )
          INNER JOIN artist a ON ( a.id == s.artist_id )
          INNER JOIN album b ON ( b.id == s.album_id )
-         %(where)s
+         WHERE (%(where)s)
          ORDER BY score DESC, RANDOM()
          LIMIT 10 OFFSET 0
       """ % {
@@ -81,7 +81,7 @@ def get():
          'playRatio':   playRatio,
          'lastPlayed':  lastPlayed,
          'songAge':     songAge,
-         'where':       whereClause.replace("%", "%%"),
+         'where':       ") AND (".join(whereClauses).replace("%", "%%"),
       }
    elif config['database.type'] == 'mysql':
       #todo# add where clause for "broken" songs
@@ -98,7 +98,7 @@ def get():
            LEFT JOIN (SELECT song_id,COUNT(*) AS hates FROM user_song_standing WHERE standing='hate' GROUP BY song_id) hs ON (s.id=hs.song_id) 
            INNER JOIN artist a ON ( a.id = s.artist_id )
            INNER JOIN album b ON ( b.id = s.album_id )
-        %(where)s
+        WHERE (%(where)s)
         ORDER BY score DESC, rand()
         LIMIT 10 OFFSET 0
       """ % {
@@ -106,7 +106,7 @@ def get():
          'userRating':  userRating,
          'lastPlayed':  lastPlayed,
          'songAge':     songAge,
-         'where':       whereClause.replace("%", "%%"),
+         'where':       ") AND (".join(whereClauses).replace("%", "%%"),
       }
 
    resultProxy = dbText(query, engine=dbMeta.engine).execute()
