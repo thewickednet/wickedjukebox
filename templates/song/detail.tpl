@@ -59,6 +59,12 @@
                 <td width="30%">{$SONG.voted}</td>
               </tr>
               <tr>
+                <td width="20%"><b>Loved:</b></td>
+                <td width="30%">{$LOVES.counter}</td>
+                <td width="20%"><b>Hated:</b></td>
+                <td width="30%">{$HATES.counter}</td>
+              </tr>
+              <tr>
                 <td colspan="4"><a href="/download/song/{$SONG.id}/">Download this Song</a></td>
               </tr>
             </table>
