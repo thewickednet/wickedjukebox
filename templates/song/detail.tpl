@@ -1,6 +1,6 @@
 						<h1><a name="intro" id="intro"></a>Song Details</h1>
 
-            <h2>{$SONG.title}{if $CORE->permissions.queue_add eq '1'}&nbsp;&nbsp;<a href="#" onclick="javascript:addsong({$SONG.id});"><img src="/images/bullet_add.png" class="button" /></a>{/if}</h2>
+            <h2>{$SONG.title}{if $CORE->permissions.queue_add eq '1'}&nbsp;&nbsp;<a href="javascript:;" onclick="javascript:addsong({$SONG.id});"><img src="/images/add.png" title="queue this track" class="button" /></a>{/if}</h2>
 
 
             <table width="750" cellspacing="8">
@@ -59,7 +59,7 @@
                 <td width="30%">{$SONG.voted}</td>
               </tr>
               <tr>
-                <td colspan="4"><a href="/download/song/{$SONG.song_id}/">Download this Song</a></td>
+                <td colspan="4"><a href="/download/song/{$SONG.id}/">Download this Song</a></td>
               </tr>
             </table>
 
