@@ -9,3 +9,6 @@
           <input name="password" type="password" value="" />
           <input type="submit" value="Log In" />
           </form>
+          <script>
+          document.loginform.username.focus();
+          </script>

@@ -5,7 +5,7 @@
 $artist = Artist::getById($_GET['param']);
 
 
-$cache_key = sprintf("detail_artist_%s", $alpha);
+$cache_key = sprintf("detail_artist_%s", $_GET['param']);
 
 if(!$songs = $cache->load($cache_key)) {
     

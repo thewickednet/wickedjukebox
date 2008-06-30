@@ -18,6 +18,7 @@ require_once('../phpdata/classes/Renderer.class.php');
 require_once('../phpdata/classes/Artist.class.php');
 require_once('../phpdata/classes/Album.class.php');
 require_once('../phpdata/classes/Song.class.php');
+require_once('../phpdata/classes/User.class.php');
 
 //////////////////////////////////
 // CONFIG
@@ -50,7 +51,7 @@ Zend_Registry::setInstance($registry);
 
 
 $cacheFrontendOptions = array(
-   'lifetime' => 7200, // cache lifetime of 2 hours
+   'lifetime' => 86400, // cache lifetime of 24 hours
    'automatic_serialization' => false
 );
 $cache = Zend_Cache::factory('Core', 'Memcached', $cacheFrontendOptions);
@@ -83,6 +84,11 @@ switch ($category) {
         $artist_cover = Artist::findCover($id);
         if (!empty($artist_cover))
             $cover = $artist_cover;
+    break;
+    case "user":
+        $user_image = User::getPicture($id);
+        if (!empty($user_image))
+            $cover = $user_image;
     break;
     
 }

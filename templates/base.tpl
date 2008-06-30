@@ -7,7 +7,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Wicked Jukebox 2.o</title>
 <link href="/style.css" rel="stylesheet" type="text/css" />
-{literal}
+<link rel="shortcut icon" href="http://jukebox.wicked.lu/favicon.png" type="image/x-icon">
+<link rel="icon" href="http://jukebox.wicked.lu/favicon.png" type="image/x-icon"> {literal}
   <script type="text/javascript" src="/javascript/prototype.js"></script>
   <script type="text/javascript" src="/javascript/jukebox.js"></script>
   <script type="text/javascript" src="/javascript/md5.js"></script>
@@ -21,12 +22,28 @@
 <a name="top" id="top"></a>
 <center>
 		<div id="menu">
-				<a href="/browse/artist/" {if $CORE->active_node eq 'artist'}class="active"{/if}>artists</a> <a href="/browse/album/" {if $CORE->active_node eq 'album'}class="active"{/if}>albums</a> <a href="/browse/genres/">genres</a> {if $CORE->user_id ne '-1'}<a href="/browse/favorites/">favorites</a> {/if}<a href="/browse/latest/">latest additions</a> <a href="/stats/">statistics</a>{if $CORE->permissions.admin eq '1'} <a href="/?section=admin">admin</a>{/if}
-		</div>
+                {if $PLAYER_STATUS.auth eq 'yes'}
+				<a href="/browse/artist/" {if $CORE->active_node eq 'artist'}class="active"{/if}>artists</a> <a href="/browse/album/" {if $CORE->active_node eq 'album'}class="active"{/if}>albums</a> <a href="/browse/genres/">genres</a> {if $CORE->user_id ne '-1'}<a href="/?module=user&action=favorites" {if $CORE->active_node eq 'favorites'}class="active"{/if}>favorites</a> {/if}<a href="/?module=song&action=latest" {if $CORE->active_node eq 'latest'}class="active"{/if}>latest additions</a> <a href="/stats/" {if $CORE->active_node eq 'stats'}class="active"{/if}>statistics</a>{if $CORE->permissions.admin eq '1'} <a href="/?section=admin">admin</a>{/if}
+				{/if}
+        </div>
 
 		<div id="header">
-				<h1>wicked jukebox 2.o<br />
-				</h1>
+
+		  {if $PLAYER_STATUS.auth eq 'yes'}
+			<form name="searchform" onsubmit="return search();" class="search">
+		    <img src="/images/carousel.gif" align="left" style="display:none;" id="search_carousel" />&nbsp;&nbsp;
+		   <input type="text" name="pattern" maxlength="10" />
+			<select name="mode">
+            <option value="any">Any</option>
+            <option value="artist">Artist</option>
+            <option value="album">Album</option>
+            <option value="song">Song</option>
+            {*<option value="lyrics">Lyrics</option>*}
+          </select>
+					<input type="submit" value="Find!"  />
+          </form>
+          {/if}
+				<h1>wicked jukebox 2.o</h1>
 				<h2>hei spillt d'mus&eacute;k</h2>
 		</div>
 
@@ -43,31 +60,19 @@
 -->
 
 				<div id="sidebar">
-          <div id="controls">
+		  <div id="controls">
           {if $CORE->user_id ne '-1'}
+				{*
           <a href="#" onclick="javascript:control('stop');" id="control_stop">&nbsp;</a>
           <a href="#" onclick="javascript:control('pause');" id="control_pause">&nbsp;</a>
           <a href="#" onclick="javascript:control('play');" id="control_play">&nbsp;</a>
           {if $CORE->permissions.queue_skip eq '1'}
           <a href="#" onclick="javascript:control('next');" id="control_next">&nbsp;</a>
           {/if}
+          *}
           {/if}
           </div>
-
-					<h1>Search</h1>
-					<form name="searchform" onsubmit="return search();">
-					<img src="/images/carousel.gif" align="right" style="display:none;" id="search_carousel" />
-					<input type="text" name="pattern" maxlength="10" /><br />
-					<select name="mode">
-            <option value="any">Any</option>
-            <option value="artist">Artist</option>
-            <option value="album">Album</option>
-            <option value="song">Song</option>
-            <option value="lyrics">Lyrics</option>
-          </select>
-					<input type="submit" value="Find!"  />
-          </form>
-
+          
           <div id="login">
           {if $CORE->user_id eq '-1'}
           {include file='login.tpl'}
@@ -75,14 +80,19 @@
           {include file='profile.tpl'}
           {/if}
           </div>
-
+                    {if $PLAYER_STATUS.auth eq 'yes'}
 					<div class="submenu" id="queue">
 					{include file='queue.tpl'}
+					</div>
+
+					<div class="submenu" id="shoutbox">
+					{include file='shoutbox/box.tpl'}
 					</div>
 
 					<div class="submenu" id="random">
 					{include file='song/random.tpl'}
 					</div>
+					{/if}
 
 				</div>
 
@@ -105,5 +115,6 @@
  </center>
 
 </div>
+
 </body>
 </html>

@@ -7,6 +7,8 @@
     Auth::delCookie($userinfo['auth_id']);
     $core->template = 'reload.tpl';
     $smarty->assign("RELOAD_MESSAGE", "LOGOUT_SUCCESS");
+    header("Location: /");
+    exit();
 
   } else {
 

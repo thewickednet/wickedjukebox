@@ -3,17 +3,20 @@
 class Artist {
 
 
-    function getByAlpha($alpha = "a") {
+    function getByAlpha($alpha = "a", $threshold = 2) {
         
         $db = Zend_Registry::get('database');
         
+
         $select = $db->select()
                      ->from(array('a' => 'artist'), array('id', 'name', 'added'))
                      ->join(array('s' => 'song'), 's.artist_id = a.id', array('songs' => 'COUNT(*)'))
                      ->group('a.name')
                      ->where('substr(name, 1, 1) = ?', $alpha)
+                     ->having('songs > ?', $threshold)
                      ->order('name');
 
+        
         $stmt = $select->query();
         $result = $stmt->fetchAll();
         return $result;
@@ -68,7 +71,7 @@ class Artist {
 
   function findCover($artist_id = 0){
 
-    $filemasks = array('/../folder.jpg', '/../Folder.jpg', '/artist.jpg');
+    $filemasks = array('/../../folder.jpg', '/../../Folder.jpg','/../folder.jpg', '/../Folder.jpg', '/../folder.png', '/../Folder.png', '/../folder.gif', '/../Folder.gif', '/artist.jpg');
 
     $songs = self::getSongs($artist_id);
     foreach($songs as $song) {
@@ -84,6 +87,40 @@ class Artist {
 
   }
 
+    function getTotalCount() {
+    	
+        $db     = Zend_Registry::get('database');
+        
+        $query = "SELECT COUNT(*) AS counter FROM artist";
+        
+        $result = $db->fetchOne($query);
+        return $result;
+    	
+    }
+    
+    function getSongCount() {
+        
+        $db     = Zend_Registry::get('database');
+        
+        $query = "SELECT COUNT(*) AS counter, artist.id AS artist_id, artist.name AS artist_name FROM song JOIN artist ON song.artist_id=artist.id GROUP BY artist_id ORDER BY counter DESC LIMIT 10";
+        
+        $result = $db->fetchAll($query);
+        return $result;
+        
+        
+    }
+
+    function getAlbumCount() {
+        
+        $db     = Zend_Registry::get('database');
+        
+        $query = "SELECT COUNT(*) AS counter, artist.id AS artist_id, artist.name AS artist_name FROM album JOIN artist ON album.artist_id=artist.id GROUP BY artist_id ORDER BY counter DESC LIMIT 10";
+        
+        $result = $db->fetchAll($query);
+        return $result;
+        
+        
+    }
 
 
 }

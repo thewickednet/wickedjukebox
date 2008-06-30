@@ -1,6 +1,6 @@
 						<h1><a name="intro" id="intro"></a>Album Details</h1>
 
-            <h2>{if $CORE->permissions.queue_add eq '1'} <a href="#" onclick="javascript:addalbum({$ALBUM.id});"><img src="/images/bullet_add.png" class="button" /></a>{/if} {$ALBUM.name} ({$ALBUM.cost} <img src="/images/money.png" class="button" />)</h2>
+            <h2>{if $CORE->permissions.queue_add eq '1'} <a href="javascript:;" onclick="javascript:addalbum({$ALBUM.id});"><img src="/images/add.png" title="queue the entire album" class="button" /></a>{/if} {$ALBUM.name} ({$ALBUM.cost} <img src="/images/money.png" class="button" />)</h2>
 
             <table cellspacing="6" width="700">
             <tr>

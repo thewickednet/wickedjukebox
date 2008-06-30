@@ -17,6 +17,10 @@ $album['cost'] = Album::getCost($_GET['param']);
 $smarty->assign("ALBUM", $album);
 $smarty->assign("ARTIST", $artist);
 $smarty->assign("SONGS", $songs);
-$body_template = "album/detail.tpl";
+
+if ($album['type'] == 'ost' || $album['type'] == 'game' || $album['type'] == 'various')
+    $body_template = "album/detail_special.tpl";
+else
+    $body_template = "album/detail.tpl";
 
 ?>

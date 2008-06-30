@@ -4,8 +4,14 @@ $core->active_node = "artist";
 
 
 switch ($_GET['action']) {
+    case "latest":
+        include "../phpdata/modules/song/latest.php";
+    break;
     case "detail":
         include "../phpdata/modules/song/detail.php";
+    break;
+    case "report":
+        include "../phpdata/modules/song/report.php";
     break;
     case "randomize":
         include "../phpdata/modules/song/random.php";

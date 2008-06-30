@@ -7,4 +7,8 @@
                 {$VALUE}{if !$smarty.foreach.alist.last} -{/if}
             {/if}
             {/foreach}
+            <br />
+            <a href="javascript:;" onclick="javascript:listSpecial('various');">Various</a> -
+            <a href="javascript:;" onclick="javascript:listSpecial('ost');">Soundtrack</a> -
+            <a href="javascript:;" onclick="javascript:listSpecial('game');">Video Games</a>
             </p>

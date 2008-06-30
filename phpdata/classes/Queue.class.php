@@ -30,8 +30,8 @@ class Queue {
         $select = $db->select()
                      ->from(array('q' => 'queue'), array('queue_id' => 'id'))
                      ->join(array('s' => 'song'), 'q.song_id = s.id', array('song_id' => 'id', 'duration', 'title', 'artist_id'))
-                     ->join(array('a' => 'artist'), 's.artist_id = a.id')
-                     ->join(array('u' => 'users'), 'q.user_id = u.id')
+                     ->join(array('a' => 'artist'), 's.artist_id = a.id', array('artist_id' => 'id', 'artist_name' => 'name'))
+                     ->join(array('u' => 'users'), 'q.user_id = u.id', array('user_id' => 'id', 'fullname'))
                      ->where('q.channel_id = ?', $core->channel_id)
                      ->where('position > 0')
                      ->order('position');
@@ -69,7 +69,6 @@ class Queue {
         return $result[0];
         
     }
-
 
 
     function addSong($song_id = null, $position = 0) {

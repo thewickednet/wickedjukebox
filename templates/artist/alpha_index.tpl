@@ -8,7 +8,7 @@
             {/if}
             {/foreach}
             <br />
-            <a href="/browse/artist/various/">Various</a> -
-            <a href="/browse/artist/ost/">Soundtrack</a> -
-            <a href="/browse/artist/videogame/">Video Games</a>
+            <a href="javascript:;" onclick="javascript:listSpecial('various');">Various</a> -
+            <a href="javascript:;" onclick="javascript:listSpecial('ost');">Soundtrack</a> -
+            <a href="javascript:;" onclick="javascript:listSpecial('game');">Video Games</a>
             </p>

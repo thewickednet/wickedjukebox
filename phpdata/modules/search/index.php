@@ -3,10 +3,11 @@
 
 $search_pattern = $_GET['pattern'];
 
+
 $smarty->assign("SEARCH_PATTERN", $search_pattern);
 $smarty->assign("SEARCH_MODE", $_GET['action']);
 
-$cache_key = sprintf("search_%s_%s", $search_pattern, $_GET['action']);
+$cache_key = sprintf("search_%s_%s", str_replace(" ", "_", $search_pattern), $_GET['action']);
 
 
 if (strlen($search_pattern) < 3) {
@@ -43,7 +44,7 @@ if (strlen($search_pattern) < 3) {
             $results[$i]['cost'] = Song::evaluateCost($results[$i]['duration']);
         }
     
-        $artists = Artist::getByAlpha($alpha);
+        //$artists = Artist::getByAlpha($alpha);
         $cache->save($results, $cache_key);
     }
 

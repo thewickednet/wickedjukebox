@@ -6,33 +6,51 @@ class Album {
         
         $db = Zend_Registry::get('database');
         
-        $select = $db->select()
-                     ->distinct()
-                     ->from(array('a' => 'album'), array('album_id' => 'id', 'album_name' => 'name'))
-                     ->join(array('ar' => 'artist'), 'a.artist_id = ar.id', array('artist_id' => 'id', 'artist_name' => 'name'))
-                     ->join(array('s' => 'song'), 's.album_id = a.id', array('songs' => 'COUNT(*)'))
-                     ->where('substr(a.name, 1, 1) = ?', $alpha)
-                     ->group('a.name')
-                     ->order('a.name');
+        if ($alpha == 'ost' || $alpha == 'various' || $alpha == 'game') {
+            
+            $select = $db->select()
+                         ->distinct()
+                         ->from(array('a' => 'album'), array('album_id' => 'id', 'album_name' => 'name', 'type'))
+                         ->join(array('ar' => 'artist'), 'a.artist_id = ar.id', array('artist_id' => 'id', 'artist_name' => 'name'))
+                         ->join(array('s' => 'song'), 's.album_id = a.id', array('songs' => 'COUNT(*)'))
+                         ->where('a.type = ?', $alpha)
+                         ->group('a.name')
+                         ->order('a.name');
 
+        } else {
+                
+            $select = $db->select()
+                         ->distinct()
+                         ->from(array('a' => 'album'), array('album_id' => 'id', 'album_name' => 'name', 'type'))
+                         ->join(array('ar' => 'artist'), 'a.artist_id = ar.id', array('artist_id' => 'id', 'artist_name' => 'name'))
+                         ->join(array('s' => 'song'), 's.album_id = a.id', array('songs' => 'COUNT(*)'))
+                         ->where('substr(a.name, 1, 1) = ?', $alpha)
+                         ->where('a.type = ?', 'album')
+                         ->group('a.name')
+                         ->order('a.name');
+    
+        
+        }
+        
         $stmt = $select->query();
         $result = $stmt->fetchAll();
         return $result;
     }
 
     function getSongs($album_id = null) {
-        
+
         $db = Zend_Registry::get('database');
         
         $select = $db->select()
                      ->from(array('s' => 'song'))
+                     ->join(array('ar' => 'artist'), 's.artist_id = ar.id', array('artist_id' => 'id', 'artist_name' => 'name'))
                      ->where('s.album_id = ?', $album_id)
                      ->order('track_no', 'title');
-                     
+
         $stmt = $select->query();
         $result = $stmt->fetchAll();
         return $result;
-        
+
     }
 
 
@@ -42,7 +60,7 @@ class Album {
 
 
         $db = Zend_Registry::get('database');
-        
+
         $select = $db->select()
                      ->from('album')
                      ->where('id = ?', $album_id);
@@ -56,7 +74,7 @@ class Album {
 
   function findCover($album_id = 0){
 
-    $filemasks = array('folder.jpg', 'Folder.jpg', 'cover.jpg', 'Cover.jpg', 'folder.gif', 'Folder.gif');
+    $filemasks = array('folder.jpg', 'Folder.jpg', 'cover.jpg', 'Cover.jpg', 'folder.gif', 'Folder.gif', 'Folder.png', 'folder.png');
 
     $songs = self::getSongs($album_id);
     foreach($songs as $song) {
@@ -86,6 +104,28 @@ class Album {
             return round($result[0]['cduration']/60);
         return 0;
         
+    }
+
+    function getTotalCount() {
+    	
+        $db     = Zend_Registry::get('database');
+        
+        $query = "SELECT COUNT(*) AS counter FROM album";
+        
+        $result = $db->fetchOne($query);
+        return $result;
+    	
+    }
+    
+    function getPlays() {
+    	
+        $db     = Zend_Registry::get('database');
+        
+        $query = "SELECT COUNT(*) as counter, album.*, album.id AS album_id, album.name AS album_name, artist.id AS artist_id, artist.name AS artist_name FROM album JOIN user_album_stats ON album.id=user_album_stats.album_id JOIN artist ON album.artist_id=artist.id GROUP BY id ORDER BY counter DESC LIMIT 10";
+        
+        $result = $db->fetchAll($query);
+        return $result;
+    	
     }
 
 }

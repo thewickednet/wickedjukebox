@@ -18,6 +18,7 @@ switch ($_GET['action']) {
                 User::pay($cost);
 
             User::addSelect();
+            User::hasQueuedSong($_GET['param']);
             Queue::addSong($_GET['param']);
             $smarty->assign("MESSAGE", "UPDATE_PROFILE");
         } else {
@@ -35,6 +36,7 @@ switch ($_GET['action']) {
                 User::pay($cost);
             
             $tracks = Album::getSongs($_GET['param']);
+            User::hasQueuedAlbum($_GET['param']);
             User::addSelect(count($tracks));
             Queue::addAlbum($_GET['param']);
             $smarty->assign("MESSAGE", "UPDATE_PROFILE");

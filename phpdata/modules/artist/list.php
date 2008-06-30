@@ -19,7 +19,6 @@ if(!$artists = $cache->load($cache_key)) {
 if (!empty($_GET['pagenum']))
     $core->template = 'artist/list_results.tpl';
 
-
     require_once 'Pager/Pager.php';
     $params = array(
         'mode'      => 'Sliding',
