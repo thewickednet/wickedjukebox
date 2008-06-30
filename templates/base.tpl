@@ -32,7 +32,7 @@
 		  {if $PLAYER_STATUS.auth eq 'yes'}
 			<form name="searchform" onsubmit="return search();" class="search">
 		    <img src="/images/carousel.gif" align="left" style="display:none;" id="search_carousel" />&nbsp;&nbsp;
-		   <input type="text" name="pattern" maxlength="10" />
+		   <input type="text" name="pattern" maxlength="20" />
 			<select name="mode">
             <option value="any">Any</option>
             <option value="artist">Artist</option>

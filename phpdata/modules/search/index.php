@@ -7,6 +7,14 @@ $search_pattern = $_GET['pattern'];
 $smarty->assign("SEARCH_PATTERN", $search_pattern);
 $smarty->assign("SEARCH_MODE", $_GET['action']);
 
+
+$original = array("&","'",":","/","@","é", "à", "ü", "è", "ä", "ö");
+$entities = array("AND","QUOTE","DOUBLES","SLASH","AT","EE", "AE", "UE", "EE", "AA", "OE");
+
+
+$search_pattern = str_replace($original, $entities, utf8_decode($search_pattern));
+
+
 $cache_key = sprintf("search_%s_%s", str_replace(" ", "_", $search_pattern), $_GET['action']);
 
 
@@ -14,9 +22,9 @@ if (strlen($search_pattern) < 3) {
     
     $smarty->assign("ERROR_MESSAGE", "Search pattern must be at least 3 characters long!");
     
-} elseif (strlen($search_pattern) > 10) {
+} elseif (strlen($search_pattern) > 20) {
     
-    $smarty->assign("ERROR_MESSAGE", "Search pattern shouldn't be longer than 10 characters!");
+    $smarty->assign("ERROR_MESSAGE", "Search pattern shouldn't be longer than 20 characters!");
     
 } else {
 
