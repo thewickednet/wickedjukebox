@@ -16,7 +16,7 @@
               <td><b>Downloaded:</b> {$ALBUM.downloaded}</td>
             </tr>
             <tr>
-              <td><a href="/download/album/{$ALBUM.album_id}/">Download Album</a></td>
+              <td><a href="/?module=album&action=download&param={$ALBUM.id}">Download Album</a></td>
             </tr>
             </table>
 

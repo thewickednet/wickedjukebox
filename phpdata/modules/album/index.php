@@ -6,6 +6,9 @@ switch ($_GET['action']) {
     case "detail":
         include "../phpdata/modules/album/detail.php";
     break;
+    case "download":
+        include "../phpdata/modules/album/download.php";
+    break;
     default:
     case "list":
         include "../phpdata/modules/album/list.php";

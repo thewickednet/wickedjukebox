@@ -10,6 +10,9 @@ switch ($_GET['action']) {
     case "detail":
         include "../phpdata/modules/song/detail.php";
     break;
+    case "download":
+        include "../phpdata/modules/song/download.php";
+    break;
     case "report":
         include "../phpdata/modules/song/report.php";
     break;

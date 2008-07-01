@@ -65,7 +65,7 @@
                 <td width="30%">{$HATES.counter}</td>
               </tr>
               <tr>
-                <td colspan="4"><a href="/download/song/{$SONG.id}/">Download this Song</a></td>
+                <td colspan="4"><a href="/?module=song&action=download&param={$SONG.id}">Download this Song</a></td>
               </tr>
             </table>
 
