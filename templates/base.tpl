@@ -23,7 +23,7 @@
 <center>
 		<div id="menu">
                 {if $PLAYER_STATUS.auth eq 'yes'}
-				<a href="/browse/artist/" {if $CORE->active_node eq 'artist'}class="active"{/if}>artists</a> <a href="/browse/album/" {if $CORE->active_node eq 'album'}class="active"{/if}>albums</a> <a href="/browse/genres/">genres</a> {if $CORE->user_id ne '-1'}<a href="/?module=user&action=favorites" {if $CORE->active_node eq 'favorites'}class="active"{/if}>favorites</a> {/if}<a href="/?module=song&action=latest" {if $CORE->active_node eq 'latest'}class="active"{/if}>latest additions</a> <a href="/stats/" {if $CORE->active_node eq 'stats'}class="active"{/if}>statistics</a>{if $CORE->permissions.admin eq '1'} <a href="/?section=admin">admin</a>{/if}
+				<a href="/browse/artist/" {if $CORE->active_node eq 'artist'}class="active"{/if}>artists</a> <a href="/browse/album/" {if $CORE->active_node eq 'album'}class="active"{/if}>albums</a> <a href="/browse/genres/">genres</a> {if $CORE->user_id ne '-1'}<a href="/?module=user&action=favorites" {if $CORE->active_node eq 'favorites'}class="active"{/if}>favorites</a> {/if}<a href="/?module=song&action=latest" {if $CORE->active_node eq 'latest'}class="active"{/if}>latest additions</a> <a href="/stats/" {if $CORE->active_node eq 'stats'}class="active"{/if}>statistics</a>{if $CORE->permissions.admin eq '1'} <a href="/?module=admin" {if $CORE->active_node eq 'admin'}class="active"{/if}>admin</a>{/if}
 				{/if}
         </div>
 

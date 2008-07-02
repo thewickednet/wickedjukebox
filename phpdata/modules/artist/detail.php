@@ -7,7 +7,7 @@ $artist = Artist::getById($_GET['param']);
 
 $cache_key = sprintf("detail_artist_%s", $_GET['param']);
 
-if(!$songs = $cache->load($cache_key)) {
+//if(!$songs = $cache->load($cache_key)) {
     
     $songs = Artist::getSongs($_GET['param']);
     
@@ -16,7 +16,7 @@ if(!$songs = $cache->load($cache_key)) {
     }
     
     $cache->save($songs, $cache_key);
-}
+//}
 
 
 

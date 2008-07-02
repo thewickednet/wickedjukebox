@@ -197,7 +197,7 @@ class User {
         $result = $db->fetchAll($query);
         return $result;
     	
-    }
+    } 
 
     function getDownloads() {
     	
@@ -255,6 +255,24 @@ class User {
         $songs = $db->fetchAll($query, array($user_id, $standing));
         return $songs;
         
+        
+    }
+    
+    
+    function set($data = array(), $user_id = 0) {
+        
+        if ($user_id == 0) {
+            $data['added'] = new Zend_Db_Expr('CURDATE()');
+        
+            $db->insert('users', $data);
+            return $db->lastInsertId();
+
+        } else {
+
+            $db->update('users', $data, 'id = ' . $user_id);
+            
+        }
+        return $user_id;
         
     }
    

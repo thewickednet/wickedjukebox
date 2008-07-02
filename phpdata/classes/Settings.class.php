@@ -24,7 +24,7 @@ class Settings {
 
         $select = $db->select()
                      ->from(array('s' => 'setting'))
-                     ->where('channel_id = NULL');
+                     ->where('channel_id IS NULL');
 
         
         $stmt = $select->query();
@@ -43,25 +43,25 @@ class Settings {
         );
         
         $where[] = sprintf("channel_id = %d", $channel_id);
-        $where[] = sprintf("var = '%s', $param");
+        $where[] = sprintf("var = '%s'", $param);
         
         $n = $db->update('setting', $data, $where);
                 
         
     }
-    
-    
+
+
     function setGlobalSettings($param = "", $value = "") {
-        
+
         $db = Zend_Registry::get('database');
-        
+
         $where = array();
         $data = array(
             'value'      => $value
         );
         
-        $where[] = "channel_id = NULL";
-        $where[] = sprintf("var = '%s', $param");
+        $where[] = "channel_id IS NULL";
+        $where[] = sprintf("var = '%s'", $param);
         
         $n = $db->update('setting', $data, $where);
                 

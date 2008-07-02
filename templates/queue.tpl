@@ -26,8 +26,8 @@
             document.title = 'Wicked Jukebox';
             </script>
             {/if}
-            <p>There {if $ICECAST.0->listeners == 1}is{else}are{/if} currently {$ICECAST.0->listeners} listener{if $ICECAST.0->listeners != 1}s{/if} connected.</p>
-            
+            <p>Radio users connected: {$ICECAST.0->listeners}<br />
+            Website users connected:{$ALIVE_USERS_COUNT}</p>
             {if count($ALIVE_USERS) > 0}
             <p>
             {foreach name="ulist" from=$ALIVE_USERS item=ALIVE_USER}

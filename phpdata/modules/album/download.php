@@ -30,7 +30,6 @@ foreach ($songs as $song) {
     $zip->addFile($song['localpath'], $song_file);
 }
 
-
 $zip->close();
 
 header("Cache-Control: public, must-revalidate");
