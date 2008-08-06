@@ -1,6 +1,5 @@
 <?php
 
-
 switch ($_GET['action']) {
     case "clear":
         if ($core->permissions['queue_remove'] == 1)
@@ -44,9 +43,11 @@ switch ($_GET['action']) {
             $smarty->assign("MESSAGE", sprintf("Not enough credits!\n %s required, you only have %s.\nJust have a beer and try again in a few minutes, cheers!", $cost, $core->userdata['credits']));
         }
     break;
-
 }
 
-$core->template = "queue.tpl";
+if ($_GET['mode'] == 'splash')
+  $core->template = "splash/queue.tpl";
+else 
+  $core->template = "queue.tpl";
 
 ?>

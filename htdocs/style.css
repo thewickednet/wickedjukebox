@@ -16,6 +16,7 @@ html, body {
 html>body #container {
     height: auto;
 }
+
 body {
 	margin:0;
 	font-family:"Trebuchet MS", Arial, Verdana;
@@ -86,7 +87,7 @@ ol,ul {
 }
 
 li {
-	list-style-image:url(../images/backgrounds/li.gif);
+	list-style-image:url(/images/backgrounds/li.gif);
 	line-height:20px;
 	text-align:left;
 }
@@ -102,7 +103,7 @@ li {
 	font-family:Verdana, Arial, Helvetica, sans-serif;
 	font-size:11px;
 	font-variant:small-caps;
-	background-image:url(../images/backgrounds/menu.jpg);
+	background-image:url(/images/backgrounds/menu.jpg);
 }
 #menu a {
 	color:#FFFFFF;
@@ -120,7 +121,7 @@ li {
 	padding-right:9px;
 	color:#000000;
 	background-color:#FFFFFF;
-	background-image:url(../images/backgrounds/a_hover.jpg);
+	background-image:url(/images/backgrounds/a_hover.jpg);
 }
 
 #menu a.active {
@@ -131,7 +132,7 @@ li {
 	padding-right:9px;
 	color:#000000;
 	background-color:#FFFFFF;
-	background-image:url(../images/backgrounds/a_hover.jpg);
+	background-image:url(/images/backgrounds/a_hover.jpg);
 }
 
 #header {
@@ -171,9 +172,8 @@ li {
     float: right;
 }
 
-
 #content {
-	width:990px;
+	width:994px;
 	margin:0 auto 0 auto;
 	text-align:left;
 }
@@ -184,7 +184,7 @@ li {
 	font-size:12px;
 	color:#99B198;
 	text-indent:25px;
-	background-image:url(../images/backgrounds/desc.jpg);
+	background-image:url(/images/backgrounds/desc.jpg);
 	background-position:bottom left;
 	padding-left:0;
 	padding-right:200px;
@@ -193,12 +193,67 @@ li {
 	background-repeat:no-repeat;
 
 }
+
 .logo {
 	float:right;
 	margin-right:30px;
 }
+
 .clearer {
 	clear:both;
+}
+
+#clear { clear:both; padding: 0px; margin: 0px; line-height: 0px; visibility:hidden; }
+
+#splash {
+	width:994px;
+}
+
+#splash #nowplaying {
+    float: left;
+    width: 741px;
+    padding-bottom: 5px;
+}
+
+#splash .now {
+  font-size:2.2em;
+  padding: 3px;
+}
+
+#splash #profile {
+    float: left;
+    width: 246px;
+}
+
+#splash #coverart {
+    border: 1px solid #cccccc;
+    background-color: #ffffff;
+    padding: 3px;
+    margin-right: 18px;
+    margin-top: 0;
+}
+
+#splash #shoutbox {
+    float: left;
+    width: 245px;
+    padding-right: 1px;
+}
+
+#splash #random {
+    float: left;
+    width: 245px;
+    padding-right: 1px;
+}
+
+#splash #queue {
+    float: left;
+    width: 245px;
+    padding-right: 1px;
+}
+
+#splash #quicksearch {
+    float: left;
+    width: 245px;
 }
 
 #sidebar {
@@ -219,23 +274,25 @@ li {
 }
 .submenu {
 }
+
 .submenu li {
   list-style: none;
-	width:100%;
-	padding:0px;
+  width:94%;
+  padding:0px;
   padding-top: 2px;
   padding-bottom: 4px;
   line-height: 12px;
 }
+
 #mainbar {
 	margin-right:250px;
 	padding-right:35px;
-	background-image:url(../images/backgrounds/mainbar.jpg);
+	background-image:url(/images/backgrounds/mainbar.jpg);
 	background-position:top right;
 	background-repeat:no-repeat;
 }
 
-#mainbar h1 {
+#mainbar h1, #splash h1 {
 	font-family:"Century Gothic", "Trebuchet MS", "Arial Narrow", Arial, sans-serif;
 	font-size:25px;
 	text-transform:uppercase;
@@ -244,7 +301,7 @@ li {
 	color:#728c40;
 }
 
-#mainbar h2 {
+#mainbar h2, #splash h2 {
 	font-family:"Century Gothic", "Trebuchet MS", "Arial Narrow", Arial, sans-serif;
 	font-size:18px;
 	text-transform:uppercase;
@@ -332,6 +389,9 @@ li {
                 #random li 			{ border-bottom: dotted black 1px; padding: 5px;}
                 #random_list         { list-style: none; margin: 0; padding: 0; }
                 
+                #qresults li 			{ border-bottom: dotted black 1px; padding: 5px;}
+                #qresult_list         { list-style: none; margin: 0; padding: 0; }
+                
                 #shoutboxmsgs li 	{ border-bottom: dotted black 1px; padding: 5px;}
                 #shout_list         { list-style: none; margin: 0; padding: 0; }
                 #shout_list .old    { color:#99B198; }
@@ -343,3 +403,5 @@ li {
                 .warning            { color: #fcb415; }
                 .critical           { color: #cc0000; }
 
+                .love { background-color: #ccffcc; }
+                .hate { background-color: #ff6161; }

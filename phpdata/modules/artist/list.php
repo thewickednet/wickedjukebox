@@ -3,10 +3,8 @@
 
 if (empty($_GET['param'])) 
     $alpha = "a";
-else {
+else 
     $alpha = $_GET['param'];
-    $core->template = 'artist/list.tpl';
-}
 
 $cache_key = sprintf("list_artist_%s", $alpha);
 

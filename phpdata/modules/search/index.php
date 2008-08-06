@@ -66,7 +66,7 @@ if (strlen($search_pattern) < 3) {
         'path'      => '',
         'prevImg'   => '<img src="/images/resultset_previous.png" border="0" />',
         'nextImg'   => '<img src="/images/resultset_next.png" border="0" />',
-        'fileName'  => 'javascript:blaatOverSearch(%d)',
+        'fileName'  => sprintf("javascript:blaatOverSearch(%%d, '%s')", $_GET['target']),
         'itemData'  => $results
     );
 
@@ -76,7 +76,7 @@ if (strlen($search_pattern) < 3) {
 
     $smarty->assign("LINKS", $links['all']);
 
-    $smarty->assign("RESULT_COUNT", count($data));
+    $smarty->assign("RESULT_COUNT", count($results));
 
     
     $smarty->assign("RESULTS", $data);

@@ -1,22 +1,39 @@
+            <h1><a name="intro" id="intro"></a>Favorites</h1>
 
-            <h1><a name="intro" id="intro"></a>My Favorites</h1>
+            <h2>{$USER.fullname}</h2>
 
-            <div id="results">
+            <table cellspacing="6" width="700">
+            <tr>
+              <td><b>Total Favorites:</b> {$RESULT_COUNT}</td>
+              <td rowspan="2" align="right">
+                <img src="/img.php?category=user&preset=favorites&id={$USER.id}" style="border: 1px solid #cccccc; background-color: #ffffff; padding: 3px; margin-right: 2px; margin-top: 3px;" id="img_album"/>
+              </td>
+            </tr>
+            <tr>
+              <td><b>Total Hates:</b> {$USER.downloads}</td>
+            </tr>
+            </table>
+
+
                 {if count($RESULTS) ne '0'}
-                <p align="center">{$LINKS}</p>
-                <table cellspacing="1" cellpadding="4">
-                {foreach from=$RESULTS item=RESULT}
-                  <tr class="resultlist">
-                    <td><a href="/details/artists/{$RESULT.artist_id}/">{$RESULT.artist_name}</a></td>
-                    <td><a href="#" onclick="javascript:addsong({$RESULT.song_id});"><img src="/images/bullet_add.png" class="button" /></a> <a href="/details/song/{$RESULT.song_id}/">{$RESULT.song_title}</a></td>
-                    <td><a href="#" onclick="javascript:addalbum({$RESULT.album_id});"><img src="/images/bullet_add.png" class="button" /></a> <a href="/details/album/{$RESULT.album_id}/">{$RESULT.album_name}</a></td>
-                    <td align="right" nowrap>{$RESULT.duration|date_format:"%M:%S"} ({$RESULT.cost} <img src="/images/money.png" class="button" />)</td>
-                  </tr>
-                {/foreach}
-                </table>
-                <p align="center">{$LINKS}</p>
+            <div id="results">
+                {include file='user/favorites_results.tpl'}
+            </div>
                 {else}
                 <p>no favorites found. please use the love &amp; hate icons next to the NOW PLAYING track.</p>
                 {/if}
-            
-            </div>
+
+<form id="helperform" name="helperform">
+<input type="hidden" name="param" value="{$USER.id}" />
+<input type="hidden" name="module" value="user" />
+<input type="hidden" name="action" value="favorites" />
+</form>
+
+<form method="post">
+<p>Want to discover some new music? Check out the favorites of other users:
+<select onchange="location = this.options[this.selectedIndex].value;">
+{foreach from=$USERS item=ITEM}
+<option value="/user/favorites/{$ITEM.id}/" {if $ITEM.id eq $USER.id}selected{/if}>{$ITEM.fullname}</option>
+{/foreach}
+</select>
+</p></form>

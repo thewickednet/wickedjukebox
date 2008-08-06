@@ -4,7 +4,7 @@
 
             <table cellspacing="6" width="700">
             <tr>
-              <td>Artist:</b> <a href="/details/artist/{$ARTIST.id}/">{$ARTIST.name}</a></td>
+              <td>Artist:</b> <a href="/artist/detail/{$ARTIST.id}/">{$ARTIST.name}</a></td>
               <td rowspan="4" align="right">
                 <img src="/img.php?category=album&preset=detail&id={$ALBUM.id}" style="border: 1px solid #cccccc; background-color: #ffffff; padding: 3px; margin-right: 2px; margin-top: 3px;" id="img_album"/>
               </td>
@@ -16,7 +16,7 @@
               <td><b>Downloaded:</b> {$ALBUM.downloaded}</td>
             </tr>
             <tr>
-              <td><a href="/?module=album&action=download&param={$ALBUM.id}">Download Album</a></td>
+              <td><a href="/album/download/{$ALBUM.id}/">Download Album</a></td>
             </tr>
             </table>
 
@@ -26,7 +26,7 @@
             {foreach from=$SONGS item=SONG}
               <tr>
                 <td width="24">{if $CORE->permissions.queue_add eq '1'}<a href="javascript:;" onclick="javascript:addsong({$SONG.id});"><img src="/images/bullet_add.png" class="button" /></a>{/if}</td>
-                <td>{$SONG.track_no|string_format:"%02d"} - <a href="/details/song/{$SONG.id}/">{$SONG.title}</a></td>
+                <td>{$SONG.track_no|string_format:"%02d"} - <a href="/song/detail/{$SONG.id}/">{$SONG.title}</a></td>
                 <td align="right">{$SONG.duration|date_format:"%M:%S"} ({$SONG.cost} <img src="/images/money.png" class="button" />)</td>
               </tr>
             {/foreach}

@@ -1,2 +1,2 @@
 #!/bin/bash
-twistd --pidfile wjb.pid -y demon/wjb.tac
+twistd -n --pidfile wjb.pid -y demon/wjb.tac

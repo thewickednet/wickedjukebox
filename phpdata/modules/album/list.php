@@ -2,15 +2,12 @@
 
 if (empty($_GET['param'])) 
     $alpha = "a";
-else {
+else 
     $alpha = $_GET['param'];
-    $core->template = 'album/list.tpl';
-}
 
 $cache_key = sprintf("list_album_%s", $alpha);
 
 if(!$albums = $cache->load($cache_key)) {
-    
     $albums = Album::getByAlpha($alpha);
     $cache->save($albums, $cache_key);
 }

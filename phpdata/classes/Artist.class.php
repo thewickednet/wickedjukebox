@@ -59,7 +59,7 @@ class Artist {
                      ->from(array('s' => 'song'), array('title', 'song_id' => 'id', 'track_no', 'duration', 'localpath'))
                      ->joinLeft(array('a' => 'album'), 's.album_id = a.id', array('album_name' => 'name', 'album_id' => 'id'))
                      ->where('s.artist_id = ?', $artist_id)
-                     ->order('album_name', 'track_no', 's.title');
+                     ->order(array('album_name', 'track_no', 's.title'));
                      
         $stmt = $select->query();
         $result = $stmt->fetchAll();

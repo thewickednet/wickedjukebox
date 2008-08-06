@@ -96,7 +96,7 @@ class User {
     }
 
     function hasQueuedAlbum($album_id = null) {
-        if (!isset($album_id) || count(Song::getSongs($album_id)) == 0)
+        if (!isset($album_id) || count(Album::getSongs($album_id)) == 0)
             return false;
             
         $core   = Zend_Registry::get('core');
@@ -275,7 +275,19 @@ class User {
         return $user_id;
         
     }
-   
+
+    function getAll() {
+        
+        $db = Zend_Registry::get('database');
+
+        $select = $db->select()
+                     ->from('users')
+                     ->order('fullname');
+                     
+        $stmt = $select->query();
+        $result = $stmt->fetchAll();
+        return $result;
+    }
 
 }
 

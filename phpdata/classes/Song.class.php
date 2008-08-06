@@ -32,7 +32,7 @@ class Song {
         $select = $db->select()
                      ->from('song')
                      ->where('id = ?', $song_id);
-                     
+
         $stmt = $select->query();
         $result = $stmt->fetchAll();
         if (count($result) == 1)
@@ -107,10 +107,14 @@ class Song {
         $core   = Zend_Registry::get('core');
         $db     = Zend_Registry::get('database');
         
-        $query = "SELECT s.id,a.name AS artist_name,s.title,b.name AS album_name, duration, a.id AS artist_id, s.id AS song_id, b.id AS album_id FROM song s INNER JOIN album b ON (s.album_id=b.id) INNER JOIN artist a ON (s.artist_id=a.id) ORDER BY rand() LIMIT 0,10";
+        $query = "SELECT s.id,a.name AS artist_name,s.title,b.name AS album_name, duration, a.id AS artist_id, s.id AS song_id, b.id AS album_id FROM song s INNER JOIN album b ON (s.album_id=b.id) INNER JOIN artist a ON (s.artist_id=a.id) ORDER BY rand() LIMIT 0,12";
         
         $stmt = $db->query($query);
         $result = $stmt->fetchAll();
+        for ($i = 0; $i < count($result); $i++) {
+            $id = $result[$i]['song_id'];
+            $result[$i]['standing'] = User::getStanding($id);
+        }
         return $result;
         
     }
@@ -209,6 +213,13 @@ class Song {
         return $result;
     }
 
+    function delete($song_id) {
+        
+        $db = Zend_Registry::get('database');
+        
+        $n = $db->delete('song', 'id = ' . $song_id);
+        
+    }
     
 
 }

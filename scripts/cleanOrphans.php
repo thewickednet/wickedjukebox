@@ -71,6 +71,7 @@ printf("%d orphans found.\n", count($missing_files));
 
 foreach ($missing_files as $missing_file) {
     Song::delete($missing_file['id']);
+    //printf("%s\n", print_r($missing_file, true));
 }
 
 $query = "DELETE FROM album WHERE id NOT IN (SELECT DISTINCT album_id FROM song)";

@@ -6,17 +6,23 @@
             <table width="750" cellspacing="8">
               <tr>
                 <td width="50%" colspan="2">
-                <a href="/details/artist/{$ARTIST.id}/"><img src="/img.php?category=artist&preset=detail&id={$ARTIST.id}" style="border: 1px solid #cccccc; background-color: #ffffff; padding: 3px; margin-right: 2px; margin-top: 3px;" id="img_artist"/></a>
+                <a href="/artist/detail/{$ARTIST.id}/"><img src="/img.php?category=artist&preset=detail&id={$ARTIST.id}" style="border: 1px solid #cccccc; background-color: #ffffff; padding: 3px; margin-right: 2px; margin-top: 3px;" id="img_artist"/></a>
                 </td>
                 <td width="50%" colspan="2">
-                <a href="/details/album/{$ALBUM.id}/"><img src="/img.php?category=album&preset=detail&id={$ALBUM.id}" style="border: 1px solid #cccccc; background-color: #ffffff; padding: 3px; margin-right: 2px; margin-top: 3px;" id="img_album"/></a>
+                {if $ALBUM.name ne ''}
+                <a href="/album/detail/{$ALBUM.id}/"><img src="/img.php?category=album&preset=detail&id={$ALBUM.id}" style="border: 1px solid #cccccc; background-color: #ffffff; padding: 3px; margin-right: 2px; margin-top: 3px;" id="img_album"/></a>
+                {/if}
                 </td>
               </tr>
               <tr>
                 <td width="20%"><b>Artist:</b></td>
-                <td width="30%"><a href="/details/artist/{$ARTIST.id}/">{$ARTIST.name}</a></td>
+                <td width="30%"><a href="/artist/detail/{$ARTIST.id}/">{$ARTIST.name}</a></td>
+                {if $ALBUM.name ne ''}
                 <td width="20%"><b>Album:</b></td>
-                <td width="30%"><a href="/details/album/{$ALBUM.id}/">{$ALBUM.name}</a></td>
+                <td width="30%"><a href="/album/detail/{$ALBUM.id}/">{$ALBUM.name}</a></td>
+                {else}
+                <td colspan="2">&nbsp;</td>
+                {/if}
               </tr>
               <tr>
                 <td width="20%"><b>Genre:</b></td>
@@ -65,7 +71,7 @@
                 <td width="30%">{$HATES.counter}</td>
               </tr>
               <tr>
-                <td colspan="4"><a href="/?module=song&action=download&param={$SONG.id}">Download this Song</a></td>
+                <td colspan="4"><a href="/song/download/{$SONG.id}/">Download this Song</a></td>
               </tr>
             </table>
 

@@ -16,21 +16,30 @@
 {/literal}
 </head>
 
-<body onload="javascript:refreshQueuePeriodical();">
+{if $CORE->active_node eq 'splash' && $CORE->user_id ne '-1'}
+<body onload="javascript:refreshQueuePeriodical('splash');">
+{else}
+<body onload="javascript:refreshQueuePeriodical('sidebar');">
+{/if}
+
 <div id="hiddenDiv" style="position:absolute; visibility:hidden; z-index:1000"></div>
 <div id="container">
 <a name="top" id="top"></a>
 <center>
 		<div id="menu">
                 {if $PLAYER_STATUS.auth eq 'yes'}
-				<a href="/browse/artist/" {if $CORE->active_node eq 'artist'}class="active"{/if}>artists</a> <a href="/browse/album/" {if $CORE->active_node eq 'album'}class="active"{/if}>albums</a> <a href="/browse/genres/">genres</a> {if $CORE->user_id ne '-1'}<a href="/?module=user&action=favorites" {if $CORE->active_node eq 'favorites'}class="active"{/if}>favorites</a> {/if}<a href="/?module=song&action=latest" {if $CORE->active_node eq 'latest'}class="active"{/if}>latest additions</a> <a href="/stats/" {if $CORE->active_node eq 'stats'}class="active"{/if}>statistics</a>{if $CORE->permissions.admin eq '1'} <a href="/?module=admin" {if $CORE->active_node eq 'admin'}class="active"{/if}>admin</a>{/if}
+				<a href="/" {if $CORE->active_node eq 'splash'}class="active"{/if}>splash</a> <a href="/artist/browse/" {if $CORE->active_node eq 'artist'}class="active"{/if}>artists</a> <a href="/album/browse/" {if $CORE->active_node eq 'album'}class="active"{/if}>albums</a> <a href="/genres/browse/">genres</a> {if $CORE->user_id ne '-1'}<a href="/user/favorites/" {if $CORE->active_node eq 'favorites'}class="active"{/if}>favorites</a> {/if}<a href="/song/latest/" {if $CORE->active_node eq 'latest'}class="active"{/if}>latest additions</a> <a href="/stats/" {if $CORE->active_node eq 'stats'}class="active"{/if}>statistics</a>{if $CORE->permissions.admin eq '1'} <a href="/admin/" {if $CORE->active_node eq 'admin'}class="active"{/if}>admin</a>{/if}
 				{/if}
         </div>
 
 		<div id="header">
 
 		  {if $PLAYER_STATUS.auth eq 'yes'}
-			<form name="searchform" onsubmit="return search();" class="search">
+		    {if $CORE->active_node eq 'splash'}
+			<form name="searchform" onsubmit="return search('splash');" class="search">
+			{else}
+			<form name="searchform" onsubmit="return search('sidebar');" class="search">
+			{/if}
 		    <img src="/images/carousel.gif" align="left" style="display:none;" id="search_carousel" />&nbsp;&nbsp;
 		   <input type="text" name="pattern" maxlength="20" />
 			<select name="mode">
@@ -51,18 +60,17 @@
           <img src="/images/carousel.gif" width="0" height="0" />
           <img src="/images/tick.png" width="0" height="0" />
           <img src="/images/exclamation.png" width="0" height="0" />
-<!--
-				<img src="images/logo.jpg" alt="Your Logo" class="logo" />
 
-				<p class="introduction">
-						Hello and welcome to Plain version 1.0. This is a simple web site template maximising the use of css and xhtml. Whitespace is used in abundance to really push its importance in web design. Navigate the page via the menu at the top of the page, or the links underneath this paragraph.
-				</p>
--->
+{if $CORE->active_node eq 'splash' && $CORE->user_id ne '-1'}
+    <div id="splash">
+	      {include file='splash/splash.tpl'}
+	</div>
+{else}
 
 				<div id="sidebar">
 		  <div id="controls">
           {if $CORE->user_id ne '-1'}
-				{*
+		  {*
           <a href="#" onclick="javascript:control('stop');" id="control_stop">&nbsp;</a>
           <a href="#" onclick="javascript:control('pause');" id="control_pause">&nbsp;</a>
           <a href="#" onclick="javascript:control('play');" id="control_play">&nbsp;</a>
@@ -106,7 +114,7 @@
 	      {/if}
 	      </div>
 		  </div>
-
+ {/if}
   </div>
   <div style="height: 50px; clear:both;">&nbsp;</div>
   <div id="footer">

@@ -6,13 +6,13 @@
             <tr>
               <td>
               {if $ALBUM.type eq 'ost'}
-              <a href="javascript:;" onclick="javascript:listSpecial('ost');">Original Motion Picture Soundtrack</a>
+              <a href="/album/browse/ost/">Original Motion Picture Soundtrack</a>
               {/if}
               {if $ALBUM.type eq 'various'}
-              <a href="javascript:;" onclick="javascript:listSpecial('various');">Various Artists</a>
+              <a href="/album/browse/various/">Various Artists</a>
               {/if}
               {if $ALBUM.type eq 'game'}
-              <a href="javascript:;" onclick="javascript:listSpecial('game');">Game Soundtrack</a>
+              <a href="/album/browse/game/">Game Soundtrack</a>
               {/if}
               </td>
               <td rowspan="4" align="right">
@@ -26,7 +26,7 @@
               <td><b>Downloaded:</b> {$ALBUM.downloaded}</td>
             </tr>
             <tr>
-              <td><a href="/download/album/{$ALBUM.album_id}/">Download Album</a></td>
+              <td><a href="/album/download/{$ALBUM.id}/">Download Album</a></td>
             </tr>
             </table>
 
@@ -36,8 +36,8 @@
             {foreach from=$SONGS item=SONG}
               <tr>
                 <td width="24">{if $CORE->permissions.queue_add eq '1'}<a href="javascript:;" onclick="javascript:addsong({$SONG.id});"><img src="/images/bullet_add.png" class="button" /></a>{/if}</td>
-                <td>{$SONG.track_no|string_format:"%02d"} - <a href="/details/song/{$SONG.artist_id}/">{$SONG.artist_name}</a></td>
-                <td><a href="/details/song/{$SONG.id}/">{$SONG.title}</a></td>
+                <td>{$SONG.track_no|string_format:"%02d"} - <a href="/artist/detail/{$SONG.artist_id}/">{$SONG.artist_name}</a></td>
+                <td><a href="/song/detail/{$SONG.id}/">{$SONG.title}</a></td>
                 <td align="right">{$SONG.duration|date_format:"%M:%S"} ({$SONG.cost} <img src="/images/money.png" class="button" />)</td>
               </tr>
             {/foreach}

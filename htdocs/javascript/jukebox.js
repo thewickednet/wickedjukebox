@@ -7,6 +7,13 @@ function addsong(id) {
 
 }
 
+function addsplashsong(id) {
+
+  new Ajax.Updater('queue', '/index.php?module=queue&action=addsong&mode=splash&param='+id, {asynchronous:true, evalScripts:true });
+  return false;
+
+}
+
 function delsong(id) {
   QueueUpdates.stop();
   Effect.Fade('queue_' + id);
@@ -32,18 +39,18 @@ function control(what){
   new Ajax.Request('/index.php?module=backend&action='+what, {asynchronous:true, evalScripts:true });
 }
 
-function refreshQueue(){
-  new Ajax.Updater('queue', '/index.php?module=queue', {asynchronous:true, evalScripts:true });
+function refreshQueue(mode){
+  new Ajax.Updater('queue', '/index.php?module=queue&mode='+mode, {asynchronous:true, evalScripts:true });
   return false;
 }
 
-function refreshRandom(){
-  new Ajax.Updater('random', '/index.php?module=song&action=randomize', {asynchronous:true, evalScripts:true, onLoading: showRandomCarousel, onComplete: hideRandomCarousel });
+function refreshRandom(mode){
+  new Ajax.Updater('random', '/index.php?module=song&action=randomize&mode='+mode, {asynchronous:true, evalScripts:true, onLoading: showRandomCarousel, onComplete: hideRandomCarousel });
   return false;
 }
 
-function refreshQueuePeriodical(){
-  QueueUpdates = new Ajax.PeriodicalUpdater('queue', '/index.php?module=queue', { method: 'get', frequency: 10, decay: 1, asynchronous:true, evalScripts:true });
+function refreshQueuePeriodical(mode){
+  QueueUpdates = new Ajax.PeriodicalUpdater('queue', '/index.php?module=queue&action=refresh&mode='+mode, { method: 'get', frequency: 10, decay: 1, asynchronous:true, evalScripts:true });
   return false;
 }
 
@@ -52,22 +59,31 @@ function refreshPlayerPeriodical(){
   return false;
 }
 
-function refreshProfile() {
-  new Ajax.Updater('login', '/index.php?module=authrefresh', {asynchronous:true, evalScripts:true });
+function refreshProfile(mode) {
+  if (mode == 'splash') {
+    new Ajax.Updater('splashtop', '/index.php?module=authrefresh&mode='+mode, {asynchronous:true, evalScripts:true });
+  } else {
+    new Ajax.Updater('login', '/index.php?module=authrefresh&mode='+mode, {asynchronous:true, evalScripts:true });
+  }
   return false;
 }
+
 
 function setStanding(song, standing) {
   new Ajax.Updater('login', '/index.php?module=song&action=report&song='+song+'&standing='+standing, {asynchronous:true, evalScripts:true });
   return false;
 }
 
-function search(){
+function search(target){
   var pattern = document.searchform.pattern.value;
   var mode = document.searchform.mode.value;
 
-  new Ajax.Updater('body', '/index.php?module=search&pattern='+pattern+'&action='+mode, {asynchronous:true, evalScripts:true, onLoading: showSearchCarousel, onComplete: hideSearchCarousel });
-  return false;
+  if (target == 'splash') {
+    new Ajax.Updater('splash', '/index.php?module=search&pattern='+pattern+'&mode='+target+'&action='+mode, {asynchronous:true, evalScripts:true, onLoading: showSearchCarousel, onComplete: hideSearchCarousel });
+  } else {
+    new Ajax.Updater('body', '/index.php?module=search&pattern='+pattern+'&mode='+target+'&action='+mode, {asynchronous:true, evalScripts:true, onLoading: showSearchCarousel, onComplete: hideSearchCarousel });
+  }
+    return false;
 
 }
 
@@ -96,14 +112,14 @@ function listAlpha(alpha) {
     
   var module = document.helperform.active_node.value;
   
-  new Ajax.Updater('body', '/browse/'+module+'/'+alpha+'/?ajax=1', {asynchronous:true, evalScripts:true });
+  new Ajax.Updater('body', '/browse/'+module+'/'+alpha+'/', {asynchronous:true, evalScripts:true });
   return false;
     
 }
 
 function listSpecial(type) {
     
-  new Ajax.Updater('body', '/browse/album/'+type+'/?ajax=1', {asynchronous:true, evalScripts:true });
+  new Ajax.Updater('body', '/browse/album/'+type+'/', {asynchronous:true, evalScripts:true });
   return false;
     
 }
@@ -113,26 +129,40 @@ function blaatOver(page) {
   var alpha = document.helperform.alpha.value;
   var module = document.helperform.active_node.value;
   
-  new Ajax.Updater('alpha_results', '/browse/'+module+'/'+alpha+'/bypage/'+page+'/&ajax=1', {asynchronous:true, evalScripts:true });
+  new Ajax.Updater('alpha_results', '/'+module+'/browse/'+alpha+'/'+page+'/', {asynchronous:true, evalScripts:true });
     
 }
 
 function blaatOverDetail(page) {
-    
+
   var param = document.helperform.param.value;
   var module = document.helperform.module.value;
-  
+
   new Ajax.Updater('results', '/?module='+module+'&action=detail&param='+param+'&pagenum='+page, {asynchronous:true, evalScripts:true });
-    
+
 }
 
-function blaatOverSearch(page) {
+function blaatOverUser(page) {
+
+  var param = document.helperform.param.value;
+  var module = document.helperform.module.value;
+  var action = document.helperform.action.value;
+
+  new Ajax.Updater('results', '/?module='+module+'&action='+action+'&param='+param+'&pagenum='+page, {asynchronous:true, evalScripts:true });
+
+}
+
+function blaatOverSearch(page, target) {
     
   var pattern = document.searchform.pattern.value;
   var mode = document.searchform.mode.value;
 
-  new Ajax.Updater('body', '/index.php?module=search&pattern='+pattern+'&action='+mode+'&pagenum='+page, {asynchronous:true, evalScripts:true, onLoading: showSearchCarousel, onComplete: hideSearchCarousel });
-    
+  if (target == 'splash') {
+    new Ajax.Updater('splash', '/index.php?module=search&pattern='+pattern+'&action='+mode+'&pagenum='+page, {asynchronous:true, evalScripts:true, onLoading: showSearchCarousel, onComplete: hideSearchCarousel });
+  } else {
+    new Ajax.Updater('body', '/index.php?module=search&pattern='+pattern+'&action='+mode+'&pagenum='+page, {asynchronous:true, evalScripts:true, onLoading: showSearchCarousel, onComplete: hideSearchCarousel });
+  }
+
 }
 
 function resortQueue()
@@ -169,6 +199,20 @@ function hideRandomCarousel() {
 }
 
 
+function showQSearchCarousel() {
+	var loading = document.getElementById('qsearch_carousel');
+	loading.style.display = 'block';
+
+}
+
+function hideQSearchCarousel() {
+	var loading = document.getElementById('qsearch_carousel');
+	loading.style.display = 'none';
+}
+
+
+
+
 function openPlayer() {
     winPlayer = window.open('http://jukebox.wicked.lu/player/', 'wickedJukeboxPlayer', 'toolbar=0, location=0, scrollbars=0, resizable=0, menubar=0, status=0, width=320, height=280');
 }
@@ -186,6 +230,16 @@ function shout() {
 function shoutbox() {
 	
 	new Ajax.PeriodicalUpdater('shoutboxmsgs', '/?module=shoutbox', {asynchronous:true, evalScripts:true, frequency: 5, decay: 1 });
+    
+    return false;
+	
+}
+
+
+function quicksearch() {
+	
+	var body = escape(document.qsearch.body.value);
+	new Ajax.Updater('qresults', '/?module=splash&action=search&body='+body, {asynchronous:true, evalScripts:true, onLoading: showQSearchCarousel, onComplete: hideQSearchCarousel });
     
     return false;
 	

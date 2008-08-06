@@ -38,7 +38,7 @@ class BackendDB {
 
         $songinfo = Song::get($state['current_song']);
         $artistinfo = Artist::getById($songinfo['artist_id']);
-        $albuminfo = Artist::getById($songinfo['album_id']);
+        $albuminfo = Album::getById($songinfo['album_id']);
 
         $result = array(
                         'songinfo'      =>  $songinfo,

@@ -7,6 +7,8 @@ session_start();
 // Zend Framework includes
 
 require_once 'Zend/Db.php';
+require_once 'Zend/Form.php';
+require_once 'Zend/Form/Element.php';
 require_once 'Zend/Registry.php';
 require_once 'Zend/Cache.php';
 require_once 'Zend/Config/Ini.php';
@@ -162,10 +164,6 @@ switch ($_GET['module']) {
     case "genre":
         include "../phpdata/modules/genre/index.php";
     break;
-    case "artist":
-    default:
-        include "../phpdata/modules/artist/index.php";
-    break;
     case "player":
         include "../phpdata/modules/player/index.php";
     break;
@@ -174,6 +172,16 @@ switch ($_GET['module']) {
     break;
     case "shoutbox":
         include "../phpdata/modules/shoutbox/index.php";
+    break;
+    case "admin":
+        include "../phpdata/modules/admin/index.php";
+    break;
+    case "artist":
+        include "../phpdata/modules/artist/index.php";
+    break;
+    case "splash":
+    default:
+        include "../phpdata/modules/splash/index.php";
     break;
 }
 
@@ -195,7 +203,9 @@ if (Auth::isAuthed()) {
 
     $smarty->assign("PLAYER_STATUS", $player_status);
     
-    $smarty->assign("ALIVE_USERS", User::getAlive());
+    $alive_useres = User::getAlive();
+    $smarty->assign("ALIVE_USERS_COUNT", count($alive_useres));
+    $smarty->assign("ALIVE_USERS", $alive_useres);
     
     $smarty->assign("QUEUE", Queue::getCurrent());
     $smarty->assign("QUEUE_TOTAL", Queue::getTotalTime());
@@ -204,10 +214,22 @@ if (Auth::isAuthed()) {
     
     $smarty->assign("CHANNEL_LIST", $core->reIndex(Channel::getList(), 'id', 'name'));
 
+    if (!isset($_SESSION['idle']))
+      $_SESSION['idle'] = time();
+      
+      
+    if ($_GET['module'] != 'queue' && $_GET['module'] != 'authrefresh' && ($_GET['module'] != 'shoutbox' && $_GET['action'] == ''))
+        $_SESSION['idle'] = time();
+
+/*        
+    if (time() - $_SESSION['idle'] > 360) {
+      $smarty->assign("ESCAPE_JS", 'window.location.href="/";');
+    }
+*/
+
 } else {
     $body_template = "notloggedin.tpl";
 }
-
 
 $smarty->assign("BODY_TEMPLATE", $body_template);
 

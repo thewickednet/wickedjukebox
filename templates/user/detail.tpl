@@ -26,15 +26,16 @@
 <p>&nbsp;</p>
             <h3>{$USER.fullname} loves the following tracks (random 20 track pick, reload for more)</h3>
                 {if count($LOVE) ne '0'}
-                <table cellspacing="1" cellpadding="4">
+                <table cellspacing="1" cellpadding="4" width="100%">
                 {foreach from=$LOVE item=RESULT}
                   <tr class="resultlist">
-                    <td><a href="/details/artists/{$RESULT.artist_id}/">{$RESULT.artist_name}</a></td>
-                    <td><a href="#" onclick="javascript:addsong({$RESULT.song_id});"><img src="/images/bullet_add.png" class="button" /></a> <a href="/details/song/{$RESULT.song_id}/">{$RESULT.song_title}</a></td>
-                    <td><a href="#" onclick="javascript:addalbum({$RESULT.album_id});"><img src="/images/bullet_add.png" class="button" /></a> <a href="/details/album/{$RESULT.album_id}/">{$RESULT.album_name}</a></td>
+                    <td><a href="/artist/detail/{$RESULT.artist_id}/">{$RESULT.artist_name}</a></td>
+                    <td><a href="javascript:;" onclick="javascript:addsong({$RESULT.song_id});"><img src="/images/bullet_add.png" class="button" /></a> <a href="/song/detail/{$RESULT.song_id}/">{$RESULT.song_title}</a></td>
+                    <td><a href="javascript:;" onclick="javascript:addalbum({$RESULT.album_id});"><img src="/images/bullet_add.png" class="button" /></a> <a href="/album/detail/{$RESULT.album_id}/">{$RESULT.album_name}</a></td>
                   </tr>
                 {/foreach}
                 </table>
+                <p><a href="/user/favorites/{$USER.id}/">more...</a></p>
                 {else}
                 <p>this user doesn't have any favorite tracks.</p>
                 {/if}
@@ -43,12 +44,12 @@
 <p>&nbsp;</p>
             <h3>{$USER.fullname} hates the following tracks (random 20 track pick, reload for more)</h3>
                 {if count($HATE) ne '0'}
-                <table cellspacing="1" cellpadding="4">
+                <table cellspacing="1" cellpadding="4" width="100%">
                 {foreach from=$HATE item=RESULT}
                   <tr class="resultlist">
-                    <td><a href="/details/artists/{$RESULT.artist_id}/">{$RESULT.artist_name}</a></td>
-                    <td><a href="#" onclick="javascript:addsong({$RESULT.song_id});"><img src="/images/bullet_add.png" class="button" /></a> <a href="/details/song/{$RESULT.song_id}/">{$RESULT.song_title}</a></td>
-                    <td><a href="#" onclick="javascript:addalbum({$RESULT.album_id});"><img src="/images/bullet_add.png" class="button" /></a> <a href="/details/album/{$RESULT.album_id}/">{$RESULT.album_name}</a></td>
+                    <td><a href="/artist/detail/{$RESULT.artist_id}/">{$RESULT.artist_name}</a></td>
+                    <td><a href="javascript:;" onclick="javascript:addsong({$RESULT.song_id});"><img src="/images/bullet_add.png" class="button" /></a> <a href="/song/detail/{$RESULT.song_id}/">{$RESULT.song_title}</a></td>
+                    <td><a href="javascript:;" onclick="javascript:addalbum({$RESULT.album_id});"><img src="/images/bullet_add.png" class="button" /></a> <a href="/album/detail/{$RESULT.album_id}/">{$RESULT.album_name}</a></td>
                   </tr>
                 {/foreach}
                 </table>

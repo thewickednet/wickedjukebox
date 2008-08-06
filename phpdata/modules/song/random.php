@@ -10,6 +10,10 @@ $songs = Song::getRandom();
 
 $smarty->assign("RANDOM_SONGS", $songs);
 
+
+if ($_GET['mode'] == 'splash')
+$core->template = "splash/random.tpl";
+else 
 $core->template = "song/random.tpl";
 
 ?>

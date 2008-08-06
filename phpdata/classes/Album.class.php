@@ -2,6 +2,18 @@
 
 class Album {
 
+    function getAll() {
+        
+        $db = Zend_Registry::get('database');
+        
+            $select = $db->select()
+                         ->from(array('a' => 'album'));
+    
+        $stmt = $select->query();
+        $result = $stmt->fetchAll();
+        return $result;
+    }
+
     function getByAlpha($alpha = "a") {
         
         $db = Zend_Registry::get('database');
@@ -74,7 +86,7 @@ class Album {
 
   function findCover($album_id = 0){
 
-    $filemasks = array('folder.jpg', 'Folder.jpg', 'cover.jpg', 'Cover.jpg', 'folder.gif', 'Folder.gif', 'Folder.png', 'folder.png');
+    $filemasks = array('folder.jpg', 'Folder.jpg', 'cover.jpg', 'Cover.jpg', 'folder.gif', 'Folder.gif', 'Folder.png', 'folder.png', 'cover.png', 'Cover.png');
 
     $songs = self::getSongs($album_id);
     foreach($songs as $song) {
@@ -110,10 +122,12 @@ class Album {
     	
         $db     = Zend_Registry::get('database');
         
-        $query = "SELECT COUNT(*) AS counter FROM album";
-        
-        $result = $db->fetchOne($query);
-        return $result;
+        $select = $db->select()
+                     ->from(array('a' => 'album'), array('counter' => 'COUNT(*)'));
+    
+        $stmt = $select->query();
+        $result = $stmt->fetchAll();
+        return $result[0]['counter'];
     	
     }
     
@@ -127,6 +141,15 @@ class Album {
         return $result;
     	
     }
+
+    function delete($album_id) {
+
+        $db = Zend_Registry::get('database');
+
+        $n = $db->delete('album', 'id = ' . $album_id);
+
+    }
+
 
 }
 
