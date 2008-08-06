@@ -13,7 +13,7 @@ $entities = array("AND","QUOTE","DOUBLES","SLASH","AT","EE", "AE", "UE", "EE", "
 
 
 $cache_key = str_replace($original, $entities, utf8_decode($search_pattern));
-
+$cache_key = sprintf("%s_%s", $cache_key, $_GET['action']);
 
 if (strlen($search_pattern) < 3) {
 
