@@ -19,31 +19,32 @@ class Shoutcast_Player(threading.Thread):
       self.__queue            = []
       self.__currentSong      = ''
       self.__triggerSkip      = False
-      self.__server           = shout.Shout()
-      self.__server.format    = 'mp3'
-      self.__server.user      = "source"
-      self.__server.password  = password
-      self.__server.mount     = mount
-      self.__server.port      = port
-      self.__server.nonblocking = False
       self.__status           = STATUS_STOPPED
       self.__bufsize          = bufsize
-
-      self.__status           = STATUS_STOPPED
-      self.__bufsize          = bufsize
-
-      self.__server.open()
+      self.__port             = port
+      self.__password         = password
+      self.__mount            = mount
+      self.connect()
       threading.Thread.__init__(self)
 
-   def disconnect(self):
+   def disconnect_server(self):
+      self.__status = STATUS_STOPPED
+      setState("progress", 0)
       self.__server.close()
 
    def connect(self):
+      self.__server           = shout.Shout()
+      self.__server.format    = 'mp3'
+      self.__server.user      = "source"
+      self.__server.password  = self.__password
+      self.__server.mount     = self.__mount
+      self.__server.port      = self.__port
+      self.__server.nonblocking = False
       self.__server.open()
 
    def reconnect(self):
       try:
-         self.disconnect()
+         self.disconnect_server()
       except:
          pass
       self.connect()
@@ -102,7 +103,8 @@ class Shoutcast_Player(threading.Thread):
                      import traceback; traceback.print_exc()
                      if (str(ex).find("Socket error") > -1):
                         time.sleep(1)
-                        log.msg("Retrying...")
+                        log.msg("Socket error! Reconnecting...")
+                        self.reconnect()
                         pass
                      else:
                         raise
@@ -111,7 +113,8 @@ class Shoutcast_Player(threading.Thread):
                      import traceback; traceback.print_exc()
                      if (str(ex).find("Socket error") > -1):
                         time.sleep(1)
-                        log.msg("Retrying...")
+                        log.msg("Socket error! Reconnecting...")
+                        self.reconnect()
                         pass
                      else:
                         raise
@@ -137,7 +140,7 @@ class Shoutcast_Player(threading.Thread):
       log.msg("Shoutcast loop finished")
       setState("progress", 0)
 
-      self.__server.close()
+      self.disconnect_server()
       self.__status = STATUS_STOPPED
 
    def skip(self):
@@ -266,6 +269,12 @@ def startPlayback():
          import traceback; traceback.print_exc()
          log.err(e)
          stopPlayback()
+      except RuntimeError, e:
+         import traceback; traceback.print_exc()
+         if (str(e).find("thread already started") > -1):
+            pass
+         else:
+            raise
 
 def status():
    return __player.status()
