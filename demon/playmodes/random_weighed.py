@@ -6,8 +6,8 @@ random. Like the time it was last played, how often it was skipped, and so on.
 """
 
 from demon.plparser import parseQuery, ParserSyntaxError
-from demon.model import create_session, DynamicPlaylist, dynamicPLTable, getSetting, metadata as dbMeta, Song
-from sqlalchemy import text as dbText
+from demon.model import create_session, DynamicPlaylist, dynamicPLTable, getSetting, metadata as dbMeta, Song, usersTable
+from sqlalchemy import text as dbText, func, select
 from twisted.python import log
 from demon.util import config
 
@@ -47,72 +47,61 @@ def get():
          import traceback; traceback.print_exc()
          log.err()
 
-   if config['database.type'] == 'sqlite':
-      query = """
-         SELECT
-            s.id,
-            localpath,
-            CASE
-               WHEN played ISNULL OR skipped ISNULL THEN 0
-            ELSE
-               CASE
-                  WHEN (played+skipped>=10) THEN (( CAST(played as real)/(played+skipped))*%(playRatio)d)
-                  ELSE 0.5*%(playRatio)d
-               END
-            END +
-               CASE WHEN played ISNULL AND skipped ISNULL THEN %(neverPlayed)d
-               ELSE 0
-               END +
-            (CASE WHEN lastPlayed ISNULL THEN 604800 ELSE
-                julianday('now')*86400 - julianday(lastPlayed)*86400 -- seconds since last play
-            END - 604800)/604800*%(lastPlayed)d +
-            CASE WHEN s.added ISNULL THEN 0 ELSE
-               CASE WHEN julianday('now')*86400 - julianday(s.added)*86400 < 1209600 THEN
-                  (julianday('now')*86400 - julianday(s.added)*86400)/1209600*%(songAge)d
-               ELSE
-                  0
-               END
-            END
+   if config['database.type'] == 'mysql':
+      
+      s = select([usersTable], func.unix_timestamp(usersTable.c.proof_of_life) + proofoflife_timeout > func.unix_timestamp(func.now()))
+      r = s.execute()
+      if len(r.fetchall()) == 0:
+         # no users online
+         query = """
+            SELECT s.id, s.localpath,
+               ((IFNULL( least(604800, time_to_sec(timediff(NOW(), lastPlayed))), 604800)-604800)/604800*%(lastPlayed)d)
+                  + IF( lastPlayed IS NULL, %(neverPlayed)d, 0)
+                  + IFNULL( IF( time_to_sec(timediff(NOW(),s.added))<1209600, time_to_sec(timediff(NOW(),s.added))/1209600*%(songAge)d, 0), 0)
                AS score
-         FROM song s LEFT JOIN channel_song_data rel ON ( rel.song_id == s.id )
-         INNER JOIN artist a ON ( a.id == s.artist_id )
-         INNER JOIN album b ON ( b.id == s.album_id )
-         WHERE (%(where)s)
-         ORDER BY score DESC, RANDOM()
-         LIMIT 10 OFFSET 0
-      """ % {
-         'neverPlayed': neverPlayed,
-         'playRatio':   playRatio,
-         'lastPlayed':  lastPlayed,
-         'songAge':     songAge,
-         'where':       ") AND (".join(whereClauses).replace("%", "%%"),
-      }
-   elif config['database.type'] == 'mysql':
-      query = """
-         SELECT s.id, s.localpath,
-            ((IFNULL( least(604800, time_to_sec(timediff(NOW(), lastPlayed))), 604800)-604800)/604800*%(lastPlayed)d)
-               + ((IFNULL(ls.loves,0)) / (SELECT COUNT(*) FROM users WHERE UNIX_TIMESTAMP(proof_of_life)+%(proofoflife)d > UNIX_TIMESTAMP(NOW())) * %(userRating)d)
-               + IF( lastPlayed IS NULL, %(neverPlayed)d, 0)
-               + IFNULL( IF( time_to_sec(timediff(NOW(),s.added))<1209600, time_to_sec(timediff(NOW(),s.added))/1209600*%(songAge)d, 0), 0)
-            AS score
-         FROM song s
-            LEFT JOIN channel_song_data c ON (c.song_id=s.id)
-            LEFT JOIN (SELECT song_id, COUNT(*) AS loves FROM user_song_standing INNER JOIN users ON(users.id=user_song_standing.user_id) WHERE standing='love' AND UNIX_TIMESTAMP(proof_of_life)+%(proofoflife)d > UNIX_TIMESTAMP(NOW()) GROUP BY song_id) ls ON (s.id=ls.song_id)
-            LEFT JOIN (SELECT song_id, COUNT(*) AS hates FROM user_song_standing INNER JOIN users ON(users.id=user_song_standing.user_id) WHERE standing='hate' AND UNIX_TIMESTAMP(proof_of_life)+%(proofoflife)d > UNIX_TIMESTAMP(NOW()) GROUP BY song_id) hs ON (s.id=hs.song_id)
-            INNER JOIN artist a ON ( a.id = s.artist_id )
-            INNER JOIN album b ON ( b.id = s.album_id )
-         WHERE (%(where)s) AND IFNULL(hs.hates,0) = 0 AND NOT s.broken AND duration < %(max_random_duration)d
-         ORDER BY score DESC, rand()
-         LIMIT 10 OFFSET 0
-      """ % {
-         'neverPlayed': neverPlayed,
-         'userRating':  userRating,
-         'lastPlayed':  lastPlayed,
-         'proofoflife': proofoflife_timeout,
-         'songAge':     songAge,
-         'max_random_duration': max_random_duration,
-         'where':       ") AND (".join(whereClauses).replace("%", "%%"),
-      }
+            FROM song s
+               LEFT JOIN channel_song_data c ON (c.song_id=s.id)
+               INNER JOIN artist a ON ( a.id = s.artist_id )
+               INNER JOIN album b ON ( b.id = s.album_id )
+            WHERE (%(where)s) AND IFNULL(hs.hates,0) = 0 AND NOT s.broken AND duration < %(max_random_duration)d
+            ORDER BY score DESC, rand()
+            LIMIT 10 OFFSET 0
+         """ % {
+            'neverPlayed': neverPlayed,
+            'userRating':  userRating,
+            'lastPlayed':  lastPlayed,
+            'songAge':     songAge,
+            'max_random_duration': max_random_duration,
+            'where':       ") AND (".join(whereClauses).replace("%", "%%"),
+         }
+      else:
+         query = """
+            SELECT s.id, s.localpath,
+               ((IFNULL( least(604800, time_to_sec(timediff(NOW(), lastPlayed))), 604800)-604800)/604800*%(lastPlayed)d)
+                  + ((IFNULL(ls.loves,0)) / (SELECT COUNT(*) FROM users WHERE UNIX_TIMESTAMP(proof_of_life)+%(proofoflife)d > UNIX_TIMESTAMP(NOW())) * %(userRating)d)
+                  + IF( lastPlayed IS NULL, %(neverPlayed)d, 0)
+                  + IFNULL( IF( time_to_sec(timediff(NOW(),s.added))<1209600, time_to_sec(timediff(NOW(),s.added))/1209600*%(songAge)d, 0), 0)
+               AS score
+            FROM song s
+               LEFT JOIN channel_song_data c ON (c.song_id=s.id)
+               LEFT JOIN (SELECT song_id, COUNT(*) AS loves FROM user_song_standing INNER JOIN users ON(users.id=user_song_standing.user_id) WHERE standing='love' AND UNIX_TIMESTAMP(proof_of_life)+%(proofoflife)d > UNIX_TIMESTAMP(NOW()) GROUP BY song_id) ls ON (s.id=ls.song_id)
+               LEFT JOIN (SELECT song_id, COUNT(*) AS hates FROM user_song_standing INNER JOIN users ON(users.id=user_song_standing.user_id) WHERE standing='hate' AND UNIX_TIMESTAMP(proof_of_life)+%(proofoflife)d > UNIX_TIMESTAMP(NOW()) GROUP BY song_id) hs ON (s.id=hs.song_id)
+               INNER JOIN artist a ON ( a.id = s.artist_id )
+               INNER JOIN album b ON ( b.id = s.album_id )
+            WHERE (%(where)s) AND IFNULL(hs.hates,0) = 0 AND NOT s.broken AND duration < %(max_random_duration)d
+            ORDER BY score DESC, rand()
+            LIMIT 10 OFFSET 0
+         """ % {
+            'neverPlayed': neverPlayed,
+            'userRating':  userRating,
+            'lastPlayed':  lastPlayed,
+            'proofoflife': proofoflife_timeout,
+            'songAge':     songAge,
+            'max_random_duration': max_random_duration,
+            'where':       ") AND (".join(whereClauses).replace("%", "%%"),
+         }
+   else:
+      raise Error("SQLite support discontinued since revision 346. It may reappear in the future!")
 
    resultProxy = dbText(query, engine=dbMeta.engine).execute()
    res = resultProxy.fetchall()
