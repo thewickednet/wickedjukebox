@@ -86,9 +86,10 @@ class Shoutcast_Player(threading.Thread):
 
             # stream the file as long as the player is running, or as long as
             # it's not skipped
+            count = 0 # loop count (used to set the progress not on every sent buffer)
             while not self.__triggerSkip and self.__keepRunning and buf:
 
-               while True:
+               while self.__keepRunning is True:
                   try:
                      self.__server.send(buf)
                      if self.__server.nonblocking:
@@ -115,33 +116,11 @@ class Shoutcast_Player(threading.Thread):
                      else:
                         raise
 
-               ##try:
-               ##   self.__server.send(buf)
-               ##   if self.__server.nonblocking:
-               ##      while self.__server.queuelen() > 1:
-               ##         pass
-               ##   self.__server.sync()
-               ##except RuntimeError, ex:
-               ##   # for shoutpy module
-               ##   import traceback; traceback.print_exc()
-               ##   if (str(ex).find("Socket error") > -1):
-               ##      self.reconnect()
-               ##      self.__triggerSkip = True
-               ##   else:
-               ##      raise
-               ###todo# obviously this wo'n't work if the shout module is not imported!
-               ##except shout.ShoutException, ex:
-               ##   # for shout module
-               ##   import traceback; traceback.print_exc()
-               ##   if (str(ex).find("Socket error") > -1):
-               ##      self.reconnect()
-               ##      self.__triggerSkip = True
-               ##   else:
-               ##      raise
-
                self.__progress = (self.__progress[0]+len(buf),
                                   self.__progress[1])
-               setState("progress", self.position())
+               count += 1
+               if count % 30 == 0:
+                  setState("progress", self.position())
                buf = f.read(self.__bufsize)
             f.close()
 

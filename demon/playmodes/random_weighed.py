@@ -117,6 +117,9 @@ def get():
    resultProxy = dbText(query, engine=dbMeta.engine).execute()
    res = resultProxy.fetchall()
    try:
+      if res[0][2] is None:
+         # no users are online!
+         return None
       out = (res[0][0], res[0][1], float(res[0][2]))
       log.msg("Selected song (%d, %s) via smartget. Score was %4.3f" % out)
       sess = create_session()

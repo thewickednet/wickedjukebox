@@ -543,15 +543,18 @@ the named channel exists in the database table called 'channel'" )
       if nextSong is None:
          nextSong = self.__random.get()
 
-      # handle orphaned files
-      while not os.path.exists(fsencode(nextSong.localpath)):
-         log.err("%r not found!" % nextSong.localpath)
-         nextSong = self.__random.get()
+      if nextSong is not None:
+         # handle orphaned files
+         while not os.path.exists(fsencode(nextSong.localpath)):
+            log.err("%r not found!" % nextSong.localpath)
+            nextSong = self.__random.get()
 
-      self.queueSong(nextSong)
+         self.queueSong(nextSong)
 
-      self.__player.startPlayback()
-      return 'OK'
+         self.__player.startPlayback()
+         return 'OK'
+      else:
+         return 'ER: No song queued'
 
    def pausePlayback(self):
       self.__playStatus = 'paused'
@@ -613,12 +616,16 @@ the named channel exists in the database table called 'channel'" )
          nextSong = self.__random.get()
       if config['core.debug'] != "0":
          log.msg( "[channel] skipping song" )
-      self.enqueue(nextSong.id)
-      self.__player.cropPlaylist(2)
-      self.__player.skipSong()
-      sess.close()
 
-      return 'OK'
+      if nextSong is not None:
+         self.enqueue(nextSong.id)
+         self.__player.cropPlaylist(2)
+         self.__player.skipSong()
+         sess.close()
+         return 'OK'
+      else:
+         sess.close()
+         return 'ER: Unable to skip song, no followup song returned'
 
    def moveup(self, qid, delta):
       self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
@@ -695,7 +702,7 @@ the named channel exists in the database table called 'channel'" )
                nextSong = self.__random.get()
 
             if nextSong is None:
-               log.msg("What? Still nothing? This is bad. Maybe you should scan you media library first? I'll just sit here and wait then!")
+               log.msg("What? Still nothing? Either nobody is online, or the database is empty")
                continue
 
             if nextSong.__class__.__name__ == "str" or nextSong.__class__.__name__ == "unicode":
