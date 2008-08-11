@@ -452,11 +452,11 @@ the named channel exists in the database table called 'channel'" )
          log.msg( '%-20s %20s %s' % ( 'lastFM support:', 'disabled', '(username or password empty)' ) )
       else:
          log.msg( '%-20s %20s' % ( 'lastFM support:', 'enabled' ) )
-      try:
-         self.__scrobbler = Scrobbler(u, p); self.__scrobbler.start()
-      except URLError:
-         import traceback; traceback.print_exc()
-         log.err("Unable to start scrobbler (internet down?)")
+         try:
+            self.__scrobbler = Scrobbler(u, p); self.__scrobbler.start()
+         except URLError:
+            import traceback; traceback.print_exc()
+            log.err("Unable to start scrobbler (internet down?)")
 
       # initialise the player
       self.__player = players.create( self.dbModel.backend, self.dbModel.backend_params)
