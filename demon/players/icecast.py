@@ -2,7 +2,7 @@ import os
 import threading
 from twisted.python import log
 from datetime import datetime
-from demon.model import getSetting
+from demon.model import getSetting, setState
 import mutagen
 import shout
 import time
@@ -35,6 +35,19 @@ class Shoutcast_Player(threading.Thread):
       self.__server.open()
       threading.Thread.__init__(self)
 
+   def disconnect(self):
+      self.__server.close()
+
+   def connect(self):
+      self.__server.open()
+
+   def reconnect(self):
+      try:
+         self.disconnect()
+      except:
+         pass
+      self.connect()
+
    def get_description(self, filename):
       artist = "unkown artist"
       title =  "unknown song"
@@ -50,8 +63,9 @@ class Shoutcast_Player(threading.Thread):
          elif meta.has_key( 'title' ):
             title = meta.get('title')[0]
       except Exception, ex:
+         import traceback
          log.err( "%s contained no valid metadata!" % filename )
-         log.err( str(ex) )
+         traceback.print_exc()
       return "%s - %s" % (artist, title)
 
    def run(self):
@@ -67,39 +81,73 @@ class Shoutcast_Player(threading.Thread):
             self.__server.set_metadata({"song": self.get_description(self.__currentSong).encode("utf-8")})
             buf = f.read(self.__bufsize)
             self.__progress = (0, os.stat(self.__currentSong).st_size)
+            setState("progress", 0)
             self.__status = STATUS_PLAYING
 
             # stream the file as long as the player is running, or as long as
             # it's not skipped
             while not self.__triggerSkip and self.__keepRunning and buf:
 
-               try:
-                  self.__server.send(buf)
-                  if self.__server.nonblocking:
-                     while self.__server.queuelen() > 1:
+               while True:
+                  try:
+                     self.__server.send(buf)
+                     if self.__server.nonblocking:
+                        while self.__server.queuelen() > 1:
+                           pass
+                     self.__server.sync()
+                     break;
+                  except RuntimeError, ex:
+                     # for shoutpy module
+                     import traceback; traceback.print_exc()
+                     if (str(ex).find("Socket error") > -1):
+                        time.sleep(1)
+                        log.msg("Retrying...")
                         pass
-                  self.__server.sync()
-               except RuntimeError, ex:
-                  # for shoutpy module
-                  if (str(ex).find("Socket error") > -1):
-                     self.__triggerSkip = True
-                  else:
-                     raise
-               #todo# obviously this wo'n't work if the shout module is not imported!
-               except shout.ShoutException, ex:
-                  # for shout module
-                  if (str(ex).find("Socket error") > -1):
-                     self.__triggerSkip = True
-                  else:
-                     raise
+                     else:
+                        raise
+                  except shout.ShoutException, ex:
+                     # for shout module
+                     import traceback; traceback.print_exc()
+                     if (str(ex).find("Socket error") > -1):
+                        time.sleep(1)
+                        log.msg("Retrying...")
+                        pass
+                     else:
+                        raise
+
+               ##try:
+               ##   self.__server.send(buf)
+               ##   if self.__server.nonblocking:
+               ##      while self.__server.queuelen() > 1:
+               ##         pass
+               ##   self.__server.sync()
+               ##except RuntimeError, ex:
+               ##   # for shoutpy module
+               ##   import traceback; traceback.print_exc()
+               ##   if (str(ex).find("Socket error") > -1):
+               ##      self.reconnect()
+               ##      self.__triggerSkip = True
+               ##   else:
+               ##      raise
+               ###todo# obviously this wo'n't work if the shout module is not imported!
+               ##except shout.ShoutException, ex:
+               ##   # for shout module
+               ##   import traceback; traceback.print_exc()
+               ##   if (str(ex).find("Socket error") > -1):
+               ##      self.reconnect()
+               ##      self.__triggerSkip = True
+               ##   else:
+               ##      raise
 
                self.__progress = (self.__progress[0]+len(buf),
                                   self.__progress[1])
+               setState("progress", self.position())
                buf = f.read(self.__bufsize)
             f.close()
 
             log.msg( "Shoutcast song finished" )
             self.__status = STATUS_STOPPED
+            setState("progress", 0)
 
             # if we fell through the previous loop because a skip was
             # requested, we need to reset that value. Otherwise we keep
@@ -108,6 +156,7 @@ class Shoutcast_Player(threading.Thread):
                self.__triggerSkip = False
 
       log.msg("Shoutcast loop finished")
+      setState("progress", 0)
 
       self.__server.close()
       self.__status = STATUS_STOPPED
@@ -135,6 +184,7 @@ class Shoutcast_Player(threading.Thread):
       try:
          return float(self.__progress[0]) / float(self.__progress[1]) * 100.0
       except ZeroDivisionError:
+         import traceback; traceback.print_exc()
          return 0
 
    def pause(self):
@@ -201,6 +251,7 @@ def getPosition():
    try:
       return (int(__player.position()), 100)
    except TypeError:
+      import traceback; traceback.print_exc()
       log.msg("%r was not a valid number" % __player.position)
       return 0
 
@@ -233,6 +284,7 @@ def startPlayback():
       try:
          __player.start()
       except AssertionError, e:
+         import traceback; traceback.print_exc()
          log.err(e)
          stopPlayback()
 

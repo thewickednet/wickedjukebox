@@ -3,7 +3,7 @@ from model import create_session, Artist, Album, Song, \
                   ChannelStat, Channel as dbChannel,\
                   getSetting, metadata as dbMeta,\
                   songTable, LastFMQueue, usersTable,\
-                  State, \
+                  State, setState, \
                   queueTable, Genre, genreTable
 from sqlalchemy import and_
 from datetime import datetime
@@ -21,6 +21,7 @@ def fsdecode( string ):
          return string
       return string.decode( fs_encoding )
    except UnicodeDecodeError:
+      import traceback; traceback.print_exc()
       print  "Failed to decode %s using %s" % (`string`, fs_encoding)
       return False
 
@@ -28,6 +29,7 @@ def fsencode( string ):
    try:
       return string.encode( fs_encoding )
    except UnicodeEncodeError:
+      import traceback; traceback.print_exc()
       print  "Failed to encode %s using %s" % (`string`, fs_encoding)
       return False
 
@@ -59,6 +61,7 @@ class Scanner(threading.Thread):
                self.__cap       = args[1]
             except IndexError:
                # no cap was specified. We can live with that
+               import traceback; traceback.print_exc()
                pass
 
          self.__folders = folders
@@ -98,6 +101,7 @@ class Scanner(threading.Thread):
                if meta.get( 'TCON' ).text[0] != '':
                   return meta.get( 'TCON' ).text[0]
          except:
+            import traceback; traceback.print_exc()
             pass
          return None
 
@@ -125,6 +129,7 @@ class Scanner(threading.Thread):
          try:
             return meta.info.bitrate
          except AttributeError, ex:
+            import traceback; traceback.print_exc()
             log.err()
             self.__errors.append("Error retrieving bitrate: %s", str(ex))
             return None
@@ -227,6 +232,7 @@ class Scanner(threading.Thread):
                   try:
                      metadata = mutagen.File( filename.encode(fs_encoding) )
                   except Exception, ex:
+                     import traceback; traceback.print_exc()
                      log.err( "%r contained no valid metadata! Excetion message: %s" % (filename, str(ex)) )
                      self.__errors.append( str(ex) )
                      continue
@@ -308,6 +314,7 @@ class Scanner(threading.Thread):
                            and song.track_no != 0:
                         song.isDirty = False
                   except:
+                     import traceback; traceback.print_exc()
                      song.isDirty = True
 
                   session.save(song)
@@ -445,10 +452,11 @@ the named channel exists in the database table called 'channel'" )
          log.msg( '%-20s %20s %s' % ( 'lastFM support:', 'disabled', '(username or password empty)' ) )
       else:
          log.msg( '%-20s %20s' % ( 'lastFM support:', 'enabled' ) )
-	 try:
-            self.__scrobbler = Scrobbler(u, p); self.__scrobbler.start()
-	 except URLError:
-	    log.err("Unable to start scrobbler (internet down?)")
+      try:
+         self.__scrobbler = Scrobbler(u, p); self.__scrobbler.start()
+      except URLError:
+         import traceback; traceback.print_exc()
+         log.err("Unable to start scrobbler (internet down?)")
 
       # initialise the player
       self.__player = players.create( self.dbModel.backend, self.dbModel.backend_params)
@@ -504,13 +512,7 @@ the named channel exists in the database table called 'channel'" )
       sess = create_session()
 
       # update state in database
-      state = sess.query(State).selectfirst_by(state="current_song")
-      if state is None:
-         state = State()
-      state.state = "current_song"
-      state.value = song.id
-      sess.save(state)
-      sess.flush()
+      setState( "current_song", song.id )
 
       # queue the song
       self.__player.queue(song.localpath.encode(fs_encoding))
@@ -525,6 +527,7 @@ the named channel exists in the database table called 'channel'" )
                   length=int(song.duration),
                   trackno=int(song.track_no))
             except TypeError, ex:
+               import traceback; traceback.print_exc()
                log.err(ex)
       sess.close()
 
@@ -638,16 +641,20 @@ the named channel exists in the database table called 'channel'" )
 
       if (self.__jingles_interval is not None and self.__jingles_folder is not None):
 
-         rnd = int(random()*(jingle_boundary[1]-jingle_boundary[0])) + self.__no_jingle_count
-         if jingle_boundary[0] <= rnd:
-            available_jingles = os.listdir( self.__jingles_folder )
-            if available_jingles != []:
-               random_file = choice(available_jingles)
-               self.__no_jingle_count = 0
-               return os.path.join( self.__jingles_folder, random_file )
-         else:
-            self.__no_jingle_count += 1
-            log.msg("No jingle count increased to %d" % self.__no_jingle_count)
+         try:
+            rnd = int(random()*(jingle_boundary[1]-jingle_boundary[0])) + self.__no_jingle_count
+            if jingle_boundary[0] <= rnd:
+               available_jingles = os.listdir( self.__jingles_folder )
+               if available_jingles != []:
+                  random_file = choice(available_jingles)
+                  self.__no_jingle_count = 0
+                  return os.path.join( self.__jingles_folder, random_file )
+            else:
+               self.__no_jingle_count += 1
+               log.msg("No jingle count increased to %d" % self.__no_jingle_count)
+         except OSError, ex:
+            import traceback; traceback.print_exc()
+            log.msg("Unable to open jingles: ", str(ex))
 
    def run(self):
       cycleTime = int(getSetting('channel_cycle', '3'))

@@ -46,6 +46,7 @@ class Scrobbler(threading.Thread):
       try:
          scrobbler.login( user, passwd )
       except scrobbler.AuthError:
+         import traceback; traceback.print_exc()
          print "problem authencitating with AS. Stopping service."
          self.__keepRunning = False
 
@@ -80,6 +81,7 @@ class Scrobbler(threading.Thread):
                         )
                   break;
                except Exception, ex:
+                  import traceback; traceback.print_exc()
                   print "Exception caught with Audioscrobbler submission: %s" % str(ex)
                   time.sleep(1)
 

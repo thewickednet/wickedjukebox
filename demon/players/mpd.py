@@ -46,6 +46,7 @@ def __connect():
          log.msg( "Connecting to MPD backend..." )
          connection = mpdclient.MpdController( host, port )
       except mpdclient.MpdConnectionPortError, ex:
+         import traceback; traceback.print_exc()
          log.err("Error connecting to the player.")
          time.sleep(1)
          continue

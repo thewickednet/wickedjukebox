@@ -223,7 +223,7 @@ function shout() {
 	document.shouter.body.value = '';
 	new Ajax.Updater('shoutboxmsgs', '/?module=shoutbox&action=shout&body='+body, {asynchronous:true, evalScripts:true });
     
-    return false;
+        return false;
 	
 }
 

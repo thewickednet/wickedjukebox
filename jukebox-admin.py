@@ -7,6 +7,7 @@ from demon.model import getSetting, \
                         songTable, \
                         albumTable, \
                         artistTable, \
+                        usersTable, \
                         song_has_genre, \
                         create_session
 from sqlalchemy import func, select, bindparam, and_
@@ -331,6 +332,15 @@ SYNOPSIS
          for s in songs:
             if s.title is None: continue
             print s.title.encode("utf-8")
+
+   def do_online_users(self, line):
+      s = select([usersTable],
+            func.addtime( usersTable.c.proof_of_life, '0:03:00' ) > func.now(),
+         )
+      r = s.execute()
+      for row in r.fetchall():
+         print row
+
 
 if __name__ == '__main__':
    app = Console()

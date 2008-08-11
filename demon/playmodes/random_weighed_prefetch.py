@@ -36,6 +36,7 @@ def findSong():
                 # as it triggers an unexpected behaviour (bug). i.e.: Why the
                 # heck does it only activate one playlist?!?
       except ParserSyntaxError, ex:
+         import traceback; traceback.print_exc()
          log.err( str(ex) )
          log.err( 'Query was: %s' % dpl.query )
 
@@ -104,6 +105,7 @@ def findSong():
       sess.close()
       return selectedSong
    except IndexError:
+      import traceback; traceback.print_exc()
       log.err('No song returned from query. Is the database empty?')
       return None
 

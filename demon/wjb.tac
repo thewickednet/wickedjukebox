@@ -92,6 +92,7 @@ class Gatekeeper(object):
             for x in doclines:
                lines.append( x )
          except AttributeError:
+            import traceback; traceback.print_exc()
             return "No such command!"
       else:
          lst = [ (f[3:], self.__getattribute__(f), self.__getattribute__(f).__doc__) for f in dir(self) if f.startswith('do_') ]
@@ -196,6 +197,7 @@ class Gatekeeper(object):
          id = self.activeChannel.currentSong()
          return 'OK: %d' % id
       except:
+         import traceback; traceback.print_exc()
          return 'ER'
 
    def do_setChannel(self, args=None):
@@ -282,6 +284,7 @@ class Gatekeeper(object):
             self.activeChannel.open()
             return "OK: %s opened" % self.activeChannel.name.encode('utf-8')
          except Exception, ex:
+            import traceback; traceback.print_exc()
             return "ER: %s" % str(ex)
       return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
 
@@ -303,6 +306,7 @@ class Gatekeeper(object):
             self.activeChannel.join()
             return "OK: %s closed" % self.activeChannel.name.encode('utf-8')
          except Exception, ex:
+            import traceback; traceback.print_exc()
             return "ER: %s" % str(ex)
       return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
 
@@ -403,6 +407,7 @@ class WJBFactory( protocol.ServerFactory ):
       try:
          args = line.split()[1:]
       except IndexError:
+         import traceback; traceback.print_exc()
          args = None
       if args == []: args = None
 
@@ -412,8 +417,10 @@ class WJBFactory( protocol.ServerFactory ):
          f = gate.__getattribute__( funcname )
          return f(args)
       except AttributeError, ex:
+         import traceback; traceback.print_exc()
          return "ER: Unable to execute %s: %s" % (repr(command), str(ex))
       except Exception, ex:
+         import traceback; traceback.print_exc()
          return "ER: Unexpected error when executing %s: %s" % (repr(command), str(ex))
 
 
@@ -432,6 +439,7 @@ if os.getuid() == 0:
    try:
       application = service.Application('wickedjukebox', uid=1, gid=1)
    except:
+      import traceback; traceback.print_exc()
       log.err( "... failed to switch user." )
       if config['core.allow_root_exec'] == 1:
          log.err( "Running as superuser instead. THIS IS DANGEROUS! To disable this behaviour, set 'allow_root_exec' to 0 in config.ini" )

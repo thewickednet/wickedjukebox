@@ -40,11 +40,15 @@ class BackendDB {
         $artistinfo = Artist::getById($songinfo['artist_id']);
         $albuminfo = Album::getById($songinfo['album_id']);
 
+	$progress = $state['progress'];
+	$progress = $songinfo['duration'] / 100 * $progress;
+
         $result = array(
                         'songinfo'      =>  $songinfo,
                         'userinfo'      =>  $userinfo,
                         'artistinfo'    =>  $artistinfo,
-                        'albuminfo'     =>  $albuminfo
+                        'albuminfo'     =>  $albuminfo,
+			'progress'	=>  $progress
                         );
 
         return $result;

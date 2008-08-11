@@ -65,6 +65,19 @@ def getSetting(param_in, default=None, channel=None):
          # An unknown error occured. We raise it again
          raise
 
+def setState(statename, value):
+
+      sess = create_session()
+
+      # update state in database
+      state = sess.query(State).selectfirst_by(state=statename)
+      if state is None:
+         state = State()
+      state.state = statename
+      state.value = value
+      sess.save(state)
+      sess.flush()
+
 # ----------------------------------------------------------------------------
 # Table definitions
 # ----------------------------------------------------------------------------

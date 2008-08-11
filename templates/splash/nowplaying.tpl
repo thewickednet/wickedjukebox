@@ -12,7 +12,7 @@
             {else}
             &nbsp;<br />
             {/if}
-            00:00 / {$PLAYER_STATUS.songinfo.duration|date_format:"%M:%S"}
+            {$PLAYER_STATUS.progress|date_format:"%M:%S"} / {$PLAYER_STATUS.songinfo.duration|date_format:"%M:%S"}
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <a href="javascript:;" onclick="javascript:setStanding({$PLAYER_STATUS.songinfo.id}, 'love');"><img src="/images/emoticon_happy.png" title="love this track!" border="0" class="icon{if $PLAYER_STATUS.standing == 'love'}a{/if}"/></a>&nbsp;<a href="javascript:;" onclick="javascript:setStanding({$PLAYER_STATUS.songinfo.id}, 'neutral');"><img src="/images/emoticon_smile.png" title="this track is ok!" border="0" class="icon{if $PLAYER_STATUS.standing != 'love' && $PLAYER_STATUS.standing != 'hate'}a{/if}"/></a>&nbsp;<a href="javascript:;" onclick="javascript:setStanding({$PLAYER_STATUS.songinfo.id}, 'hate');"><img src="/images/emoticon_unhappy.png" title="hate this track!" border="0" class="icon{if $PLAYER_STATUS.standing == 'hate'}a{/if}"/></a>&nbsp;<a href="javascript:;" onclick="javascript:setStanding({$PLAYER_STATUS.songinfo.id}, 'broken');"><img src="/images/error.png" title="report track as broken or very bad quality" border="0" class="icon" /></a>
             </p>
