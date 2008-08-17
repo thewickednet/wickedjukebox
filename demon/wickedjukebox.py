@@ -768,6 +768,11 @@ the named channel exists in the database table called 'channel'" )
                   usersTable.c.credits < maxCredits,
                   values={usersTable.c.credits: usersTable.c.credits+5}
                   ).execute( )
+            # we may have overshot our target slightly. This fixes it
+            usersTable.update(
+                  usersTable.c.credits > maxCredits,
+                  values={usersTable.c.credits: maxCredits}
+                  ).execute( )
             lastCreditGiveaway = datetime.now()
 
          sess.flush()
