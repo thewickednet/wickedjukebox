@@ -63,7 +63,7 @@ def get():
                LEFT JOIN channel_song_data c ON (c.song_id=s.id)
                INNER JOIN artist a ON ( a.id = s.artist_id )
                INNER JOIN album b ON ( b.id = s.album_id )
-            WHERE (%(where)s) AND IFNULL(hs.hates,0) = 0 AND NOT s.broken AND duration < %(max_random_duration)d
+            WHERE (%(where)s) AND NOT s.broken AND duration < %(max_random_duration)d
             ORDER BY score DESC, rand()
             LIMIT 10 OFFSET 0
          """ % {
