@@ -532,6 +532,7 @@ the named channel exists in the database table called 'channel'" )
       sess.close()
 
    def startPlayback(self):
+      sess = create_session()
       self.__playStatus = 'playing'
 
       # TODO: This block is found as well in "skipSong! --> refactor"
@@ -545,15 +546,19 @@ the named channel exists in the database table called 'channel'" )
 
       if nextSong is not None:
          # handle orphaned files
-         while not os.path.exists(fsencode(nextSong.localpath)):
+         while not os.path.exists(fsencode(nextSong.localpath)) and self.__keepRunning:
             log.err("%r not found!" % nextSong.localpath)
+            songTable.update(songTable.c.id == nextSong.id, values={'broken': True}).execute()
+
             nextSong = self.__random.get()
 
          self.queueSong(nextSong)
 
          self.__player.startPlayback()
+         sess.close()
          return 'OK'
       else:
+         sess.close()
          return 'ER: No song queued'
 
    def pausePlayback(self):
@@ -673,6 +678,7 @@ the named channel exists in the database table called 'channel'" )
       while self.__keepRunning:
 
          time.sleep(cycleTime)
+         sess = create_session()
 
          # ping the database every 10 seconds
          if (datetime.now() - lastPing).seconds > 10:
@@ -711,8 +717,10 @@ the named channel exists in the database table called 'channel'" )
                self.__player.startPlayback()
             else:
                # handle orphaned files
-               while not os.path.exists(fsencode(nextSong.localpath)):
+               while not os.path.exists(fsencode(nextSong.localpath)) and self.__keepRunning:
                   log.err("%r not found!" % nextSong.localpath)
+                  songTable.update(songTable.c.id == nextSong.id, values={'broken': True}).execute()
+                  sess.flush()
                   nextSong = self.__random.get()
                self.queueSong(nextSong)
                self.__player.startPlayback()

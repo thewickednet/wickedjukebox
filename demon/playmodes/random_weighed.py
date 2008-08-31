@@ -27,8 +27,6 @@ def get():
    """
 
    # Retrieve dynamic playlists
-   whereClauses = [ "NOT broken" ]
-
    sess = create_session()
    res = sess.query(DynamicPlaylist).select(dynamicPLTable.c.group_id > 0, order_by=['group_id'])
    sess.close()
@@ -47,6 +45,7 @@ def get():
          import traceback; traceback.print_exc()
          log.err()
 
+   whereClauses = [ "NOT broken" ]
    if config['database.type'] == 'mysql':
       
       s = select([usersTable], func.unix_timestamp(usersTable.c.proof_of_life) + proofoflife_timeout > func.unix_timestamp(func.now()))
