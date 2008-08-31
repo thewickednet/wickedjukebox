@@ -10,6 +10,7 @@ from demon.model import create_session, DynamicPlaylist, dynamicPLTable, getSett
 from sqlalchemy import text as dbText, func, select
 from twisted.python import log
 from demon.util import config
+from random import random
 
 # setup song scoring coefficients
 playRatio   = int(getSetting('scoring_ratio',        4))
@@ -17,6 +18,7 @@ userRating  = int(getSetting('scoring_userRating',   3))
 lastPlayed  = int(getSetting('scoring_lastPlayed',   7))
 songAge     = int(getSetting('scoring_songAge',      0))
 neverPlayed = int(getSetting('scoring_neverPlayed', 10))
+randomness  = int(getSetting('scoring_randomness',   5))
 max_random_duration = int(getSetting('max_random_duration', 600))
 proofoflife_timeout = int(getSetting('proofoflife_timeout', 180))
 
@@ -57,19 +59,21 @@ def get():
                ((IFNULL( least(604800, time_to_sec(timediff(NOW(), lastPlayed))), 604800)-604800)/604800*%(lastPlayed)d)
                   + IF( lastPlayed IS NULL, %(neverPlayed)d, 0)
                   + IFNULL( IF( time_to_sec(timediff(NOW(),s.added))<1209600, time_to_sec(timediff(NOW(),s.added))/1209600*%(songAge)d, 0), 0)
+                  + %(randomness)f
                AS score
             FROM song s
                LEFT JOIN channel_song_data c ON (c.song_id=s.id)
                INNER JOIN artist a ON ( a.id = s.artist_id )
                INNER JOIN album b ON ( b.id = s.album_id )
             WHERE (%(where)s) AND NOT s.broken AND duration < %(max_random_duration)d
-            ORDER BY score DESC, rand()
+            ORDER BY score DESC
             LIMIT 10 OFFSET 0
          """ % {
             'neverPlayed': neverPlayed,
             'userRating':  userRating,
             'lastPlayed':  lastPlayed,
             'songAge':     songAge,
+            'randomness':  (random()*randomness*2)-randomness,
             'max_random_duration': max_random_duration,
             'where':       ") AND (".join(whereClauses).replace("%", "%%"),
          }
@@ -80,6 +84,7 @@ def get():
                   + ((IFNULL(ls.loves,0)) / (SELECT COUNT(*) FROM users WHERE UNIX_TIMESTAMP(proof_of_life)+%(proofoflife)d > UNIX_TIMESTAMP(NOW())) * %(userRating)d)
                   + IF( lastPlayed IS NULL, %(neverPlayed)d, 0)
                   + IFNULL( IF( time_to_sec(timediff(NOW(),s.added))<1209600, time_to_sec(timediff(NOW(),s.added))/1209600*%(songAge)d, 0), 0)
+                  + %(randomness)f
                AS score
             FROM song s
                LEFT JOIN channel_song_data c ON (c.song_id=s.id)
@@ -88,13 +93,14 @@ def get():
                INNER JOIN artist a ON ( a.id = s.artist_id )
                INNER JOIN album b ON ( b.id = s.album_id )
             WHERE (%(where)s) AND IFNULL(hs.hates,0) = 0 AND NOT s.broken AND duration < %(max_random_duration)d
-            ORDER BY score DESC, rand()
+            ORDER BY score DESC
             LIMIT 10 OFFSET 0
          """ % {
             'neverPlayed': neverPlayed,
             'userRating':  userRating,
             'lastPlayed':  lastPlayed,
             'proofoflife': proofoflife_timeout,
+            'randomness':  (random()*randomness*2)-randomness,
             'songAge':     songAge,
             'max_random_duration': max_random_duration,
             'where':       ") AND (".join(whereClauses).replace("%", "%%"),
