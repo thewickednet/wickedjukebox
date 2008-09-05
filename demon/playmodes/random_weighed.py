@@ -84,7 +84,7 @@ def get():
                   + ((IFNULL(ls.loves,0)) / (SELECT COUNT(*) FROM users WHERE UNIX_TIMESTAMP(proof_of_life)+%(proofoflife)d > UNIX_TIMESTAMP(NOW())) * %(userRating)d)
                   + IF( lastPlayed IS NULL, %(neverPlayed)d, 0)
                   + IFNULL( IF( time_to_sec(timediff(NOW(),s.added))<1209600, time_to_sec(timediff(NOW(),s.added))/1209600*%(songAge)d, 0), 0)
-                  + %(randomness)f
+                  + ((RAND()*%(randomness)f*2)-%(randomness)f)
                AS score
             FROM song s
                LEFT JOIN channel_song_data c ON (c.song_id=s.id)
