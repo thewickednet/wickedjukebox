@@ -12,20 +12,20 @@ from twisted.python import log
 from demon.util import config
 from random import random
 
-# setup song scoring coefficients
-userRating  = int(getSetting('scoring_userRating',   4))
-lastPlayed  = int(getSetting('scoring_lastPlayed',   10))
-songAge     = int(getSetting('scoring_songAge',      1))
-neverPlayed = int(getSetting('scoring_neverPlayed',  4))
-randomness  = int(getSetting('scoring_randomness',   1))
-max_random_duration = int(getSetting('max_random_duration', 600))
-proofoflife_timeout = int(getSetting('proofoflife_timeout', 180))
-
 def get():
    """
    determine a song that would be best to play next and add it to the
    prediction queue
    """
+
+   # setup song scoring coefficients
+   userRating  = int(getSetting('scoring_userRating',   4))
+   lastPlayed  = int(getSetting('scoring_lastPlayed',   10))
+   songAge     = int(getSetting('scoring_songAge',      1))
+   neverPlayed = int(getSetting('scoring_neverPlayed',  4))
+   randomness  = int(getSetting('scoring_randomness',   1))
+   max_random_duration = int(getSetting('max_random_duration', 600))
+   proofoflife_timeout = int(getSetting('proofoflife_timeout', 180))
 
    # Retrieve dynamic playlists
    sess = create_session()
