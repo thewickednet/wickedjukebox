@@ -13,12 +13,11 @@ from demon.util import config
 from random import random
 
 # setup song scoring coefficients
-playRatio   = int(getSetting('scoring_ratio',        4))
-userRating  = int(getSetting('scoring_userRating',   3))
-lastPlayed  = int(getSetting('scoring_lastPlayed',   7))
-songAge     = int(getSetting('scoring_songAge',      0))
-neverPlayed = int(getSetting('scoring_neverPlayed', 10))
-randomness  = int(getSetting('scoring_randomness',   5))
+userRating  = int(getSetting('scoring_userRating',   4))
+lastPlayed  = int(getSetting('scoring_lastPlayed',   10))
+songAge     = int(getSetting('scoring_songAge',      1))
+neverPlayed = int(getSetting('scoring_neverPlayed',  4))
+randomness  = int(getSetting('scoring_randomness',   1))
 max_random_duration = int(getSetting('max_random_duration', 600))
 proofoflife_timeout = int(getSetting('proofoflife_timeout', 180))
 
@@ -73,7 +72,7 @@ def get():
             'userRating':  userRating,
             'lastPlayed':  lastPlayed,
             'songAge':     songAge,
-            'randomness':  (random()*randomness*2)-randomness,
+            'randomness':  randomness,
             'max_random_duration': max_random_duration,
             'where':       ") AND (".join(whereClauses).replace("%", "%%"),
          }
