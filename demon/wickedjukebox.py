@@ -11,8 +11,8 @@ from util import Scrobbler, fs_encoding
 from twisted.python import log
 import playmodes, players
 from demon.util import config
-from urllib2 import URLError
 from random import choice, random
+import urllib2, re
 
 def fsdecode( string ):
    try:
@@ -454,7 +454,7 @@ the named channel exists in the database table called 'channel'" )
          log.msg( '%-20s %20s' % ( 'lastFM support:', 'enabled' ) )
          try:
             self.__scrobbler = Scrobbler(u, p); self.__scrobbler.start()
-         except URLError:
+         except urllib2.URLError:
             import traceback; traceback.print_exc()
             log.err("Unable to start scrobbler (internet down?)")
 
@@ -532,7 +532,6 @@ the named channel exists in the database table called 'channel'" )
       sess.close()
 
    def startPlayback(self):
-      sess = create_session()
       self.__playStatus = 'playing'
 
       # TODO: This block is found as well in "skipSong! --> refactor"
@@ -668,6 +667,11 @@ the named channel exists in the database table called 'channel'" )
             import traceback; traceback.print_exc()
             log.msg("Unable to open jingles: ", str(ex))
 
+   def update_current_listeners(self):
+      "Scrape the Icecast admin page for current listeners and update theit state in the DB"
+      listeners = self.__player.current_listeners()
+      print listeners
+
    def run(self):
       cycleTime = int(getSetting('channel_cycle', '3'))
       lastCreditGiveaway = datetime.now()
@@ -679,6 +683,7 @@ the named channel exists in the database table called 'channel'" )
 
          time.sleep(cycleTime)
          sess = create_session()
+         self.update_current_listeners()
 
          # ping the database every 10 seconds
          if (datetime.now() - lastPing).seconds > 10:

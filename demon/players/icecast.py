@@ -6,6 +6,9 @@ from demon.model import getSetting, setState
 import mutagen
 import shout
 import time
+import urllib2
+import re
+from md5 import md5
 
 STATUS_STOPPED=1
 STATUS_PLAYING=2
@@ -205,6 +208,9 @@ __port     = None
 __mount    = None
 __password = None
 __player   = None
+__adminurl = None
+__adminuser = None
+__adminpassword = None
 songStarted = None
 
 def config(params):
@@ -216,6 +222,15 @@ def config(params):
    __player   = Shoutcast_Player(__password,
                                  __mount,
                                  __port)
+
+   if "admin_url" in backend_params:
+      __adminurl = str(params["admin_url"])
+
+   if "admin_username" in backend_params:
+      __adminuser = str(params["admin_username"])
+
+   if "admin_password" in backend_params:
+      __adminpassword = str(params["admin_password"])
 
 def cropPlaylist(length=2):
    """
@@ -279,3 +294,35 @@ def startPlayback():
 def status():
    return __player.status()
 
+def current_listeners():
+   """
+   Scrape the Icecast admin page for current listeners and return a list of
+   MD5 hashes of their IPs
+   """
+
+   if __adminurl is None or \
+      __adminuser is None or \
+      __adminpassword is None :
+      # not all required backend parameters supplied
+      return
+   #adminurl = 'jukebox.wicked.lu:8001/admin/listclients.xsl?mount=/wicked.mp3'
+   #username = 'admin'
+   #password = 'matourenstepp'
+
+   part = "25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?"
+   p = re.compile(r"(((%s)\.){3}(%s))" % (part, part))
+
+   # Create an OpenerDirector with support for Basic HTTP Authentication...
+   auth_handler = urllib2.HTTPBasicAuthHandler()
+   auth_handler.add_password(realm='Icecast2 Server',
+                             uri=__adminurl,
+                             user=__adminuser,
+                             passwd=__adminpassword)
+   opener = urllib2.build_opener(auth_handler)
+   # ...and install it globally so it can be used with urlopen.
+   urllib2.install_opener(opener)
+   handler= urllib2.urlopen(__adminurl)
+   data = handler.read()
+
+   listeners = [md5(x[0]).hexdigest() for x in p.findall(data)]
+   return listeners

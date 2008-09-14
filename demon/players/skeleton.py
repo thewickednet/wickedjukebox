@@ -101,3 +101,8 @@ def status():
 
    return 'unknown'
 
+def current_listeners():
+   """
+   Returns a list of unique identifiers of current listeners
+   """
+   return []
