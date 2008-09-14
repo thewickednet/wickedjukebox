@@ -5,7 +5,7 @@ from model import create_session, Artist, Album, Song, \
                   songTable, LastFMQueue, usersTable,\
                   State, setState, \
                   queueTable, Genre, genreTable
-from sqlalchemy import and_
+from sqlalchemy import and_, func
 from datetime import datetime
 from util import Scrobbler, fs_encoding
 from twisted.python import log
@@ -543,6 +543,7 @@ the named channel exists in the database table called 'channel'" )
       if nextSong is None:
          nextSong = self.__random.get()
 
+      sess = create_session()
       if nextSong is not None:
          # handle orphaned files
          while not os.path.exists(fsencode(nextSong.localpath)) and self.__keepRunning:
@@ -670,7 +671,11 @@ the named channel exists in the database table called 'channel'" )
    def update_current_listeners(self):
       "Scrape the Icecast admin page for current listeners and update theit state in the DB"
       listeners = self.__player.current_listeners()
-      print listeners
+      for l in listeners:
+         usersTable.update(
+            func.md5(usersTable.c.IP) == l,
+            values={usersTable.c.proof_of_listening: func.now()}
+            ).execute( )
 
    def run(self):
       cycleTime = int(getSetting('channel_cycle', '3'))
@@ -683,10 +688,10 @@ the named channel exists in the database table called 'channel'" )
 
          time.sleep(cycleTime)
          sess = create_session()
-         self.update_current_listeners()
 
          # ping the database every 10 seconds
          if (datetime.now() - lastPing).seconds > 10:
+            self.update_current_listeners()
             lastPing = datetime.now()
             self.dbModel.ping = lastPing
 

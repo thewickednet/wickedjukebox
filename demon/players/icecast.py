@@ -214,7 +214,7 @@ __adminpassword = None
 songStarted = None
 
 def config(params):
-   global __port, __mount, __password, __player
+   global __port, __mount, __password, __player, __adminurl, __adminuser, __adminpassword
    log.msg( "connection to icecast server (params = %s)" % params )
    __port     = int(params['port'])
    __mount    = str(params['mount'])
@@ -223,13 +223,13 @@ def config(params):
                                  __mount,
                                  __port)
 
-   if "admin_url" in backend_params:
-      __adminurl = str(params["admin_url"])
+   if "admin_url" in params:
+      __adminurl = str(params["admin_url"]) + "/listclients.xsl?mount=" + __mount
 
-   if "admin_username" in backend_params:
+   if "admin_username" in params:
       __adminuser = str(params["admin_username"])
 
-   if "admin_password" in backend_params:
+   if "admin_password" in params:
       __adminpassword = str(params["admin_password"])
 
 def cropPlaylist(length=2):
@@ -299,15 +299,14 @@ def current_listeners():
    Scrape the Icecast admin page for current listeners and return a list of
    MD5 hashes of their IPs
    """
+   global __mount, __adminurl, __adminuser, __adminpassword
 
    if __adminurl is None or \
       __adminuser is None or \
       __adminpassword is None :
       # not all required backend parameters supplied
+      print "Not all parameters set for screen scraping icecast statistics"
       return
-   #adminurl = 'jukebox.wicked.lu:8001/admin/listclients.xsl?mount=/wicked.mp3'
-   #username = 'admin'
-   #password = 'matourenstepp'
 
    part = "25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?"
    p = re.compile(r"(((%s)\.){3}(%s))" % (part, part))

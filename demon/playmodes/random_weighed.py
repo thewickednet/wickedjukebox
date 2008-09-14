@@ -49,7 +49,7 @@ def get():
    whereClauses = [ "NOT broken" ]
    if config['database.type'] == 'mysql':
       
-      s = select([usersTable], func.unix_timestamp(usersTable.c.proof_of_life) + proofoflife_timeout > func.unix_timestamp(func.now()))
+      s = select([usersTable], func.unix_timestamp(usersTable.c.proof_of_listening) + proofoflife_timeout > func.unix_timestamp(func.now()))
       r = s.execute()
       if len(r.fetchall()) == 0:
          # no users online
@@ -80,15 +80,15 @@ def get():
          query = """
             SELECT s.id, s.localpath,
                ((IFNULL( least(604800, time_to_sec(timediff(NOW(), lastPlayed))), 604800)-604800)/604800*%(lastPlayed)d)
-                  + ((IFNULL(ls.loves,0)) / (SELECT COUNT(*) FROM users WHERE UNIX_TIMESTAMP(proof_of_life)+%(proofoflife)d > UNIX_TIMESTAMP(NOW())) * %(userRating)d)
+                  + ((IFNULL(ls.loves,0)) / (SELECT COUNT(*) FROM users WHERE UNIX_TIMESTAMP(proof_of_listening)+%(proofoflife)d > UNIX_TIMESTAMP(NOW())) * %(userRating)d)
                   + IF( lastPlayed IS NULL, %(neverPlayed)d, 0)
                   + IFNULL( IF( time_to_sec(timediff(NOW(),s.added))<1209600, time_to_sec(timediff(NOW(),s.added))/1209600*%(songAge)d, 0), 0)
                   + ((RAND()*%(randomness)f*2)-%(randomness)f)
                AS score
             FROM song s
                LEFT JOIN channel_song_data c ON (c.song_id=s.id)
-               LEFT JOIN (SELECT song_id, COUNT(*) AS loves FROM user_song_standing INNER JOIN users ON(users.id=user_song_standing.user_id) WHERE standing='love' AND UNIX_TIMESTAMP(proof_of_life)+%(proofoflife)d > UNIX_TIMESTAMP(NOW()) GROUP BY song_id) ls ON (s.id=ls.song_id)
-               LEFT JOIN (SELECT song_id, COUNT(*) AS hates FROM user_song_standing INNER JOIN users ON(users.id=user_song_standing.user_id) WHERE standing='hate' AND UNIX_TIMESTAMP(proof_of_life)+%(proofoflife)d > UNIX_TIMESTAMP(NOW()) GROUP BY song_id) hs ON (s.id=hs.song_id)
+               LEFT JOIN (SELECT song_id, COUNT(*) AS loves FROM user_song_standing INNER JOIN users ON(users.id=user_song_standing.user_id) WHERE standing='love' AND UNIX_TIMESTAMP(proof_of_listening)+%(proofoflife)d > UNIX_TIMESTAMP(NOW()) GROUP BY song_id) ls ON (s.id=ls.song_id)
+               LEFT JOIN (SELECT song_id, COUNT(*) AS hates FROM user_song_standing INNER JOIN users ON(users.id=user_song_standing.user_id) WHERE standing='hate' AND UNIX_TIMESTAMP(proof_of_listening)+%(proofoflife)d > UNIX_TIMESTAMP(NOW()) GROUP BY song_id) hs ON (s.id=hs.song_id)
                INNER JOIN artist a ON ( a.id = s.artist_id )
                INNER JOIN album b ON ( b.id = s.album_id )
             WHERE (%(where)s) AND IFNULL(hs.hates,0) = 0 AND NOT s.broken AND s.duration < %(max_random_duration)d
