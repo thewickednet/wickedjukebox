@@ -646,7 +646,7 @@ the named channel exists in the database table called 'channel'" )
       if self.__jingles_interval == '':
          self.__jingles_interval = None
       elif self.__jingles_interval.find("-") > -1:
-         jingle_boundary = [ int(x) for x in '-'.split(self.__jingles_interval) ]
+         jingle_boundary = [ int(x) for x in self.__jingles_interval.split("-") ]
       else:
          jingle_boundary = [ int(self.__jingles_interval), int(self.__jingles_interval) ]
       if self.__jingles_folder == '': self.__jingles_folder = None
