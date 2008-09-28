@@ -671,7 +671,13 @@ the named channel exists in the database table called 'channel'" )
    def update_current_listeners(self):
       "Scrape the Icecast admin page for current listeners and update theit state in the DB"
       listeners = self.__player.current_listeners()
+      if listeners is None:
+         # feature not supported by backedd player, or list of listeners unknwon
+         return
       for l in listeners:
+         usersTable.update(
+            values={usersTable.c.proof_of_listening: None}
+            ).execute( )
          usersTable.update(
             func.md5(usersTable.c.IP) == l,
             values={usersTable.c.proof_of_listening: func.now()}
@@ -689,8 +695,8 @@ the named channel exists in the database table called 'channel'" )
          time.sleep(cycleTime)
          sess = create_session()
 
-         # ping the database every 10 seconds
-         if (datetime.now() - lastPing).seconds > 10:
+         # ping the database every 2 minutes
+         if (datetime.now() - lastPing).seconds > 1200:
             self.update_current_listeners()
             lastPing = datetime.now()
             self.dbModel.ping = lastPing

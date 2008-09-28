@@ -104,5 +104,7 @@ def status():
 def current_listeners():
    """
    Returns a list of unique identifiers of current listeners
+
+   Return "None" if this feature is not supported or if the list of listeners is unknown
    """
    return []

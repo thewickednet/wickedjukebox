@@ -320,8 +320,12 @@ def current_listeners():
    opener = urllib2.build_opener(auth_handler)
    # ...and install it globally so it can be used with urlopen.
    urllib2.install_opener(opener)
-   handler= urllib2.urlopen(__adminurl)
-   data = handler.read()
 
-   listeners = [md5(x[0]).hexdigest() for x in p.findall(data)]
-   return listeners
+   try:
+      handler= urllib2.urlopen(__adminurl)
+      data = handler.read()
+
+      listeners = [md5(x[0]).hexdigest() for x in p.findall(data)]
+      return listeners
+   except HTTPError:
+      return None
