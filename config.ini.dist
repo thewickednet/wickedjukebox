@@ -1,6 +1,7 @@
 [core]
 allow_root_exec = 0
 debug = 0
+debug_sql = 0
 
 [demon]
 host            = localhost

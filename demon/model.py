@@ -83,7 +83,7 @@ def setState(statename, value):
 # ----------------------------------------------------------------------------
 
 metadata = BoundMetaData(dburi, encoding='utf-8', echo=True)
-if int(config['core.debug']) > 0:
+if int(config['core.debug_sql']) > 0:
    log.msg( "Echoing database queries" )
    metadata.engine.echo = True
 else:
