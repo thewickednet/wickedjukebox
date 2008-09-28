@@ -641,8 +641,8 @@ the named channel exists in the database table called 'channel'" )
       self.__queuemodel.movedown(qid, delta)
 
    def get_jingle(self):
-      self.__jingles_folder = getSetting('jingles_folder', None)
-      self.__jingles_interval = getSetting('jingles_interval', None)
+      self.__jingles_folder = getSetting('jingles_folder', None, self.dbModel.id)
+      self.__jingles_interval = getSetting('jingles_interval', None, self.dbModel.id)
       if self.__jingles_interval == '':
          self.__jingles_interval = None
       elif self.__jingles_interval.find("-") > -1:
@@ -692,8 +692,8 @@ the named channel exists in the database table called 'channel'" )
          time.sleep(cycleTime)
          sess = create_session()
 
-         # ping the database every 2 minutes
-         if (datetime.now() - lastPing).seconds > 1200:
+         # ping the database every 2 minutes (unless another value was specified in the settings)
+         if (datetime.now() - lastPing).seconds > int(getSetting("proofoflife_timeout", 1200)):
             self.update_current_listeners()
             lastPing = datetime.now()
             self.dbModel.ping = lastPing

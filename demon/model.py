@@ -62,7 +62,7 @@ def getSetting(param_in, default=None, channel=None, user=None):
             return default
          else:
             log.msg( "\nRequired parameter %s was not found in the settings table!" % param_in )
-            raise
+            return None
       return setting.value
    except Exception, ex:
       if str(ex).lower().find('connect') > 0:
