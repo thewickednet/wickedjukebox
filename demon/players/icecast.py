@@ -322,10 +322,12 @@ def current_listeners():
    urllib2.install_opener(opener)
 
    try:
+      log.msg("Opening %r" % __adminurl)
       handler= urllib2.urlopen(__adminurl)
       data = handler.read()
 
       listeners = [md5(x[0]).hexdigest() for x in p.findall(data)]
       return listeners
-   except HTTPError:
+   except HTTPError, ex:
+      log.err("Error opening %r: Caught %r" % (__adminurl, str(ex)))
       return None
