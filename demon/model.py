@@ -28,7 +28,7 @@ else:
 # MySQL unicode fix
 #if config['database.type'] == 'mysql': dburi = dburi + "?use_unicode=1"
 
-def getSetting(param_in, default=None, channel=None):
+def getSetting(param_in, default=None, channel=None, user=None):
    """
    Retrieves a setting from the database.
 
@@ -38,13 +38,23 @@ def getSetting(param_in, default=None, channel=None):
                     value was not found in the database.
    @type  channel:  int
    @param channel:  The channel id if the setting is bound to a channel.
+   @type  user:     int
+   @param user:     The user id if the setting is bound to a user.
    """
    try:
       session = create_session()
-      if channel is None:
-         setting = session.query(Setting).selectfirst_by( Setting.c.var==param_in )
-      else:
-         setting = session.query(Setting).selectfirst_by( Setting.c.var==param_in, Setting.c.channel_id==channel )
+
+      channel_expression = settingTable.c.channel_id == None
+      user_expression = settingTable.c.user_id == None
+
+      if channel is not None:
+         channel_expression = settingTable.c.channel_id == channel
+
+      if user is not None:
+         user_expression = settingTable.c.user_id == user
+
+      setting = session.query(Setting).selectfirst_by( and_(Setting.c.var==param_in, channel_expression, user_expression) )
+
       if setting is None:
          # The parameter was not found in the database. Do we have a default?
          if default is not None:
@@ -98,6 +108,8 @@ channelTable   = Table( 'channel', metadata,
       autoload=True )
 settingTable   = Table( 'setting', metadata,
       Column( 'value', Unicode()),
+      autoload=True )
+settingTextTable   = Table( 'setting_text', metadata,
       Column( 'comment', Unicode()),
       autoload=True )
 artistTable    = Table( 'artist', metadata,

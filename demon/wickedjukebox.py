@@ -671,9 +671,6 @@ the named channel exists in the database table called 'channel'" )
    def update_current_listeners(self):
       "Scrape the Icecast admin page for current listeners and update theit state in the DB"
       listeners = self.__player.current_listeners()
-      usersTable.update(
-         values={usersTable.c.proof_of_listening: None}
-         ).execute( )
       if listeners is None:
          # feature not supported by backedd player, or list of listeners unknwon
          return
