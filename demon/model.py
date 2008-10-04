@@ -43,7 +43,7 @@ def getSetting(param_in, default=None, channel=None, user=None):
    """
 
    if int(config['core.debug']) > 0:
-      log.msg("Retriveing setting %r for user %r and channel %r (default: %r)" % (param_in, user, channel, default))
+      log.msg("Retriveing setting %r for user %r and channel %r (default: %r)..." % (param_in, user, channel, default))
 
    output = default
 
@@ -61,19 +61,27 @@ def getSetting(param_in, default=None, channel=None, user=None):
 
       setting = session.query(Setting).selectfirst_by( and_(Setting.c.var==param_in, channel_expression, user_expression) )
 
+      # if a channel-setting was requested but no entry was found, we fall back to a global setting
+      if channel is not None and setting is None:
+         if int(config['core.debug']) > 0:
+            log.msg("   No per-channel setting found. falling back to global setting...")
+         return getSetting( param_in=param_in, default=default, channel=None, user=user )
+
       if setting is None:
          # The parameter was not found in the database. Do we have a default?
          if default is not None:
             # yes, we have a default. Return that instead the database value.
+            if int(config['core.debug']) > 0:
+               log.msg("   Requested setting was not found! Returning default value...")
             output = default
          else:
-            log.msg( "\nRequired parameter %s was not found in the settings table!" % param_in )
+            log.msg( "   Required parameter %s was not found in the settings table!" % param_in )
             output = None
       else:
          output = setting.value
 
       if int(config['core.debug']) > 0:
-         log.msg("... returning %r" % output)
+         log.msg("   ... returning %r" % output)
          return output
 
    except Exception, ex:

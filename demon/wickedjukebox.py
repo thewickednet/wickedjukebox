@@ -685,6 +685,7 @@ the named channel exists in the database table called 'channel'" )
       lastCreditGiveaway = datetime.now()
       lastPing           = datetime.now()
       sess               = create_session()
+      proofoflife_timeout = int(getSetting("proofoflife_timeout", 120))
 
       # while we are alive, do the loop
       while self.__keepRunning:
@@ -693,10 +694,11 @@ the named channel exists in the database table called 'channel'" )
          sess = create_session()
 
          # ping the database every 2 minutes (unless another value was specified in the settings)
-         if (datetime.now() - lastPing).seconds > int(getSetting("proofoflife_timeout", 1200)):
+         if (datetime.now() - lastPing).seconds > proofoflife_timeout:
             self.update_current_listeners()
             lastPing = datetime.now()
             self.dbModel.ping = lastPing
+            proofoflife_timeout = int(getSetting("proofoflife_timeout", 120))
 
          # check if the player accidentally went into the "stop" state
          if self.__player.status() == 'stop' and self.__playStatus == 'playing':

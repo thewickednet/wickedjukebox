@@ -25,7 +25,7 @@ def get(channel_id):
    neverPlayed = int(getSetting('scoring_neverPlayed',  4, channel=channel_id))
    randomness  = int(getSetting('scoring_randomness',   1, channel=channel_id))
    max_random_duration = int(getSetting('max_random_duration', 600,  channel=channel_id))
-   proofoflife_timeout = int(getSetting('proofoflife_timeout', 1200))
+   proofoflife_timeout = int(getSetting('proofoflife_timeout', 120))
 
    # Retrieve dynamic playlists
    sess = create_session()
