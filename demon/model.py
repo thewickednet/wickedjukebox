@@ -41,11 +41,17 @@ def getSetting(param_in, default=None, channel=None, user=None):
    @type  user:     int
    @param user:     The user id if the setting is bound to a user.
    """
+
+   if int(config['core.debug']) > 0:
+      log.msg("Retriveing setting %r for user %r and channel %r (default: %r)" % (param_in, user, channel, default))
+
+   output = default
+
    try:
       session = create_session()
 
-      channel_expression = settingTable.c.channel_id == None
-      user_expression = settingTable.c.user_id == None
+      channel_expression = settingTable.c.channel_id == 0
+      user_expression = settingTable.c.user_id == 0
 
       if channel is not None:
          channel_expression = settingTable.c.channel_id == channel
@@ -59,11 +65,17 @@ def getSetting(param_in, default=None, channel=None, user=None):
          # The parameter was not found in the database. Do we have a default?
          if default is not None:
             # yes, we have a default. Return that instead the database value.
-            return default
+            output = default
          else:
             log.msg( "\nRequired parameter %s was not found in the settings table!" % param_in )
-            return None
-      return setting.value
+            output = None
+      else:
+         output = setting.value
+
+      if int(config['core.debug']) > 0:
+         log.msg("... returning %r" % output)
+         return output
+
    except Exception, ex:
       if str(ex).lower().find('connect') > 0:
          logging.critical('Unable to connect to the database. Error was: \n%s' % ex)

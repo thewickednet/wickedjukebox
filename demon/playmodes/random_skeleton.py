@@ -10,9 +10,10 @@ and you should be fine.
 ## from demon.model import create_session, Song
 ## from twisted.python import log
 
-def get():
+def get(channel_id):
    """
    Returns a random song.
+   @param channel_id: The channel ID for which we are returning results
    @note: This method should *always* return a valid Song instance. Only
           return "None" if something seriously went wrong.
 

@@ -536,12 +536,12 @@ the named channel exists in the database table called 'channel'" )
 
       # TODO: This block is found as well in "skipSong! --> refactor"
       # set "current song" to the next in the queue or use random
-      self.__random     = playmodes.create( getSetting( 'random_model', 'random_weighed' ) )
-      self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
+      self.__random     = playmodes.create( getSetting( 'random_model', 'random_weighed', channel=self.dbModel.id ) )
+      self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict',   channel=self.dbModel.id ) )
 
       nextSong = self.__queuemodel.dequeue()
       if nextSong is None:
-         nextSong = self.__random.get()
+         nextSong = self.__random.get(self.dbModel.id)
 
       sess = create_session()
       if nextSong is not None:
@@ -550,7 +550,7 @@ the named channel exists in the database table called 'channel'" )
             log.err("%r not found!" % nextSong.localpath)
             songTable.update(songTable.c.id == nextSong.id, values={'broken': True}).execute()
 
-            nextSong = self.__random.get()
+            nextSong = self.__random.get(self.dbModel.id)
 
          self.queueSong(nextSong)
 
@@ -618,7 +618,7 @@ the named channel exists in the database table called 'channel'" )
 
       nextSong = self.__queuemodel.dequeue()
       if nextSong is None:
-         nextSong = self.__random.get()
+         nextSong = self.__random.get(self.dbModel.id)
       if config['core.debug'] != "0":
          log.msg( "[channel] skipping song" )
 
@@ -641,9 +641,9 @@ the named channel exists in the database table called 'channel'" )
       self.__queuemodel.movedown(qid, delta)
 
    def get_jingle(self):
-      self.__jingles_folder = getSetting('jingles_folder', None, self.dbModel.id)
-      self.__jingles_interval = getSetting('jingles_interval', None, self.dbModel.id)
-      if self.__jingles_interval == '':
+      self.__jingles_folder = getSetting('jingles_folder', default=None, channel=self.dbModel.id)
+      self.__jingles_interval = getSetting('jingles_interval', default=None, channel=self.dbModel.id)
+      if self.__jingles_interval == '' or self.__jingles_interval is None:
          self.__jingles_interval = None
       elif self.__jingles_interval.find("-") > -1:
          jingle_boundary = [ int(x) for x in self.__jingles_interval.split("-") ]
@@ -681,7 +681,7 @@ the named channel exists in the database table called 'channel'" )
             ).execute( )
 
    def run(self):
-      cycleTime = int(getSetting('channel_cycle', '3'))
+      cycleTime = int(getSetting('channel_cycle', default='3', channel=self.dbModel.id))
       lastCreditGiveaway = datetime.now()
       lastPing           = datetime.now()
       sess               = create_session()
@@ -707,8 +707,8 @@ the named channel exists in the database table called 'channel'" )
 
             self.__player.cropPlaylist(0)
 
-            self.__random     = playmodes.create( getSetting( 'random_model', 'random_weighed' ) )
-            self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
+            self.__random     = playmodes.create( getSetting( 'random_model', 'random_weighed', channel=self.dbModel.id ) )
+            self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict',   channel=self.dbModel.id ) )
 
             nextSong = self.get_jingle()
 
@@ -718,7 +718,7 @@ the named channel exists in the database table called 'channel'" )
 
             if nextSong is None:
                log.msg("Apparently there was nothing on the queue. I'm going to take somethin at random then")
-               nextSong = self.__random.get()
+               nextSong = self.__random.get(self.dbModel.id)
 
             if nextSong is None:
                log.msg("What? Still nothing? Either nobody is online, or the database is empty")
@@ -734,7 +734,7 @@ the named channel exists in the database table called 'channel'" )
                   log.err("%r not found!" % nextSong.localpath)
                   songTable.update(songTable.c.id == nextSong.id, values={'broken': True}).execute()
                   sess.flush()
-                  nextSong = self.__random.get()
+                  nextSong = self.__random.get(self.dbModel.id)
                self.queueSong(nextSong)
                self.__player.startPlayback()
 
@@ -784,7 +784,7 @@ the named channel exists in the database table called 'channel'" )
 
          # if we handed out credits more than 5mins ago, we give out some more
          if (datetime.now() - lastCreditGiveaway).seconds > 300:
-            maxCredits = int(getSetting('max_credits', '30'))
+            maxCredits = int(getSetting('max_credits', '30', channel=self.dbModel.id ))
             usersTable.update(
                   usersTable.c.credits < maxCredits,
                   values={usersTable.c.credits: usersTable.c.credits+5}
