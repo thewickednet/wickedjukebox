@@ -51,17 +51,20 @@ class Console(cmd.Cmd):
    __path       = []
 
    def __init__(self):
+      "Bootstrap the command line interpreter"
       cmd.Cmd.__init__(self)
       self.__sess = create_session()
       self.set_promt()
 
    def set_promt(self):
+      "Sets the default prompt"
       if len(self.__path) == 0:
          self.prompt = "---\njukebox> "
       else:
          self.prompt = "---\n%s> " % "/".join(self.__path)
 
    def get_string(self, string):
+      "If a string is enclosed with quotes, remove them and return the proper string"
       if string == "": return string
       # remove quotes
       if string[0] in ['"', "'"]:
@@ -80,6 +83,7 @@ class Console(cmd.Cmd):
    do_EOF  = do_quit
 
    def cb(self):
+      "A callback method for the scanner"
       print "done scanning\n", self.__scanner.get_status()
 
    def emptyline(self):
@@ -316,6 +320,7 @@ SYNOPSIS
       self.set_promt()
 
    def do_ls(self, line):
+      "Lists entries in the current context"
       glob = self.get_string(line)
       if len(self.__path) == 0:
          artists = get_artists(glob)
@@ -334,6 +339,7 @@ SYNOPSIS
             print s.title.encode("utf-8")
 
    def do_online_users(self, line):
+      "Lists users currently online in the web interface"
       s = select([usersTable],
             func.addtime( usersTable.c.proof_of_life, '0:03:00' ) > func.now(),
          )
