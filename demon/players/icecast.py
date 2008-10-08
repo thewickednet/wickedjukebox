@@ -328,6 +328,6 @@ def current_listeners():
 
       listeners = [md5(x[0]).hexdigest() for x in p.findall(data)]
       return listeners
-   except HTTPError, ex:
+   except urllib2.HTTPError, ex:
       log.err("Error opening %r: Caught %r" % (__adminurl, str(ex)))
       return None
