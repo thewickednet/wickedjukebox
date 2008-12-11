@@ -14,6 +14,8 @@ require_once 'Zend/Config/Ini.php';
 //////////////////////////////////
 // Local includes
 
+require_once('../phpdata/classes/Core.class.php');
+require_once('../phpdata/classes/Channel.class.php');
 require_once('../phpdata/classes/Renderer.class.php');
 require_once('../phpdata/classes/Artist.class.php');
 require_once('../phpdata/classes/Album.class.php');
@@ -48,6 +50,17 @@ unset($db_config);
 $registry = new Zend_Registry(array('database' => $db));
 
 Zend_Registry::setInstance($registry);
+
+
+//////////////////////////////////
+// CORE
+//
+// Get the Jukebox Core. Mainly used as a container
+
+$core = new Core($demon_config);
+unset($demon_config);
+
+$registry->set('core', $core);
 
 
 $cacheFrontendOptions = array(

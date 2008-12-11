@@ -6,8 +6,8 @@
 
 <div id="clear"></div>
 
-<div id="shoutbox" class="submenu">
-    {include file='splash/shoutbox.tpl'}
+<div id="quicksearch" class="submenu">
+    {include file='splash/quicksearch.tpl'}
 </div>
 
 <div id="random" class="submenu">
@@ -18,6 +18,7 @@
     {include file='splash/queue.tpl'}
 </div>
 
-<div id="quicksearch" class="submenu">
-    {include file='splash/quicksearch.tpl'}
+<div id="shoutbox" class="submenu">
+    {include file='splash/shoutbox.tpl'}
 </div>
+

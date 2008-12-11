@@ -34,7 +34,7 @@
             <div id="results">
             <table cellspacing="6">
             {foreach from=$SONGS item=SONG}
-              <tr>
+              <tr {if $SONG.standing ne ''}class="{$SONG.standing}"{/if}>
                 <td width="24">{if $CORE->permissions.queue_add eq '1'}<a href="javascript:;" onclick="javascript:addsong({$SONG.id});"><img src="/images/bullet_add.png" class="button" /></a>{/if}</td>
                 <td>{$SONG.track_no|string_format:"%02d"} - <a href="/artist/detail/{$SONG.artist_id}/">{$SONG.artist_name}</a></td>
                 <td><a href="/song/detail/{$SONG.id}/">{$SONG.title}</a></td>

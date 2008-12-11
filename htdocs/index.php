@@ -200,6 +200,15 @@ $player_status = BackendDB::getCurrentSong(0);
 if (Auth::isAuthed()) {
     $player_status['standing'] = User::getStanding($player_status['songinfo']['id']);
     $player_status['auth'] = 'yes';
+    
+    $user_settings = Settings::getChannelSettings($core->channel_id, $core->user_id);
+    foreach ($user_settings as $user_setting) {
+		if ($user_setting['var'] == 'hates_affect_random')
+        	$player_status['hates_affect_random'] = $user_setting['value'];
+      	if ($user_setting['var'] == 'loves_affect_random')
+        	$player_status['loves_affect_random'] = $user_setting['value'];
+    }
+    unset($user_settings);    
 
     $smarty->assign("PLAYER_STATUS", $player_status);
     
@@ -221,7 +230,7 @@ if (Auth::isAuthed()) {
     if ($_GET['module'] != 'queue' && $_GET['module'] != 'authrefresh' && ($_GET['module'] != 'shoutbox' && $_GET['action'] == ''))
         $_SESSION['idle'] = time();
 
-/*        
+/*
     if (time() - $_SESSION['idle'] > 360) {
       $smarty->assign("ESCAPE_JS", 'window.location.href="/";');
     }

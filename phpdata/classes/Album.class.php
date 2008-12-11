@@ -61,6 +61,12 @@ class Album {
 
         $stmt = $select->query();
         $result = $stmt->fetchAll();
+        
+        for ($i = 0; $i < count($result); $i++) {
+            $id = $result[$i]['id'];
+            $result[$i]['standing'] = User::getStanding($id);
+        }
+        
         return $result;
 
     }
@@ -141,7 +147,24 @@ class Album {
         return $result;
     	
     }
+    
+    function getLatest($limit = 100) {
+        
+        $db = Zend_Registry::get('database');
+        
+        $select = $db->select()
+                     ->from(array('al' => 'album'), array('album_id' => 'id', 'album_name' => 'name', 'added'))
+                     ->join(array('ar' => 'artist'), 'al.artist_id = ar.id', array('artist_id' => 'id', 'artist_name' => 'name'))
+                     ->group('al.name')
+                     ->order('al.added DESC')
+                     ->limit($limit);
 
+        $stmt = $select->query();
+        $result = $stmt->fetchAll();
+        return $result;
+    }
+
+    
     function delete($album_id) {
 
         $db = Zend_Registry::get('database');

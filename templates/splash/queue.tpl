@@ -24,6 +24,5 @@
             {if $CORE->user_id ne '-1'}
             <script>
                 refreshProfile('splash');
-                refreshProfile('splash');
             </script>
             {/if}

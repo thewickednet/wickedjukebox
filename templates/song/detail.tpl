@@ -1,7 +1,9 @@
 						<h1><a name="intro" id="intro"></a>Song Details</h1>
 
-            <h2>{$SONG.title}{if $CORE->permissions.queue_add eq '1'}&nbsp;&nbsp;<a href="javascript:;" onclick="javascript:addsong({$SONG.id});"><img src="/images/add.png" title="queue this track" class="button" /></a>{/if}</h2>
-
+            <h2>
+            {$SONG.title}{if $CORE->permissions.queue_add eq '1'}&nbsp;&nbsp;<a href="javascript:;" onclick="javascript:addsong({$SONG.id});"><img src="/images/add.png" title="queue this track" class="button" /></a>{/if}
+            <div style="float: right"><a href="javascript:;" onclick="javascript:setStanding({$SONG.id}, 'love', 'detail');"><img src="/images/emoticon_happy.png" title="love this track!" border="0" class="icon{if $STANDING == 'love'}a{/if}"/></a>&nbsp;<a href="javascript:;" onclick="javascript:setStanding({$SONG.id}, 'neutral', 'detail');"><img src="/images/emoticon_smile.png" title="this track is ok!" border="0" class="icon{if $STANDING != 'love' && $STANDING != 'hate'}a{/if}"/></a>&nbsp;<a href="javascript:;" onclick="javascript:setStanding({$SONG.id}, 'hate', 'detail');"><img src="/images/emoticon_unhappy.png" title="hate this track!" border="0" class="icon{if $STANDING == 'hate'}a{/if}"/></a>&nbsp;<a href="javascript:;" onclick="javascript:setStanding({$PLAYER_STATUS.songinfo.id}, 'broken');"><img src="/images/error.png" title="report track as broken or very bad quality" border="0" class="icon" /></a></div>
+            </h2>
 
             <table width="750" cellspacing="8">
               <tr>
@@ -66,9 +68,21 @@
               </tr>
               <tr>
                 <td width="20%"><b>Loved:</b></td>
-                <td width="30%">{$LOVES.counter}</td>
+                <td width="30%">
+                {if $LOVES_COUNT > 0}
+                    <a href="javascript:void(0);" onmouseover="return overlib('User who love this song:<br>{foreach from=$LOVES item=LOVE_ITEM}{$LOVE_ITEM.fullname}<br>{/foreach}');" onmouseout="return nd();">{$LOVES_COUNT}</a>
+                {else}
+                    {$LOVES_COUNT}
+                {/if}
+                </td>
                 <td width="20%"><b>Hated:</b></td>
-                <td width="30%">{$HATES.counter}</td>
+                <td width="30%">
+                {if $HATES_COUNT > 0}
+                    <a href="javascript:void(0);" onmouseover="return overlib('User who hate this song:<br>{foreach from=$HATES item=HATE_ITEM}{$HATE_ITEM.fullname}<br>{/foreach}');" onmouseout="return nd();">{$HATES_COUNT}</a>
+                {else}
+                    {$HATES_COUNT}
+                {/if}
+                </td>
               </tr>
               <tr>
                 <td colspan="4"><a href="/song/download/{$SONG.id}/">Download this Song</a></td>

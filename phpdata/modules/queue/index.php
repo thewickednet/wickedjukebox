@@ -6,8 +6,14 @@ switch ($_GET['action']) {
             Queue::clear();
     break;
     case "remove":
-        if ($core->permissions['queue_remove'] == 1 || Queue::getOwner($_GET['param']) == $core->user_id)
-            Queue::removeItem($_GET['param']);
+    	$queue_item = Queue::get($_GET['param']);
+        if ($core->permissions['queue_remove'] == 1 || $queue_item['user_id'] == $core->user_id) {
+            if ($queue_item['user_id'] == $core->user_id) {
+        		$cost = Song::getCost($queue_item['song_id']);
+            	User::pay($cost * -1);
+            }
+        	Queue::removeItem($_GET['param']);
+        }
     break;
     case "addsong":
         $cost = Song::getCost($_GET['param']);

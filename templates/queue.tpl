@@ -14,7 +14,7 @@
             {$PLAYER_STATUS.songinfo.title}</a><br />
             by <a href="/artist/detail/{$PLAYER_STATUS.artistinfo.id}/">{$PLAYER_STATUS.artistinfo.name}</a><br />
             on <a href="/album/detail/{$PLAYER_STATUS.albuminfo.id}/">{$PLAYER_STATUS.albuminfo.name}</a><br />
-            ({$PLAYER_STATUS.songinfo.duration|date_format:"%M:%S"})</a></p>
+            ({$PLAYER_STATUS.progress|date_format:"%M:%S"} / {$PLAYER_STATUS.songinfo.duration|date_format:"%M:%S"})</a></p>
             
             <!--[queued by {$PLAYER_STATUS.userinfo.fullname}]-->
             {if $CORE->user_id ne '-1'}
@@ -29,12 +29,11 @@
             document.title = 'Wicked Jukebox';
             </script>
             {/if}
-            <p>Radio users connected: {$ICECAST.0->listeners}<br />
-            Website users connected: {$ALIVE_USERS_COUNT}</p>
+            <p>Radio users: {$ICECAST.1->listeners} / Website users: {$ALIVE_USERS_COUNT}</p>
             {if count($ALIVE_USERS) > 0}
             <p>
             {foreach name="ulist" from=$ALIVE_USERS item=ALIVE_USER}
-            <a href="/user/detail/{$ALIVE_USER.id}/"><img src="/img.php?category=user&preset=icon&id={$ALIVE_USER.id}" style="border: 1px solid #cccccc; background-color: #ffffff; padding: 3px; margin-right: 2px; margin-top: 3px;" id="img_album" title="{$ALIVE_USER.fullname}"/></a>&nbsp;
+            <a href="/user/detail/{$ALIVE_USER.id}/"><img src="/img.php?category=user&preset=icon&id={$ALIVE_USER.id}" style="border: 1px solid #cccccc; background-color: #ffffff; padding: 3px; margin-right: 2px; margin-top: 3px; {if $ALIVE_USER.listen > 180}filter:alpha(opacity=05);-moz-opacity:.50;opacity:.50;{/if}" id="img_album" title="{$ALIVE_USER.fullname}"/></a>&nbsp;
             {/foreach}
             </p>
             {else}
@@ -72,3 +71,4 @@
             {$ESCAPE_JS}
             </script>
             {/if}
+            

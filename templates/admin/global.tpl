@@ -8,7 +8,7 @@
             {foreach from=$GLOBAL_SETTINGS item=GLOBAL_SETTING}            
                 <tr>
                     <td valign="top"><input type="text" value="{$GLOBAL_SETTING.value}" name="{$GLOBAL_SETTING.var}" maxlength="255" size="32" /></td>
-                    <td valign="top">{$GLOBAL_SETTING.comment}</td>
+                    <td valign="top">{$GLOBAL_SETTING.text_en}</td>
                 </tr>
             {/foreach}
             </table>
@@ -19,7 +19,7 @@
             {foreach from=$CHANNEL_SETTINGS item=CHANNEL_SETTING}            
                 <tr>
                     <td valign="top"><input type="text" value="{$CHANNEL_SETTING.value}" name="{$CHANNEL_SETTING.var}" maxlength="255" size="32" /></td>
-                    <td valign="top">{$CHANNEL_SETTING.comment}</td>
+                    <td valign="top">{$CHANNEL_SETTING.text_en}</td>
                 </tr>
             {/foreach}
             </table>

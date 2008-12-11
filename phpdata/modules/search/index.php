@@ -47,6 +47,7 @@ if (strlen($search_pattern) < 3) {
     
         for ($i = 0; $i < count($results); $i++) {
             $results[$i]['cost'] = Song::evaluateCost($results[$i]['duration']);
+            $results[$i]['standing'] = User::getStanding($results[$i]['song_id']);
         }
     
         //$artists = Artist::getByAlpha($alpha);

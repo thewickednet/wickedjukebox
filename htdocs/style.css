@@ -405,3 +405,15 @@ li {
 
                 .love { background-color: #ccffcc; }
                 .hate { background-color: #ff6161; }
+
+div.htmltooltip{
+position: absolute;
+z-index: 1000;
+left: -1000px;
+top: -1000px;
+background: #272727;
+border: 10px solid black;
+color: white;
+padding: 3px;
+width: 250px;
+}

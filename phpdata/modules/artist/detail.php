@@ -1,17 +1,29 @@
 <?php
 
-
-
 $artist = Artist::getById($_GET['param']);
 
+$cache_key = sprintf("detail_artist_%s_%s", $_GET['param'], $core->user_id);
 
-$cache_key = sprintf("detail_artist_%s", $_GET['param']);
 
+if (isset($_GET['standing'])) {
+
+	$cache->remove($cache_key);
+	
+	$songs = Artist::getSongs($_GET['param']);
+	
+	foreach ($songs as $song) {
+    	User::setStanding($song['song_id'], $_GET['standing']);
+	}
+	
+	$ajax = true;
+}
+
+// FIXME: caching doesn't work like it's supposed to
 //if(!$songs = $cache->load($cache_key)) {
     
     $songs = Artist::getSongs($_GET['param']);
-    
-    for ($i = 0; $i < count($songs); $i++) {
+	
+	for ($i = 0; $i < count($songs); $i++) {
         $songs[$i]['cost'] = Song::evaluateCost($songs[$i]['duration']);
     }
     
@@ -47,6 +59,10 @@ if (!empty($_GET['pagenum']))
 $smarty->assign("RESULT_COUNT", count($songs));
 $smarty->assign("SONGS", $data);
 $smarty->assign("ARTIST", $artist);
-$body_template = "artist/detail.tpl";
+
+if ($ajax)
+	$core->template = 'artist/detail.tpl';
+else
+	$body_template = "artist/detail.tpl";
 
 ?>

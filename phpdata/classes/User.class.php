@@ -157,7 +157,7 @@ class User {
     	
         $db     = Zend_Registry::get('database');
         
-        $query = "SELECT * FROM users WHERE UNIX_TIMESTAMP()-UNIX_TIMESTAMP(proof_of_life) < 180";
+        $query = "SELECT *, UNIX_TIMESTAMP()-UNIX_TIMESTAMP(proof_of_listening) AS listen FROM users WHERE UNIX_TIMESTAMP()-UNIX_TIMESTAMP(proof_of_life) < 180";
         
         $result = $db->fetchAll($query);
         return $result;
@@ -215,7 +215,7 @@ class User {
         if (!isset($song_id) || count(Song::get($song_id)) == 0)
             return false;
         
-        $db = Zend_Registry::get('database');
+        $db     = Zend_Registry::get('database');
         $core   = Zend_Registry::get('core');
         
         $query = "SELECT standing FROM user_song_standing WHERE user_id=? AND song_id=?";

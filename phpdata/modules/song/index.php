@@ -7,6 +7,9 @@ switch ($_GET['action']) {
     case "latest":
         include "../phpdata/modules/song/latest.php";
     break;
+    case "history":
+        include "../phpdata/modules/song/history.php";
+    break;
     case "detail":
         include "../phpdata/modules/song/detail.php";
     break;

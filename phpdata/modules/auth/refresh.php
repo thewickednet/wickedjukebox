@@ -7,7 +7,6 @@
         $core->template = 'splash/top.tpl';
       else
         $core->template = 'profile.tpl';
-        
     }
     
 ?>

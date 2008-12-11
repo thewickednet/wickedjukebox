@@ -2,9 +2,12 @@
 
 $core->active_node = "user";
 
-
 switch ($_GET['action']) {
-    case "latest":
+    case "hates_affect_random":
+	  case "loves_affect_random":
+        include "../phpdata/modules/user/standing_settings.php";
+    break;
+	case "latest":
         include "../phpdata/modules/user/latest.php";
     break;
     case "favorites":

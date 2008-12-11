@@ -63,6 +63,10 @@ class Artist {
                      
         $stmt = $select->query();
         $result = $stmt->fetchAll();
+        for ($i = 0; $i < count($result); $i++) {
+            $id = $result[$i]['song_id'];
+            $result[$i]['standing'] = User::getStanding($id);
+        }
         return $result;
         
     }

@@ -39,16 +39,23 @@ class BackendDB {
         $songinfo = Song::get($state['current_song']);
         $artistinfo = Artist::getById($songinfo['artist_id']);
         $albuminfo = Album::getById($songinfo['album_id']);
+        
+        $standings['love'] = Song::getStandings('love', $state['current_song']);
+        $standings['hate'] = Song::getStandings('hate', $state['current_song']);
 
-	$progress = $state['progress'];
-	$progress = $songinfo['duration'] / 100 * $progress;
+        $standings['love_count'] = count($standings['love']);
+        $standings['hate_count'] = count($standings['hate']);
+
+				$progress = $state['progress'];
+				$progress = $songinfo['duration'] / 100 * $progress;
 
         $result = array(
                         'songinfo'      =>  $songinfo,
                         'userinfo'      =>  $userinfo,
                         'artistinfo'    =>  $artistinfo,
                         'albuminfo'     =>  $albuminfo,
-			'progress'	=>  $progress
+                        'standings'     =>  $standings,
+			                  'progress'	    =>  $progress
                         );
 
         return $result;

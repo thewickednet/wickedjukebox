@@ -13,6 +13,12 @@
               <td><b>Songs Queued:</b> {$USER.selects}</td>
             </tr>
             <tr>
+              <td><b>Loved Songs:</b> <a href="/user/favorites/{$USER.id}/">{$USER.love_count}</a></td>
+            </tr>
+            <tr>
+              <td><b>Hated Songs:</b> {$USER.hate_count}</td>
+            </tr>
+            <tr>
               <td><b>Downloads:</b> {$USER.downloads}</td>
             </tr>
             <tr>

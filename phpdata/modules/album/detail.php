@@ -1,11 +1,20 @@
 <?php
 
 
-
 $album = Album::getById($_GET['param']);
 
-$songs = Album::getSongs($_GET['param']);
+if (isset($_GET['standing'])) {
 
+	$songs = Album::getSongs($_GET['param']);
+
+	foreach ($songs as $song) {
+    	User::setStanding($song['id'], $_GET['standing']);
+	}
+	
+	$ajax = true;
+}
+
+$songs = Album::getSongs($_GET['param']);
 $artist = Artist::getById($album['artist_id']);
 
 for ($i = 0; $i < count($songs); $i++) {
@@ -19,8 +28,14 @@ $smarty->assign("ARTIST", $artist);
 $smarty->assign("SONGS", $songs);
 
 if ($album['type'] == 'ost' || $album['type'] == 'game' || $album['type'] == 'various')
-    $body_template = "album/detail_special.tpl";
+	if ($ajax)
+		$core->template = "album/detail_special.tpl";
+	else 
+		$body_template = "album/detail_special.tpl";
 else
-    $body_template = "album/detail.tpl";
+	if ($ajax)
+		$core->template = "album/detail.tpl";
+	else 
+		$body_template = "album/detail.tpl";
 
 ?>

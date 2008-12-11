@@ -49,12 +49,12 @@
             <p>no songs have been queued yet</p>
             {/if}
 
-            <h3>Most Played Album</h3>
+            <h3>Most Played Albums</h3>
 
             {if count($ALBUM_PLAYS) > 0}
             {counter name="items" print=false start=0}
             	<table cellspacing="1" cellpadding="4" width="100%">
-            	{foreach from=$SONG_PLAYS item=ITEM}
+            	{foreach from=$ALBUM_PLAYS item=ITEM}
                   <tr class="resultlist">
             		<td align="right" width="5%">{counter name="items" print=true}.&nbsp;&nbsp;</td>
                     <td width="45%"><a href="/album/detail/{$ITEM.album_id}/">{$ITEM.album_name}</a></td>
@@ -83,7 +83,7 @@
             {else}
             <p>no songs found</p>
             {/if}
-            
+
             <h3>Artists with most Albums</h3>
 
             {if count($ARTIST_ALBUMS) > 0}

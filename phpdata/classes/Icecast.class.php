@@ -34,7 +34,7 @@ class Icecast{
 
         return $this->infila;
     }
-    
+
     //functions to parse the icecast xml (inizio,componi,fine)
     function inizio($parser,$name,$attr) {
         if ($name == "SOURCE") {

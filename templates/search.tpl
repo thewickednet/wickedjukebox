@@ -14,7 +14,7 @@
                 <p align="center">{$LINKS}</p>
                 <table cellspacing="1" cellpadding="4">
                 {foreach from=$RESULTS item=RESULT}
-                  <tr class="resultlist">
+                  <tr {if $RESULT.standing ne ''}class="{$RESULT.standing} resultlist"{else}class="resultlist"{/if}>
                     <td><a href="/artist/detail/{$RESULT.artist_id}/">{highLight string=$RESULT.artist_name mask=$SEARCH_PATTERN}</a></td>
                     <td><a href="javascript:;" onclick="javascript:addsong({$RESULT.song_id});"><img src="/images/bullet_add.png" class="button" /></a> <a href="/song/detail/{$RESULT.song_id}/">{highLight string=$RESULT.song_name mask=$SEARCH_PATTERN}</a></td>
                     {if $RESULT.album_name ne ''}

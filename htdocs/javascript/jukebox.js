@@ -69,9 +69,40 @@ function refreshProfile(mode) {
 }
 
 
-function setStanding(song, standing) {
-  new Ajax.Updater('login', '/index.php?module=song&action=report&song='+song+'&standing='+standing, {asynchronous:true, evalScripts:true });
+function setStandingAffects(action, mode) {
+  if (mode == 'splash') {
+    new Ajax.Updater('splashtop', '/index.php?module=user&action='+action+'&mode='+mode, {asynchronous:true, evalScripts:true });
+  } else {
+    new Ajax.Updater('login', '/index.php?module=user&action='+action+'&mode='+mode, {asynchronous:true, evalScripts:true });
+  }
   return false;
+}
+
+
+function setStanding(song, standing,  mode) {
+  if (mode == 'splash') {
+	  new Ajax.Updater('nowplaying', '/index.php?module=splash&action=report&param='+song+'&standing='+standing, {asynchronous:true, evalScripts:true });
+  } else if (mode == 'detail') {
+	  new Ajax.Updater('body', '/index.php?module=song&action=detail&param='+song+'&standing='+standing, {asynchronous:true, evalScripts:true });
+  } else {
+	  new Ajax.Updater('login', '/index.php?module=song&action=report&song='+song+'&standing='+standing, {asynchronous:true, evalScripts:true });
+  }
+	
+  return false;
+}
+
+function setArtistStanding(artist, standing) {
+	  if (confirm('Do you really want to set all songs of this artist to: ' + standing)) {
+		  new Ajax.Updater('body', '/index.php?module=artist&action=detail&param='+artist+'&standing='+standing, {asynchronous:true, evalScripts:true });
+	  }
+	  return false;
+}
+
+function setAlbumStanding(album, standing) {
+	  if (confirm('Do you really want to set all songs of this album to: ' + standing)) {
+		  new Ajax.Updater('body', '/index.php?module=album&action=detail&param='+album+'&standing='+standing, {asynchronous:true, evalScripts:true });
+	  }
+	  return false;
 }
 
 function search(target){
@@ -79,9 +110,9 @@ function search(target){
   var mode = document.searchform.mode.value;
 
   if (target == 'splash') {
-    new Ajax.Updater('splash', '/index.php?module=search&pattern='+pattern+'&mode='+target+'&action='+mode, {asynchronous:true, evalScripts:true, onLoading: showSearchCarousel, onComplete: hideSearchCarousel });
+    new Ajax.Updater('splash', '/index.php?module=search&pattern='+pattern+'&target='+target+'&action='+mode, {asynchronous:true, evalScripts:true, onLoading: showSearchCarousel, onComplete: hideSearchCarousel });
   } else {
-    new Ajax.Updater('body', '/index.php?module=search&pattern='+pattern+'&mode='+target+'&action='+mode, {asynchronous:true, evalScripts:true, onLoading: showSearchCarousel, onComplete: hideSearchCarousel });
+    new Ajax.Updater('body', '/index.php?module=search&pattern='+pattern+'&target='+target+'&action='+mode, {asynchronous:true, evalScripts:true, onLoading: showSearchCarousel, onComplete: hideSearchCarousel });
   }
     return false;
 
@@ -117,12 +148,14 @@ function listAlpha(alpha) {
     
 }
 
+
 function listSpecial(type) {
     
   new Ajax.Updater('body', '/browse/album/'+type+'/', {asynchronous:true, evalScripts:true });
   return false;
     
 }
+
 
 function blaatOver(page) {
     
@@ -133,6 +166,7 @@ function blaatOver(page) {
     
 }
 
+
 function blaatOverDetail(page) {
 
   var param = document.helperform.param.value;
@@ -141,6 +175,7 @@ function blaatOverDetail(page) {
   new Ajax.Updater('results', '/?module='+module+'&action=detail&param='+param+'&pagenum='+page, {asynchronous:true, evalScripts:true });
 
 }
+
 
 function blaatOverUser(page) {
 
@@ -152,18 +187,20 @@ function blaatOverUser(page) {
 
 }
 
+
 function blaatOverSearch(page, target) {
-    
+
   var pattern = document.searchform.pattern.value;
   var mode = document.searchform.mode.value;
 
   if (target == 'splash') {
-    new Ajax.Updater('splash', '/index.php?module=search&pattern='+pattern+'&action='+mode+'&pagenum='+page, {asynchronous:true, evalScripts:true, onLoading: showSearchCarousel, onComplete: hideSearchCarousel });
+    new Ajax.Updater('splash', '/index.php?module=search&pattern='+pattern+'&action='+mode+'&target='+target+'&pagenum='+page, {asynchronous:true, evalScripts:true, onLoading: showSearchCarousel, onComplete: hideSearchCarousel });
   } else {
-    new Ajax.Updater('body', '/index.php?module=search&pattern='+pattern+'&action='+mode+'&pagenum='+page, {asynchronous:true, evalScripts:true, onLoading: showSearchCarousel, onComplete: hideSearchCarousel });
+    new Ajax.Updater('body', '/index.php?module=search&pattern='+pattern+'&action='+mode+'&target='+target+'&pagenum='+page, {asynchronous:true, evalScripts:true, onLoading: showSearchCarousel, onComplete: hideSearchCarousel });
   }
 
 }
+
 
 function resortQueue()
 {
@@ -182,16 +219,19 @@ function showSearchCarousel() {
 
 }
 
+
 function hideSearchCarousel() {
 	var loading = document.getElementById('search_carousel');
 	loading.style.display = 'none';
 }
+
 
 function showRandomCarousel() {
 	var loading = document.getElementById('random_carousel');
 	loading.style.display = 'block';
 
 }
+
 
 function hideRandomCarousel() {
 	var loading = document.getElementById('random_carousel');
@@ -205,17 +245,17 @@ function showQSearchCarousel() {
 
 }
 
+
 function hideQSearchCarousel() {
 	var loading = document.getElementById('qsearch_carousel');
 	loading.style.display = 'none';
 }
 
 
-
-
 function openPlayer() {
     winPlayer = window.open('http://jukebox.wicked.lu/player/', 'wickedJukeboxPlayer', 'toolbar=0, location=0, scrollbars=0, resizable=0, menubar=0, status=0, width=320, height=280');
 }
+
 
 function shout() {
 	
@@ -223,9 +263,10 @@ function shout() {
 	document.shouter.body.value = '';
 	new Ajax.Updater('shoutboxmsgs', '/?module=shoutbox&action=shout&body='+body, {asynchronous:true, evalScripts:true });
     
-        return false;
+    return false;
 	
 }
+
 
 function shoutbox() {
 	

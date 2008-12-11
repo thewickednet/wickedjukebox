@@ -40,6 +40,22 @@ class Song {
         return 0;
     }
 
+    function getHistory() {
+        
+        $db = Zend_Registry::get('database');
+        $core   = Zend_Registry::get('core');
+        
+            $select = $db->select()
+                         ->from(array('h' => 'history'))
+                     	 ->where('channel = ?', $core->channel_id)
+                     	 ->order('time DESC')
+                     	 ->limit(100);
+                     	 
+		$stmt = $select->query();
+        $result = $stmt->fetchAll();
+        return $result;
+    }
+
     function evaluateCost($duration, $song_id = null) {
 
         $cost = 0;
@@ -162,6 +178,22 @@ class Song {
         return $result;
     	
     }
+    
+    function getStandings($standing = "love", $song_id = 0) {
+    	
+        $db     = Zend_Registry::get('database');
+
+        $select = $db->select()
+                     ->from(array('uss' => 'user_song_standing'))
+                     ->join(array('u' => 'users'), 'u.id = uss.user_id')
+                     ->where('song_id = ?', $song_id)
+                     ->where('standing = ?', $standing);
+        
+        $stmt = $select->query();
+        $result = $stmt->fetchAll();
+    	  return $result;
+    }
+    
 
     
     /**
@@ -176,37 +208,47 @@ class Song {
      *    // retrieve the hate count of the song with Id 123
      *    $hates = Song::getStandingCount("hate", 123);
      */
-    function getStandingCount($standing = "love") {
+    function getStandingCount($standing = "love", $song_id = 0) {
         
         $db     = Zend_Registry::get('database');
 
-        if (func_num_args() == 2){
-            $songID = "AND song.id=?";
-            $data = array( $standing, func_get_arg(1) );
-        } else {
-            $songID = "";
-            $data = array( $standing );
-        }
-
+      if ($song_id != 0){
+        $select = $db->select()
+                     ->from('user_song_standing', array('song_id', 'counter' => 'COUNT(*)'))
+                     ->group('song_id')
+                     ->where('song_id = ?', $song_id)
+                     ->where('standing = ?', $standing);
         
-        $query = "SELECT COUNT(*) AS counter, song.id AS song_id, song.title AS song_title, artist.id AS artist_id, artist.name AS artist_name FROM user_song_standing JOIN song ON user_song_standing.song_id=song.id JOIN artist ON artist.id=song.artist_id WHERE standing=? $songID GROUP BY song_id ORDER BY counter DESC LIMIT 10";
-        
-        $result = $db->fetchAll($query, $data);
-        return $result;
+        $stmt = $select->query();
+        $result = $stmt->fetchAll();
+      } else {
+        $select = $db->select()
+                     ->from(array('uss' => 'user_song_standing'), array('counter' => 'COUNT(*)'))
+                     ->join(array('s' => 'song'), 's.id = uss.song_id', array('song_id' => 'id', 'song_title' => 'title'))
+                     ->join(array('a' => 'artist'), 's.artist_id = a.id', array('artist_id' => 'id', 'artist_name' => 'name'))
+                     ->group('song_id')
+                     ->where('standing = ?', $standing)
+                     ->order('counter DESC')
+      	             ->limit(10);
+        $stmt = $select->query();
+        $result = $stmt->fetchAll();
+      }
+      return $result;
         
         
     }
     
-    function getLatest() {
+    function getLatest($limit = 100) {
         
         $db = Zend_Registry::get('database');
         
         $select = $db->select()
                      ->from(array('s' => 'song'), array('song_id' => 'id', 'song_title' => 'title', 'added'))
                      ->join(array('a' => 'artist'), 's.artist_id = a.id', array('artist_id' => 'id', 'artist_name' => 'name'))
+                     ->where('s.album_id = 0')
                      ->group('s.title')
                      ->order('s.added DESC')
-                     ->limit('100');
+                     ->limit($limit);
 
         $stmt = $select->query();
         $result = $stmt->fetchAll();

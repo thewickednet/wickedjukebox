@@ -1,8 +1,11 @@
 
             <h1><a name="intro" id="intro"></a>Artist Details</h1>
 
-            <h2>{$ARTIST.name}</h2>
-
+            <h2>{$ARTIST.name}
+            {if $ARTIST.name ne 'Various Artists' && $ARTIST.name ne 'Soundtracks' && $ARTIST.name ne 'Video Games'}
+            <div style="float: right"><a href="javascript:;" onclick="javascript:setArtistStanding({$ARTIST.id}, 'love');"><img src="/images/emoticon_happy.png" title="love this artist!" border="0" class="icon"/></a>&nbsp;<a href="javascript:;" onclick="javascript:setArtistStanding({$ARTIST.id}, 'neutral');"><img src="/images/emoticon_smile.png" title="this artist is ok!" border="0" class="icon"/></a>&nbsp;<a href="javascript:;" onclick="javascript:setArtistStanding({$ARTIST.id}, 'hate');"><img src="/images/emoticon_unhappy.png" title="hate this artist!" border="0" class="icon"/></a></div>
+            {/if}
+            </h2>
 
             {if $ARTIST.name eq 'Various Artists' || $ARTIST.name eq 'Soundtracks' || $ARTIST.name eq 'Video Games'}
             <h3>Songs in this category</h3>

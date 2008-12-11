@@ -13,6 +13,7 @@
   <script type="text/javascript" src="/javascript/jukebox.js"></script>
   <script type="text/javascript" src="/javascript/md5.js"></script>
   <script type="text/javascript" src="/javascript/scriptaculous/scriptaculous.js"></script>
+  <script type="text/javascript" src="/javascript/overlib.js"></script>
 {/literal}
 </head>
 
@@ -22,13 +23,14 @@
 <body onload="javascript:refreshQueuePeriodical('sidebar');">
 {/if}
 
+<div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 <div id="hiddenDiv" style="position:absolute; visibility:hidden; z-index:1000"></div>
 <div id="container">
 <a name="top" id="top"></a>
 <center>
 		<div id="menu">
                 {if $PLAYER_STATUS.auth eq 'yes'}
-				<a href="/" {if $CORE->active_node eq 'splash'}class="active"{/if}>splash</a> <a href="/artist/browse/" {if $CORE->active_node eq 'artist'}class="active"{/if}>artists</a> <a href="/album/browse/" {if $CORE->active_node eq 'album'}class="active"{/if}>albums</a> <a href="/genres/browse/">genres</a> {if $CORE->user_id ne '-1'}<a href="/user/favorites/" {if $CORE->active_node eq 'favorites'}class="active"{/if}>favorites</a> {/if}<a href="/song/latest/" {if $CORE->active_node eq 'latest'}class="active"{/if}>latest additions</a> <a href="/stats/" {if $CORE->active_node eq 'stats'}class="active"{/if}>statistics</a>{if $CORE->permissions.admin eq '1'} <a href="/admin/" {if $CORE->active_node eq 'admin'}class="active"{/if}>admin</a>{/if}
+				<a href="/" {if $CORE->active_node eq 'splash'}class="active"{/if}>splash</a> <a href="/artist/browse/" {if $CORE->active_node eq 'artist'}class="active"{/if}>artists</a> <a href="/album/browse/" {if $CORE->active_node eq 'album'}class="active"{/if}>albums</a> <a href="/user/favorites/" {if $CORE->active_node eq 'favorites'}class="active"{/if}>favorites</a> <a href="/song/history/" {if $CORE->active_node eq 'history'}class="active"{/if}>history</a> <a href="/album/latest/" {if $CORE->active_node eq 'latest'}class="active"{/if}>latest additions</a> <a href="/stats/" {if $CORE->active_node eq 'stats'}class="active"{/if}>statistics</a>{if $CORE->permissions.admin eq '1'} <a href="/admin/" {if $CORE->active_node eq 'admin'}class="active"{/if}>admin</a>{/if} <a href="/index.php?module=auth&mode=logout">logout</a>
 				{/if}
         </div>
 
@@ -52,8 +54,7 @@
 					<input type="submit" value="Find!"  />
           </form>
           {/if}
-				<h1>wicked jukebox 2.o</h1>
-				<h2>hei spillt d'mus&eacute;k</h2>
+				<h1><img src="/images/jukebox_logo.jpg" /></h1>
 		</div>
 
 		<div id="content">
@@ -119,10 +120,9 @@
   <div style="height: 50px; clear:both;">&nbsp;</div>
   <div id="footer">
  		wicked jukebox 2.o<br />
-  Design based on <a href="http://www.oswd.org/design/preview/id/2087" target="_blank">Plain 1.0</a> by <a href="http://www.jameskoster.co.uk">James Koster</a> - all the rest by exhuma.twn & doc.twn - <a href="http://www.wicked.lu" target="_blank">The Wicked Net</a></div>
+  Design based on <a href="http://www.oswd.org/design/preview/id/2087" target="_blank">Plain 1.0</a> by <a href="http://www.jameskoster.co.uk" target="_blank">James Koster</a> - Logo by <a href="http://www.koreatabs.de" target="_blank">Jens Lumm</a> - all the rest by exhuma.twn & doc.twn - <a href="http://www.wicked.lu" target="_blank">The Wicked Net</a></div>
  </center>
 
 </div>
-
 </body>
 </html>
