@@ -253,7 +253,7 @@ class Scanner(threading.Thread):
                      session.save(dbArtist)
                      session.flush()
 
-                  dbAlbum = session.query(Album).selectfirst_by( name=album )
+                  dbAlbum = session.query(Album).selectfirst_by( and_(name=album, artist_id=dbAlbum.id) )
                   if dbAlbum is None:
                      dbAlbum = Album( name=album, artist=dbArtist )
                      session.save(dbAlbum)

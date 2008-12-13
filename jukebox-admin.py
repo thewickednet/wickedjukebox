@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import cmd
 from os import path
-import sys
+import sys; sys.path.insert(1, 'pydata')
 from demon.model import getSetting, \
                         genreTable, \
                         songTable, \
@@ -12,6 +12,8 @@ from demon.model import getSetting, \
                         create_session
 from sqlalchemy import func, select, bindparam, and_
 from demon.wickedjukebox import Scanner, fs_encoding, direxists
+import logging
+logging.basicConfig( level=logging.DEBUG )
 
 def get_artists(glob="*"):
    if glob == "": glob = "*"
@@ -113,6 +115,26 @@ class Console(cmd.Cmd):
       self.__scanner = Scanner( mediadirs, [ force, line ] )
       self.__scanner.add_callback( self.cb )
       self.__scanner.start()
+      print "job started. You may inspect the status with scan_status!"
+
+   def do_newscan(self, line):
+      """
+      Scan the defined library folders for new songs.
+
+      SYNOPSIS
+         newscan [capping]
+
+      PARAMETERS
+         capping  - [optional] Only scan folders that start with the string <capping>
+
+      EXAMPLES
+         jukebox> newscan
+         jukebox> newscan Depeche
+      """
+      mediadirs = [ x for x in getSetting('mediadir').split(' ') if direxists(x) ]
+      import scanner
+      scanner.scan( mediadirs[0], unicode(line) )
+
       print "job started. You may inspect the status with scan_status!"
 
    def do_force_scan(self, line):
@@ -346,7 +368,6 @@ SYNOPSIS
       r = s.execute()
       for row in r.fetchall():
          print row
-
 
 if __name__ == '__main__':
    app = Console()
