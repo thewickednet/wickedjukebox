@@ -16,7 +16,7 @@ STATUS_PAUSED=3
 
 class Shoutcast_Player(threading.Thread):
 
-   def __init__(self, password='hackme', mount='/wicked.mp3', port=10000, bufsize=1024):
+   def __init__(self, password='hackme', mount='/wicked.mp3', port=8000, name="The wicked jukebox", url="http://jukebox.wicked.lu", bufsize=1024, bitrate=128, samplerate=44100, channels=1 ):
       self.__keepRunning      = True
       self.__progress         = (0,0) # (streamed_bytes, total_bytes)
       self.__queue            = []
@@ -27,6 +27,11 @@ class Shoutcast_Player(threading.Thread):
       self.__port             = port
       self.__password         = password
       self.__mount            = mount
+      self.__ai_bitrate       = str(bitrate)
+      self.__ai_samplerate    = str(samplerate)
+      self.__ai_channels      = str(channels)
+      self.__name             = name
+      self.__url              = url
       self.connect()
       threading.Thread.__init__(self)
 
@@ -38,7 +43,10 @@ class Shoutcast_Player(threading.Thread):
    def connect(self):
       self.__server           = shout.Shout()
       self.__server.format    = 'mp3'
+      self.__server.audio_info = { "bitrate": self.__ai_bitrate, "samplerate": self.__ai_samplerate, "channels": self.__ai_channels }
       self.__server.user      = "source"
+      self.__server.name      = self.__name
+      self.__server.url       = self.__url
       self.__server.password  = self.__password
       self.__server.mount     = self.__mount
       self.__server.port      = self.__port
