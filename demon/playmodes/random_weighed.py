@@ -27,6 +27,8 @@ def get(channel_id):
    max_random_duration = int(getSetting('max_random_duration', 600,  channel=channel_id))
    proofoflife_timeout = int(getSetting('proofoflife_timeout', 120))
 
+   whereClauses = [ "NOT broken" ]
+
    # Retrieve dynamic playlists
    sess = create_session()
    res = sess.query(DynamicPlaylist).select(dynamicPLTable.c.group_id > 0, order_by=['group_id'])
@@ -46,7 +48,6 @@ def get(channel_id):
          import traceback; traceback.print_exc()
          log.err()
 
-   whereClauses = [ "NOT broken" ]
    if config['database.type'] == 'mysql':
       
       s = select([usersTable], func.unix_timestamp(usersTable.c.proof_of_listening) + proofoflife_timeout > func.unix_timestamp(func.now()))
