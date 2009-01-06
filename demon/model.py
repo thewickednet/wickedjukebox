@@ -100,16 +100,17 @@ def getSetting(param_in, default=None, channel=None, user=None):
          # An unknown error occured. We raise it again
          raise
 
-def setState(statename, value):
+def setState(statename, value, channel_id=0):
 
       sess = create_session()
 
       # update state in database
-      state = sess.query(State).selectfirst_by(state=statename)
+      state = sess.query(State).selectfirst_by(and_(stateTable.c.state==statename, stateTable.c.channel_id==channel_id))
       if state is None:
          state = State()
       state.state = statename
       state.value = value
+      state.channel_id = channel_id
       sess.save(state)
       sess.flush()
 

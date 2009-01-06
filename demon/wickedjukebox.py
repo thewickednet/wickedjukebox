@@ -512,7 +512,7 @@ the named channel exists in the database table called 'channel'" )
       sess = create_session()
 
       # update state in database
-      setState( "current_song", song.id )
+      setState( "current_song", song.id, self.dbModel.id )
 
       # queue the song
       self.__player.queue(song.localpath.encode(fs_encoding))
@@ -692,6 +692,15 @@ the named channel exists in the database table called 'channel'" )
 
          time.sleep(cycleTime)
          sess = create_session()
+
+         if self.__random:
+            upcoming = self.__random.peek(self.dbModel.id)
+            if upcoming:
+               # we received a song entity. simplify it down to a song-id
+               upcoming = upcoming.id
+            setState( "upcoming_song", upcoming, self.dbModel.id )
+         else:
+            setState( "upcoming_song", None, self.dbModel.id )
 
          # ping the database every 2 minutes (unless another value was specified in the settings)
          if (datetime.now() - lastPing).seconds > proofoflife_timeout:

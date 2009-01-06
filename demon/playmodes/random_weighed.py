@@ -141,3 +141,5 @@ def get(channel_id):
       log.err('No song returned from query. Is the database empty?')
       return None
 
+def peek(channel_id):
+   return None

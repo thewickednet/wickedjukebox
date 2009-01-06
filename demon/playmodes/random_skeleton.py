@@ -23,3 +23,14 @@ def get(channel_id):
    """
 
    return None
+
+def peek(channel_id):
+   """
+   Returns the song that will play immediately after the current song
+   @param channel_id: The channel ID for which we are returning results
+   @note: Returns "None" if the playmode does not support this feature
+   @rtype:  None | Song
+   @return: Either "None" if the upcoming song cannot be determined
+            or a "Song" instance (as imported from demon.model --> see above)
+   """
+   return None

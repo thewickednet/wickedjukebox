@@ -6,14 +6,14 @@ random. Like the time it was last played, how often it was skipped, and so on.
 """
 
 from demon.plparser import parseQuery, ParserSyntaxError
-from demon.model import create_session, DynamicPlaylist, dynamicPLTable, getSetting, metadata as dbMeta, Song, usersTable
+from demon.model import create_session, DynamicPlaylist, dynamicPLTable, getSetting, metadata as dbMeta, Song, usersTable, channelTable
 from sqlalchemy import text as dbText, func, select
 from twisted.python import log
 from demon.util import config
 from random import random
 import threading
 
-prefetch = []
+prefetch = {}
 
 def findSong(channel_id):
    """
@@ -32,9 +32,9 @@ def findSong(channel_id):
 
 
    whereClauses = [ "NOT broken" ]
-   if prefetch:
-      log.msg( "Ignoring song %r from random selection as it was already prefetched!" % prefetch[0] )
-      whereClauses.append( "song.id != %d" % prefetch[0].id )
+   if prefetch and prefetch[channel_id]:
+      log.msg( "Ignoring song %r from random selection as it was already prefetched!" % prefetch[channel_id][0] )
+      whereClauses.append( "song.id != %d" % prefetch[channel_id][0].id )
 
    # Retrieve dynamic playlists
    sess = create_session()
@@ -161,7 +161,7 @@ class Prefetcher( threading.Thread ):
       log.msg( "Background prefetching... " )
       song = findSong(self._channel_id)
       log.msg( "  ... prefetched %r" % song )
-      prefetch.append(song)
+      prefetch[self._channel_id].append(song)
 
 def get(channel_id):
    pref = Prefetcher(channel_id)
@@ -169,13 +169,24 @@ def get(channel_id):
 
    # wait until a song is prefetched (in case two 'gets' are called quickly
    # after another)
-   while len(prefetch) == 0:
+   while not prefetch and not prefetch[channel_id]:
       pass
 
-   return prefetch.pop()
+   return prefetch[channel_id].pop()
+
+def peek(channel_id):
+   global prefetch
+   output = prefetch.get( channel_id, None )
+   if not output:
+      return None
+   else:
+      return output[0]
 
 # as the query can take fscking long, we prefetch one song
-log.msg( 'prefetching random song...' )
-prefetch = [findSong(1)]
-log.msg( '... prefetched %r' % prefetch[0] )
+log.msg( 'prefetching initial random song for each channel ...' )
+s = select([channelTable.c.id, channelTable.c.name])
+r = s.execute()
+for row in r:
+   prefetch[row[0]] = [findSong(row[0])]
+   log.msg( '  Channel %r prefetched %r' % (row[1], prefetch[row[0]]) )
 
