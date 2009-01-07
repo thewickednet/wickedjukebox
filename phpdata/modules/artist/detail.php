@@ -4,8 +4,19 @@ $artist = Artist::getById($_GET['param']);
 
 $cache_key = sprintf("detail_artist_%s_%s", $_GET['param'], $core->user_id);
 
+if (isset($_GET['standing']) && $_GET['target'] > 0 && $_GET['mode'] == 'album') {
 
-if (isset($_GET['standing'])) {
+	$songs = Album::getSongs($_GET['target']);
+
+	foreach ($songs as $song) {
+    	User::setStanding($song['id'], $_GET['standing']);
+	}
+	unset($songs);
+	$ajax = true;
+}
+
+
+if (isset($_GET['standing']) && $_GET['mode'] == 'artist') {
 
 	$cache->remove($cache_key);
 	
@@ -21,43 +32,24 @@ if (isset($_GET['standing'])) {
 // FIXME: caching doesn't work like it's supposed to
 //if(!$songs = $cache->load($cache_key)) {
     
-    $songs = Artist::getSongs($_GET['param']);
-	
-	for ($i = 0; $i < count($songs); $i++) {
-        $songs[$i]['cost'] = Song::evaluateCost($songs[$i]['duration']);
+    $albums = Artist::getAlbums($_GET['param']);
+    //$songs = Artist::getSingleSongs($_GET['param']);
+    //array_push($albums, $songs);
+
+    for ($j = 0; $j < count($albums); $j++) {
+		$albums[$j]['songs'] = Album::getSongs($albums[$j]['id']);
+		for ($i = 0; $i < count($albums[$j]['songs']); $i++) {
+	        $albums[$j]['songs'][$i]['cost'] = Song::evaluateCost($albums[$j]['songs'][$i]['duration']);
+	    }
     }
-    
-    $cache->save($songs, $cache_key);
+
+    $cache->save($albums, $cache_key);
 //}
 
 
 
-if (!empty($_GET['pagenum']))
-    $core->template = 'artist/detail_results.tpl';
-
-    require_once 'Pager/Pager.php';
-    $params = array(
-        'mode'      => 'Sliding',
-        'perPage'   => 20,
-        'delta'     => 5,
-        'append'    => false,
-        'urlVar'    => 'pagenum',
-        'path'      => '',
-        'prevImg'   => '<img src="/images/resultset_previous.png" border="0" />',
-        'nextImg'   => '<img src="/images/resultset_next.png" border="0" />',
-        'fileName'  => 'javascript:blaatOverDetail(%d)',
-        'itemData'  => $songs
-    );
-
-    $pager = & Pager::factory($params);
-    $data  = $pager->getPageData();
-    $links = $pager->getLinks();
-
-    $smarty->assign("LINKS", $links['all']);
-
-
-$smarty->assign("RESULT_COUNT", count($songs));
-$smarty->assign("SONGS", $data);
+$smarty->assign("RESULT_COUNT", count($albums));
+$smarty->assign("ALBUMS", $albums);
 $smarty->assign("ARTIST", $artist);
 
 if ($ajax)

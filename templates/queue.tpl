@@ -13,7 +13,9 @@
             <img src="/img.php?category=song&preset=queue&id={$PLAYER_STATUS.songinfo.id}" align="left" vspace="7" hspace="7" style="border: 1px solid #cccccc; background-color: #ffffff; padding: 3px; margin-right: 8px; margin-top: 0" />
             {$PLAYER_STATUS.songinfo.title}</a><br />
             by <a href="/artist/detail/{$PLAYER_STATUS.artistinfo.id}/">{$PLAYER_STATUS.artistinfo.name}</a><br />
+            {if $PLAYER_STATUS.albuminfo.name ne ''}
             on <a href="/album/detail/{$PLAYER_STATUS.albuminfo.id}/">{$PLAYER_STATUS.albuminfo.name}</a><br />
+            {/if}
             ({$PLAYER_STATUS.progress|date_format:"%M:%S"} / {$PLAYER_STATUS.songinfo.duration|date_format:"%M:%S"})</a></p>
             
             <!--[queued by {$PLAYER_STATUS.userinfo.fullname}]-->

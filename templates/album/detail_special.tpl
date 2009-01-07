@@ -1,6 +1,8 @@
 						<h1><a name="intro" id="intro"></a>Album Details</h1>
 
-            <h2>{if $CORE->permissions.queue_add eq '1'} <a href="javascript:;" onclick="javascript:addalbum({$ALBUM.id});"><img src="/images/add.png" title="queue the entire album" class="button" /></a>{/if} {$ALBUM.name} ({$ALBUM.cost} <img src="/images/money.png" class="button" />)</h2>
+            <h2>{if $CORE->permissions.queue_add eq '1'} <a href="javascript:;" onclick="javascript:addalbum({$ALBUM.id});"><img src="/images/add.png" title="queue the entire album" class="button" /></a>{/if} {$ALBUM.name} ({$ALBUM.cost} <img src="/images/money.png" class="button" />)
+            <div style="float: right"><a href="javascript:;" onclick="javascript:setAlbumStanding({$ALBUM.id}, 'love');"><img src="/images/emoticon_happy.png" title="love this artist!" border="0" class="icon"/></a>&nbsp;<a href="javascript:;" onclick="javascript:setAlbumStanding({$ALBUM.id}, 'neutral');"><img src="/images/emoticon_smile.png" title="this artist is ok!" border="0" class="icon"/></a>&nbsp;<a href="javascript:;" onclick="javascript:setAlbumStanding({$ALBUM.id}, 'hate');"><img src="/images/emoticon_unhappy.png" title="hate this artist!" border="0" class="icon"/></a></div>
+            </h2>
 
             <table cellspacing="6" width="700">
             <tr>

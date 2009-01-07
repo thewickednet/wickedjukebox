@@ -34,3 +34,9 @@
             {/foreach}
             </table>
             </div>
+				<form id="helperform" name="helperform">
+				<input type="hidden" name="param" value="{$ALBUM.id}" />
+				<input type="hidden" name="module" value="album" />
+				<input type="hidden" name="action" value="detail" />
+				</form>
+            

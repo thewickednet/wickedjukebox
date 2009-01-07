@@ -71,7 +71,27 @@ class Artist {
         
     }
 
+    function getSingleSongs($artist_id = null) {
+        
+        $db = Zend_Registry::get('database');
+        
+        $select = $db->select()
+                     ->from(array('s' => 'song'), array('title', 'song_id' => 'id', 'track_no', 'duration', 'localpath'))
+                     ->where('s.artist_id = ?', $artist_id)
+                     ->where('s.album_id = 26')
+                     ->order(array('track_no', 's.title'));
+                     
+        $stmt = $select->query();
+        $result = $stmt->fetchAll();
+        for ($i = 0; $i < count($result); $i++) {
+            $id = $result[$i]['song_id'];
+            $result[$i]['standing'] = User::getStanding($id);
+        }
+        return $result;
+        
+    }
 
+    
 
   function findCover($artist_id = 0){
 

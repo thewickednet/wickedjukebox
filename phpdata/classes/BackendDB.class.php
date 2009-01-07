@@ -11,8 +11,8 @@ class BackendDB {
         $db = Zend_Registry::get('database');
         
         $select = $db->select()
-                     ->from('state')
-                     ->where('channel_id = ?', $channel_id);
+                     ->from('state');
+                     //->where('channel_id = ?', $channel_id);
                      
         $stmt = $select->query();
         $result = $stmt->fetchAll();
@@ -46,8 +46,15 @@ class BackendDB {
         $standings['love_count'] = count($standings['love']);
         $standings['hate_count'] = count($standings['hate']);
 
-				$progress = $state['progress'];
-				$progress = $songinfo['duration'] / 100 * $progress;
+		if ($state['upcoming_song'] != null) {
+	        $next_songinfo = Song::get($state['upcoming_song']);
+	        $next_artistinfo = Artist::getById($next_songinfo['artist_id']);
+	        $next_albuminfo = Album::getById($next_songinfo['album_id']);
+		} else
+			$nextinfo = array();        
+        
+   		$progress = $state['progress'];
+		$progress = $songinfo['duration'] / 100 * $progress;
 
         $result = array(
                         'songinfo'      =>  $songinfo,
@@ -55,7 +62,10 @@ class BackendDB {
                         'artistinfo'    =>  $artistinfo,
                         'albuminfo'     =>  $albuminfo,
                         'standings'     =>  $standings,
-			                  'progress'	    =>  $progress
+        				'nextsong'		=>  $next_songinfo,
+        				'nextartist'	=>  $next_artistinfo,
+        				'nextalbum'		=>	$next_albuminfo,
+			            'progress'	    =>  $progress
                         );
 
         return $result;

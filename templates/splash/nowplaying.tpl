@@ -7,7 +7,7 @@
             <a href="/song/detail/{$PLAYER_STATUS.songinfo.id}/">
             {$PLAYER_STATUS.songinfo.title}</a><br />
             by <a href="/artist/detail/{$PLAYER_STATUS.artistinfo.id}/">{$PLAYER_STATUS.artistinfo.name}</a><br />
-            {if $PLAYER_STATUS.albuminfo.id ne ''}
+            {if $PLAYER_STATUS.albuminfo.name ne ''}
             on <a href="/album/detail/{$PLAYER_STATUS.albuminfo.id}/">{$PLAYER_STATUS.albuminfo.name}</a><br />
             {else}
             &nbsp;<br />
@@ -41,3 +41,11 @@
             document.title = 'Wicked Jukebox';
             </script>
             {/if}
+
+			{if count($QUEUE) ne '0'}
+            {* @doc: first! :P *}
+            <p><strong>Coming up:</strong> <a href="/song/detail/{$QUEUE[0].song_id}/">{$QUEUE[0].artist_name} - {$QUEUE[0].title}</a> ({$QUEUE[0].duration|date_format:"%M:%S"}) [{$QUEUE[0].fullname}]</p>
+			{elseif $PLAYER_STATUS.nextsong.id ne ''}
+            <p><strong>Coming up:</strong> <a href="/song/detail/{$PLAYER_STATUS.nextsong.id}/">{$PLAYER_STATUS.nextartist.name} - {$PLAYER_STATUS.nextsong.title}</a> ({$PLAYER_STATUS.nextsong.duration|date_format:"%M:%S"}) [random]</p>
+            {/if}
+            

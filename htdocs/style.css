@@ -358,6 +358,19 @@ li {
   border: 0px solid black;
 
 }
+
+#results table.albums {
+  width: 700px;
+  border: 0px solid black;
+
+}
+
+#results table.songs {
+  width: 570px;
+  border: 0px solid black;
+
+}
+
 #results td {
 	font-family:"Trebuchet MS", Arial, Verdana;
 	font-size:1em;

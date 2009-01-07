@@ -195,7 +195,7 @@ $icecast = new Icecast();
 $smarty->assign("ICECAST", $icecast->getData("localhost", 8001, "admin", "matourenstepp"));
 
 $smarty->assign("CORE", $core);
-$player_status = BackendDB::getCurrentSong(0);
+$player_status = BackendDB::getCurrentSong($core->channel_id);
 
 if (Auth::isAuthed()) {
     $player_status['standing'] = User::getStanding($player_status['songinfo']['id']);

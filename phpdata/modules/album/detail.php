@@ -3,9 +3,9 @@
 
 $album = Album::getById($_GET['param']);
 
-if (isset($_GET['standing'])) {
+if (isset($_GET['standing']) && $_GET['target'] > 0) {
 
-	$songs = Album::getSongs($_GET['param']);
+	$songs = Album::getSongs($_GET['target']);
 
 	foreach ($songs as $song) {
     	User::setStanding($song['id'], $_GET['standing']);

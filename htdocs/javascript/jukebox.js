@@ -93,14 +93,18 @@ function setStanding(song, standing,  mode) {
 
 function setArtistStanding(artist, standing) {
 	  if (confirm('Do you really want to set all songs of this artist to: ' + standing)) {
-		  new Ajax.Updater('body', '/index.php?module=artist&action=detail&param='+artist+'&standing='+standing, {asynchronous:true, evalScripts:true });
+		  new Ajax.Updater('body', '/index.php?module=artist&action=detail&param='+artist+'&standing='+standing+'&mode=artist', {asynchronous:true, evalScripts:true });
 	  }
 	  return false;
 }
 
 function setAlbumStanding(album, standing) {
+	  var module = document.helperform.module.value;
+	  var action = document.helperform.action.value;
+	  var param = document.helperform.param.value;
+	  
 	  if (confirm('Do you really want to set all songs of this album to: ' + standing)) {
-		  new Ajax.Updater('body', '/index.php?module=album&action=detail&param='+album+'&standing='+standing, {asynchronous:true, evalScripts:true });
+		  new Ajax.Updater('body', '/index.php?module='+module+'&action='+action+'&param='+param+'&standing='+standing+'&target='+album+'&mode=album', {asynchronous:true, evalScripts:true });
 	  }
 	  return false;
 }
