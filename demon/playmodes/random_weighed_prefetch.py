@@ -34,7 +34,7 @@ def findSong(channel_id):
    whereClauses = [ "NOT broken" ]
    if prefetch and prefetch[channel_id]:
       log.msg( "Ignoring song %r from random selection as it was already prefetched!" % prefetch[channel_id][0] )
-      whereClauses.append( "song.id != %d" % prefetch[channel_id][0].id )
+      whereClauses.append( "s.id != %d" % prefetch[channel_id][0].id )
 
    # Retrieve dynamic playlists
    sess = create_session()
