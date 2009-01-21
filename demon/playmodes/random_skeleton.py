@@ -34,3 +34,17 @@ def peek(channel_id):
             or a "Song" instance (as imported from demon.model --> see above)
    """
    return None
+
+def prefetch(channel_id, async=True):
+   """
+   Trigger prefetching of a song. This may be used when a client requests that
+   the song marked as "upcoming song" is unwanted.
+
+   Playmodes that do not support a lookahead (see also "peek") will simply do
+   nothing when this method is called.
+   @param channel_id: The channel ID for which we are returning results
+   @param async: Whether to run the internal prefetch call asynchronously or
+                 not. This MUST be implemented for asynchronous prefetchers to
+                 ensure thread safety
+   """
+   pass

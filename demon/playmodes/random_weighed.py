@@ -143,3 +143,6 @@ def get(channel_id):
 
 def peek(channel_id):
    return None
+
+def prefetch(channel_id, async=False):
+   pass

@@ -3,7 +3,7 @@ from model import create_session, Artist, Album, Song, \
                   ChannelStat, Channel as dbChannel,\
                   getSetting, metadata as dbMeta,\
                   songTable, LastFMQueue, usersTable,\
-                  State, setState, \
+                  State, setState, getState, \
                   queueTable, Genre, genreTable
 from sqlalchemy import and_, func
 from datetime import datetime
@@ -426,8 +426,8 @@ class Channel(threading.Thread):
    __currentSongID   = 0
    __currentSongRecorded = False
    __currentSongFile = ''
-   __random          = None
-   __queuemodel      = None
+   __randomstrategy     = None
+   __queuestrategy      = None
    __jingles_folder  = None
    __jingles_interval = 0
    __no_jingle_count = 0
@@ -536,12 +536,12 @@ the named channel exists in the database table called 'channel'" )
 
       # TODO: This block is found as well in "skipSong! --> refactor"
       # set "current song" to the next in the queue or use random
-      self.__random     = playmodes.create( getSetting( 'random_model', 'random_weighed', channel=self.dbModel.id ) )
-      self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict',   channel=self.dbModel.id ) )
+      self.__randomstrategy = playmodes.create( getSetting( 'random_model', 'random_weighed', channel=self.dbModel.id ) )
+      self.__queuestrategy  = playmodes.create( getSetting( 'queue_model',  'queue_strict',   channel=self.dbModel.id ) )
 
-      nextSong = self.__queuemodel.dequeue()
+      nextSong = self.__queuestrategy.dequeue()
       if nextSong is None:
-         nextSong = self.__random.get(self.dbModel.id)
+         nextSong = self.__randomstrategy.get(self.dbModel.id)
 
       sess = create_session()
       if nextSong is not None:
@@ -550,7 +550,7 @@ the named channel exists in the database table called 'channel'" )
             log.err("%r not found!" % nextSong.localpath)
             songTable.update(songTable.c.id == nextSong.id, values={'broken': True}).execute()
 
-            nextSong = self.__random.get(self.dbModel.id)
+            nextSong = self.__randomstrategy.get(self.dbModel.id)
 
          self.queueSong(nextSong)
 
@@ -573,8 +573,8 @@ the named channel exists in the database table called 'channel'" )
 
    def enqueue(self, songID, userID=None):
 
-      self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
-      self.__queuemodel.enqueue(
+      self.__queuestrategy = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
+      self.__queuestrategy.enqueue(
             songID,
             userID,
             self.dbModel.id)
@@ -583,8 +583,8 @@ the named channel exists in the database table called 'channel'" )
             )
 
    def current_queue(self):
-      self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
-      return self.__queuemodel.list()
+      self.__queuestrategy = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
+      return self.__queuestrategy.list()
 
    def skipSong(self):
       """
@@ -613,12 +613,12 @@ the named channel exists in the database table called 'channel'" )
 
       # TODO: This block is found as well in "startPlayback"! --> refactor"
       # set "current song" to the next in the queue or use random
-      self.__random     = playmodes.create( getSetting( 'random_model', 'random_weighed' ) )
-      self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
+      self.__randomstrategy = playmodes.create( getSetting( 'random_model', 'random_weighed' ) )
+      self.__queuestrategy  = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
 
-      nextSong = self.__queuemodel.dequeue()
+      nextSong = self.__queuestrategy.dequeue()
       if nextSong is None:
-         nextSong = self.__random.get(self.dbModel.id)
+         nextSong = self.__randomstrategy.get(self.dbModel.id)
       if config['core.debug'] != "0":
          log.msg( "[channel] skipping song" )
 
@@ -633,12 +633,12 @@ the named channel exists in the database table called 'channel'" )
          return 'ER: Unable to skip song, no followup song returned'
 
    def moveup(self, qid, delta):
-      self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
-      self.__queuemodel.moveup(qid, delta)
+      self.__queuestrategy = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
+      self.__queuestrategy.moveup(qid, delta)
 
    def movedown(self, qid, delta):
-      self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
-      self.__queuemodel.movedown(qid, delta)
+      self.__queuestrategy = playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
+      self.__queuestrategy.movedown(qid, delta)
 
    def get_jingle(self):
       self.__jingles_folder = getSetting('jingles_folder', default=None, channel=self.dbModel.id)
@@ -680,6 +680,21 @@ the named channel exists in the database table called 'channel'" )
             values={usersTable.c.proof_of_listening: func.now()}
             ).execute( )
 
+   def process_upcoming_song(self):
+      # A state "upcoming_song" with value -1 means that the upcoming song is
+      # unwanted and a new one should be triggered if possible
+      state = getState( "upcoming_song", self.dbModel.id )
+      if state and state.value and int(state.value) == -1:
+         log.msg( "Prefetching new song as the current upcoming_song was unwanted." )
+         self.__randomstrategy.prefetch(self.dbModel.id, async=False)
+
+      if self.__randomstrategy:
+         upcoming = self.__randomstrategy.peek(self.dbModel.id)
+         if upcoming:
+            setState( "upcoming_song", upcoming.id, self.dbModel.id )
+      else:
+         setState( "upcoming_song", None, self.dbModel.id )
+
    def run(self):
       cycleTime = int(getSetting('channel_cycle', default='3', channel=self.dbModel.id))
       lastCreditGiveaway = datetime.now()
@@ -692,15 +707,7 @@ the named channel exists in the database table called 'channel'" )
 
          time.sleep(cycleTime)
          sess = create_session()
-
-         if self.__random:
-            upcoming = self.__random.peek(self.dbModel.id)
-            if upcoming:
-               # we received a song entity. simplify it down to a song-id
-               upcoming = upcoming.id
-            setState( "upcoming_song", upcoming, self.dbModel.id )
-         else:
-            setState( "upcoming_song", None, self.dbModel.id )
+         self.process_upcoming_song()
 
          # ping the database every 2 minutes (unless another value was specified in the settings)
          if (datetime.now() - lastPing).seconds > proofoflife_timeout:
@@ -718,18 +725,18 @@ the named channel exists in the database table called 'channel'" )
 
             self.__player.cropPlaylist(0)
 
-            self.__random     = playmodes.create( getSetting( 'random_model', 'random_weighed', channel=self.dbModel.id ) )
-            self.__queuemodel = playmodes.create( getSetting( 'queue_model',  'queue_strict',   channel=self.dbModel.id ) )
+            self.__randomstrategy = playmodes.create( getSetting( 'random_model', 'random_weighed', channel=self.dbModel.id ) )
+            self.__queuestrategy  = playmodes.create( getSetting( 'queue_model',  'queue_strict',   channel=self.dbModel.id ) )
 
             nextSong = self.get_jingle()
 
             if nextSong is None:
                log.msg("No jingle selected. Trying to dequeue")
-               nextSong = self.__queuemodel.dequeue()
+               nextSong = self.__queuestrategy.dequeue()
 
             if nextSong is None:
                log.msg("Apparently there was nothing on the queue. I'm going to take somethin at random then")
-               nextSong = self.__random.get(self.dbModel.id)
+               nextSong = self.__randomstrategy.get(self.dbModel.id)
 
             if nextSong is None:
                log.msg("What? Still nothing? Either nobody is online, or the database is empty")
@@ -745,7 +752,7 @@ the named channel exists in the database table called 'channel'" )
                   log.err("%r not found!" % nextSong.localpath)
                   songTable.update(songTable.c.id == nextSong.id, values={'broken': True}).execute()
                   sess.flush()
-                  nextSong = self.__random.get(self.dbModel.id)
+                  nextSong = self.__randomstrategy.get(self.dbModel.id)
                self.queueSong(nextSong)
                self.__player.startPlayback()
 

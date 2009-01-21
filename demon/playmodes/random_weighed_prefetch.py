@@ -13,13 +13,13 @@ from demon.util import config
 from random import random
 import threading
 
-prefetch = {}
+prefetch_state = {}
 
 def findSong(channel_id):
    """
    determine a song that would be best to play next and return it
    """
-   global prefetch
+   global prefetch_state
 
    # setup song scoring coefficients
    userRating  = int(getSetting('scoring_userRating',   4, channel=channel_id))
@@ -32,9 +32,9 @@ def findSong(channel_id):
 
 
    whereClauses = [ "NOT broken" ]
-   if prefetch and prefetch[channel_id]:
-      log.msg( "Ignoring song %r from random selection as it was already prefetched!" % prefetch[channel_id][0] )
-      whereClauses.append( "s.id != %d" % prefetch[channel_id][0].id )
+   if prefetch_state and prefetch_state[channel_id]:
+      log.msg( "Ignoring song %r from random selection as it was already prefetched!" % prefetch_state[channel_id] )
+      whereClauses.append( "s.id != %d" % prefetch_state[channel_id].id )
 
    # Retrieve dynamic playlists
    sess = create_session()
@@ -157,11 +157,11 @@ class Prefetcher( threading.Thread ):
       self._channel_id = channel_id
 
    def run(self):
-      global prefetch
+      global prefetch_state
       log.msg( "Background prefetching... " )
       song = findSong(self._channel_id)
       log.msg( "  ... prefetched %r" % song )
-      prefetch[self._channel_id].append(song)
+      prefetch_state[self._channel_id] = song
 
 def get(channel_id):
    pref = Prefetcher(channel_id)
@@ -169,24 +169,35 @@ def get(channel_id):
 
    # wait until a song is prefetched (in case two 'gets' are called quickly
    # after another)
-   while not prefetch and not prefetch[channel_id]:
+   while not prefetch_state and not prefetch_state[channel_id]:
       pass
 
-   return prefetch[channel_id].pop()
+   return prefetch_state[channel_id]
 
 def peek(channel_id):
-   global prefetch
-   output = prefetch.get( channel_id, None )
+   global prefetch_state
+   output = prefetch_state.get( channel_id, None )
    if not output:
       return None
    else:
-      return output[0]
+      return output
 
-# as the query can take fscking long, we prefetch one song
+def prefetch(channel_id, async=True):
+   global prefetch_state
+   prefetch_state[channel_id] = None
+   pref = Prefetcher(channel_id)
+   if async:
+      pref.start()
+   else:
+      pref.run()
+
+# as the query can take fscking long, we prefetch one song as soon as this
+# module is loaded!
 log.msg( 'prefetching initial random song for each channel ...' )
 s = select([channelTable.c.id, channelTable.c.name])
 r = s.execute()
 for row in r:
-   prefetch[row[0]] = [findSong(row[0])]
-   log.msg( '  Channel %r prefetched %r' % (row[1], prefetch[row[0]]) )
+   pref = Prefetcher( row[0] )
+   pref.run()
+   log.msg( '  Channel %r prefetched %r' % (row[1], prefetch_state[row[0]]) )
 

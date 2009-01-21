@@ -111,6 +111,17 @@ def setState(statename, value, channel_id=0):
       sess.save(state)
       sess.flush()
 
+def getState(statename, channel_id=0):
+   """
+   Retrieve a specific state
+   """
+
+   sess = create_session()
+
+   # update state in database
+   state = sess.query(State).selectfirst_by(and_(stateTable.c.state==statename, stateTable.c.channel_id==channel_id))
+   return state
+
 # ----------------------------------------------------------------------------
 # Table definitions
 # ----------------------------------------------------------------------------
