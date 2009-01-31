@@ -168,6 +168,7 @@ dynamicPLTable = Table( 'dynamicPlaylist', metadata,
       autoload=True )
 song_has_genre = Table( 'song_has_genre', metadata, autoload=True )
 genreTable     = Table( 'genre', metadata, autoload=True )
+songStandingTable = Table( 'user_song_standing', metadata, autoload=True )
 
 # ----------------------------------------------------------------------------
 # Mappers
