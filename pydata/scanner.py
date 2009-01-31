@@ -7,14 +7,25 @@ store the metadata in the jukebox database
 from os import walk, path
 from util import fsdecode, fsencode
 import logging
-from demon.model import getSetting, Song
-from sqlalchemy import create_session
+from demon.model import getSetting, Song, songTable
+from sqlalchemy import create_session, select
 logger = logging.getLogger(__name__)
 
 valid_extensions = getSetting("recognizedTypes").split(" ")
 
 def is_valid_audio_file(path):
    return path.endswith(valid_extensions[0])
+
+def do_housekeeping():
+   "Database cleanup, and set other values that are difficult to read during scanning"
+   logger.info( "Performing housekeeping. This may take a while!" )
+   songs = select([songTable.c.localpath]).execute()
+   for row in songs:
+      try:
+         if not path.exists( fsencode(row[0]) ):
+            print `row[0]`, "removed from disk"
+      except UnicodeEncodeError, e:
+         logger.error( "Unable to decode %r (%s)" % ( row[0], e) )
 
 def process(localpath, encoding):
 
@@ -50,5 +61,4 @@ def scan(top, capping=u""):
             process( *fsdecode( path.join(root, file) ) )
             i+= 1
    logger.info( "Scanned %d songs" % i )
-   print valid_extensions
 

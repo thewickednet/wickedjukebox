@@ -4,7 +4,7 @@ from util import config
 from datetime import datetime
 from twisted.python import log
 from mutagen import File as MediaFile
-from os import stat
+from os import stat, path
 
 logger = logging.getLogger(__name__)
 
@@ -198,10 +198,12 @@ class Artist(object):
 
 class Album(object):
 
-   def __init__( self, name, artist=None, artist_id=None ):
+   def __init__( self, name, artist=None, artist_id=None, path=None ):
       self.name  = name
       if artist: self.artist_id = artist.id
       elif artist_id: self.artist_id = artist_id
+
+      self.path = path
       self.added = datetime.now()
 
    def __repr__(self):
@@ -226,10 +228,14 @@ class Song(object):
       """
 
       metadata = None
+
       try:
          metadata = MediaFile( localpath.encode(encoding) )
       except Exception, ex:
          logger.warning("%r contained invalid metadata. Error message: %r" % (localpath, str(ex) ) )
+
+      dirname = path.dirname( localpath.encode(encoding) )
+
       self.__artistName    = self.parseArtist( metadata )
       self.__genreName     = self.parseGenre( metadata )
       self.__albumName     = self.parseAlbum( metadata )
@@ -248,7 +254,7 @@ class Song(object):
 
       self.artist_id = self.get_artist_id( self.__artistName )
       self.genre_id  = self.get_genre_id( self.__genreName )
-      self.album_id  = self.get_album_id(self.artist_id, self.__albumName)
+      self.album_id  = self.get_album_id(self.artist_id, self.__albumName, dirname)
 
    def get_genre_id( self, genre_name ):
       """
@@ -284,23 +290,24 @@ class Song(object):
 
       return artist.id
 
-   def get_album_id( self, artist_id, album_name ):
+   def get_album_id( self, artist_id, album_name, dirname ):
       """
       If the album already exists, return the ID of that album, otherwise create a new instance
 
       @param artist_id: The ID of an artist
       @param album_name: The name of the album
+      @param dirname: The path where the files of this album are stored
       @return: The ID of the matching album
       @todo: instead of using the mapped object "Album" we could use the album_table for performance gains
       """
 
       session = create_session()
       album = session.query(Album).selectfirst_by( and_(
-         albumTable.c.artist_id == artist_id,
-         albumTable.c.name      == album_name
+         albumTable.c.name      == album_name,
+         albumTable.c.path      == dirname,
          ) )
       if not album:
-         album = Album( name=album_name, artist_id=artist_id )
+         album = Album( name=album_name, artist_id=artist_id, path=dirname )
          session.save(album)
          session.flush()
       return album.id

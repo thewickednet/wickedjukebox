@@ -6,12 +6,41 @@ import sys
 import logging
 logger = logging.getLogger(__name__)
 
+ENCODINGS = [
+   'latin-1',
+   'utf-8',
+   sys.getfilesystemencoding(),
+]
+
+# prepare encodings in reversed order for fs-encoding
+REVENCODINGS = ENCODINGS
+REVENCODINGS.reverse()
+
+
 def fsencode(filename):
    """
    Encodes a unicode object into the file system encoding
    """
+
+   global REVENCODINGS
+   revencodings = REVENCODINGS[:] # keep a copy
+
    if type(filename) == type(u""):
-      return filename.encode(sys.getfilesystemencoding())
+      encoded = None
+      while True:
+         try:
+            if not revencodings: break
+            encoding = revencodings.pop()
+            encoded = filename.encode(encoding)
+            working_charset = encoding
+            logger.debug( "encoded %r with %r" % ( filename, encoding ) )
+            break
+         except UnicodeEncodeError, e:
+            logger.warning("File %r uses an unexpected encoding. %r did not work to encode it. Will try another encoding" % (filename, encoding))
+            return filename.encode(sys.getfilesystemencoding())
+      if not encoded:
+         raise UnicodeEncodeError("Unable to encode %r" % filename)
+      return encoded
    else:
       return filename
 
@@ -20,19 +49,18 @@ def fsdecode(filename):
    Decodes a filename, returning it's decoded name with the used charset
    Raises an UnicodeDecodeError if decoding did not work
    """
-   decoded = None
+   global ENCODINGS
 
-   encodings = [
-      'latin-1',
-      'utf-8',
-      sys.getfilesystemencoding(),
-   ]
+   decoded = None
 
    working_charset = None
 
+   # make a copy of the global encodings list so we can pop items off
+   encodings = ENCODINGS[:]
+
    while True:
       try:
-         if len(encodings) == 0: break
+         if not encodings: break
          encoding = encodings.pop()
          decoded = filename.decode(encoding)
          working_charset = encoding
@@ -41,7 +69,7 @@ def fsdecode(filename):
       except UnicodeDecodeError:
          logger.warning("File %r uses an unexpected encoding. %r did not work to decode it. Will try another encoding" % (filename, encoding))
 
-   if decoded is None:
+   if not decoded:
       raise UnicodeDecodeError("Unable to decode %r" % filename)
 
    return decoded, working_charset
