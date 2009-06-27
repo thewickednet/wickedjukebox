@@ -303,10 +303,7 @@ class Song(object):
       """
 
       session = create_session()
-      album = session.query(Album).selectfirst_by( and_(
-         albumTable.c.name      == album_name,
-         albumTable.c.path      == dirname,
-         ) )
+      album = session.query(Album).selectfirst_by( albumTable.c.path == dirname )
       if not album:
          album = Album( name=album_name, artist_id=artist_id, path=dirname )
          session.save(album)
