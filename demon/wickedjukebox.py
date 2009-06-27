@@ -459,7 +459,10 @@ the named channel exists in the database table called 'channel'" )
             log.err("Unable to start scrobbler (internet down?)")
 
       # initialise the player
-      self.__player = players.create( self.dbModel.backend, self.dbModel.backend_params)
+      player_params = self.dbModel.backend_params
+      if not player_params:
+         player_params = ""
+      self.__player = players.create( self.dbModel.backend, player_params + ", channel_id=%d" % self.dbModel.id )
 
       self.sess.flush()
       threading.Thread.__init__(self)

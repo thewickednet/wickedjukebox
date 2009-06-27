@@ -16,7 +16,7 @@ STATUS_PAUSED=3
 
 class Shoutcast_Player(threading.Thread):
 
-   def __init__(self, password='hackme', mount='/wicked.mp3', port=8000, name="The wicked jukebox", url="http://jukebox.wicked.lu", bufsize=1024, bitrate=128, samplerate=44100, channels=1 ):
+   def __init__(self, password='hackme', mount='/wicked.mp3', port=8000, name="The wicked jukebox", url="http://jukebox.wicked.lu", bufsize=1024, bitrate=128, samplerate=44100, channels=1, channel_id=0 ):
       self.__keepRunning      = True
       self.__progress         = (0,0) # (streamed_bytes, total_bytes)
       self.__queue            = []
@@ -32,12 +32,13 @@ class Shoutcast_Player(threading.Thread):
       self.__ai_channels      = str(channels)
       self.__name             = name
       self.__url              = url
+      self.__channel_id       = channel_id
       self.connect()
       threading.Thread.__init__(self)
 
    def disconnect_server(self):
       self.__status = STATUS_STOPPED
-      setState("progress", 0)
+      setState("progress", 0, self.__channel_id)
       self.__server.close()
 
    def connect(self):
@@ -93,7 +94,7 @@ class Shoutcast_Player(threading.Thread):
             self.__server.set_metadata({"song": self.get_description(self.__currentSong).encode("utf-8")})
             buf = f.read(self.__bufsize)
             self.__progress = (0, os.stat(self.__currentSong).st_size)
-            setState("progress", 0)
+            setState("progress", 0, self.__channel_id)
             self.__status = STATUS_PLAYING
 
             # stream the file as long as the player is running, or as long as
@@ -134,13 +135,13 @@ class Shoutcast_Player(threading.Thread):
                                   self.__progress[1])
                count += 1
                if count % 30 == 0:
-                  setState("progress", self.position())
+                  setState("progress", self.position(), self.__channel_id)
                buf = f.read(self.__bufsize)
             f.close()
 
             log.msg( "Shoutcast song finished" )
             self.__status = STATUS_STOPPED
-            setState("progress", 0)
+            setState("progress", 0, self.__channel_id)
 
             # if we fell through the previous loop because a skip was
             # requested, we need to reset that value. Otherwise we keep
@@ -149,7 +150,7 @@ class Shoutcast_Player(threading.Thread):
                self.__triggerSkip = False
 
       log.msg("Shoutcast loop finished")
-      setState("progress", 0)
+      setState("progress", 0, self.__channel_id)
 
       self.disconnect_server()
       self.__status = STATUS_STOPPED
@@ -219,17 +220,20 @@ __player   = None
 __adminurl = None
 __adminuser = None
 __adminpassword = None
+__channel_id = 0
 songStarted = None
 
 def config(params):
-   global __port, __mount, __password, __player, __adminurl, __adminuser, __adminpassword
+   global __port, __mount, __password, __player, __adminurl, __adminuser, __adminpassword, __channel_id
    log.msg( "connection to icecast server (params = %s)" % params )
    __port     = int(params['port'])
    __mount    = str(params['mount'])
    __password = str(params['pwd'])
+   __channel_id = int(params['channel_id'])
    __player   = Shoutcast_Player(__password,
                                  __mount,
-                                 __port)
+                                 __port,
+                                 channel_id=__channel_id)
 
    if "admin_url" in params:
       __adminurl = str(params["admin_url"]) + "/listclients.xsl?mount=" + __mount
