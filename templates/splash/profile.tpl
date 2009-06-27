@@ -6,8 +6,9 @@
           <img src="/images/music.png" title="tune in!" />&nbsp;&nbsp;&nbsp;&nbsp;<b>Tune In! <a href="http://jukebox.wicked.lu/wicked.pls">External</a> or <a href="javascript:;" onclick="javascript:openPlayer();">Flash</a> Player!</b><br />
           <a href="javascript:;" onclick="javascript:setStandingAffects('loves_affect_random', 'splash');"><img src="/images/thumb_up.png" title="my loves affect random, click to toggle" border="0" class="icon{if $PLAYER_STATUS.loves_affect_random == '1'}a{/if}"/></a><a href="javascript:;" onclick="javascript:setStandingAffects('hates_affect_random', 'splash');"><img src="/images/thumb_down.png" title="my hates affect random, click to toggle" border="0" class="icon{if $PLAYER_STATUS.hates_affect_random == '1'}a{/if}"/></a>
           </p>
-
+<!--
             <p>Radio users: {$ICECAST.1->listeners} / Website users: {$ALIVE_USERS_COUNT}</p>
+-->
             {if count($ALIVE_USERS) > 0}
             <p>
             {foreach name="ulist" from=$ALIVE_USERS item=ALIVE_USER}

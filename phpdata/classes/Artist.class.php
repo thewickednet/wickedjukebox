@@ -43,6 +43,7 @@ class Artist {
         $select = $db->select()
                      ->from(array('a' => 'album'))
                      ->where('a.artist_id = ?', $artist_id)
+                     ->order('release_date DESC')
                      ->order('name');
                      
         $stmt = $select->query();

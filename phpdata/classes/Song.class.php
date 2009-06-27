@@ -238,6 +238,28 @@ class Song {
         
     }
     
+    function getLyrics($song_id = 0) {
+    	
+    	$song = self::get($song_id);
+    	$artist = Artist::getById($song['artist_id']);
+    	$xml_request = sprintf("http://lyricwiki.org/api.php?func=getSong&artist=%s&song=%s&fmt=xml", urlencode($artist['name']), urlencode($song['title']));
+    	
+    	$response = file_get_contents($xml_request);
+    	$xml = new SimpleXMLElement($response);
+    	
+    	$result = $xml->xpath('/LyricsResult');
+		$result = $result[0];
+    	
+    	if ($result->lyrics == 'Not found')
+    		return $result->lyrics;
+    	else		
+    		self::setLyrics($song_id, $result->lyrics);
+    	
+    	return ""; 
+    	
+    }
+    
+    
     function getLatest($limit = 100) {
         
         $db = Zend_Registry::get('database');
@@ -263,9 +285,37 @@ class Song {
         
     }
     
+    function setLyrics($song_id = 0, $lyrics = "") {
+    	
+    	$db = Zend_Registry::get('database');
+    	
+    	$data = array(
+    					'lyrics'      => $lyrics
+		);
+
+    	$n = $db->update('song', $data, 'id = ' . $song_id);
+    	
+    	
+    }
+
+    function getOverallRating($song_id) {
+    	
+    	$positive = self::getStandingCount('love', $song_id);
+    	$negative = self::getStandingCount('hate', $song_id);
+		$positive = $positive[0]['counter'];
+		$negative = $negative[0]['counter'];
+    	
+    	$user_count = User::getTotalCount();
+    	
+    	$absolute = $positive - $negative;
+    	
+    	$rating = $absolute;
+    	
+    	return $rating;
+    	
+    }
+    
 
 }
 
 
-
-?>

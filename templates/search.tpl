@@ -23,6 +23,7 @@
                     <td>&nbsp;</td>
                     {/if}
                     <td align="right" nowrap>{$RESULT.duration|date_format:"%M:%S"} ({$RESULT.cost} <img src="/images/money.png" class="button" />)</td>
+                    <td align="right" nowrap>{$RESULT.orating}</td>
                   </tr>
                 {/foreach}
                 </table>

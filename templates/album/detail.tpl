@@ -30,6 +30,7 @@
                 <td width="24">{if $CORE->permissions.queue_add eq '1'}<a href="javascript:;" onclick="javascript:addsong({$SONG.id});"><img src="/images/bullet_add.png" class="button" /></a>{/if}</td>
                 <td>{$SONG.track_no|string_format:"%02d"} - <a href="/song/detail/{$SONG.id}/">{$SONG.title}</a></td>
                 <td align="right">{$SONG.duration|date_format:"%M:%S"} ({$SONG.cost} <img src="/images/money.png" class="button" />)</td>
+                <td>{$SONG.orating}</td>
               </tr>
             {/foreach}
             </table>
@@ -39,4 +40,3 @@
 				<input type="hidden" name="module" value="album" />
 				<input type="hidden" name="action" value="detail" />
 				</form>
-            

@@ -1,13 +1,18 @@
 <?php
 
-$song = Song::get($_GET['param']);
-
 if (isset($_GET['standing'])) {
 	$_GET['song'] = $_GET['param'];
 	include "report.php";
 	$ajax = true;
 }
 
+if (isset($_GET['getLyrics']) && $_GET['getLyrics'] == 'true') {
+	$ajax = true;
+	$lyrics_error = Song::getLyrics($_GET['param']);
+	$smarty->assign("LYRICS_ERROR", $lyrics_error);
+}
+
+$song = Song::get($_GET['param']);
 
 $standing = User::getStanding($_GET['param']);
 

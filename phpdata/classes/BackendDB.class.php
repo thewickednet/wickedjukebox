@@ -46,7 +46,7 @@ class BackendDB {
         $standings['love_count'] = count($standings['love']);
         $standings['hate_count'] = count($standings['hate']);
 
-		if ($state['upcoming_song'] != null) {
+		if ($state['upcoming_song'] > 0) {
 	        $next_songinfo = Song::get($state['upcoming_song']);
 	        $next_artistinfo = Artist::getById($next_songinfo['artist_id']);
 	        $next_albuminfo = Album::getById($next_songinfo['album_id']);

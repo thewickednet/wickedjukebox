@@ -40,6 +40,8 @@ if (isset($_GET['standing']) && $_GET['mode'] == 'artist') {
 		$albums[$j]['songs'] = Album::getSongs($albums[$j]['id']);
 		for ($i = 0; $i < count($albums[$j]['songs']); $i++) {
 	        $albums[$j]['songs'][$i]['cost'] = Song::evaluateCost($albums[$j]['songs'][$i]['duration']);
+	        $albums[$j]['songs'][$i]['orating'] = Song::getOverallRating($albums[$j]['songs'][$i]['id']);
+	        
 	    }
     }
 

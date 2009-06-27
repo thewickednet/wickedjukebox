@@ -31,7 +31,9 @@
             document.title = 'Wicked Jukebox';
             </script>
             {/if}
+            <!--
             <p>Radio users: {$ICECAST.1->listeners} / Website users: {$ALIVE_USERS_COUNT}</p>
+            -->
             {if count($ALIVE_USERS) > 0}
             <p>
             {foreach name="ulist" from=$ALIVE_USERS item=ALIVE_USER}
@@ -41,11 +43,12 @@
             {else}
             <p>no user online</p>
             {/if}
+            
             <h1>Queue</h1>
             {if count($QUEUE) ne '0'}
             <ul id="queue_list" {if $CORE->permissions.admin eq '1'}class="sortable-list"{/if}>
             {foreach from=$QUEUE item=QUEUE_SONG}
-			     <li id="queue_{$QUEUE_SONG.queue_id}" {if $QUEUE_SONG.standing ne ''}class="{$QUEUE_SONG.standing}"{/if}><a href="/song/detail/{$QUEUE_SONG.song_id}/">{$QUEUE_SONG.title|truncate:30}</a>{if $CORE->permissions.queue_remove eq '1' || $CORE->user_id eq $QUEUE_SONG.user_id}<a href="javascript:;" onclick="javascript:delsong({$QUEUE_SONG.queue_id});" style="color: red;"><img src="/images/bullet_delete.png" class="button" align="right"/></a>{/if}<br />by <a href="/artist/detail/{$QUEUE_SONG.artist_id}/">{$QUEUE_SONG.artist_name|truncate:30}</a> ({$QUEUE_SONG.duration|date_format:"%M:%S"}) [{$QUEUE_SONG.fullname}]</li>
+			     <li id="queue_{$QUEUE_SONG.queue_id}" {if $QUEUE_SONG.standing ne ''}class="{$QUEUE_SONG.standing}"{/if}><img src="/img.php?category=song&preset=tiny&id={$QUEUE_SONG.song_id}" id="tinyart" align="left" /><a href="/song/detail/{$QUEUE_SONG.song_id}/">{$QUEUE_SONG.title|truncate:30}</a>{if $CORE->permissions.queue_remove eq '1' || $CORE->user_id eq $QUEUE_SONG.user_id}<a href="javascript:;" onclick="javascript:delsong({$QUEUE_SONG.queue_id});" style="color: red;"><img src="/images/bullet_delete.png" class="button" align="right"/></a>{/if} ({$QUEUE_SONG.duration|date_format:"%M:%S"})<br />by <a href="/artist/detail/{$QUEUE_SONG.artist_id}/">{$QUEUE_SONG.artist_name|truncate:30}</a> [{$QUEUE_SONG.fullname}]</li>
             {/foreach}
             </ul>
                 <li style="border-bottom: 0px solid #eeeeee; padding-top: 5px;"><b>Total:</b> {$QUEUE_TOTAL.totaltime|date_format:"%M:%S"}{if $CORE->permissions.queue_remove eq '1' || $CORE->permissions.admin eq '1'} - <a href="javascript:;" onclick="javascript:cleanqueue();" style="color: red;">clean queue</a>{/if}</li>

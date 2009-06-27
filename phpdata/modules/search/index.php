@@ -8,9 +8,8 @@ $smarty->assign("SEARCH_PATTERN", $search_pattern);
 $smarty->assign("SEARCH_MODE", $_GET['action']);
 
 
-$original = array("&","'",":","/","@","é", "à", "ü", "è", "ä", "ö", " ");
-$entities = array("AND","QUOTE","DOUBLES","SLASH","AT","EE", "AE", "UE", "EE", "AA", "OE", "_");
-
+$original = array("&","'",":","/","@","é", "à", "ü", "è", "ä", "ö", " ", ".");
+$entities = array("AND","QUOTE","DOUBLES","SLASH","AT","EE", "AE", "UE", "EE", "AA", "OE", "_", "DOT");
 
 $cache_key = str_replace($original, $entities, utf8_decode($search_pattern));
 $cache_key = sprintf("%s_%s", $cache_key, $_GET['action']);
@@ -48,6 +47,7 @@ if (strlen($search_pattern) < 3) {
         for ($i = 0; $i < count($results); $i++) {
             $results[$i]['cost'] = Song::evaluateCost($results[$i]['duration']);
             $results[$i]['standing'] = User::getStanding($results[$i]['song_id']);
+            $results[$i]['orating'] = Song::getOverallRating($results[$i]['song_id']);
         }
     
         //$artists = Artist::getByAlpha($alpha);

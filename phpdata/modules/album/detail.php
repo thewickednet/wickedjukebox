@@ -19,6 +19,7 @@ $artist = Artist::getById($album['artist_id']);
 
 for ($i = 0; $i < count($songs); $i++) {
     $songs[$i]['cost'] = Song::evaluateCost($songs[$i]['duration']);
+    $songs[$i]['orating'] = Song::getOverallRating($songs[$i]['id']);
 }
 
 $album['cost'] = Album::getCost($_GET['param']);

@@ -66,6 +66,11 @@
                 <td width="20%"><b>Voted:</b></td>
                 <td width="30%">{$SONG.voted}</td>
               </tr>
+              {if $CORE->permissions.admin eq '1'}
+              <tr>
+                <td colspan="4"><b>Filename:</b> {$SONG.localpath}</td>
+              </tr>
+              {/if}
               <tr>
                 <td width="20%"><b>Loved:</b></td>
                 <td width="30%">
@@ -91,8 +96,13 @@
 
 <h3>Lyrics</h3>
 
+
+<p><a href="javascript:;" onclick="javascript:getLyrics({$SONG.id});">Update Lyrics</a> <img src="/images/carousel.gif" style="display:none;" id="lyrics_carousel" /> {if $LYRICS_ERROR ne ''}<strong>{$LYRICS_ERROR}</strong>{/if}</p>
+
+
 {if $SONG.lyrics ne ''}
 <p>{$SONG.lyrics|nl2br}</p>
 {else}
+
 <p>no lyrics available</p>
 {/if}
