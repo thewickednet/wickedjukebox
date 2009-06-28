@@ -135,7 +135,7 @@ class Console(cmd.Cmd):
       import scanner
       scanner.scan( mediadirs[0], unicode(line) )
 
-      print "job started. You may inspect the status with scan_status!"
+      print "done"
 
    def do_force_scan(self, line):
       """Rescans the media folders, including files that have not changed since

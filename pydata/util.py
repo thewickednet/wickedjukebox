@@ -38,7 +38,7 @@ def fsencode(filename):
          except UnicodeEncodeError, e:
             logger.warning("File %r uses an unexpected encoding. %r did not work to encode it. Will try another encoding" % (filename, encoding))
             return filename.encode(sys.getfilesystemencoding())
-      if not encoded:
+      if len(filename) > 0 and not encoded:
          raise UnicodeEncodeError("Unable to encode %r" % filename)
       return encoded
    else:

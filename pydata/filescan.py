@@ -40,7 +40,7 @@ def _sanity_check( thelist ):
 
    for element in thelist:
       if not hasattr( element, "__call__") and not hasattr( element, "index"):
-         raise ValueError( "%r is not a valid filter/processor element. It must either be callable, or be a indexable object (f. ex. a list or tuple) containing a callable and a list of parameters" % element )
+         raise ValueError( "%r is not a valid filter/processor element. It must either be callable, or be a indexable object (f. ex. a list or tuple) containing a callable and a list of parameters" % (element) )
       elif hasattr( element, "index" ) and not hasattr( element[0], "__call__" ):
          raise ValueError( "%r is not a valid filter/processor element. The first element is not callable!" % element )
       elif hasattr( element, "index" ) and len(element) != 2:
