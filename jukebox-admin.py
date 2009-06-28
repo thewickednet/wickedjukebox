@@ -12,8 +12,8 @@ from demon.model import getSetting, \
                         create_session
 from sqlalchemy import func, select, bindparam, and_
 from demon.wickedjukebox import Scanner, fs_encoding, direxists
-import logging
-logging.basicConfig( level=logging.DEBUG )
+import logging.config
+logging.config.fileConfig("logging.ini")
 
 def get_artists(glob="*"):
    if glob == "": glob = "*"

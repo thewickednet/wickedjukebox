@@ -28,7 +28,7 @@ def process(localpath, encoding):
          song.scan_from_file( localpath, encoding )
          session.save_or_update(song)
          session.flush()
-         logger.debug( "%r at %r" % (song, localpath) )
+         logger.info( "%r at %r" % (song, localpath) )
       except UnicodeDecodeError, ex:
          logger.error( "Unable to decode %r (%s)" % (localpath, ex) ) 
    else:
