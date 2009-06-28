@@ -17,6 +17,23 @@ valid_extensions = getSetting("recognizedTypes").split(" ")
 def is_valid_audio_file(path):
    return path.endswith(valid_extensions[0])
 
+def process(localpath, encoding):
+
+   if is_valid_audio_file(localpath):
+      session = create_session()
+      try:
+         song = session.query(Song).selectfirst_by( localpath=localpath )
+         if not song:
+            song = Song(localpath, None, None)
+         song.scan_from_file( localpath, encoding )
+         session.save_or_update(song)
+         session.flush()
+         logger.debug( "%r at %r" % (song, localpath) )
+      except UnicodeDecodeError, ex:
+         logger.error( "Unable to decode %r (%s)" % (localpath, ex) ) 
+   else:
+      logger.debug("%r is not a valid audio-file (only scanning extensions %r)" % (localpath, valid_extensions))
+
 def do_housekeeping():
    "Database cleanup, and set other values that are difficult to read during scanning"
    logger.info( "Performing housekeeping. This may take a while!" )
@@ -65,19 +82,18 @@ def scan(top, capping=u""):
 
    top = fsencode(top)
    capping = fsencode(capping)
-   #<<<<<<< .mine
-   #   logger.info("Starting scan on %r with capping %r" % (top, capping))
-   #   for root, dirs, files in walk(fsencode(top)):
-   #      relative_path = root[len(top)+1:]
-   #      for file in files:
-   #         if path.join(relative_path, file).startswith(fsencode(capping)):
-   #            process( *fsdecode( path.join(root, file) ) )
-   #            i+= 1
-   #   logger.info( "Scanned %d songs" % i )
-   #=======
-   count = fscan( top,
-          filters=[ [filter_capping, [capping]], filter_valid_extenstion ],
-          processors = [ processor_todatabase ]
-          )
-   logger.info( "Scanned %d songs" % count )
+   logger.info("Starting scan on %r with capping %r" % (top, capping))
+   i=0
+   for root, dirs, files in walk(fsencode(top)):
+      relative_path = root[len(top)+1:]
+      for file in files:
+         if path.join(relative_path, file).startswith(fsencode(capping)):
+            process( *fsdecode( path.join(root, file) ) )
+            i+= 1
+   logger.info( "Scanned %d songs" % i )
+   #count = fscan( top,
+   #       filters=[ [filter_capping, [capping]], filter_valid_extenstion ],
+   #       processors = [ processor_todatabase ]
+   #       )
+   #logger.info( "Scanned %d songs" % count )
 
