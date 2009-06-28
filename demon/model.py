@@ -248,6 +248,13 @@ class Song(object):
       self.lastScanned = datetime.now()
 
       try:
+         record_date = metadata.get("TDRC")
+         if record_date and record_date.text:
+            self.year = int(record_date.text[0].text)
+      except Exception, e:
+         logger.error( "Unable to set release year: " + str(e) )
+
+      try:
          self.filesize = stat(localpath.encode(encoding)).st_size
       except Exception, ex:
          logger.warning(ex)
@@ -266,13 +273,17 @@ class Song(object):
       @todo: instead of using the mapped object "Genre" we could use the genre_table for performance gains
       """
       session = create_session()
-      genre = session.query(Genre).selectfirst_by( name=genre_name )
-      if not genre:
-         genre = Genre( name=genre_name )
-         session.save(genre)
-         session.flush()
+      try:
+         genre = session.query(Genre).selectfirst_by( name=genre_name )
+         if not genre:
+            genre = Genre( name=genre_name )
+            session.save(genre)
+            session.flush()
 
-      return genre.id
+         return genre.id
+      except UnicodeEncodeError, e:
+         logger.error("Unable to encode genre %r (%s)" % ( genre_name, str(e) ) )
+         return None
 
    def get_artist_id( self, artist_name ):
       """
