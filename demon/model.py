@@ -1,9 +1,11 @@
 from sqlalchemy import *
+from sqlalchemy.exceptions import SQLError
 import logging
 from util import config
 from datetime import datetime
 from twisted.python import log
 from mutagen import File as MediaFile
+import sys
 from os import stat, path
 
 logger = logging.getLogger(__name__)
@@ -13,7 +15,6 @@ if config['database.type'] == 'sqlite':
    if os.path.exists( config['database.file'] ):
       log.msg("SQLite database found. All good!")
    else:
-      import sys
       log.err("SQLite database (as specified in config.ini) does not exist.\
       Please create it based on the SQL script found in data/database.sql")
       sys.exit(0)
@@ -281,9 +282,11 @@ class Song(object):
             session.flush()
 
          return genre.id
-      except UnicodeEncodeError, e:
-         logger.error("Unable to encode genre %r (%s)" % ( genre_name, str(e) ) )
+      except SQLError, e:
+         logger.error("Unable to retrieve genre id for %r (%s)" % ( genre_name, str(e) ) )
          return None
+      finally:
+         session.close()
 
    def get_artist_id( self, artist_name ):
       """
