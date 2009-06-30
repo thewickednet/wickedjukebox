@@ -2,7 +2,7 @@ from sqlalchemy import *
 from sqlalchemy.exceptions import SQLError
 import logging
 from util import config
-from datetime import datetime
+from datetime import datetime, date
 from twisted.python import log
 from mutagen import File as MediaFile
 import sys
@@ -246,14 +246,10 @@ class Song(object):
       self.duration  = self.parseDuration( metadata )
       self.bitrate   = self.parseBitrate( metadata )
       self.track_no  = self.parseTrack( metadata )
-      self.lastScanned = datetime.now()
 
-      try:
-         record_date = metadata.get("TDRC")
-         if record_date and record_date.text:
-            self.year = int(record_date.text[0].text)
-      except Exception, e:
-         logger.error( "Unable to set release year: " + str(e) )
+      release_date   = self.parseReleaseYear( metadata )
+      if release_date:
+         self.year = release_date.year
 
       try:
          self.filesize = stat(localpath.encode(encoding)).st_size
@@ -263,7 +259,8 @@ class Song(object):
 
       self.artist_id = self.get_artist_id( self.__artistName )
       self.genre_id  = self.get_genre_id( self.__genreName )
-      self.album_id  = self.get_album_id(self.artist_id, self.__albumName, dirname)
+      self.album_id  = self.get_album_id(dirname)
+      self.lastScanned = datetime.now()
 
    def get_genre_id( self, genre_name ):
       """
@@ -305,7 +302,7 @@ class Song(object):
 
       return artist.id
 
-   def get_album_id( self, artist_id, album_name, dirname ):
+   def get_album_id( self, dirname ):
       """
       If the album already exists, return the ID of that album, otherwise create a new instance
 
@@ -315,13 +312,25 @@ class Song(object):
       @return: The ID of the matching album
       @todo: instead of using the mapped object "Album" we could use the album_table for performance gains
       """
+      if not self.artist_id or not self.__albumName:
+         logger.warning( "Unable to determine the album ID without a valid srtist_id and album-name!" )   
+
+      artist_id = self.artist_id
+      album_name = self.__albumName
 
       session = create_session()
       album = session.query(Album).selectfirst_by( albumTable.c.path == dirname )
+
+      # if this song's release date is newer than the album's release date, we update the album release date
+      if (album.release_date and album.release_date < date(self.year, 1, 1)) \
+         or (not album.release_date and self.year):
+         album.release_date = date(self.year, 1, 1)
+
       if not album:
-         album = Album( name=album_name, artist_id=artist_id, path=dirname )
-         session.save(album)
-         session.flush()
+         album = Album( name=album_name, artist_id=artist_id, path=dirname, release_date=self.release_date )
+
+      session.save(album)
+      session.flush()
       return album.id
 
    def parseTitle( self, meta ):
@@ -338,6 +347,27 @@ class Song(object):
          except Exception, ex:
             logger.warning(ex)
       return "unknown title"
+
+   def parseReleaseYear( self, meta ):
+      "Extracts the release year from the metadata object"
+      try:
+         record_date = meta.get("TDRC")
+         if record_date and record_date.text:
+            raw_string = record_date.text[0].text
+            if not raw_string:
+               return None
+
+            elements = raw_string.split("-")
+
+            if len(elements) == 1:
+               return date(int(elements[0]), 1, 1)
+            elif len(elements) == 2:
+               return date(int(elements[0]), int(elements[1]), 1)
+            elif len(elements) == 3:
+               return date(int(elements[0]), int(elements[1]), int(elements[2]))
+
+      except Exception, e:
+         logger.error( "Unable to set release year: " + str(e) )
 
    def parseAlbum( self, meta ):
       "Extracts the album name from the metadata object"
