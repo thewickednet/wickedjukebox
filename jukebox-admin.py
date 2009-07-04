@@ -11,7 +11,7 @@ from demon.model import getSetting, \
                         song_has_genre, \
                         create_session
 from sqlalchemy import func, select, bindparam, and_
-from demon.wickedjukebox import Scanner, fs_encoding, direxists
+from demon.wickedjukebox import direxists
 import logging.config
 logging.config.fileConfig("logging.ini")
 
@@ -58,6 +58,10 @@ class Console(cmd.Cmd):
       self.__sess = create_session()
       self.set_promt()
 
+   def emptyline(self):
+      """Do nothing on empty input line"""
+      pass
+
    def set_promt(self):
       "Sets the default prompt"
       if len(self.__path) == 0:
@@ -80,44 +84,7 @@ class Console(cmd.Cmd):
       print "bye"
       return 1
 
-   do_exit = do_quit
-   do_q    = do_quit
-   do_EOF  = do_quit
-
-   def cb(self):
-      "A callback method for the scanner"
-      print "done scanning\n", self.__scanner.get_status()
-
-   def emptyline(self):
-      """Do nothing on empty input line"""
-      pass
-
    def do_rescan(self, line, force = 0):
-      """
-      Rescans the media folders
-
-      SYNOPSIS
-         rescan [capping]
-
-      PARAMETERS
-         capping  - [optional] Only scan folders that start with the string <capping>
-
-      EXAMPLES
-         jukebox> rescan
-         jukebox> rescan Depeche
-      """
-
-      mediadirs = [ x for x in getSetting('mediadir').split(' ') if direxists(x) ]
-
-      if self.__scanner is not None and self.__scanner.isAlive():
-         print "ERROR: another scan process is running!"
-
-      self.__scanner = Scanner( mediadirs, [ force, line ] )
-      self.__scanner.add_callback( self.cb )
-      self.__scanner.start()
-      print "job started. You may inspect the status with scan_status!"
-
-   def do_newscan(self, line):
       """
       Scan the defined library folders for new songs.
 
@@ -137,19 +104,9 @@ class Console(cmd.Cmd):
 
       print "done"
 
-   def do_force_scan(self, line):
-      """Rescans the media folders, including files that have not changed since
-last scan!  For a more detailed description see "help rescan"
-
-SYNOPSIS
-   force_scan [capping]
-"""
-
-      self.do_rescan( line, force=1 )
-
-   def do_scan_status(self, line):
-      """Shows the status of the current file scan"""
-      print self.__scanner.get_status()
+   def do_newscan(self, line):
+      "DEPRECATED"
+      print "DEPRECTAED! Use 'rescan' instead"
 
    def do_genres(self, line):
       """
@@ -368,6 +325,10 @@ SYNOPSIS
       r = s.execute()
       for row in r.fetchall():
          print row
+
+   do_exit = do_quit
+   do_q    = do_quit
+   do_EOF  = do_quit
 
 if __name__ == '__main__':
    app = Console()

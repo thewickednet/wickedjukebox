@@ -160,7 +160,6 @@ class Gatekeeper(object):
          return self.activeChannel.enqueue(int(args[0]), int(args[1]))
       return "ER: No channel selected! Either define one in the config file or use 'setChannel <cname>' first!"
 
-
    def do_rescanlib(self, args=None):
       """
       Starts a rescan of the library
@@ -372,7 +371,6 @@ class Gatekeeper(object):
 
    def do_queue_clear(self, args=None):
       pass
-
 
 class WJBProtocol(basic.LineReceiver):
 
