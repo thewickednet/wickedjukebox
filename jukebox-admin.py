@@ -2,18 +2,21 @@
 import cmd
 from os import path
 import sys; sys.path.insert(1, 'pydata')
-from demon.model import getSetting, \
+from demon.dbmodel import getSetting, \
                         genreTable, \
                         songTable, \
                         albumTable, \
                         artistTable, \
                         usersTable, \
                         song_has_genre, \
-                        create_session
-from sqlalchemy import func, select, bindparam, and_
-from demon.wickedjukebox import direxists
+                        settingTable
+from sqlalchemy.sql import func, select, update, insert
+from util import direxists
+import logging
 import logging.config
 logging.config.fileConfig("logging.ini")
+
+LOG = logging.getLogger(__name__)
 
 def get_artists(glob="*"):
    if glob == "": glob = "*"
@@ -28,20 +31,22 @@ def get_artists(glob="*"):
 def get_albums(aname, glob="*"):
    if glob == "": glob = "*"
    glob = glob.replace("*", "%")
-   s = select([albumTable],
-         and_(artistTable.c.name == aname, albumTable.c.artist_id == artistTable.c.id, albumTable.c.name.like(glob)),
-         order_by=[albumTable.c.name]
-      )
+   s = select([albumTable])
+   s = s.where( artistTable.c.name == aname )
+   s = s.where( albumTable.c.artist_id == artistTable.c.id )
+   s = s.where( albumTable.c.name.like(glob) )
+   s = s.order_by( "name" )
    r = s.execute()
    return r.fetchall()
 
 def get_songs(bname, glob):
    if glob == "": glob = "*"
    glob = glob.replace("*", "%")
-   s = select([songTable],
-         and_( albumTable.c.name == bname, songTable.c.album_id == albumTable.c.id, songTable.c.title.like(glob) ),
-         order_by=["title"]
-      )
+   s = select([songTable])
+   s = s.where( albumTable.c.name == bname )
+   s = s.where( songTable.c.album_id == albumTable.c.id )
+   s = s.where( songTable.c.title.like(glob) )
+   s = s.order_by( "title" )
    r = s.execute()
    return r.fetchall()
 
@@ -55,8 +60,36 @@ class Console(cmd.Cmd):
    def __init__(self):
       "Bootstrap the command line interpreter"
       cmd.Cmd.__init__(self)
-      self.__sess = create_session()
       self.set_promt()
+
+   def listSettings( self, channel_id=None, user_id=None ):
+      """
+      List settings
+
+      @param channel_id: If set, list only settings for that channel
+      @param user_id: If set, list only settings for that user
+      """
+      sel = settingTable.select()
+
+      if channel_id:
+         sel = sel.where( settingTable.c.channel_id == int(channel_id) )
+
+      if user_id:
+         sel = sel.where( settingTable.c.user_id == int(user_id) )
+
+      sel = sel.order_by( "user_id", "channel_id", "var" )
+      print " Channel ID | User ID | Setting                   | Value"
+      previous_channel = None
+      for row in sel.execute().fetchall():
+         if row["channel_id"] != previous_channel:
+            print "---------+------------+---------------------------+----------------"
+            previous_channel = row['channel_id']
+         print " %10d | %7d | %-25s | %s" % ( 
+               row["channel_id"],
+               row["user_id"],
+               row["var"],
+               row["value"],
+               )
 
    def emptyline(self):
       """Do nothing on empty input line"""
@@ -79,8 +112,6 @@ class Console(cmd.Cmd):
 
    def do_quit(self, line):
       """Quits you out of Quitter."""
-      self.__sess.flush()
-      self.__sess.close()
       print "bye"
       return 1
 
@@ -248,9 +279,7 @@ class Console(cmd.Cmd):
             songTable.c.title,
             artistTable.c.name
          ],
-         and_(
-            songTable.c.artist_id == artistTable.c.id
-         )
+         songTable.c.artist_id == artistTable.c.id
       )
 
       result = s.execute().fetchall()
@@ -325,6 +354,51 @@ class Console(cmd.Cmd):
       r = s.execute()
       for row in r.fetchall():
          print row
+
+   def do_settings(self, line):
+      """
+      Lists or set application settings
+
+      SYNOPSIS
+         settings [channel_id [user_id [setting value]]]
+
+      PARAMETERS
+         channel_id - if specified, list only settings of that channel
+         user_id    - if specified, list only settings for that user (and channel)
+         setting    - the setting name (when modifying the setting)
+         value      - if specified, change that setting
+      """
+
+      params = line.split()
+      if len(params) <= 2:
+         self.listSettings( *params )
+         return
+
+      channel_id, user_id, var, value = params
+      testsel = select( [settingTable.c.value] )
+      testsel = testsel.where( settingTable.c.channel_id == int(channel_id) )
+      testsel = testsel.where( settingTable.c.user_id == int(user_id) )
+      testsel = testsel.where( settingTable.c.var == var )
+      res = testsel.execute()
+      if res and res.fetchone():
+         # we already have the setting. Go and update it
+         upq = update( settingTable )
+         upq = upq.where( settingTable.c.channel_id == int(channel_id) )
+         upq = upq.where( settingTable.c.user_id == int(user_id) )
+         upq = upq.where( settingTable.c.var == var )
+         upq = upq.values( { "value": value } )
+         upq.execute()
+      else:
+         # new setting -> insert
+         insq = insert( settingTable )
+         insq = insq.values( {
+            "channel_id": int(channel_id),
+            "user_id": int(user_id),
+            "var": var,
+            "value": value
+            } )
+         insq.execute()
+      LOG.debug( "New setting stored: %r" % params )
 
    do_exit = do_quit
    do_q    = do_quit
