@@ -321,16 +321,25 @@ class Song(object):
       session = create_session()
       album = session.query(Album).selectfirst_by( albumTable.c.path == dirname )
 
-      # if this song's release date is newer than the album's release date, we update the album release date
-      if (album.release_date and album.release_date < date(self.year, 1, 1)) \
-         or (not album.release_date and self.year):
-         album.release_date = date(self.year, 1, 1)
+      requires_update = False
 
       if not album:
-         album = Album( name=album_name, artist_id=artist_id, path=dirname, release_date=self.release_date )
+         album = Album( name=album_name, artist_id=artist_id, path=dirname )
+         if self.year:
+            album.release_date = date(self.year, 1, 1)
+         requires_update = True
 
-      session.save(album)
-      session.flush()
+      # if this song's release date is newer than the album's release date, we update the album release date
+      if self.year:
+         if (album.release_date and album.release_date < date(self.year, 1, 1)) \
+            or (not album.release_date and self.year):
+            album.release_date = date(self.year, 1, 1)
+            requires_update = True
+
+      if requires_update:
+         session.save(album)
+         session.flush()
+
       return album.id
 
    def parseTitle( self, meta ):
