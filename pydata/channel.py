@@ -95,19 +95,19 @@ the named channel exists in the database table called 'channel'" % name )
 
       if isinstance( song, unicode ):
          # we were passed a unicode string string. Most likely a file system path
-         self.__player.queue(fsencode(song))
+         self.__player.queue(song)
          return
 
       if isinstance( song, basestring ):
          # we were passed a string. Most likely a file system path
-         self.__player.queue(song)
+         self.__player.queue(fsdecode(song))
          return
 
       # update state in database
       State.set( "current_song", song.id, self.id )
 
       # queue the song
-      self.__player.queue(fsencode(song.localpath))
+      self.__player.queue(song.localpath)
       if self.__scrobbler is not None:
          a = self.__sess.query(Artist).get(song.artist_id)
          b = self.__sess.query(Album).get(song.album_id)
@@ -132,7 +132,7 @@ the named channel exists in the database table called 'channel'" % name )
       self.__queuestrategy  = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict',   channel_id=self.id ) )
 
       nextSong = self.__queuestrategy.dequeue()
-      if nextSong is None:
+      if not nextSong:
          nextSong = self.__randomstrategy.get(self.id)
 
       if nextSong is not None:
@@ -209,7 +209,7 @@ the named channel exists in the database table called 'channel'" % name )
          nextSong = self.__randomstrategy.get(self.id)
       LOG.info( "[channel] skipping song" )
 
-      if nextSong is not None:
+      if nextSong:
          self.enqueue(nextSong.id)
          self.__player.cropPlaylist(2)
          self.__player.skipSong()
@@ -254,7 +254,7 @@ the named channel exists in the database table called 'channel'" % name )
          except OSError, ex:
             import traceback
             traceback.print_exc()
-            LOG.warning("Unable to open jingles: ", str(ex))
+            LOG.warning("Unable to open jingles: %s" % str(ex))
 
    def update_current_listeners(self):
       "Scrape the Icecast admin page for current listeners and update theit state in the DB"

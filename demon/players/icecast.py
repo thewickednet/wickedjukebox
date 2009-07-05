@@ -2,6 +2,7 @@ import os
 import threading
 from datetime import datetime
 from demon.dbmodel import Setting, State
+from pydata.util import fsdecode
 import mutagen
 import shout
 import time
@@ -22,7 +23,7 @@ class Shoutcast_Player(threading.Thread):
       self.__keepRunning      = True
       self.__progress         = (0, 0) # (streamed_bytes, total_bytes)
       self.__queue            = []
-      self.__currentSong      = ''
+      self.__currentSong      = u''
       self.__triggerSkip      = False
       self.__status           = STATUS_STOPPED
       self.__bufsize          = bufsize
