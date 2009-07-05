@@ -290,8 +290,6 @@ the named channel exists in the database table called 'channel'" % name )
       self.__sess        = Session()
       proofoflife_timeout = int(getSetting("proofoflife_timeout", 120))
 
-      LOG.debug("thinking...")
-
       # while we are alive, do the loop
       while self.__keepRunning:
 
