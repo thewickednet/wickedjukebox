@@ -1,4 +1,4 @@
-from demon.dbmodel import channelTable, getSetting, Session, setState, getState, \
+from demon.dbmodel import channelTable, Setting, Session, State, \
                           ChannelStat, Artist, Album, Song, \
                           usersTable, songTable, queueTable, channelSongs
 from datetime import datetime
@@ -104,7 +104,7 @@ the named channel exists in the database table called 'channel'" % name )
          return
 
       # update state in database
-      setState( "current_song", song.id, self.id )
+      State.set( "current_song", song.id, self.id )
 
       # queue the song
       self.__player.queue(fsencode(song.localpath))
@@ -128,8 +128,8 @@ the named channel exists in the database table called 'channel'" % name )
 
       # TODO: This block is found as well in "skipSong! --> refactor"
       # set "current song" to the next in the queue or use random
-      self.__randomstrategy = demon.playmodes.create( getSetting( 'random_model', 'random_weighed', channel_id=self.id ) )
-      self.__queuestrategy  = demon.playmodes.create( getSetting( 'queue_model',  'queue_strict',   channel_id=self.id ) )
+      self.__randomstrategy = demon.playmodes.create( Setting.get( 'random_model', 'random_weighed', channel_id=self.id ) )
+      self.__queuestrategy  = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict',   channel_id=self.id ) )
 
       nextSong = self.__queuestrategy.dequeue()
       if nextSong is None:
@@ -162,7 +162,7 @@ the named channel exists in the database table called 'channel'" % name )
 
    def enqueue(self, songID, userID=None):
 
-      self.__queuestrategy = demon.playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
+      self.__queuestrategy = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict' ) )
       self.__queuestrategy.enqueue(
             songID,
             userID,
@@ -172,7 +172,7 @@ the named channel exists in the database table called 'channel'" % name )
             )
 
    def current_queue(self):
-      self.__queuestrategy = demon.playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
+      self.__queuestrategy = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict' ) )
       return self.__queuestrategy.list()
 
    def skipSong(self):
@@ -201,8 +201,8 @@ the named channel exists in the database table called 'channel'" % name )
 
       # TODO: This block is found as well in "startPlayback"! --> refactor"
       # set "current song" to the next in the queue or use random
-      self.__randomstrategy = demon.playmodes.create( getSetting( 'random_model', 'random_weighed' ) )
-      self.__queuestrategy  = demon.playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
+      self.__randomstrategy = demon.playmodes.create( Setting.get( 'random_model', 'random_weighed' ) )
+      self.__queuestrategy  = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict' ) )
 
       nextSong = self.__queuestrategy.dequeue()
       if nextSong is None:
@@ -218,16 +218,16 @@ the named channel exists in the database table called 'channel'" % name )
          return 'ER: Unable to skip song, no followup song returned'
 
    def moveup(self, qid, delta):
-      self.__queuestrategy = demon.playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
+      self.__queuestrategy = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict' ) )
       self.__queuestrategy.moveup(qid, delta)
 
    def movedown(self, qid, delta):
-      self.__queuestrategy = demon.playmodes.create( getSetting( 'queue_model',  'queue_strict' ) )
+      self.__queuestrategy = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict' ) )
       self.__queuestrategy.movedown(qid, delta)
 
    def get_jingle(self):
-      self.__jingles_folder = getSetting('jingles_folder', default=None, channel_id=self.id)
-      self.__jingles_interval = getSetting('jingles_interval', default=None, channel_id=self.id)
+      self.__jingles_folder = Setting.get('jingles_folder', default=None, channel_id=self.id)
+      self.__jingles_interval = Setting.get('jingles_interval', default=None, channel_id=self.id)
       if self.__jingles_interval == '' or self.__jingles_interval is None:
          self.__jingles_interval = None
       elif self.__jingles_interval.find("-") > -1:
@@ -271,7 +271,7 @@ the named channel exists in the database table called 'channel'" % name )
    def process_upcoming_song(self):
       # A state "upcoming_song" with value -1 means that the upcoming song is
       # unwanted and a new one should be triggered if possible
-      state = getState( "upcoming_song", self.id )
+      state = State.get( "upcoming_song", self.id )
       if state and state.value and int(state.value) == -1:
          LOG.debug( "Prefetching new song as the current upcoming_song was unwanted." )
          self.__randomstrategy.prefetch(self.id, async=False)
@@ -279,16 +279,16 @@ the named channel exists in the database table called 'channel'" % name )
       if self.__randomstrategy:
          upcoming = self.__randomstrategy.peek(self.id)
          if upcoming:
-            setState( "upcoming_song", upcoming.id, self.id )
+            State.set( "upcoming_song", upcoming.id, self.id )
       else:
-         setState( "upcoming_song", None, self.id )
+         State.set( "upcoming_song", None, self.id )
 
    def run(self):
-      cycleTime = int(getSetting('channel_cycle', default='3', channel_id=self.id))
+      cycleTime = int(Setting.get('channel_cycle', default='3', channel_id=self.id))
       lastCreditGiveaway = datetime.now()
       lastPing           = datetime.now()
       self.__sess        = Session()
-      proofoflife_timeout = int(getSetting("proofoflife_timeout", 120))
+      proofoflife_timeout = int(Setting.get("proofoflife_timeout", 120))
 
       # while we are alive, do the loop
       while self.__keepRunning:
@@ -306,7 +306,7 @@ the named channel exists in the database table called 'channel'" % name )
                values( {'ping': datetime.now()} ).    \
                execute()
 
-            proofoflife_timeout = int(getSetting("proofoflife_timeout", 120))
+            proofoflife_timeout = int(Setting.get("proofoflife_timeout", 120))
 
          # check if the player accidentally went into the "stop" state
          if self.__player.status() == 'stop' and self.__playStatus == 'playing':
@@ -317,8 +317,8 @@ the named channel exists in the database table called 'channel'" % name )
 
             self.__player.cropPlaylist(0)
 
-            self.__randomstrategy = demon.playmodes.create( getSetting( 'random_model', 'random_weighed', channel_id=self.id ) )
-            self.__queuestrategy  = demon.playmodes.create( getSetting( 'queue_model',  'queue_strict',   channel_id=self.id ) )
+            self.__randomstrategy = demon.playmodes.create( Setting.get( 'random_model', 'random_weighed', channel_id=self.id ) )
+            self.__queuestrategy  = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict',   channel_id=self.id ) )
 
             nextSong = self.get_jingle()
 
@@ -393,7 +393,7 @@ the named channel exists in the database table called 'channel'" % name )
 
          # if we handed out credits more than 5mins ago, we give out some more
          if (datetime.now() - lastCreditGiveaway).seconds > 300:
-            maxCredits = int(getSetting('max_credits', '30', channel_id=self.id ))
+            maxCredits = int(Setting.get('max_credits', '30', channel_id=self.id ))
             usersTable.update(
                   usersTable.c.credits < maxCredits,
                   values={usersTable.c.credits: usersTable.c.credits+5}

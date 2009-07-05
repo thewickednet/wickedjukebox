@@ -7,6 +7,7 @@ import sys
 from mutagen import File as MediaFile
 import logging
 import logging.config
+from os.path import basename
 logging.config.fileConfig("logging.ini")
 
 LOG = logging.getLogger(__name__)
@@ -77,7 +78,12 @@ class Setting(object):
       @param user_id:    The user id if the setting is bound to a user.
       """
 
-      LOG.debug("Retriveing setting %r for user %r and channel %r (default: %r)..." % (param_in, user_id, channel_id, default))
+      if LOG.isEnabledFor( logging.DEBUG ):
+         import traceback
+         tb = traceback.extract_stack()
+         source = tb[-2]
+         LOG.debug("Retriveing setting %r for user %r and channel %r with default: %r (source: %s:%s)..." % (
+            param_in, user_id, channel_id, default, basename(source[0]), source[1] ))
 
       output = default
 
@@ -102,7 +108,7 @@ class Setting(object):
          # if a channel-setting was requested but no entry was found, we fall back to a global setting
          if channel_id and not setting:
             LOG.debug("   No per-channel setting found. falling back to global setting...")
-            return getSetting( param_in=param_in, default=default, channel_id=None, user_id=user_id )
+            return self.get( param_in=param_in, default=default, channel_id=None, user_id=user_id )
 
          if not setting:
             # The parameter was not found in the database. Do we have a default?
@@ -159,7 +165,11 @@ class State(object):
          ins_q = ins_q.values( { 'state': statename, 'value': value, 'channel_id': channel_id } )
          ins_q.execute()
 
-      LOG.debug( "State %r stored with value %r for channel %r" % ( statename, value, channel_id ) )
+      if LOG.isEnabledFor( logging.DEBUG ):
+         import traceback
+         tb = traceback.extract_stack()
+         source = tb[-2]
+         LOG.debug( "State %r stored with value %r for channel %r (from %s:%d)" % ( statename, value, channel_id, basename( source[0] ), source[1] ) )
 
    @classmethod
    def get(self, statename, channel_id=0):
@@ -178,7 +188,11 @@ class State(object):
          row = r.fetchone()
          if row:
             return row[0]
-      LOG.debug( "State %r not found for channel %r" % ( statename, channel_id ) )
+      if LOG.isEnabledFor( logging.WARNING ):
+         import traceback
+         tb = traceback.extract_stack()
+         source = tb[-2]
+         LOG.warn( "State %r not found for channel %r (from %s:%d)" % ( statename, channel_id, basename( source[0] ), source[1] ) )
       return None
 
 class Album(object):

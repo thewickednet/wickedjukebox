@@ -1,7 +1,7 @@
 import os
 import threading
 from datetime import datetime
-from demon.dbmodel import getSetting, setState
+from demon.dbmodel import Setting, State
 import mutagen
 import shout
 import time
@@ -40,7 +40,7 @@ class Shoutcast_Player(threading.Thread):
 
    def disconnect_server(self):
       self.__status = STATUS_STOPPED
-      setState("progress", 0, self.__channel_id)
+      State.set("progress", 0, self.__channel_id)
       self.__server.close()
 
    def connect(self):
@@ -89,14 +89,14 @@ class Shoutcast_Player(threading.Thread):
 
          if len(self.__queue) > 0:
             self.__currentSong = self.__queue.pop(0)
-            self.__bufsize = int(getSetting('icecast_bufsize', 1024))
+            self.__bufsize = int(Setting.get('icecast_bufsize', 1024))
 
             f = open(self.__currentSong, "rb")
 
             self.__server.set_metadata({"song": self.get_description(self.__currentSong).encode("utf-8")})
             buf = f.read(self.__bufsize)
             self.__progress = (0, os.stat(self.__currentSong).st_size)
-            setState("progress", 0, self.__channel_id)
+            State.set("progress", 0, self.__channel_id)
             self.__status = STATUS_PLAYING
 
             # stream the file as long as the player is running, or as long as
@@ -137,13 +137,13 @@ class Shoutcast_Player(threading.Thread):
                                   self.__progress[1])
                count += 1
                if count % 30 == 0:
-                  setState("progress", self.position(), self.__channel_id)
+                  State.set("progress", self.position(), self.__channel_id)
                buf = f.read(self.__bufsize)
             f.close()
 
             LOG.debug( "Shoutcast song finished" )
             self.__status = STATUS_STOPPED
-            setState("progress", 0, self.__channel_id)
+            State.set("progress", 0, self.__channel_id)
 
             # if we fell through the previous loop because a skip was
             # requested, we need to reset that value. Otherwise we keep
@@ -152,7 +152,7 @@ class Shoutcast_Player(threading.Thread):
                self.__triggerSkip = False
 
       LOG.debug("Shoutcast loop finished")
-      setState("progress", 0, self.__channel_id)
+      State.set("progress", 0, self.__channel_id)
 
       self.disconnect_server()
       self.__status = STATUS_STOPPED
@@ -269,7 +269,7 @@ def getSong():
 def queue(filename):
    global songStarted
    LOG.debug( "[Icecast] received a queue (%s)" % filename )
-   if getSetting('sys_utctime', 0) == 0:
+   if Setting.get('sys_utctime', 0) == 0:
       songStarted = datetime.utcnow()
    else:
       songStarted = datetime.now()
