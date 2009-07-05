@@ -459,15 +459,24 @@ class QueueItem(object):
       self.added = datetime.now()
 
 def getSetting(param_in, default=None, channel_id=None, user_id=None):
-   LOG.warning( "DEPRECTAED: Please use Setting.get!" )
+   import traceback
+   tb = traceback.extract_stack()
+   source = tb[-2]
+   LOG.warning( "DEPRECTAED: Please use Setting.get!\nSource: %s:%d --> %s" % ( source[0], source[1], source[3] ) )
    return Setting.get( param_in, default, channel_id, user_id )
 
 def setState(statename, value, channel_id=0):
-   LOG.warning( "DEPRECTAED: Please use State.set!" )
+   import traceback
+   tb = traceback.extract_stack()
+   source = tb[-2]
+   LOG.warning( "DEPRECTAED: Please use Setting.set!\nSource: %s:%d --> %s" % ( source[0], source[1], source[3] ) )
    return State.set( statename, value, channel_id )
 
 def getState(statename, channel_id=0):
-   LOG.warning( "DEPRECTAED: Please use State.get!" )
+   import traceback
+   tb = traceback.extract_stack()
+   source = tb[-2]
+   LOG.warning( "DEPRECTAED: Please use State.get!\nSource: %s:%d --> %s" % ( source[0], source[1], source[3] ) )
    return State.get( statename, channel_id )
 
 mapper(Song, songTable)
