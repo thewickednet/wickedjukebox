@@ -1,24 +1,26 @@
 import os
 import threading
-from twisted.python import log
 from datetime import datetime
-from demon.model import getSetting, setState
+from demon.dbmodel import getSetting, setState
 import mutagen
 import shout
 import time
 import urllib2
 import re
-from md5 import md5
+from hashlib import md5
 
-STATUS_STOPPED=1
-STATUS_PLAYING=2
-STATUS_PAUSED=3
+import logging
+LOG = logging.getLogger(__name__)
+
+STATUS_STOPPED = 1
+STATUS_PLAYING = 2
+STATUS_PAUSED  = 3
 
 class Shoutcast_Player(threading.Thread):
 
    def __init__(self, password='hackme', mount='/wicked.mp3', port=8000, name="The wicked jukebox", url="http://jukebox.wicked.lu", bufsize=1024, bitrate=128, samplerate=44100, channels=1, channel_id=0 ):
       self.__keepRunning      = True
-      self.__progress         = (0,0) # (streamed_bytes, total_bytes)
+      self.__progress         = (0, 0) # (streamed_bytes, total_bytes)
       self.__queue            = []
       self.__currentSong      = ''
       self.__triggerSkip      = False
@@ -77,7 +79,7 @@ class Shoutcast_Player(threading.Thread):
             title = meta.get('title')[0]
       except Exception, ex:
          import traceback
-         log.err( "%s contained no valid metadata!" % filename )
+         LOG.error( "%s contained no valid metadata!" % filename )
          traceback.print_exc()
       return "%s - %s" % (artist, title)
 
@@ -109,25 +111,25 @@ class Shoutcast_Player(threading.Thread):
                         while self.__server.queuelen() > 1:
                            pass
                      self.__server.sync()
-                     break;
+                     break
                   except RuntimeError, ex:
                      # for shoutpy module
-                     import traceback; traceback.print_exc()
+                     import traceback
+                     traceback.print_exc()
                      if (str(ex).find("Socket error") > -1):
                         time.sleep(1)
-                        log.msg("Socket error! Reconnecting...")
+                        LOG.warning("Socket error! Reconnecting...")
                         self.reconnect()
-                        pass
                      else:
                         raise
                   except shout.ShoutException, ex:
                      # for shout module
-                     import traceback; traceback.print_exc()
+                     import traceback
+                     traceback.print_exc()
                      if (str(ex).find("Socket error") > -1):
                         time.sleep(1)
-                        log.msg("Socket error! Reconnecting...")
+                        LOG.warning("Socket error! Reconnecting...")
                         self.reconnect()
-                        pass
                      else:
                         raise
 
@@ -139,7 +141,7 @@ class Shoutcast_Player(threading.Thread):
                buf = f.read(self.__bufsize)
             f.close()
 
-            log.msg( "Shoutcast song finished" )
+            LOG.debug( "Shoutcast song finished" )
             self.__status = STATUS_STOPPED
             setState("progress", 0, self.__channel_id)
 
@@ -149,14 +151,14 @@ class Shoutcast_Player(threading.Thread):
             if self.__triggerSkip:
                self.__triggerSkip = False
 
-      log.msg("Shoutcast loop finished")
+      LOG.debug("Shoutcast loop finished")
       setState("progress", 0, self.__channel_id)
 
       self.disconnect_server()
       self.__status = STATUS_STOPPED
 
    def skip(self):
-      log.msg( "Shoutcast player got a skip request" )
+      LOG.debug( "Shoutcast player got a skip request" )
       self.__triggerSkip = True
 
    def queue(self, filename):
@@ -178,17 +180,15 @@ class Shoutcast_Player(threading.Thread):
       try:
          return float(self.__progress[0]) / float(self.__progress[1]) * 100.0
       except ZeroDivisionError:
-         import traceback; traceback.print_exc()
+         import traceback
+         traceback.print_exc()
          return 0
 
    def pause(self):
       pass
 
-   def skip(self):
-      pass
-
    def stop(self):
-      log.msg( "Shoutcast player got a stop request" )
+      LOG.debug( "Shoutcast player got a stop request" )
       self.__keepRunning = False
 
    def play(self):
@@ -211,8 +211,6 @@ class Shoutcast_Player(threading.Thread):
       else:
          return 'unknown'
 
-# ----------------------------------------------------------------------------
-
 __port     = None
 __mount    = None
 __password = None
@@ -225,7 +223,7 @@ songStarted = None
 
 def config(params):
    global __port, __mount, __password, __player, __adminurl, __adminuser, __adminpassword, __channel_id
-   log.msg( "connection to icecast server (params = %s)" % params )
+   LOG.info( "connection to icecast server (params = %s)" % params )
    __port     = int(params['port'])
    __mount    = str(params['mount'])
    __password = str(params['pwd'])
@@ -252,7 +250,7 @@ def cropPlaylist(length=2):
    @type  length: int
    @param length: The new size of the playlist
    """
-   log.msg( "[Icecast] cropping pl to %d songs" % length )
+   LOG.debug( "[Icecast] cropping pl to %d songs" % length )
    __player.cropPlaylist(length)
 
 def getPosition():
@@ -260,8 +258,9 @@ def getPosition():
    try:
       return (int(__player.position()), 100)
    except TypeError:
-      import traceback; traceback.print_exc()
-      log.msg("%r was not a valid number" % __player.position)
+      import traceback
+      traceback.print_exc()
+      LOG.warning("%r was not a valid number" % __player.position)
       return 0
 
 def getSong():
@@ -269,7 +268,7 @@ def getSong():
 
 def queue(filename):
    global songStarted
-   log.msg( "[Icecast] received a queue (%s)" % filename )
+   LOG.debug( "[Icecast] received a queue (%s)" % filename )
    if getSetting('sys_utctime', 0) == 0:
       songStarted = datetime.utcnow()
    else:
@@ -277,7 +276,7 @@ def queue(filename):
    return __player.queue(filename)
 
 def skipSong():
-   log.msg( "[Icecast] received a skip request" )
+   LOG.debug( "[Icecast] received a skip request" )
    return __player.skip()
 
 def stopPlayback():
@@ -289,15 +288,18 @@ def pausePlayback():
    pass
 
 def startPlayback():
+   print "Starting playback"
    if not __player.isAlive():
       try:
          __player.start()
       except AssertionError, e:
-         import traceback; traceback.print_exc()
-         log.err(e)
+         import traceback
+         traceback.print_exc()
+         LOG.error(e)
          stopPlayback()
       except RuntimeError, e:
-         import traceback; traceback.print_exc()
+         import traceback
+         traceback.print_exc()
          if (str(e).find("thread already started") > -1):
             pass
          else:
@@ -311,7 +313,6 @@ def current_listeners():
    Scrape the Icecast admin page for current listeners and return a list of
    MD5 hashes of their IPs
    """
-   global __mount, __adminurl, __adminuser, __adminpassword
 
    if __adminurl is None or \
       __adminuser is None or \
@@ -334,15 +335,15 @@ def current_listeners():
    urllib2.install_opener(opener)
 
    try:
-      log.msg("Opening %r" % __adminurl)
-      handler= urllib2.urlopen(__adminurl)
+      LOG.debug("Opening %r" % __adminurl)
+      handler = urllib2.urlopen(__adminurl)
       data = handler.read()
 
       listeners = [md5(x[0]).hexdigest() for x in p.findall(data)]
       return listeners
-   except urllib2.URLError, ex:
-      log.err("Error opening %r: Caught %r" % (__adminurl, str(ex)))
-      return None
    except urllib2.HTTPError, ex:
-      log.err("Error opening %r: Caught %r" % (__adminurl, str(ex)))
+      LOG.error("Error opening %r: Caught %r" % (__adminurl, str(ex)))
+      return None
+   except urllib2.URLError, ex:
+      LOG.error("Error opening %r: Caught %r" % (__adminurl, str(ex)))
       return None

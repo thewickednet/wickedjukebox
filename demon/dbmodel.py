@@ -444,6 +444,20 @@ class Song(object):
             LOG.warning("Error retrieving bitrate: %s", str(ex))
       return None
 
+class ChannelStat(object):
+   def __init__( self, song_id, channel_id ):
+      self.song_id    = song_id
+      self.channel_id = channel_id
+
+class Artist(object):
+   def __init__( self, name ):
+      self.name  = name
+      self.added = datetime.now()
+
+class QueueItem(object):
+   def __init__(self):
+      self.added = datetime.now()
+
 def getSetting(param_in, default=None, channel_id=None, user_id=None):
    LOG.warning( "DEPRECTAED: Please use Setting.get!" )
    return Setting.get( param_in, default, channel_id, user_id )
@@ -458,6 +472,9 @@ def getState(statename, channel_id=0):
 
 mapper(Song, songTable)
 mapper(Album, albumTable)
+mapper(ChannelStat, channelSongs )
+mapper(Artist, artistTable )
+mapper(QueueItem, queueTable )
 
 if __name__ == "__main__":
    print getSetting( "test" )

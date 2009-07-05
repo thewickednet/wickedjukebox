@@ -1,5 +1,4 @@
 import os,ConfigParser, threading
-from twisted.python import log
 import urllib, httplib, md5, time, sys
 import scrobbler
 
@@ -62,7 +61,7 @@ class Scrobbler(threading.Thread):
 
       from model import LastFMQueue, lastfmTable, create_session
 
-      log.msg( "Scrobbler started" )
+      log( "Scrobbler started" )
 
       sess = create_session()
       while self.__keepRunning:
