@@ -6,11 +6,12 @@ random. Like the time it was last played, how often it was skipped, and so on.
 """
 
 from demon.plparser import parseQuery, ParserSyntaxError
-from demon.model import create_session, DynamicPlaylist, dynamicPLTable, getSetting, metadata as dbMeta, Song, usersTable
-from sqlalchemy import text as dbText, func, select
-from twisted.python import log
+from demon.dbmodel import session, dynamicPLTable, Setting, Song, usersTable, engine, songTable
+from pydata.util import fsdecode
+from sqlalchemy.sql import text as dbText, func, select
 from demon.util import config
-from random import random
+import logging
+LOG = logging.getLogger(__name__)
 
 def get(channel_id):
    """
@@ -19,37 +20,39 @@ def get(channel_id):
    """
 
    # setup song scoring coefficients
-   userRating  = int(getSetting('scoring_userRating',   4, channel=channel_id))
-   lastPlayed  = int(getSetting('scoring_lastPlayed',   10,channel=channel_id))
-   songAge     = int(getSetting('scoring_songAge',      1, channel=channel_id))
-   neverPlayed = int(getSetting('scoring_neverPlayed',  4, channel=channel_id))
-   randomness  = int(getSetting('scoring_randomness',   1, channel=channel_id))
-   max_random_duration = int(getSetting('max_random_duration', 600,  channel=channel_id))
-   proofoflife_timeout = int(getSetting('proofoflife_timeout', 120))
+   userRating  = int(Setting.get('scoring_userRating',   4,  channel_id=channel_id))
+   lastPlayed  = int(Setting.get('scoring_lastPlayed',   10, channel_id=channel_id))
+   songAge     = int(Setting.get('scoring_songAge',      1,  channel_id=channel_id))
+   neverPlayed = int(Setting.get('scoring_neverPlayed',  4,  channel_id=channel_id))
+   randomness  = int(Setting.get('scoring_randomness',   1,  channel_id=channel_id))
+   max_random_duration = int(Setting.get('max_random_duration', 600,  channel_id=channel_id))
+   proofoflife_timeout = int(Setting.get('proofoflife_timeout', 120))
 
    whereClauses = [ "NOT broken" ]
 
    # Retrieve dynamic playlists
-   sess = create_session()
-   res = sess.query(DynamicPlaylist).select(dynamicPLTable.c.group_id > 0, order_by=['group_id'])
-   sess.close()
+   sel = select( [dynamicPLTable.c.query] )
+   sel = sel.where(dynamicPLTable.c.group_id > 0)
+   sel = sel.order_by('group_id')
+   res = sel.execute().fetchall()
    for dpl in res:
       try:
-         if parseQuery( dpl.query ) is not None:
-            whereClauses.append("(" + parseQuery( dpl.query ) + ")")
-         break; # only one query will be parsed. for now.... this is a big TODO
-                # as it triggers an unexpected behaviour (bug). i.e.: Why the
-                # heck does it only activate one playlist?!?
+         if parseQuery( dpl["query"] ):
+            whereClauses.append("(" + parseQuery( dpl["query"] ) + ")")
+         break # only one query will be parsed. for now.... this is a big TODO
+               # as it triggers an unexpected behaviour (bug). i.e.: Why the
+               # heck does it only activate one playlist?!?
       except ParserSyntaxError, ex:
-         import traceback; traceback.print_exc()
-         log.err( str(ex) )
-         log.err( 'Query was: %s' % dpl.query )
+         import traceback
+         traceback.print_exc()
+         LOG.error( str(ex) )
+         LOG.error( 'Query was: %s' % dpl.query )
       except:
-         import traceback; traceback.print_exc()
-         log.err()
+         import traceback
+         traceback.print_exc()
+         LOG.error()
 
    if config['database.type'] == 'mysql':
-      
       s = select([usersTable], func.unix_timestamp(usersTable.c.proof_of_listening) + proofoflife_timeout > func.unix_timestamp(func.now()))
       r = s.execute()
       if len(r.fetchall()) == 0:
@@ -122,23 +125,22 @@ def get(channel_id):
             'where':       ") AND (".join(whereClauses).replace("%", "%%"),
          }
    else:
-      raise Error("SQLite support discontinued since revision 346. It may reappear in the future!")
+      raise Exception("SQLite support discontinued since revision 346. It may reappear in the future!")
 
-   resultProxy = dbText(query, engine=dbMeta.engine).execute()
+   resultProxy = dbText(query, bind=engine).execute()
    res = resultProxy.fetchall()
    try:
       if res[0][2] is None:
          # no users are online!
          return None
-      out = (res[0][0], res[0][1], float(res[0][2]))
-      log.msg("Selected song (%d, %s) via smartget. Score was %4.3f" % out)
-      sess = create_session()
-      selectedSong = sess.query(Song).selectfirst_by(Song.c.id == out[0] )
-      sess.close()
+      out = (res[0][0], fsdecode(res[0][1])[0], float(res[0][2]))
+      LOG.info("Selected song (%d, %s) via smartget. Score was %4.3f" % out)
+      selectedSong = session.query(Song).filter(songTable.c.id == out[0] ).first()
       return selectedSong
    except IndexError:
-      import traceback; traceback.print_exc()
-      log.err('No song returned from query. Is the database empty?')
+      import traceback
+      traceback.print_exc()
+      LOG.info('No song returned from query. Is the database empty?')
       return None
 
 def peek(channel_id):

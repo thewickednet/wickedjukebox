@@ -3,10 +3,15 @@
 """
 Strict FIFO Queuing. No voting and such.
 First song queued is also the first song popped off the queue
+
+@TODO: remove sqlalchemy references!
 """
 
-from demon.model import create_session, QueueItem
+from sqlalchemy.sql import insert, select
+from demon.dbmodel import queueTable, QueueItem, Session
 from datetime import datetime
+import logging
+LOG=logging.getLogger(__name__)
 
 def enqueue(songID, userID, channelID):
    """
@@ -22,18 +27,13 @@ def enqueue(songID, userID, channelID):
    @param userID: The user who added the queue action
    """
 
-   sess = create_session()
-
-   qi = QueueItem()
-   qi.position = 0
-   qi.added    = datetime.now()
-   qi.song_id  = songID
-   qi.user_id  = userID
-   qi.channel_id = channelID
-
-   sess.save(qi)
-   sess.flush()
-   sess.close()
+   insert( queueTable ).values({
+         "position"   : 0,
+         "added"      : datetime.now(),
+         "song_id"    : songID,
+         "user_id"    : userID,
+         "channel_id" : channelID,
+      }).execute()
 
 def dequeue():
    """
@@ -41,14 +41,12 @@ def dequeue():
    pick one from the prediction queue
    """
 
-   sess = create_session()
-   nextSong = sess.query(QueueItem).selectfirst(order_by=['added', 'position'])
-   if nextSong is not None:
-      sess.delete(nextSong)
-
-      sess.flush()
-      sess.close()
-
+   session = Session()
+   nextSong = session.query(QueueItem).order_by('added', 'position').first()
+   if nextSong:
+      session.delete(nextSong)
+      session.close()
       return nextSong.song
 
+   session.close()
    return None

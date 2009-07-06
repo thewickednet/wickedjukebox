@@ -7,8 +7,8 @@ store the metadata in the jukebox database
 from os import walk, path
 from util import fsdecode, fsencode
 import logging
-from demon.model import getSetting, Song, songTable
-from sqlalchemy import create_session, select
+from demon.dbmodel import getSetting, Song, songTable, session
+from sqlalchemy.sql import select
 from filescan import scan as fscan
 logger = logging.getLogger(__name__)
 
@@ -20,15 +20,13 @@ def is_valid_audio_file(path):
 def process(localpath, encoding):
 
    if is_valid_audio_file(localpath):
-      session = create_session()
       try:
-         song = session.query(Song).selectfirst_by( localpath=localpath )
+         song = session.query(Song).filter_by( localpath=localpath ).first()
          if not song:
             song = Song(localpath, None, None)
          song.scan_from_file( localpath, encoding )
-         session.save_or_update(song)
-         session.flush()
-         logger.info( "%r at %r" % (song, localpath) )
+         session.add(song)
+         logger.info( "%r" % (song) )
       except UnicodeDecodeError, ex:
          logger.error( "Unable to decode %r (%s)" % (localpath, ex) ) 
    else:
@@ -62,14 +60,13 @@ def filter_valid_extenstion( root, filename ):
    return False
 
 def processor_todatabase(root, localpath):
-   session = create_session()
-   song = session.query(Song).selectfirst_by( localpath=localpath )
+   song = session.query(Song).filter_by( localpath=localpath ).first()
    if not song:
       song = Song(localpath, None, None)
    localpath, encoding = fsdecode( localpath )
    song.scan_from_file( localpath, encoding )
-   session.save_or_update(song)
-   session.flush()
+   session.add(song)
+   session.commit()
    logger.debug( "%r at %r" % (song, localpath) )
 
 def scan(top, capping=u""):
@@ -90,6 +87,8 @@ def scan(top, capping=u""):
          if path.join(relative_path, file).startswith(fsencode(capping)):
             process( *fsdecode( path.join(root, file) ) )
             i+= 1
+   session.commit()
+
    logger.info( "Scanned %d songs" % i )
    #count = fscan( top,
    #       filters=[ [filter_capping, [capping]], filter_valid_extenstion ],
