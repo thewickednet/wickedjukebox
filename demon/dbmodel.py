@@ -20,10 +20,10 @@ DBURI = "%s://%s:%s@%s/%s" % (
          CFG['database.base'],
          )
 
-metadata = MetaData()
-engine = create_engine(DBURI, echo=True)
+metadata      = MetaData()
+engine        = create_engine(DBURI, echo=True)
 metadata.bind = engine
-Session = sessionmaker(bind=engine)
+Session       = sessionmaker( bind = engine )
 
 stateTable     = Table( 'state', metadata,
       autoload=True )

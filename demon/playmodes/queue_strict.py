@@ -41,13 +41,12 @@ def dequeue():
    pick one from the prediction queue
    """
 
-   sess = Session()
-   nextSong = sess.query(QueueItem).order_by('added', 'position').first()
+   session = Session()
+   nextSong = session.query(QueueItem).order_by('added', 'position').first()
    if nextSong:
-      sess.delete(nextSong)
-      sess.commit()
-      sess.close()
+      session.delete(nextSong)
+      session.close()
       return nextSong.song
 
-   sess.close()
+   session.close()
    return None

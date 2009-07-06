@@ -6,7 +6,7 @@ random. Like the time it was last played, how often it was skipped, and so on.
 """
 
 from demon.plparser import parseQuery, ParserSyntaxError
-from demon.dbmodel import Session, dynamicPLTable, Setting, Song, usersTable, engine, songTable
+from demon.dbmodel import session, dynamicPLTable, Setting, Song, usersTable, engine, songTable
 from pydata.util import fsdecode
 from sqlalchemy.sql import text as dbText, func, select
 from demon.util import config
@@ -135,9 +135,7 @@ def get(channel_id):
          return None
       out = (res[0][0], fsdecode(res[0][1])[0], float(res[0][2]))
       LOG.info("Selected song (%d, %s) via smartget. Score was %4.3f" % out)
-      sess = Session()
-      selectedSong = sess.query(Song).filter(songTable.c.id == out[0] ).first()
-      sess.close()
+      selectedSong = session.query(Song).filter(songTable.c.id == out[0] ).first()
       return selectedSong
    except IndexError:
       import traceback

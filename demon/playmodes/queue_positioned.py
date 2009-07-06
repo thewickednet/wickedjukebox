@@ -25,10 +25,10 @@ def enqueue(songID, userID, channelID):
    @param userID: The user who added the queue action
    """
 
-   sess = Session()
+   session = Session()
 
    # determine the next position
-   old = sess.query(QueueItem)
+   old = session.query(QueueItem)
    old = old.filter( queueTable.c.position > 0 )
    old = old.order_by=('-position')
    old = old.first()
@@ -44,8 +44,8 @@ def enqueue(songID, userID, channelID):
    qi.user_id  = userID
    qi.channel_id = channelID
 
-   sess.add(qi)
-   sess.commit()
+   session.add(qi)
+   session.close()
 
 def list():
    """
@@ -83,8 +83,9 @@ def dequeue():
    return None
    """
 
-   sess = Session()
-   nextSong = sess.query(QueueItem).filter(queueTable.c.position == 1 ).first()
+   session = Session()
+
+   nextSong = session.query(QueueItem).filter(queueTable.c.position == 1 ).first()
 
    if nextSong:
       song = nextSong.song
@@ -96,8 +97,10 @@ def dequeue():
       queueTable.update( values = {queueTable.c.position:queueTable.c.position-1} ).execute()
       queueTable.delete( queueTable.c.position < -20 )
 
+      session.close()
       return song
 
+   session.close()
    return None
 
 def moveup(qid, delta):
@@ -111,8 +114,10 @@ def moveup(qid, delta):
    @type  qid: int
    @param qid: The database ID of the queue item (*not* the song!)
    """
-   sess = Session()
-   qitem = sess.query(QueueItem).get(qid)
+
+   session = Session()
+
+   qitem = session.query(QueueItem).get(qid)
 
    # we only need to do this for songs that are not already queue as next song
    if qitem.position > 1 and (qitem.position - delta) > 1:
@@ -140,6 +145,7 @@ def moveup(qid, delta):
                          values = {
                             queueTable.c.position:1
                          } ).execute()
+   session.close()
 
 
 def movedown(qid, delta):
@@ -153,16 +159,16 @@ def movedown(qid, delta):
    @type  qid: int
    @param qid: The database ID of the queue item (*not* the song!)
    """
-   sess = Session()
-   qitem = sess.query(QueueItem).get(qid)
 
-   qitem_bot = sess.query(QueueItem).select(order_by=['-position'])
+   session = Session()
+
+   qitem = session.query(QueueItem).get(qid)
+
+   qitem_bot = session.query(QueueItem).select(order_by=['-position'])
    if qitem_bot != []:
       bottom = qitem_bot[0].position
    else:
       bottom = 1
-
-   sess.close()
 
    # we only need to do this for songs that are not already at the end of the queue
    if qitem.position < bottom and (qitem.position + delta) < bottom:
@@ -190,6 +196,7 @@ def movedown(qid, delta):
                          values = {
                             queueTable.c.position:bottom
                          } ).execute()
+   session.close()
 
 def movetop(qid):
    """

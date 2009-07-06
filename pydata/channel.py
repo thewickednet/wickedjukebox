@@ -28,7 +28,6 @@ class Channel(object):
    __queuestrategy       = None
    __jingles_folder      = None
    __jingles_interval    = 0
-   __sess                = None
    __no_jingle_count     = 0
 
    def handle_sigint(self, signal, frame):
@@ -103,14 +102,16 @@ the named channel exists in the database table called 'channel'" % name )
          self.__player.queue(fsdecode(song))
          return
 
+      session = Session()
+
       # update state in database
       State.set( "current_song", song.id, self.id )
 
       # queue the song
       self.__player.queue(song.localpath)
       if self.__scrobbler is not None:
-         a = self.__sess.query(Artist).get(song.artist_id)
-         b = self.__sess.query(Album).get(song.album_id)
+         a = session.query(Artist).get(song.artist_id)
+         b = session.query(Album).get(song.album_id)
          if a and b:
             try:
                self.__scrobbler.now_playing(artist=a.name,
@@ -122,6 +123,8 @@ the named channel exists in the database table called 'channel'" % name )
                import traceback
                traceback.print_exc()
                LOG.error(ex)
+      session.close()
+
 
    def startPlayback(self):
       self.__playStatus = 'playing'
@@ -183,7 +186,9 @@ the named channel exists in the database table called 'channel'" % name )
       if self.__currentSongID is None or self.__currentSongID == 0:
          return
 
-      query = self.__sess.query(ChannelStat).select()
+      session = Session()
+
+      query = session.query(ChannelStat).select()
       query = query.filter( songTable.c.id == channelSongs.c.song_id )
       query = query.filter( songTable.c.id == self.__currentSongID )
       query = query.filter( channelSongs.c.channel_id == self.id )
@@ -196,8 +201,7 @@ the named channel exists in the database table called 'channel'" % name )
       else:
          stat.skipped = stat.skipped + 1
          stat.lastPlayed = datetime.now()
-      self.__sess.add(stat)
-      self.__sess.commit()
+      session.add(stat)
 
       # TODO: This block is found as well in "startPlayback"! --> refactor"
       # set "current song" to the next in the queue or use random
@@ -209,6 +213,7 @@ the named channel exists in the database table called 'channel'" % name )
          nextSong = self.__randomstrategy.get(self.id)
       LOG.info( "[channel] skipping song" )
 
+      session.close()
       if nextSong:
          self.enqueue(nextSong.id)
          self.__player.cropPlaylist(2)
@@ -287,7 +292,6 @@ the named channel exists in the database table called 'channel'" % name )
       cycleTime = int(Setting.get('channel_cycle', default='3', channel_id=self.id))
       lastCreditGiveaway = datetime.now()
       lastPing           = datetime.now()
-      self.__sess        = Session()
       proofoflife_timeout = int(Setting.get("proofoflife_timeout", 120))
 
       # while we are alive, do the loop
@@ -295,6 +299,7 @@ the named channel exists in the database table called 'channel'" % name )
 
          time.sleep(cycleTime)
          self.process_upcoming_song()
+         session = Session()
 
          # ping the database every 2 minutes (unless another value was specified in the settings)
          if (datetime.now() - lastPing).seconds > proofoflife_timeout:
@@ -358,7 +363,7 @@ the named channel exists in the database table called 'channel'" % name )
          # -------------------------------------------------------------------
          if self.__currentSongFile != self.__player.getSong() \
                and self.__player.getSong() is not None:
-            song = self.__sess.query(Song).filter( songTable.c.localpath == self.__player.getSong() ).first()
+            song = session.query(Song).filter( songTable.c.localpath == self.__player.getSong() ).first()
 
             if song:
                self.__currentSongID  = song.id
@@ -372,7 +377,7 @@ the named channel exists in the database table called 'channel'" % name )
          currentPosition = self.__player.getPosition()
          if (currentPosition[1] - currentPosition[0]) < 3:
             if self.__currentSongID != 0 and not self.__currentSongRecorded:
-               query = self.__sess.query(ChannelStat)
+               query = session.query(ChannelStat)
                query = query.filter( songTable.c.id == channelSongs.c.song_id )
                query = query.filter( songTable.c.id == self.__currentSongID )
                query = query.filter( channelSongs.c.channel_id == self.id )
@@ -388,8 +393,8 @@ the named channel exists in the database table called 'channel'" % name )
                   stat.lastPlayed = datetime.now()
                   stat.played     = stat.played + 1
                self.__currentSongRecorded = True
-               self.__sess.add(stat)
-               self.__sess.commit()
+               session.add(stat)
+               session.flush()
 
          # if we handed out credits more than 5mins ago, we give out some more
          if (datetime.now() - lastCreditGiveaway).seconds > 300:
@@ -405,7 +410,7 @@ the named channel exists in the database table called 'channel'" % name )
                   ).execute( )
             lastCreditGiveaway = datetime.now()
 
-      self.__sess.commit()
-      self.__sess.close()
+         session.close()
+
       LOG.info( "Channel stopped" )
 

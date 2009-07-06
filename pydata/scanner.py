@@ -7,13 +7,12 @@ store the metadata in the jukebox database
 from os import walk, path
 from util import fsdecode, fsencode
 import logging
-from demon.dbmodel import getSetting, Song, songTable, Session
+from demon.dbmodel import getSetting, Song, songTable, session
 from sqlalchemy.sql import select
 from filescan import scan as fscan
 logger = logging.getLogger(__name__)
 
 valid_extensions = getSetting("recognizedTypes").split(" ")
-session = Session()
 
 def is_valid_audio_file(path):
    return path.endswith(valid_extensions[0])

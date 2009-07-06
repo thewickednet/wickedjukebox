@@ -21,6 +21,7 @@ def findSong(channel_id):
    determine a song that would be best to play next and return it
    """
    global prefetch_state
+   session = Session()
 
    # setup song scoring coefficients
    userRating  = int(Setting.get('scoring_userRating',   4,  channel_id=channel_id))
@@ -139,16 +140,18 @@ def findSong(channel_id):
    try:
       if not res[0][2]:
          # no users are online!
+         session.close()
          return None
       out = (res[0][0], res[0][1], float(res[0][2]))
       LOG.info("Selected song (%d, %s) via smartget. Score was %4.3f" % out)
-      sess = Session()
-      selectedSong = sess.query(Song).filter(songTable.c.id == out[0] ).first()
+      selectedSong = session.query(Song).filter(songTable.c.id == out[0] ).first()
+      session.close()
       return selectedSong
    except IndexError:
       import traceback
       traceback.print_exc()
       LOG.warning('No song returned from query. Is the database empty?')
+      session.close()
       return None
 
 class Prefetcher( threading.Thread ):
