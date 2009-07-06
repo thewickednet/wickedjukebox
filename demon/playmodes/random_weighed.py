@@ -6,7 +6,7 @@ random. Like the time it was last played, how often it was skipped, and so on.
 """
 
 from demon.plparser import parseQuery, ParserSyntaxError
-from demon.dbmodel import Session, dynamicPLTable, getSetting, Song, usersTable, engine, songTable
+from demon.dbmodel import Session, dynamicPLTable, Setting, Song, usersTable, engine, songTable
 from pydata.util import fsdecode
 from sqlalchemy.sql import text as dbText, func, select
 from demon.util import config
@@ -20,13 +20,13 @@ def get(channel_id):
    """
 
    # setup song scoring coefficients
-   userRating  = int(getSetting('scoring_userRating',   4,  channel_id=channel_id))
-   lastPlayed  = int(getSetting('scoring_lastPlayed',   10, channel_id=channel_id))
-   songAge     = int(getSetting('scoring_songAge',      1,  channel_id=channel_id))
-   neverPlayed = int(getSetting('scoring_neverPlayed',  4,  channel_id=channel_id))
-   randomness  = int(getSetting('scoring_randomness',   1,  channel_id=channel_id))
-   max_random_duration = int(getSetting('max_random_duration', 600,  channel_id=channel_id))
-   proofoflife_timeout = int(getSetting('proofoflife_timeout', 120))
+   userRating  = int(Setting.get('scoring_userRating',   4,  channel_id=channel_id))
+   lastPlayed  = int(Setting.get('scoring_lastPlayed',   10, channel_id=channel_id))
+   songAge     = int(Setting.get('scoring_songAge',      1,  channel_id=channel_id))
+   neverPlayed = int(Setting.get('scoring_neverPlayed',  4,  channel_id=channel_id))
+   randomness  = int(Setting.get('scoring_randomness',   1,  channel_id=channel_id))
+   max_random_duration = int(Setting.get('max_random_duration', 600,  channel_id=channel_id))
+   proofoflife_timeout = int(Setting.get('proofoflife_timeout', 120))
 
    whereClauses = [ "NOT broken" ]
 

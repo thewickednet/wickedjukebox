@@ -272,7 +272,7 @@ the named channel exists in the database table called 'channel'" % name )
       # A state "upcoming_song" with value -1 means that the upcoming song is
       # unwanted and a new one should be triggered if possible
       state = State.get( "upcoming_song", self.id )
-      if state and state.value and int(state.value) == -1:
+      if state and int(state) == -1:
          LOG.debug( "Prefetching new song as the current upcoming_song was unwanted." )
          self.__randomstrategy.prefetch(self.id, async=False)
 
