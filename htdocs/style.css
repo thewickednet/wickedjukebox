@@ -232,6 +232,13 @@ li {
     margin-right: 18px;
     margin-top: 0;
 }
+#tinyart {
+    border: 1px solid #cccccc;
+    background-color: #ffffff;
+    padding: 2px;
+    margin-right: 5px;
+    margin-top: 0;
+}
 
 #splash #shoutbox {
     float: left;

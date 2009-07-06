@@ -91,6 +91,14 @@ function setStanding(song, standing,  mode) {
   return false;
 }
 
+
+function getLyrics(song) {
+	  new Ajax.Updater('body', '/index.php?module=song&action=detail&param='+song+'&getLyrics=true', {asynchronous:true, evalScripts:true, onLoading: showLyricsCarousel, onComplete: hideLyricsCarousel });
+		
+	  return false;
+	}
+
+
 function setArtistStanding(artist, standing) {
 	  if (confirm('Do you really want to set all songs of this artist to: ' + standing)) {
 		  new Ajax.Updater('body', '/index.php?module=artist&action=detail&param='+artist+'&standing='+standing+'&mode=artist', {asynchronous:true, evalScripts:true });
@@ -214,6 +222,19 @@ function resortQueue()
                   };
  
     new Ajax.Request('/?module=queue&action=resort', options);
+}
+
+
+function showLyricsCarousel() {
+	var loading = document.getElementById('lyrics_carousel');
+	loading.style.display = 'block';
+
+}
+
+
+function hideLyricsCarousel() {
+	var loading = document.getElementById('lyrics_carousel');
+	loading.style.display = 'none';
 }
 
 
