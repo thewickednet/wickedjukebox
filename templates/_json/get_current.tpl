@@ -1,0 +1,1 @@
+{ldelim}"song_id": {$PLAYER_STATUS.songinfo.id}, "title": "{$PLAYER_STATUS.songinfo.title}", "artist": "{$PLAYER_STATUS.artistinfo.name}", "album": "{$PLAYER_STATUS.albuminfo.name}"{rdelim}
