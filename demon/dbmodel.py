@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, Table, Column, MetaData, Unicode
 from sqlalchemy.sql import select, update, delete, insert
-from sqlalchemy.orm import mapper, sessionmaker
+from sqlalchemy.orm import mapper, sessionmaker, relation
 from pydata import util
 from datetime import datetime
 import sys
@@ -61,6 +61,17 @@ dynamicPLTable = Table( 'dynamicPlaylist', metadata,
 song_has_genre = Table( 'song_has_genre', metadata, autoload=True )
 genreTable     = Table( 'genre', metadata, autoload=True )
 songStandingTable = Table( 'user_song_standing', metadata, autoload=True )
+
+# ----------------------------------------------------------------------------
+# Mappers
+# ----------------------------------------------------------------------------
+
+class Genre(object):
+   def __init__(self, name):
+      self.name = name
+      self.added = datetime.now()
+   def __repr__(self):
+      return "<Genre %s name=%s>" % (self.id, repr(self.name))
 
 class Setting(object):
    @classmethod
@@ -135,6 +146,19 @@ class Setting(object):
          else:
             # An unknown error occured. We raise it again
             raise
+
+class Channel(object):
+   def __repr__(self):
+      return "<Channel %s name=%s>" % (self.id, repr(self.name))
+
+class Artist(object):
+
+   def __init__( self, name ):
+      self.name  = name
+      self.added = datetime.now()
+
+   def __repr__(self):
+      return "<Artist %s name=%s>" % (self.id, repr(self.name))
 
 class State(object):
    @classmethod
@@ -291,7 +315,6 @@ class Song(object):
 
       @param artist_name: The name of the artist
       @return: The ID of the matching artist
-      @todo: instead of using the mapped object "Artist" we could use the artistTable for performance gains
       """
 
       testsel = select( [artistTable.c.id] )
@@ -316,7 +339,6 @@ class Song(object):
       @param album_name: The name of the album
       @param dirname: The path where the files of this album are stored
       @return: The ID of the matching album
-      @todo: instead of using the mapped object "Album" we could use the albumTable for performance gains
       """
       if not self.artist_id or not self.__albumName:
          LOG.warning( "Unable to determine the album ID without a valid srtist_id and album-name!" )
@@ -458,6 +480,17 @@ class Song(object):
             LOG.warning("Error retrieving bitrate: %s", str(ex))
       return None
 
+class QueueItem(object):
+   def __init__(self):
+      self.added = datetime.now()
+
+   def __repr__(self):
+      return "<QueueItem %s>" % (self.id)
+
+class DynamicPlaylist(object):
+   def __repr__(self):
+      return "<DynamicPlaylist %s>" % (self.id)
+
 class ChannelStat(object):
    def __init__( self, song_id, channel_id ):
       self.song_id    = song_id
@@ -493,11 +526,28 @@ def getState(statename, channel_id=0):
    LOG.warning( "DEPRECTAED: Please use State.get!\nSource: %s:%d --> %s" % ( source[0], source[1], source[3] ) )
    return State.get( statename, channel_id )
 
-mapper(Song, songTable)
-mapper(Album, albumTable)
-mapper(ChannelStat, channelSongs )
-mapper(Artist, artistTable )
-mapper(QueueItem, queueTable )
+mapper( State, stateTable, properties={
+      ##'channel': relation(Channel)
+   })
+mapper( Genre, genreTable )
+mapper( ChannelStat, channelSongs )
+mapper( DynamicPlaylist, dynamicPLTable )
+mapper(QueueItem, queueTable, properties={
+         'song': relation(Song)
+      })
+mapper(Setting, settingTable)
+mapper(Channel, channelTable)
+mapper(Album, albumTable, properties=dict(
+   songs=relation(Song, backref='album')))
+
+mapper(Artist, artistTable, properties=dict(
+   albums= relation(Album, backref='artist'),
+   songs = relation(Song,  backref='artist')
+   ))
+mapper(Song, songTable, properties=dict(
+   channelstat=relation( ChannelStat, backref='song' ),
+   genres = relation( Genre, secondary=song_has_genre, backref='songs' )
+   ))
 
 if __name__ == "__main__":
    print getSetting( "test" )
