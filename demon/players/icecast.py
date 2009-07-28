@@ -1,8 +1,6 @@
 import os
 import threading
 from datetime import datetime
-from demon.dbmodel import Setting, State
-from pydata.util import fsdecode
 import mutagen
 import shout
 import time
@@ -16,161 +14,29 @@ LOG = logging.getLogger(__name__)
 STATUS_STOPPED = 1
 STATUS_PLAYING = 2
 STATUS_PAUSED  = 3
+SONG_STARTED   = None
+__KEEP_RUNNING = True
+__PORT         = None
+__MOUNT        = None
+__PASSWORD     = None
+__ADMIN_URL    = None
+__ADMIN_USER   = None
+__ADMIN_PASSWORD = None
+__CHANNEL_ID   = 0
+__QUEUE        = []
+__SERVER       = None
+__CURRENT_SONG = None
+__STREAMER     = None
 
-class Shoutcast_Player(threading.Thread):
+class Streamer(threading.Thread):
 
-   def __init__(self, password='hackme', mount='/wicked.mp3', port=8000, name="The wicked jukebox", url="http://jukebox.wicked.lu", bufsize=1024, bitrate=128, samplerate=44100, channels=1, channel_id=0 ):
-      self.__keepRunning      = True
-      self.__progress         = (0, 0) # (streamed_bytes, total_bytes)
-      self.__queue            = []
-      self.__currentSong      = u''
-      self.__triggerSkip      = False
-      self.__status           = STATUS_STOPPED
-      self.__bufsize          = bufsize
-      self.__port             = port
-      self.__password         = password
-      self.__mount            = mount
-      self.__ai_bitrate       = str(bitrate)
-      self.__ai_samplerate    = str(samplerate)
-      self.__ai_channels      = str(channels)
-      self.__name             = name
-      self.__url              = url
-      self.__channel_id       = channel_id
-      self.connect()
+   def __init__(self, filename, server, channel_id):
+      self.__keep_running = True
+      self.__filename     = filename
+      self.__server       = server
+      self.__channel_id   = channel_id
+      self.__progress     = (0, os.stat(filename).st_size)
       threading.Thread.__init__(self)
-
-   def disconnect_server(self):
-      self.__status = STATUS_STOPPED
-      State.set("progress", 0, self.__channel_id)
-      self.__server.close()
-
-   def connect(self):
-      self.__server           = shout.Shout()
-      self.__server.format    = 'mp3'
-      self.__server.audio_info = { "bitrate": self.__ai_bitrate, "samplerate": self.__ai_samplerate, "channels": self.__ai_channels }
-      self.__server.user      = "source"
-      self.__server.name      = self.__name
-      self.__server.url       = self.__url
-      self.__server.password  = self.__password
-      self.__server.mount     = self.__mount
-      self.__server.port      = self.__port
-      self.__server.nonblocking = False
-      self.__server.open()
-
-   def reconnect(self):
-      try:
-         self.disconnect_server()
-      except:
-         pass
-      self.connect()
-
-   def get_description(self, filename):
-      artist = "unkown artist"
-      title =  "unknown song"
-      try:
-         meta = mutagen.File( filename )
-         if meta.has_key( 'TPE1' ):
-            artist = meta.get( 'TPE1' ).text[0]
-         elif meta.has_key( 'artist' ):
-            artist = meta.get('artist')[0]
-
-         if meta.has_key( 'TIT2' ):
-            title = meta.get( 'TIT2' ).text[0]
-         elif meta.has_key( 'title' ):
-            title = meta.get('title')[0]
-      except Exception, ex:
-         import traceback
-         LOG.error( "%s contained no valid metadata!" % filename )
-         traceback.print_exc()
-      return "%s - %s" % (artist, title)
-
-   def run(self):
-
-      while self.__keepRunning is True:
-
-         if len(self.__queue) > 0:
-            self.__currentSong = self.__queue.pop(0)
-            self.__bufsize = int(Setting.get('icecast_bufsize', 1024))
-
-            f = open(self.__currentSong, "rb")
-
-            self.__server.set_metadata({"song": self.get_description(self.__currentSong).encode("utf-8")})
-            buf = f.read(self.__bufsize)
-            self.__progress = (0, os.stat(self.__currentSong).st_size)
-            State.set("progress", 0, self.__channel_id)
-            self.__status = STATUS_PLAYING
-
-            # stream the file as long as the player is running, or as long as
-            # it's not skipped
-            count = 0 # loop count (used to set the progress not on every sent buffer)
-            while not self.__triggerSkip and self.__keepRunning and buf:
-
-               while self.__keepRunning is True:
-                  try:
-                     self.__server.send(buf)
-                     if self.__server.nonblocking:
-                        while self.__server.queuelen() > 1:
-                           pass
-                     self.__server.sync()
-                     break
-                  except RuntimeError, ex:
-                     # for shoutpy module
-                     import traceback
-                     traceback.print_exc()
-                     if (str(ex).find("Socket error") > -1):
-                        time.sleep(1)
-                        LOG.warning("Socket error! Reconnecting...")
-                        self.reconnect()
-                     else:
-                        raise
-                  except shout.ShoutException, ex:
-                     # for shout module
-                     import traceback
-                     traceback.print_exc()
-                     if (str(ex).find("Socket error") > -1):
-                        time.sleep(1)
-                        LOG.warning("Socket error! Reconnecting...")
-                        self.reconnect()
-                     else:
-                        raise
-
-               self.__progress = (self.__progress[0]+len(buf),
-                                  self.__progress[1])
-               count += 1
-               if count % 30 == 0:
-                  State.set("progress", self.position(), self.__channel_id)
-               buf = f.read(self.__bufsize)
-            f.close()
-
-            LOG.debug( "Shoutcast song finished" )
-            self.__status = STATUS_STOPPED
-            State.set("progress", 0, self.__channel_id)
-
-            # if we fell through the previous loop because a skip was
-            # requested, we need to reset that value. Otherwise we keep
-            # skipping
-            if self.__triggerSkip:
-               self.__triggerSkip = False
-
-      LOG.debug("Shoutcast loop finished")
-      State.set("progress", 0, self.__channel_id)
-
-      self.disconnect_server()
-      self.__status = STATUS_STOPPED
-
-   def skip(self):
-      LOG.debug( "Shoutcast player got a skip request" )
-      self.__triggerSkip = True
-
-   def queue(self, filename):
-      if filename.endswith("mp3"):
-         self.__queue.append(filename)
-         return True
-      else:
-         return False
-
-   def currentSong(self):
-      return self.__currentSong
 
    def position(self):
       """
@@ -181,67 +47,64 @@ class Shoutcast_Player(threading.Thread):
       try:
          return float(self.__progress[0]) / float(self.__progress[1]) * 100.0
       except ZeroDivisionError:
-         import traceback
-         traceback.print_exc()
          return 0
 
-   def pause(self):
-      pass
+   def status(self):
+      if self.isAlive():
+         return "play"
+      else:
+         return "stop"
 
    def stop(self):
-      LOG.debug( "Shoutcast player got a stop request" )
-      self.__keepRunning = False
+      self.__keep_running = False
 
-   def play(self):
-      pass
+   def run(self):
+      from demon.dbmodel import State
+      LOG.debug( "Starting to stream %r..." % self.__filename )
+      fp = open( self.__filename, "rb" )
+      chunk = fp.read(1024)
+      count = 0
 
-   def disconnect(self):
-      self.__keepRunning = False
+      try:
 
-   def cropPlaylist(self, length):
-      while len(self.__queue) > length:
-         self.__queue = self.__queue[1:]
+         while self.__keep_running and chunk:
+            self.__server.send(chunk)
+            self.__server.sync()
+            self.__progress = ( self.__progress[0]+len(chunk), self.__progress[1] )
+            chunk = fp.read( 1024 )
 
-   def status(self):
-      if self.__status == STATUS_PAUSED:
-         return 'pause'
-      elif self.__status == STATUS_PLAYING:
-         return 'play'
-      elif self.__status == STATUS_STOPPED:
-         return 'stop'
-      else:
-         return 'unknown'
+            if count % 100 == 0: # TODO: Ticket #13
+               State.set("progress", self.position(), self.__channel_id)
 
-__port     = None
-__mount    = None
-__password = None
-__player   = None
-__adminurl = None
-__adminuser = None
-__adminpassword = None
-__channel_id = 0
-songStarted = None
+            count += 1
+
+      except KeyboardInterrupt:
+         LOG.warn( "Keyboard interrupt caught. Exiting gracefully..." )
+         for thread in threading.enumerate():
+            if isinstance( thread, threading._Timer ):
+               thread.cancel()
+         self.__keep_running = False
+
+      LOG.debug("Shoutcast stream finished")
+      fp.close()
+      self.__server.sync()
 
 def config(params):
-   global __port, __mount, __password, __player, __adminurl, __adminuser, __adminpassword, __channel_id
+   global __PORT, __MOUNT, __PASSWORD, __STREAMER, __ADMIN_URL, __ADMIN_USER, __ADMIN_PASSWORD, __CHANNEL_ID
    LOG.info( "connection to icecast server (params = %s)" % params )
-   __port     = int(params['port'])
-   __mount    = str(params['mount'])
-   __password = str(params['pwd'])
-   __channel_id = int(params['channel_id'])
-   __player   = Shoutcast_Player(__password,
-                                 __mount,
-                                 __port,
-                                 channel_id=__channel_id)
+   __PORT     = int(params['port'])
+   __MOUNT    = str(params['mount'])
+   __PASSWORD = str(params['pwd'])
+   __CHANNEL_ID = int(params['channel_id'])
 
    if "admin_url" in params:
-      __adminurl = str(params["admin_url"]) + "/listclients.xsl?mount=" + __mount
+      __ADMIN_URL = str(params["admin_url"]) + "/listclients.xsl?mount=" + __MOUNT
 
    if "admin_username" in params:
-      __adminuser = str(params["admin_username"])
+      __ADMIN_USER = str(params["admin_username"])
 
    if "admin_password" in params:
-      __adminpassword = str(params["admin_password"])
+      __ADMIN_PASSWORD = str(params["admin_password"])
 
 def cropPlaylist(length=2):
    """
@@ -251,63 +114,76 @@ def cropPlaylist(length=2):
    @type  length: int
    @param length: The new size of the playlist
    """
-   LOG.debug( "[Icecast] cropping pl to %d songs" % length )
-   __player.cropPlaylist(length)
+   LOG.debug( "Cropping pl to %d songs" % length )
+   global __QUEUE
+   if len( __QUEUE ) <= length:
+      return True
+
+   __QUEUE = __QUEUE[-length:]
+   return True
 
 def getPosition():
    # returning as a percentage value
    try:
-      return (int(__player.position()), 100)
+      return (int(__STREAMER.position()), 100)
    except TypeError:
       import traceback
       traceback.print_exc()
-      LOG.warning("%r was not a valid number" % __player.position)
+      LOG.warning("%r was not a valid number" % __STREAMER.position())
       return 0
 
 def getSong():
-   return __player.currentSong()
+   return __CURRENT_SONG
 
 def queue(filename):
-   global songStarted
-   LOG.debug( "[Icecast] received a queue (%s)" % filename )
+   from demon.dbmodel import Setting
+   global SONG_STARTED
+   LOG.debug( "Received a queue (%s)" % filename )
    if Setting.get('sys_utctime', 0) == 0:
-      songStarted = datetime.utcnow()
+      SONG_STARTED = datetime.utcnow()
    else:
-      songStarted = datetime.now()
-   return __player.queue(filename)
+      SONG_STARTED = datetime.now()
+
+   __QUEUE.append( filename )
 
 def skipSong():
-   LOG.debug( "[Icecast] received a skip request" )
-   return __player.skip()
+   LOG.debug( "Received a skip request" )
+   stopPlayback()
+   startPlayback()
 
 def stopPlayback():
-   __player.stop()
-   if not __player.isAlive():
-      __player.join()
+   from demon.dbmodel import State
+   global __PROGRESS, __CURRENT_SONG
+
+   LOG.debug( "Stopping playback" )
+   __CURRENT_SONG = None
+   __PROGRESS     = (0, 0)
+   __STREAMER.stop()
+   State.set("progress", 0, __CHANNEL_ID)
 
 def pausePlayback():
    pass
 
 def startPlayback():
-   print "Starting playback"
-   if not __player.isAlive():
-      try:
-         __player.start()
-      except AssertionError, e:
-         import traceback
-         traceback.print_exc()
-         LOG.error(e)
-         stopPlayback()
-      except RuntimeError, e:
-         import traceback
-         traceback.print_exc()
-         if (str(e).find("thread already started") > -1):
-            pass
-         else:
-            raise
+   from demon.dbmodel import State
+   global __QUEUE, __CURRENT_SONG, __SERVER
+
+   LOG.info( "Starting playback" )
+   State.set("progress", 0, __CHANNEL_ID)
+   if not __QUEUE:
+      LOG.warn( "Nothing on queue." )
+      return False
+
+   if not __SERVER:
+      import sys
+      LOG.warn( "No icecast connection available!" )
+      __SERVER = __ic_connect()
+
+   __CURRENT_SONG = __QUEUE.pop(0)
+   __stream_file( __SERVER, __CURRENT_SONG )
 
 def status():
-   return __player.status()
+   return __STREAMER.status()
 
 def current_listeners():
    """
@@ -315,11 +191,11 @@ def current_listeners():
    MD5 hashes of their IPs
    """
 
-   if __adminurl is None or \
-      __adminuser is None or \
-      __adminpassword is None :
+   if __ADMIN_URL is None or \
+      __ADMIN_USER is None or \
+      __ADMIN_PASSWORD is None :
       # not all required backend parameters supplied
-      print "Not all parameters set for screen scraping icecast statistics"
+      LOG.warning( "Not all parameters set for screen scraping icecast statistics. Need admin-url and admin-password" )
       return
 
    part = "25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?"
@@ -328,23 +204,77 @@ def current_listeners():
    # Create an OpenerDirector with support for Basic HTTP Authentication...
    auth_handler = urllib2.HTTPBasicAuthHandler()
    auth_handler.add_password(realm='Icecast2 Server',
-                             uri=__adminurl,
-                             user=__adminuser,
-                             passwd=__adminpassword)
+                             uri=__ADMIN_URL,
+                             user=__ADMIN_USER,
+                             passwd=__ADMIN_PASSWORD)
    opener = urllib2.build_opener(auth_handler)
    # ...and install it globally so it can be used with urlopen.
    urllib2.install_opener(opener)
 
    try:
-      LOG.debug("Opening %r" % __adminurl)
-      handler = urllib2.urlopen(__adminurl)
+      LOG.debug("Opening %r" % __ADMIN_URL)
+      handler = urllib2.urlopen(__ADMIN_URL)
       data = handler.read()
 
       listeners = [md5(x[0]).hexdigest() for x in p.findall(data)]
       return listeners
    except urllib2.HTTPError, ex:
-      LOG.error("Error opening %r: Caught %r" % (__adminurl, str(ex)))
+      LOG.error("Error opening %r: Caught %r" % (__ADMIN_URL, str(ex)))
       return None
    except urllib2.URLError, ex:
-      LOG.error("Error opening %r: Caught %r" % (__adminurl, str(ex)))
+      LOG.error("Error opening %r: Caught %r" % (__ADMIN_URL, str(ex)))
       return None
+
+def __ic_connect( name="The wicked jukebox", url="http://jukebox.wicked.lu", bufsize=1024, bitrate=128, samplerate=44100, channels=1 ):
+   """
+   Return a conenction to an icecast server
+
+   TODO: This method's parameter should all be removed and set with the "config" method above (see Task #12)
+   """
+   server           = shout.Shout()
+   server.format    = 'mp3'
+   server.audio_info = { "bitrate": str(bitrate), "samplerate": str(samplerate), "channels": str(channels) }
+   server.user      = "source"
+   server.name      = name
+   server.url       = url
+   server.password  = __PASSWORD
+   server.mount     = __MOUNT
+   server.port      = __PORT
+   server.open()
+   return server
+
+def __stream_file( server, filename ):
+   """
+   Stream a file to a icecast backend
+
+   @raises IOError: When unable to open the file
+   """
+   global __STREAMER
+   __STREAMER = Streamer( filename, server, __CHANNEL_ID )
+   __STREAMER.run()
+
+if __name__ == "__main__":
+   import sys,os
+   logging.basicConfig(level=logging.DEBUG,)
+   sys.path.insert(0, os.getcwd())
+   if len(sys.argv) < 2:
+      print """
+      USAGE: %s <filename>
+      """ % sys.argv[0]
+      sys.exit(1)
+
+   if len(sys.argv) > 2:
+      threading.Timer( float(sys.argv[2]), stopPlayback ).start()
+
+   config( dict (
+         port=8001,
+         mount="/wicked.mp3",
+         pwd="mussdulauschtren",
+         channel_id=1
+      ) )
+
+   LOG.debug( "Connecting to icecast..." )
+   __SERVER = __ic_connect()
+   LOG.debug( "Connected on %r" % __SERVER )
+   queue( sys.argv[1] )
+   startPlayback()

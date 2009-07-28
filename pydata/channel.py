@@ -45,21 +45,17 @@ class Channel(object):
          ])
       s = s.where( channelTable.c.name == name.decode("utf-8") )
       r = s.execute()
-      channel_data = r.fetchone()
-      if not channel_data:
+      self.__channel_data = r.fetchone()
+      if not self.__channel_data:
          LOG.critical( "Failed to load channel %s from database. Please make sure that\
 the named channel exists in the database table called 'channel'" % name )
          return None
 
-      self.name = channel_data["name"]
-      LOG.debug( "Loaded channel %s" % channel_data["name"] )
+      self.name = self.__channel_data["name"]
+      LOG.debug( "Loaded channel %s" % self.name )
 
-      # initialise the player
-      player_params = channel_data["backend_params"]
-      if not player_params:
-         player_params = ""
-      self.__player = demon.players.create( channel_data["backend"], player_params + ", channel_id=%d" % channel_data["id"] )
-      self.id = channel_data["id"]
+      self.__player = None
+      self.id = self.__channel_data["id"]
 
    def currentSong(self):
       selq = select( [queueTable.c.user_id] )
@@ -78,7 +74,9 @@ the named channel exists in the database table called 'channel'" % name )
 
    def close(self):
       LOG.debug( "Channel closing requested." )
-      self.__player.stopPlayback()
+      if self.__player:
+         self.__player.stopPlayback()
+
       LOG.debug( "Closing channel" )
 
       if self.__scrobbler is not None:
@@ -92,15 +90,19 @@ the named channel exists in the database table called 'channel'" % name )
 
    def queueSong(self, song):
 
+      if not self.__player:
+         LOG.warning( "No player active. Won't queue %r" % song )
+         return False
+
       if isinstance( song, unicode ):
          # we were passed a unicode string string. Most likely a file system path
          self.__player.queue(song)
-         return
+         return True
 
       if isinstance( song, basestring ):
          # we were passed a string. Most likely a file system path
          self.__player.queue(fsdecode(song))
-         return
+         return True
 
       session = Session()
 
@@ -125,8 +127,14 @@ the named channel exists in the database table called 'channel'" % name )
                LOG.error(ex)
       session.close()
 
+   def __init_player(self):
+      if not self.__player:
+         self.__player = demon.players.create( self.__channel_data["backend"], self.__channel_data['backend_params'] + ", channel_id=%d" % self.id )
 
    def startPlayback(self):
+
+      self.__init_player()
+
       self.__playStatus = 'playing'
 
       # TODO: This block is found as well in "skipSong! --> refactor"
@@ -301,6 +309,8 @@ the named channel exists in the database table called 'channel'" % name )
          self.process_upcoming_song()
          session = Session()
 
+         self.__init_player()
+
          # ping the database every 2 minutes (unless another value was specified in the settings)
          if (datetime.now() - lastPing).seconds > proofoflife_timeout:
             self.update_current_listeners()
@@ -352,7 +362,7 @@ the named channel exists in the database table called 'channel'" % name )
                self.queueSong(nextSong)
                self.__player.startPlayback()
 
-         # or if it accidentally wen into the play state
+         # or if it accidentally went into the play state
          if self.__player.status() == 'play' and self.__playStatus == 'stopped':
             self.__player.stopPlayback()
 
@@ -411,6 +421,7 @@ the named channel exists in the database table called 'channel'" % name )
             lastCreditGiveaway = datetime.now()
 
          session.close()
+         self.__player = None
 
       LOG.info( "Channel stopped" )
 

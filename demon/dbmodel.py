@@ -8,7 +8,10 @@ from mutagen import File as MediaFile
 import logging
 import logging.config
 from os.path import basename
-logging.config.fileConfig("logging.ini")
+try:
+   logging.config.fileConfig("logging.ini")
+except:
+   logging.basicConfig(level=logging.DEBUG,)
 
 LOG = logging.getLogger(__name__)
 CFG = util.loadConfig( "config.ini" )
