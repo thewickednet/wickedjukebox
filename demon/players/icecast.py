@@ -251,7 +251,7 @@ def __stream_file( server, filename ):
    """
    global __STREAMER
    __STREAMER = Streamer( filename, server, __CHANNEL_ID )
-   __STREAMER.run()
+   __STREAMER.start()
 
 if __name__ == "__main__":
    import sys,os

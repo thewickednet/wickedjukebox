@@ -366,6 +366,11 @@ the named channel exists in the database table called 'channel'" % name )
          if self.__player.status() == 'play' and self.__playStatus == 'stopped':
             self.__player.stopPlayback()
 
+         skipState = State.get( "skipping", self.id )
+         if skipState and int(skipState) == 1:
+            State.set( "skipping", 0, self.id )
+            self.__player.skipSong()
+
          # If we are not playing stuff, we can skip the rest
          if self.__playStatus != 'playing':
             continue
