@@ -19,6 +19,10 @@ def is_valid_audio_file(path):
 
 def process(localpath, encoding):
 
+   if localpath is None or encoding is None:
+      logger.warning( "Skipping undefined filename!" )
+      return
+
    session = Session()
 
    if is_valid_audio_file(localpath):
@@ -34,6 +38,7 @@ def process(localpath, encoding):
    else:
       logger.debug("%r is not a valid audio-file (only scanning extensions %r)" % (localpath, valid_extensions))
 
+   session.commit()
    session.close()
 
 def do_housekeeping():
@@ -72,6 +77,7 @@ def processor_todatabase(root, localpath):
    song.scan_from_file( localpath, encoding )
    session.add(song)
    logger.debug( "%r at %r" % (song, localpath) )
+   session.commit()
    session.close()
 
 def scan(top, capping=u""):

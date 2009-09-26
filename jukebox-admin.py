@@ -2,7 +2,7 @@
 import cmd
 from os import path
 import sys; sys.path.insert(1, 'pydata')
-from demon.dbmodel import getSetting, \
+from demon.dbmodel import Setting, \
                         genreTable, \
                         songTable, \
                         albumTable, \
@@ -52,7 +52,6 @@ def get_songs(bname, glob):
 
 class Console(cmd.Cmd):
 
-   __scanner = None
    __ctx_artist = "unset"
    __ctx_album  = "unset"
    __path       = []
@@ -129,7 +128,7 @@ class Console(cmd.Cmd):
          jukebox> newscan
          jukebox> newscan Depeche
       """
-      mediadirs = [ x for x in getSetting('mediadir').split(' ') if direxists(x) ]
+      mediadirs = [ x for x in Setting.get('mediadir').split(' ') if direxists(x) ]
       import scanner
       scanner.scan( mediadirs[0], unicode(line) )
 
