@@ -7,17 +7,19 @@ store the metadata in the jukebox database
 from os import walk, path
 from util import fsdecode, fsencode
 import logging
-from demon.dbmodel import getSetting, Song, songTable, session
+from demon.dbmodel import Song, songTable, Session, Setting
 from sqlalchemy.sql import select
 from filescan import scan as fscan
 logger = logging.getLogger(__name__)
 
-valid_extensions = getSetting("recognizedTypes").split(" ")
+valid_extensions = Setting.get("recognizedTypes").split(" ")
 
 def is_valid_audio_file(path):
    return path.endswith(valid_extensions[0])
 
 def process(localpath, encoding):
+
+   session = Session()
 
    if is_valid_audio_file(localpath):
       try:
@@ -31,6 +33,8 @@ def process(localpath, encoding):
          logger.error( "Unable to decode %r (%s)" % (localpath, ex) ) 
    else:
       logger.debug("%r is not a valid audio-file (only scanning extensions %r)" % (localpath, valid_extensions))
+
+   session.close()
 
 def do_housekeeping():
    "Database cleanup, and set other values that are difficult to read during scanning"
@@ -60,14 +64,15 @@ def filter_valid_extenstion( root, filename ):
    return False
 
 def processor_todatabase(root, localpath):
+   session = Session()
    song = session.query(Song).filter_by( localpath=localpath ).first()
    if not song:
       song = Song(localpath, None, None)
    localpath, encoding = fsdecode( localpath )
    song.scan_from_file( localpath, encoding )
    session.add(song)
-   session.commit()
    logger.debug( "%r at %r" % (song, localpath) )
+   session.close()
 
 def scan(top, capping=u""):
    """
@@ -87,7 +92,6 @@ def scan(top, capping=u""):
          if path.join(relative_path, file).startswith(fsencode(capping)):
             process( *fsdecode( path.join(root, file) ) )
             i+= 1
-   session.commit()
 
    logger.info( "Scanned %d songs" % i )
    #count = fscan( top,

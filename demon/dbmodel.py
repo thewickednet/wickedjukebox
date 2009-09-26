@@ -2,11 +2,12 @@ from sqlalchemy import create_engine, Table, Column, MetaData, Unicode
 from sqlalchemy.sql import select, update, delete, insert
 from sqlalchemy.orm import mapper, sessionmaker, relation
 from pydata import util
-from datetime import datetime
+from datetime import datetime, date
 import sys
 from mutagen import File as MediaFile
 import logging
 import logging.config
+from os import stat
 from os.path import basename
 try:
    logging.config.fileConfig("logging.ini")
@@ -373,7 +374,7 @@ class Song(object):
       # if this song's release date is newer than the album's release date, we update the album release date
       if self.year:
          if (row["release_date"] and row["release_date"] < date(self.year, 1, 1)) \
-            or (not album["release_date"] and self.year):
+            or (not row["release_date"] and self.year):
 
             updq = update( albumTable )
             updq = updq.where( albumTable.c.path == dirname )
