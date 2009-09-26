@@ -90,6 +90,8 @@ the named channel exists in the database table called 'channel'" % name )
 
    def queueSong(self, song):
 
+      LOG.info( "Queueing %r" % fsencode(song.localpath) )
+
       if not self.__player:
          LOG.warning( "No player active. Won't queue %r" % song )
          return False
@@ -426,7 +428,6 @@ the named channel exists in the database table called 'channel'" % name )
             lastCreditGiveaway = datetime.now()
 
          session.close()
-         self.__player = None
 
       LOG.info( "Channel stopped" )
 
