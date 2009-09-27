@@ -138,12 +138,16 @@ class MP3Meta( AudioMeta ):
       raw_string = self.decode_text( data )
       elements = raw_string.split("-")
 
-      if len(elements) == 1:
-         return date(int(elements[0]), 1, 1)
-      elif len(elements) == 2:
-         return date(int(elements[0]), int(elements[1]), 1)
-      elif len(elements) == 3:
-         return date(int(elements[0]), int(elements[1]), int(elements[2]))
+      try:
+         if len(elements) == 1:
+            return date(int(elements[0]), 1, 1)
+         elif len(elements) == 2:
+            return date(int(elements[0]), int(elements[1]), 1)
+         elif len(elements) == 3:
+            return date(int(elements[0]), int(elements[1]), int(elements[2]))
+      except ValueError, e:
+         LOG.warning("%s (datestring was %s)" % (e, raw_string))
+         return None
 
    def get_title(self):
       data = self.meta["TIT2"]
