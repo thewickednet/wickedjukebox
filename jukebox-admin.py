@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf8 -*-
 import cmd
 from os import path
 import sys; sys.path.insert(1, 'pydata')
@@ -134,9 +135,17 @@ class Console(cmd.Cmd):
 
       print "done"
 
-   def do_newscan(self, line):
-      "DEPRECATED"
-      print "DEPRECTAED! Use 'rescan' instead"
+   def do_orphans(self, line):
+      """
+      Find files that are in the database but not on disk
+      """
+
+      s = select([songTable.c.id, songTable.c.localpath])
+      s = s.order_by( "localpath" )
+      r = s.execute()
+      for row in r:
+         if not path.exists( row[1] ):
+            print "%10d %s" % (row[0], row[1])
 
    def do_genres(self, line):
       """
