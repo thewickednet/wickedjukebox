@@ -4,7 +4,6 @@ from sqlalchemy.orm import mapper, sessionmaker, relation
 from pydata import util
 from datetime import datetime, date
 import sys
-from mutagen import File as MediaFile
 import logging
 import logging.config
 from os import stat
@@ -267,27 +266,27 @@ class Song(object):
       """
 
       from os import path
+      from audiometa import MetaFactory
 
-      audiometa = None
       LOG.debug( "Extracting metadata from %r" % localpath )
 
       try:
-         audiometa = MediaFile( localpath.encode(encoding) )
+         audiometa = MetaFactory.create( localpath.encode(encoding) )
       except Exception, ex:
          LOG.warning("%r contained invalid metadata. Error message: %r" % (localpath, str(ex) ) )
 
       dirname = path.dirname( localpath.encode(encoding) )
 
-      self.__artistName = self.parseArtist( audiometa )
-      self.__genreName  = self.parseGenre( audiometa )
-      self.__albumName  = self.parseAlbum( audiometa )
+      self.__artistName = audiometa['artist']
+      self.__genreName  = len( audiometa['genres'] ) > 0 and audiometa['genres'][0] or None
+      self.__albumName  = audiometa['album']
       self.localpath    = localpath
-      self.title        = self.parseTitle( audiometa )
-      self.duration     = self.parseDuration( audiometa )
-      self.bitrate      = self.parseBitrate( audiometa )
-      self.track_no     = self.parseTrack( audiometa )
+      self.title        = audiometa['title']
+      self.duration     = audiometa['duration']
+      self.bitrate      = audiometa['bitrate']
+      self.track_no     = audiometa['track_no']
 
-      release_date   = self.parseReleaseYear( audiometa )
+      release_date   = audiometa['release_date']
       if release_date:
          self.year = release_date.year
 
@@ -393,107 +392,6 @@ class Song(object):
             updq.execute()
 
       return album_id
-
-   def parseTitle( self, meta ):
-      "Extracts the title from the metadata object"
-      if meta:
-         try:
-            if 'TIT2' in meta:
-               return meta.get( 'TIT2' ).text[0]
-            elif 'title' in meta:
-               return meta.get('title')[0]
-            # TDRC - year
-            # musicbrainz_albumartist
-            # title
-         except Exception, ex:
-            LOG.warning(ex)
-      return "unknown title"
-
-   def parseReleaseYear( self, meta ):
-      "Extracts the release year from the metadata object"
-      try:
-         record_date = meta.get("TDRC")
-         if record_date and record_date.text:
-            raw_string = record_date.text[0].text
-            if not raw_string:
-               return None
-
-            elements = raw_string.split("-")
-
-            if len(elements) == 1:
-               return date(int(elements[0]), 1, 1)
-            elif len(elements) == 2:
-               return date(int(elements[0]), int(elements[1]), 1)
-            elif len(elements) == 3:
-               return date(int(elements[0]), int(elements[1]), int(elements[2]))
-
-      except Exception, e:
-         LOG.error( "Unable to set release year: " + str(e) )
-
-   def parseAlbum( self, meta ):
-      "Extracts the album name from the metadata object"
-      if meta:
-         try:
-            if 'TALB' in meta:
-               return meta.get( 'TALB' ).text[0]
-            elif 'album' in meta:
-               return meta.get('album')[0]
-         except Exception, ex:
-            LOG.warning(ex)
-      return "unknown album"
-
-   def parseArtist( self, meta ):
-      "Extracts the artist name from the metadata object"
-      if meta:
-         try:
-            if 'TPE1' in meta:
-               return meta.get( 'TPE1' ).text[0]
-            elif 'artist' in meta:
-               return meta.get('artist')[0]
-         except Exception, ex:
-            LOG.warning(ex)
-      return "unknown artist"
-
-   def parseGenre( self, meta ):
-      "Extracts the genre from the metadata object"
-      if meta:
-         try:
-            if 'TCON' in meta:
-               if meta.get( 'TCON' ).text[0] != '':
-                  return meta.get( 'TCON' ).text[0]
-         except Exception, ex:
-            LOG.warning(ex)
-      return "unknown genre"
-
-   def parseTrack(self, meta):
-      "Extracts the track number from the metadata object"
-      if meta:
-         if 'TRCK' in meta:
-            return meta.get('TRCK').text[0].split('/')[0]
-         else:
-            if not meta.get('tracknumber'):
-               return None
-            if isinstance(meta.get('tracknumber'), list):
-               return meta.get('tracknumber')[0].split('/')[0]
-            else:
-               return meta.get('tracknumber').split('/')[0]
-      return None
-
-   def parseDuration( self, meta ):
-      "Extracts the track duration from the metadata object"
-      if meta and meta.info.length:
-         return meta.info.length
-      return None
-
-   def parseBitrate(self, meta ):
-      "Extracts the bitrate from the metadata object"
-      if meta:
-         if 'audio/x-flac' in meta.mime: return None
-         try:
-            return meta.info.bitrate
-         except AttributeError, ex:
-            LOG.warning("Error retrieving bitrate: %s", str(ex))
-      return None
 
 class QueueItem(object):
    def __init__(self):
