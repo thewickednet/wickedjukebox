@@ -90,7 +90,7 @@ the named channel exists in the database table called 'channel'" % name )
 
    def queueSong(self, song):
 
-      LOG.info( "Queueing %r" % fsencode(song.localpath) )
+      LOG.info( "Queueing %r" % fsencode(song) )
 
       if not self.__player:
          LOG.warning( "No player active. Won't queue %r" % song )
