@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Table, Column, MetaData, Unicode
+from sqlalchemy import create_engine, Table, Column, MetaData, Unicode, DateTime
 from sqlalchemy.sql import select, update, delete, insert
 from sqlalchemy.orm import mapper, sessionmaker, relation
 from pydata import util
@@ -16,7 +16,7 @@ except:
 
 LOG = logging.getLogger(__name__)
 CFG = util.loadConfig( "config.ini" )
-DBURI = "%s://%s:%s@%s/%s" % (
+DBURI = "%s://%s:%s@%s/%s?charset=utf8" % (
          CFG['database.type'],
          CFG['database.user'],
          CFG['database.pass'],
@@ -44,26 +44,37 @@ settingTextTable   = Table( 'setting_text', metadata,
       autoload=True )
 artistTable    = Table( 'artist', metadata,
       Column('name', Unicode(128)),
+      Column( 'added', DateTime, nullable=False, default=datetime.now ),
       autoload=True )
 albumTable     = Table( 'album', metadata,
       Column( 'name', Unicode(128) ),
       Column( 'type', Unicode(32) ),
+      Column( 'added', DateTime, nullable=False, default=datetime.now ),
       autoload=True )
 songTable      = Table( 'song', metadata,
       Column( 'title', Unicode(128) ),
       Column( 'localpath', Unicode(255) ),
       Column( 'lyrics', Unicode() ),
+      Column( 'added', DateTime, nullable=False, default=datetime.now ),
       autoload=True )
-queueTable     = Table( 'queue', metadata, autoload=True )
+queueTable     = Table( 'queue', metadata,
+      Column( 'added', DateTime, nullable=False, default=datetime.now ),
+      autoload=True )
 channelSongs   = Table( 'channel_song_data', metadata, autoload=True )
 lastfmTable    = Table( 'lastfm_queue', metadata, autoload=True )
-usersTable     = Table( 'users', metadata, autoload=True )
+usersTable     = Table( 'users', metadata,
+      Column( 'added', DateTime, nullable=False, default=datetime.now ),
+      useexisting=True,
+      autoload=True )
 dynamicPLTable = Table( 'dynamicPlaylist', metadata,
       Column( 'label', Unicode(64) ),
       Column( 'query', Unicode() ),
       autoload=True )
 song_has_genre = Table( 'song_has_genre', metadata, autoload=True )
-genreTable     = Table( 'genre', metadata, autoload=True )
+genreTable     = Table( 'genre', metadata,
+      Column( 'added', DateTime, nullable=False, default=datetime.now ),
+      useexisting=True,
+      autoload=True )
 songStandingTable = Table( 'user_song_standing', metadata, autoload=True )
 
 # ----------------------------------------------------------------------------
