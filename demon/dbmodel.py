@@ -10,8 +10,10 @@ from os import stat
 from os.path import basename
 try:
    logging.config.fileConfig("logging.ini")
-except:
+except Exception, e:
+   import traceback
    logging.basicConfig(level=logging.DEBUG,)
+   logging.warning( "Unable to configure logger (%r). Will use default DEBUGGING logger.\n%s" % (e, traceback.format_exc()) )
 
 LOG = logging.getLogger(__name__)
 CFG = util.loadConfig( "config.ini" )
@@ -349,8 +351,6 @@ class Song(object):
       """
       If the album already exists, return the ID of that album, otherwise create a new instance
 
-      @param artist_id: The ID of an artist
-      @param album_name: The name of the album
       @param dirname: The path where the files of this album are stored
       @return: The ID of the matching album
       """
@@ -382,7 +382,7 @@ class Song(object):
          album_id = result.last_inserted_ids()[0]
 
       # if this song's release date is newer than the album's release date, we update the album release date
-      if self.year:
+      if self.year and row:
          if (row["release_date"] and row["release_date"] < date(self.year, 1, 1)) \
             or (not row["release_date"] and self.year):
 

@@ -4,62 +4,55 @@ Run a specific jukebox channel
 """
 import os, sys
 import signal
+import time
 import logging
 import logging.config
 from pydata.channel import Channel
 logger = logging.getLogger(__name__)
 logging.config.fileConfig("logging.ini")
 CHANNEL = None
+KEEP_RUNNING = True
 
-class Watcher(object):
-   def __init__(self):
-      """ Creates a child thread, which returns.  The parent
-          thread waits for a KeyboardInterrupt and then kills
-          the child thread.
-      """
-      self.child = os.fork()
-      if self.child == 0:
-          return
-      else:
-          self.watch()
-
-   def watch(self):
-       try:
-           os.wait()
-       except KeyboardInterrupt:
-           # I put the capital B in KeyBoardInterrupt so I can
-           # tell when the Watcher gets the SIGINT
-           print 'KeyBoardInterrupt'
-           self.kill()
-       sys.exit()
-
-   def kill(self):
-       try:
-           os.kill(self.child, signal.SIGKILL)
-       except OSError:
-          pass
+def handle_sigint(signal, frame):
+   global KEEP_RUNNING, CHANNEL
+   logging.info( "SIGINT caught" )
+   CHANNEL.close()
+   KEEP_RUNNING = False
 
 def run_channel( channel_name ):
    "Starts a channel"
    from pydata.channel import Channel
-   CHANNEL = Channel( channel_name )
-   if CHANNEL:
-      logging.info( "Starting channel %s" % channel_name )
-      CHANNEL.startPlayback()
+   global CHANNEL
+
+   while KEEP_RUNNING:
       try:
+         CHANNEL = Channel( channel_name )
+         if not CHANNEL:
+            logging.critical( "Unable to load (or find) channel %s" % channel_name )
+            return False
+         logging.info( "Starting channel %s" % channel_name )
+         CHANNEL.startPlayback()
          CHANNEL.run()
-      except:
+      except Exception, e:
          import traceback
-         traceback.print_exc()
-         sys.exit(0)
-   else:
-      logging.critical( "Unable to load (or find) channel %s" % channel_name )
+         logging.critical( traceback.format_exc() )
+         logging.info( "Restarting channel %s" % channel_name )
+         CHANNEL.close()
+         CHANNEL = None
+         CHANNEL = Channel( channel_name )
+
+      if CHANNEL:
+         logging.info("Closing channel")
+         CHANNEL.close()
+
+      time.sleep(1)
 
 def main():
    """
    Parse command line options, bootstrap the app and run the channel
    """
    from optparse import OptionParser
+   signal.signal(signal.SIGINT, handle_sigint)
 
    parser = OptionParser()
    parser.add_option("-c", "--channel", dest="channel_name",

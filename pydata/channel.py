@@ -16,27 +16,29 @@ LOG = logging.getLogger(__name__)
 
 class Channel(object):
 
-   id                    = None
-   name                  = None
-   __scrobbler           = None
-   __keepRunning         = True
-   __playStatus          = 'stopped'
-   __currentSongID       = 0
-   __currentSongRecorded = False
-   __currentSongFile     = ''
-   __randomstrategy      = None
-   __queuestrategy       = None
-   __jingles_folder      = None
-   __jingles_interval    = 0
-   __no_jingle_count     = 0
-
    def handle_sigint(self, signal, frame):
       LOG.debug( "SIGINT caught" )
       self.close()
 
    def __init__(self, name):
       LOG.debug("Initialising channel...")
-      signal.signal(signal.SIGINT, self.handle_sigint)
+
+      self.id                    = None
+      self.name                  = None
+      self.__scrobbler           = None
+      self.__keepRunning         = True
+      self.__playStatus          = 'stopped'
+      self.__currentSongID       = 0
+      self.__currentSongRecorded = False
+      self.__currentSongFile     = ''
+      self.__randomstrategy      = None
+      self.__queuestrategy       = None
+      self.__jingles_folder      = None
+      self.__jingles_interval    = 0
+      self.__no_jingle_count     = 0
+
+      ##signal.signal(signal.SIGINT, self.handle_sigint)
+
       s = select([
          channelTable.c.id,
          channelTable.c.name,
@@ -47,8 +49,9 @@ class Channel(object):
       r = s.execute()
       self.__channel_data = r.fetchone()
       if not self.__channel_data:
-         LOG.critical( "Failed to load channel %s from database. Please make sure that\
-the named channel exists in the database table called 'channel'" % name )
+         LOG.critical( "Failed to load channel %s from database. "
+                       "Please make sure that the named channel exists "
+                       "in the database table called 'channel'" % name )
          return None
 
       self.name = self.__channel_data["name"]
@@ -74,13 +77,13 @@ the named channel exists in the database table called 'channel'" % name )
 
    def close(self):
       LOG.debug( "Channel closing requested." )
-      if self.__player:
-         self.__player.stopPlayback()
+      self.stopPlayback()
 
       LOG.debug( "Closing channel" )
 
       if self.__scrobbler is not None:
          self.__scrobbler.stop()
+         self.__scrobbler.join()
 
       if self.__keepRunning:
          self.__keepRunning = False
@@ -140,6 +143,7 @@ the named channel exists in the database table called 'channel'" % name )
       self.__playStatus = 'playing'
 
       # TODO: This block is found as well in "skipSong! --> refactor"
+      # TODO: The block to retrieve the next song should be a method in itself. Encapsulating queue, random and orphaned files
       # set "current song" to the next in the queue or use random
       self.__randomstrategy = demon.playmodes.create( Setting.get( 'random_model', 'random_weighed', channel_id=self.id ) )
       self.__queuestrategy  = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict',   channel_id=self.id ) )

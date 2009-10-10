@@ -51,7 +51,7 @@ class Streamer(threading.Thread):
 
    def status(self):
       if self.isAlive():
-         return "play"
+         return "playing"
       else:
          return "stop"
 
@@ -79,7 +79,7 @@ class Streamer(threading.Thread):
             count += 1
 
       except KeyboardInterrupt:
-         LOG.warn( "Keyboard interrupt caught. Exiting gracefully..." )
+         LOG.warn( "Keyboard interrupt caught...." )
          for thread in threading.enumerate():
             if isinstance( thread, threading._Timer ):
                thread.cancel()
@@ -153,12 +153,20 @@ def skipSong():
 
 def stopPlayback():
    from demon.dbmodel import State
-   global __PROGRESS, __CURRENT_SONG
+   global __PROGRESS, __CURRENT_SONG, __STREAMER, __SERVER
 
    LOG.debug( "Stopping playback" )
    __CURRENT_SONG = None
    __PROGRESS     = (0, 0)
-   __STREAMER.stop()
+   if __STREAMER:
+      __STREAMER.stop()
+      __STREAMER.join()
+
+   if __SERVER:
+      __SERVER.close()
+      __SERVER = None
+   LOG.debug( "Playback stopped" )
+
    State.set("progress", 0, __CHANNEL_ID)
 
 def pausePlayback():
@@ -183,7 +191,10 @@ def startPlayback():
    __stream_file( __SERVER, __CURRENT_SONG )
 
 def status():
-   return __STREAMER.status()
+   if __STREAMER:
+      return __STREAMER.status()
+   else:
+      return "stopped"
 
 def current_listeners():
    """
