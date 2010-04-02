@@ -134,6 +134,9 @@ class MP3Meta( AudioMeta ):
          raise NotImplementedError( "Unknown character encoding (enoding=%s)" % data.encoding )
 
    def get_release_date(self):
+      if "TDRC" not in self.meta:
+         return None
+
       data = self.meta["TDRC"]
       raw_string = self.decode_text( data )
       elements = raw_string.split("-")
