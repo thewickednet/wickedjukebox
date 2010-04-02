@@ -25,11 +25,8 @@ def run_channel( channel_name ):
    global CHANNEL
 
    while KEEP_RUNNING:
+      CHANNEL = Channel( channel_name )
       try:
-         CHANNEL = Channel( channel_name )
-         if not CHANNEL:
-            logging.critical( "Unable to load (or find) channel %s" % channel_name )
-            return False
          logging.info( "Starting channel %s" % channel_name )
          CHANNEL.startPlayback()
          CHANNEL.run()

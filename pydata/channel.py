@@ -49,11 +49,9 @@ class Channel(object):
       r = s.execute()
       self.__channel_data = r.fetchone()
       if not self.__channel_data:
-         LOG.critical( "Failed to load channel %s from database. "
+         raise ValueError( "Failed to load channel %s from database. "
                        "Please make sure that the named channel exists "
                        "in the database table called 'channel'" % name )
-         #todo# This won't work... we're in a constructor... remember?
-         return None
 
       self.name = self.__channel_data["name"]
       LOG.debug( "Loaded channel %s" % self.name )
