@@ -411,12 +411,12 @@ class Channel(object):
                   stat.lastPlayed = datetime.now()
                   stat.played     = 1
                else:
-                  LOG.debug("Setting last played date")
+                  LOG.debug("Updating last played date")
                   stat.lastPlayed = datetime.now()
                   stat.played     = stat.played + 1
                self.__currentSongRecorded = True
                session.add(stat)
-               session.flush()
+               session.commit()
 
          # if we handed out credits more than 5mins ago, we give out some more
          if (datetime.now() - lastCreditGiveaway).seconds > 300:
