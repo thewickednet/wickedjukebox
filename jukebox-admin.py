@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/var/www/wicked.lu/jukebox_env_2009/environment/bin/python
 # -*- coding: utf8 -*-
 import cmd
 from os import path
