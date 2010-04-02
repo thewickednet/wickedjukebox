@@ -14,7 +14,26 @@ import threading
 import logging
 LOG = logging.getLogger(__name__)
 
+ALREADY_INITIALISED = False
+
 prefetch_state = {}
+
+def bootstrap( channel_id ):
+   global ALREADY_INITIALISED
+
+   if ALREADY_INITIALISED:
+      return
+
+   # as the query can take fscking long, we prefetch one song as soon as this
+   # module is loaded!
+   LOG.info( 'prefetching initial random song for each channel ...' )
+   s = select([channelTable.c.id, channelTable.c.name])
+   s = s.where( channelTable.c.id == channel_id )
+   row = s.execute().fetchone()
+   pref = Prefetcher( row[0] )
+   pref.run()
+   LOG.debug( '  Channel %r prefetched %r' % (row[1], prefetch_state[row[0]]) )
+   ALREADY_INITIALISED = True
 
 def findSong(channel_id):
    """
@@ -196,14 +215,4 @@ def prefetch(channel_id, async=True):
       pref.start()
    else:
       pref.run()
-
-# as the query can take fscking long, we prefetch one song as soon as this
-# module is loaded!
-LOG.info( 'prefetching initial random song for each channel ...' )
-s = select([channelTable.c.id, channelTable.c.name])
-r = s.execute()
-for row in r:
-   pref = Prefetcher( row[0] )
-   pref.run()
-   LOG.debug( '  Channel %r prefetched %r' % (row[1], prefetch_state[row[0]]) )
 

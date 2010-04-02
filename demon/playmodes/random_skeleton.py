@@ -10,6 +10,20 @@ and you should be fine.
 ## from demon.model import create_session, Song
 ## from twisted.python import log
 
+def bootstrap(channel_id):
+   """
+   This is always called as soon as the module is loaded.
+   It is used to bootstrap the module.
+
+   Note that this will be called on each iteration, so it should cope with
+   that. If you want to process this method only one you should deal with that
+   internally (by using a sentinel variable for example).
+
+   @param channel_id: The channel ID
+   """
+   pass
+
+
 def get(channel_id):
    """
    Returns a random song.

@@ -146,6 +146,8 @@ class Channel(object):
       # set "current song" to the next in the queue or use random
       self.__randomstrategy = demon.playmodes.create( Setting.get( 'random_model', 'random_weighed', channel_id=self.id ) )
       self.__queuestrategy  = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict',   channel_id=self.id ) )
+      self.__randomstrategy.bootstrap( self.id )
+      self.__queuestrategy.bootstrap( self.id )
 
       nextSong = self.__queuestrategy.dequeue()
       if not nextSong:
@@ -179,6 +181,7 @@ class Channel(object):
    def enqueue(self, songID, userID=None):
 
       self.__queuestrategy = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict' ) )
+      self.__queuestrategy.bootstrap( self.id )
       self.__queuestrategy.enqueue(
             songID,
             userID,
@@ -189,6 +192,7 @@ class Channel(object):
 
    def current_queue(self):
       self.__queuestrategy = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict' ) )
+      self.__queuestrategy.bootstrap( self.id )
       return self.__queuestrategy.list()
 
    def skipSong(self):
@@ -220,6 +224,8 @@ class Channel(object):
       # set "current song" to the next in the queue or use random
       self.__randomstrategy = demon.playmodes.create( Setting.get( 'random_model', 'random_weighed' ) )
       self.__queuestrategy  = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict' ) )
+      self.__randomstrategy.bootstrap( self.id )
+      self.__queuestrategy.bootstrap( self.id )
 
       nextSong = self.__queuestrategy.dequeue()
       if nextSong is None:
@@ -237,10 +243,12 @@ class Channel(object):
 
    def moveup(self, qid, delta):
       self.__queuestrategy = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict' ) )
+      self.__queuestrategy.bootstrap( self.id )
       self.__queuestrategy.moveup(qid, delta)
 
    def movedown(self, qid, delta):
       self.__queuestrategy = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict' ) )
+      self.__queuestrategy.bootstrap( self.id )
       self.__queuestrategy.movedown(qid, delta)
 
    def get_jingle(self):
@@ -339,6 +347,8 @@ class Channel(object):
 
             self.__randomstrategy = demon.playmodes.create( Setting.get( 'random_model', 'random_weighed', channel_id=self.id ) )
             self.__queuestrategy  = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict',   channel_id=self.id ) )
+            self.__randomstrategy.bootstrap( self.id )
+            self.__queuestrategy.bootstrap( self.id )
 
             nextSong = self.get_jingle()
 
