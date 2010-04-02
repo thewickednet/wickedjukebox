@@ -6,7 +6,7 @@ random. Like the time it was last played, how often it was skipped, and so on.
 """
 
 from demon.plparser import parseQuery, ParserSyntaxError
-from demon.dbmodel import session, dynamicPLTable, Setting, Song, usersTable, engine, songTable
+from demon.dbmodel import Session, dynamicPLTable, Setting, Song, usersTable, engine, songTable
 from pydata.util import fsdecode
 from sqlalchemy.sql import text as dbText, func, select
 from demon.util import config
@@ -18,6 +18,8 @@ def get(channel_id):
    determine a song that would be best to play next and add it to the
    prediction queue
    """
+
+   session = Session()
 
    # setup song scoring coefficients
    userRating  = int(Setting.get('scoring_userRating',   4,  channel_id=channel_id))
