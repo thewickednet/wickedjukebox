@@ -145,11 +145,11 @@ class Channel(object):
       # TODO: The block to retrieve the next song should be a method in itself. Encapsulating queue, random and orphaned files
       # set "current song" to the next in the queue or use random
       self.__randomstrategy = demon.playmodes.create( Setting.get( 'random_model', 'random_weighed_prefetch', channel_id=self.id ) )
-      self.__queuestrategy  = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict',   channel_id=self.id ) )
+      self.__queuestrategy  = demon.playmodes.create( Setting.get( 'queue_model',  'queue_positioned',   channel_id=self.id ) )
       self.__randomstrategy.bootstrap( self.id )
       self.__queuestrategy.bootstrap( self.id )
 
-      nextSong = self.__queuestrategy.dequeue()
+      nextSong = self.__queuestrategy.dequeue(self.id)
       if not nextSong:
          nextSong = self.__randomstrategy.get(self.id)
 
@@ -180,7 +180,7 @@ class Channel(object):
 
    def enqueue(self, songID, userID=None):
 
-      self.__queuestrategy = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict' ) )
+      self.__queuestrategy = demon.playmodes.create( Setting.get( 'queue_model',  'queue_positioned' ) )
       self.__queuestrategy.bootstrap( self.id )
       self.__queuestrategy.enqueue(
             songID,
@@ -191,9 +191,9 @@ class Channel(object):
             )
 
    def current_queue(self):
-      self.__queuestrategy = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict' ) )
+      self.__queuestrategy = demon.playmodes.create( Setting.get( 'queue_model',  'queue_positioned' ) )
       self.__queuestrategy.bootstrap( self.id )
-      return self.__queuestrategy.list()
+      return self.__queuestrategy.list( self.id )
 
    def skipSong(self):
       """
@@ -223,11 +223,11 @@ class Channel(object):
       # TODO: This block is found as well in "startPlayback"! --> refactor"
       # set "current song" to the next in the queue or use random
       self.__randomstrategy = demon.playmodes.create( Setting.get( 'random_model', 'random_weighed_prefetch' ) )
-      self.__queuestrategy  = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict' ) )
+      self.__queuestrategy  = demon.playmodes.create( Setting.get( 'queue_model',  'queue_positioned' ) )
       self.__randomstrategy.bootstrap( self.id )
       self.__queuestrategy.bootstrap( self.id )
 
-      nextSong = self.__queuestrategy.dequeue()
+      nextSong = self.__queuestrategy.dequeue(self.id)
       if nextSong is None:
          nextSong = self.__randomstrategy.get(self.id)
       LOG.info( "[channel] skipping song" )
@@ -242,12 +242,12 @@ class Channel(object):
          return 'ER: Unable to skip song, no followup song returned'
 
    def moveup(self, qid, delta):
-      self.__queuestrategy = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict' ) )
+      self.__queuestrategy = demon.playmodes.create( Setting.get( 'queue_model',  'queue_positioned' ) )
       self.__queuestrategy.bootstrap( self.id )
       self.__queuestrategy.moveup(qid, delta)
 
    def movedown(self, qid, delta):
-      self.__queuestrategy = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict' ) )
+      self.__queuestrategy = demon.playmodes.create( Setting.get( 'queue_model',  'queue_positioned' ) )
       self.__queuestrategy.bootstrap( self.id )
       self.__queuestrategy.movedown(qid, delta)
 
@@ -346,7 +346,7 @@ class Channel(object):
             self.__player.cropPlaylist(0)
 
             self.__randomstrategy = demon.playmodes.create( Setting.get( 'random_model', 'random_weighed_prefetch', channel_id=self.id ) )
-            self.__queuestrategy  = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict',   channel_id=self.id ) )
+            self.__queuestrategy  = demon.playmodes.create( Setting.get( 'queue_model',  'queue_positioned',   channel_id=self.id ) )
             self.__randomstrategy.bootstrap( self.id )
             self.__queuestrategy.bootstrap( self.id )
 
@@ -354,7 +354,7 @@ class Channel(object):
 
             if not nextSong:
                LOG.debug("No jingle selected. Trying to dequeue")
-               nextSong = self.__queuestrategy.dequeue()
+               nextSong = self.__queuestrategy.dequeue(self.id)
 
             if not nextSong:
                LOG.debug("Apparently there was nothing on the queue. I'm going to take somethin at random then")

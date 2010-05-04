@@ -11,6 +11,9 @@ from demon.dbmodel import Session, QueueItem, queueTable, songTable, \
 from datetime import datetime
 from sqlalchemy import and_
 
+def bootstrap( channel_id ):
+   return
+
 def enqueue(songID, userID, channelID):
    """
    Enqueues a song onto a queue of a given channel
