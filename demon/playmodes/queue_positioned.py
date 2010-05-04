@@ -11,9 +11,6 @@ from demon.dbmodel import Session, QueueItem, queueTable, songTable, \
 from datetime import datetime
 from sqlalchemy import and_
 
-def bootstrap( channelID ):
-   return
-
 def enqueue(songID, userID, channelID):
    """
    Enqueues a song onto a queue of a given channel
@@ -50,14 +47,15 @@ def enqueue(songID, userID, channelID):
    session.add(qi)
    session.close()
 
-def list():
+def list( channelID ):
    """
    Returns an ordered list of the items on the queue including position.
    """
    q = queueTable.join(songTable) \
        .join(artistTable)         \
        .join(albumTable, onclause=songTable.c.album_id==albumTable.c.id) \
-       .select(order_by=queueTable.c.position, use_labels=True)
+       .select(order_by=queueTable.c.position, use_labels=True) \
+       .where( queueTable.c.channel_id == channelID )
    items = q.execute()
    out = []
    for item in items:
@@ -80,7 +78,7 @@ def list():
       out.append( data )
    return out
 
-def dequeue():
+def dequeue( channelID ):
    """
    Return the filename of the next item on the queue. If the queue is empty,
    return None
@@ -88,7 +86,10 @@ def dequeue():
 
    session = Session()
 
-   nextSong = session.query(QueueItem).filter(queueTable.c.position == 1 ).first()
+   nextSong = session.query(QueueItem) \
+         .filter(queueTable.c.position == 1 ) \
+         .filter(queueTable.c.channel_id == channelID ) \
+         .first()
 
    if nextSong:
       song = nextSong.song
@@ -97,7 +98,7 @@ def dequeue():
 
    if song:
 
-      queueTable.update( values = {queueTable.c.position:queueTable.c.position-1} ).execute()
+      queueTable.update().where(queueTable.c.channel_id == channelID).values( {queueTable.c.position:queueTable.c.position-1} ).execute()
       queueTable.delete( queueTable.c.position < -20 )
 
       session.close()
@@ -149,7 +150,6 @@ def moveup(qid, delta):
                             queueTable.c.position:1
                          } ).execute()
    session.close()
-
 
 def movedown(qid, delta):
    """
