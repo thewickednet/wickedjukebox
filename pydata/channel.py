@@ -144,7 +144,7 @@ class Channel(object):
       # TODO: This block is found as well in "skipSong! --> refactor"
       # TODO: The block to retrieve the next song should be a method in itself. Encapsulating queue, random and orphaned files
       # set "current song" to the next in the queue or use random
-      self.__randomstrategy = demon.playmodes.create( Setting.get( 'random_model', 'random_weighed', channel_id=self.id ) )
+      self.__randomstrategy = demon.playmodes.create( Setting.get( 'random_model', 'random_weighed_prefetch', channel_id=self.id ) )
       self.__queuestrategy  = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict',   channel_id=self.id ) )
       self.__randomstrategy.bootstrap( self.id )
       self.__queuestrategy.bootstrap( self.id )
@@ -222,7 +222,7 @@ class Channel(object):
 
       # TODO: This block is found as well in "startPlayback"! --> refactor"
       # set "current song" to the next in the queue or use random
-      self.__randomstrategy = demon.playmodes.create( Setting.get( 'random_model', 'random_weighed' ) )
+      self.__randomstrategy = demon.playmodes.create( Setting.get( 'random_model', 'random_weighed_prefetch' ) )
       self.__queuestrategy  = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict' ) )
       self.__randomstrategy.bootstrap( self.id )
       self.__queuestrategy.bootstrap( self.id )
@@ -345,7 +345,7 @@ class Channel(object):
 
             self.__player.cropPlaylist(0)
 
-            self.__randomstrategy = demon.playmodes.create( Setting.get( 'random_model', 'random_weighed', channel_id=self.id ) )
+            self.__randomstrategy = demon.playmodes.create( Setting.get( 'random_model', 'random_weighed_prefetch', channel_id=self.id ) )
             self.__queuestrategy  = demon.playmodes.create( Setting.get( 'queue_model',  'queue_strict',   channel_id=self.id ) )
             self.__randomstrategy.bootstrap( self.id )
             self.__queuestrategy.bootstrap( self.id )
