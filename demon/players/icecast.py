@@ -124,6 +124,10 @@ def cropPlaylist(length=2):
 
 def getPosition():
    # returning as a percentage value
+
+   if not __STREAMER:
+      return (0, 100)
+
    try:
       return (int(__STREAMER.position()), 100)
    except TypeError:
