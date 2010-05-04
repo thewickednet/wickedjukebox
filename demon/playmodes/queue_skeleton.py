@@ -27,9 +27,12 @@ def enqueue(songID, userID, channelID):
 
    pass
 
-def dequeue():
+def dequeue( channelID ):
    """
    Return the next song from the queue
+
+   @type  channelID: int
+   @param channelID: The id of the channel
 
    @rtype:  Song
    @return: This should return a valid "Song" instance, which points to the next song
@@ -40,10 +43,13 @@ def dequeue():
 
    return None
 
-def moveup(qid, delta):
+def moveup( channelID, qid, delta ):
    """
    Move a song upwards in the queue by <delta> steps
    (meaning it will be played earlier).
+
+   @type channelID: int
+   @param channelID: The channel ID
 
    @type  delta: int
    @param delta: How many steps the song is move up in the queue
@@ -53,10 +59,13 @@ def moveup(qid, delta):
    """
    pass
 
-def movedown(qid, delta):
+def movedown( channelID, qid, delta):
    """
    Move a song downwards in the queue by <delta> steps
    (meaning it will be played later).
+
+   @type channelID: int
+   @param channelID: The channel ID
 
    @type  delta: int
    @param delta: How many steps the song is move down in the queue
@@ -66,20 +75,56 @@ def movedown(qid, delta):
    """
    pass
 
-def movetop(qid):
+def movetop( channelID, qid ):
    """
    Move a song to the top of the queue (meaning it will be played next)
+
+   @type channelID: int
+   @param channelID: The channel ID
 
    @type  qid: int
    @param qid: The database ID of the queue item (*not* the song!)
    """
    pass
 
-def movebottom(qid):
+def movebottom( channelID, qid ):
    """
    Move a song to the bottom of the queue (meaning it will be played last)
 
+   @type channelID: int
+   @param channelID: The channel ID
+
    @type  qid: int
    @param qid: The database ID of the queue item (*not* the song!)
+   """
+   pass
+
+def list( channelID ):
+   """
+   Returns an ordered list of the items on the queue including position.
+
+   Example return value:
+
+       [{
+         'position': 1,
+         'song': {
+               'id':       123,
+               'title':    'supercool song'
+               'duration': 310
+            },
+         'album': {
+               'id':   234,
+               'name': 'My Album'
+            },
+         'artist': {
+               'id':   345,
+               'name': 'Wildecker Herzbuben'
+            }
+       }]
+
+   @type channelID: int
+   @param channelID: The channel ID
+
+   @rtype: dict
    """
    pass
