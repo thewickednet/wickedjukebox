@@ -156,6 +156,10 @@ def findSong(channel_id):
 
    resultProxy = dbText(query, bind=engine).execute()
    res = resultProxy.fetchall()
+
+   if not res:
+      return None
+
    try:
       if not res[0][2]:
          # no users are online!
