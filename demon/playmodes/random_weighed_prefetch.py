@@ -86,9 +86,9 @@ def findSong(channel_id):
          # no users online
          query = """
             SELECT s.id, s.localpath,
-               ((IFNULL( least(604800, time_to_sec(timediff(NOW(), lastPlayed))), 604800)-604800)/604800*%(lastPlayed)d)
+               ((IFNULL( least(604800, (NOW()-lastPlayed)), 604800)-604800)/604800*%(lastPlayed)d)
                   + IF( lastPlayed IS NULL, %(neverPlayed)d, 0)
-                  + IFNULL( IF( time_to_sec(timediff(NOW(),s.added))<1209600, time_to_sec(timediff(NOW(),s.added))/1209600*%(songAge)d, 0), 0)
+                  + IFNULL( IF( (NOW()-s.added)<1209600, (NOW()-s.added)/1209600*%(songAge)d, 0), 0)
                   + ((RAND()*%(randomness)f*2)-%(randomness)f)
                AS score
             FROM song s
@@ -110,10 +110,10 @@ def findSong(channel_id):
       else:
          query = """
             SELECT s.id, s.localpath,
-               ((IFNULL( least(604800, time_to_sec(timediff(NOW(), lastPlayed))), 604800)-604800)/604800*%(lastPlayed)d)
+               ((IFNULL( least(604800, (NOW()-lastPlayed)), 604800)-604800)/604800*%(lastPlayed)d)
                   + ((IFNULL(ls.loves,0)) / (SELECT COUNT(*) FROM users WHERE UNIX_TIMESTAMP(proof_of_listening)+%(proofoflife)d > UNIX_TIMESTAMP(NOW())) * %(userRating)d)
                   + IF( lastPlayed IS NULL, %(neverPlayed)d, 0)
-                  + IFNULL( IF( time_to_sec(timediff(NOW(),s.added))<1209600, time_to_sec(timediff(NOW(),s.added))/1209600*%(songAge)d, 0), 0)
+                  + IFNULL( IF( (NOW()-s.added) < 1209600, (NOW()-s.added)/1209600*%(songAge)d, 0), 0)
                   + ((RAND()*%(randomness)f*2)-%(randomness)f)
                AS score
             FROM song s
