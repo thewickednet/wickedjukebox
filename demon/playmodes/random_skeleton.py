@@ -8,7 +8,6 @@ and you should be fine.
 # These imports might prove useful:
 #
 ## from demon.model import create_session, Song
-## from twisted.python import log
 
 def bootstrap(channel_id):
    """

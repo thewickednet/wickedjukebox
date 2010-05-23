@@ -8,7 +8,6 @@ and you should be fine.
 # These imports might prove useful:
 #
 ## from demon.model import create_session, Song
-## from twisted.python import log
 ## from demon.model import create_session, QueueItem
 
 def enqueue(songID, userID, channelID):

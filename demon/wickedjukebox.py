@@ -9,13 +9,14 @@ from model import create_session, Artist, Album, Song, \
 from sqlalchemy import and_, func
 from datetime import datetime
 from util import Scrobbler, fs_encoding
-from twisted.python import log
 import playmodes, players
 from demon.util import config
 from random import choice, random
 import urllib2, re
 from pydata.channel import Channel
 from pydata.util import direxists
+import logging
+logger = logging.getLogger(__name__)
 
 def fsdecode( string ):
    try:
@@ -126,7 +127,7 @@ class Scanner(threading.Thread):
             return meta.info.bitrate
          except AttributeError, ex:
             import traceback; traceback.print_exc()
-            log.err()
+            logging.error("Internal Error", exc_info=True)
             self.__errors.append("Error retrieving bitrate: %s", str(ex))
             return None
 
@@ -154,16 +155,16 @@ class Scanner(threading.Thread):
             cap = cap.decode(fs_encoding)
 
          if not os.path.exists( dir.encode(fs_encoding) ):
-            log.msg( "Folder '%s' not found!" % (dir) )
+            logging.warning( "Folder '%s' not found!" % (dir) )
             return
 
-         log.msg( "-------- scanning %s (cap='%s')---------" % (dir,cap) )
+         logging.info( "-------- scanning %s (cap='%s')---------" % (dir,cap) )
 
          # Only scan the files specified in the settings table
          recognizedTypes = getSetting('recognizedTypes', 'mp3 ogg flac').split()
 
          # count files
-         log.msg( "-- counting..." )
+         logging.info( "-- counting..." )
          self.__total_files = 0
          for root, dirs, files in os.walk(dir.encode(fs_encoding)):
 
@@ -209,27 +210,27 @@ class Scanner(threading.Thread):
                   # we have a valid file
                   if config['core.debug'] != "0":
                      try:
-                        log.msg( "[%6d/%6d (%03.2f%%)] %s" % (
+                        logging.info( "[%6d/%6d (%03.2f%%)] %s" % (
                            self.__scanned_files,
                            self.__total_files,
                            self.__scanned_files/float(self.__total_files)*100,
                            repr(os.path.basename(filename))
                            ))
                      except ZeroDivisionError:
-                        log.msg( "[%6d/%6d (%5s )] %s" % (
+                        logging.info( "[%6d/%6d (%5s )] %s" % (
                            self.__scanned_files,
                            self.__total_files,
                            '?',
                            repr(os.path.basename(filename))
                            ))
                   elif self.__scanned_files % 1000 == 0:
-                     log.msg("Scanned %d out of %d files" % (self.__scanned_files, self.__total_files))
+                     logging.info("Scanned %d out of %d files" % (self.__scanned_files, self.__total_files))
 
                   try:
                      metadata = mutagen.File( filename.encode(fs_encoding) )
                   except Exception, ex:
                      import traceback; traceback.print_exc()
-                     log.err( "%r contained no valid metadata! Excetion message: %s" % (filename, str(ex)) )
+                     logging.warning( "%r contained no valid metadata! Excetion message: %s" % (filename, str(ex)) )
                      self.__errors.append( str(ex) )
                      continue
                   title  = self.getTitle(metadata)
@@ -293,7 +294,7 @@ class Scanner(threading.Thread):
                            song.genres      = []
                            song.genres.append( genre )
                         if config['core.debug'] != "0":
-                           log.msg( "Updated %s" % ( filename ) )
+                           logging.info( "Updated %s" % ( filename ) )
 
                   song.title       = title
                   song.track_no    = track_no
@@ -324,62 +325,15 @@ class Scanner(threading.Thread):
                if x is False: continue
                if not x.startswith(cap): dirs.remove(x.encode(fs_encoding))
 
-         log.msg( "--- done scanning (%7d/%7d songs scanned, %7d errors)" % (self.__scanned_files, self.__total_files, len(self.__errors)) )
+         logging.info( "--- done scanning (%7d/%7d songs scanned, %7d errors)"
+               % (self.__scanned_files, self.__total_files, len(self.__errors))
+               )
 
       def run(self):
          for folder in self.__folders:
             self.__crawl_directory(folder, self.__cap, self.__forceScan)
 
          session  = create_session()
-
-         #log.msg( "--- Checking for orphaned songs... " )
-         #for song in session.query(Song).select():
-         #   if not os.path.exists(song.localpath):
-         #      log.msg('File %s not found on filesystem.' % song.localpath)
-         #      try:
-         #         targetSongs = session.query(Song).select(and_(
-         #               Song.c.title==song.title,
-         #               Song.c.artist_id==song.artist_id,
-         #               Song.c.album_id==song.album_id,
-         #               Song.c.track_no==song.track_no
-         #               ))
-
-         #         for targetSong in targetSongs:
-         #            if song.localpath != targetSong.localpath:
-         #               log.msg('Song with id %d moved to id %d' % (song.id, targetSong.id))
-         #               newPath = targetSong.localpath
-         #               for data in session.query(ChannelStat).select_by(ChannelStat.c.song_id==targetSong.id):
-         #                  session.delete(data)
-         #               session.flush()
-         #               session.delete(targetSong)
-         #               song.localpath = newPath
-         #               session.save(song)
-         #      except IndexError:
-         #         # no such song found. We can delete the entry from the database
-         #         log.msg('File %s disappeared!' % song.localpath)
-         #         for data in session.query(ChannelStat).select_by(song.c.song_id==song.id):
-         #            session.delete(data)
-         #         session.flush()
-         #         session.delete(song)
-         #      session.flush()
-         #log.msg( "--- ... done checking for orphaned songs. " )
-
-         #log.msg( "--- Checking for empty genres... " )
-         #for x in session.query(Genre):
-         #   if len(x.songs) == 0:
-         #      log.msg('Genre %-15s was empty' % x.name)
-         #      session.delete(x)
-         #session.flush()
-         #log.msg( "--- ... done checking for empty genres. " )
-
-         #log.msg( "--- Checking for empty albums... " )
-         #for x in session.query(Albums):
-         #   if len(x.songs) == 0:
-         #      log.msg('Album %-15s was empty' % x.name)
-         #      session.delete(x)
-         #session.flush()
-         #log.msg( "--- ... done checking for empty albums. " )
-
          session.close()
          if self.__callback is not None:
             self.__callback()

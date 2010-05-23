@@ -3,7 +3,6 @@ from sqlalchemy.exceptions import SQLError
 import logging
 from util import config
 from datetime import datetime, date
-from twisted.python import log
 from mutagen import File as MediaFile
 import sys
 from os import stat, path
@@ -13,10 +12,11 @@ logger = logging.getLogger(__name__)
 if config['database.type'] == 'sqlite':
    import os
    if os.path.exists( config['database.file'] ):
-      log.msg("SQLite database found. All good!")
+      logging.debug("SQLite database found. All good!")
    else:
-      log.err("SQLite database (as specified in config.ini) does not exist.\
-      Please create it based on the SQL script found in data/database.sql")
+      logging.critical("SQLite database (as specified in config.ini) does "
+            "not exist. Please create it based on the SQL script found in "
+            "data/database.sql")
       sys.exit(0)
    dburi = "%s:///%s" % (
          config['database.type'],
@@ -37,7 +37,7 @@ else:
 
 metadata = BoundMetaData(dburi, encoding='utf-8', echo=True)
 if int(config['core.debug_sql']) > 0:
-   log.msg( "Echoing database queries" )
+   logging.info( "Echoing database queries" )
    metadata.engine.echo = True
 else:
    metadata.engine.echo = False

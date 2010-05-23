@@ -9,7 +9,8 @@ from demon.lib import mpdclient
 from demon.model import getSetting
 from datetime import datetime
 import os, sys, time
-from twisted.python import log
+import logging
+logger = logging.getLogger(__name__)
 
 connection = None  # The interface to mpd
 host       = None
@@ -43,15 +44,15 @@ def __connect():
 
    while True:
       try:
-         log.msg( "Connecting to MPD backend..." )
+         logging.info( "Connecting to MPD backend..." )
          connection = mpdclient.MpdController( host, port )
       except mpdclient.MpdConnectionPortError, ex:
          import traceback; traceback.print_exc()
-         log.err("Error connecting to the player.")
+         logging.warning("Error connecting to the player.")
          time.sleep(1)
          continue
       break
-   log.msg( "... MPD connected" )
+   logging.info( "... MPD connected" )
 
 def getPosition():
    """
@@ -86,18 +87,18 @@ def getSong():
                connection.getCurrentSong().path.decode(sys.getfilesystemencoding()))
       except mpdclient.MpdError, ex:
          if str(ex).find('not done processing current command') > 0:
-            log.msg('"not done processing current command" received. Retrying')
+            logging.warning('"not done processing current command" received. Retrying')
             connection.clearError()
             time.sleep(1)
             continue
          elif str(ex).find('playlistLength not found') > 0:
-            log.msg('"playlistLength not found" received. Reconnecting to backend...')
+            logging.warning('"playlistLength not found" received. Reconnecting to backend...')
             __disconnect()
             time.sleep(1)
             __connect()
             continue
          elif str(ex).find('problem parsing song info') > 0:
-            log.msg('"problem parsing song info" received. Retrying')
+            logging.warning('"problem parsing song info" received. Retrying')
             connection.clearError()
             time.sleep(1)
             continue
@@ -127,7 +128,7 @@ def queue(filename):
    # config!! This is handled here.
    if filename[0:len(rootFolder)] == rootFolder:
       filename = filename[len(rootFolder)+1:]
-   log.msg("queuing %s" % filename)
+   logging.info("queuing %s" % filename)
    try:
       connection.add([filename])
       if getSetting('sys_utctime', 0) == 0:
@@ -136,7 +137,7 @@ def queue(filename):
          songStarted = datetime.now()
       return True
    except Exception, ex:
-      log.err( "error queuing (%s)." % ex )
+      logging.error( "error queuing (%s)." % ex )
       return False
 
    # keep the playlist clean
@@ -144,7 +145,7 @@ def queue(filename):
       if connection.getStatus().playlistLength > 2:
          connection.delete([0])
    except mpdclient.MpdError, ex:
-      log.err()
+      logging.error("Internal Error", exc_info=True)
 
 def playlistSize():
    """
@@ -213,11 +214,11 @@ def status():
             return 'unknown (%s)' % connection.getStatus().state
       except mpdclient.MpdError, ex:
          if str(ex).find('not done processing current command') > 0:
-            log.msg("'Not done proc. command' error skipped")
+            logging.debug("'Not done proc. command' error skipped")
             time.sleep(1)
             continue
          elif str(ex).find("playlistLength not found") > 0:
-            log.msg("'playlistLength not found' error skipped")
+            logging.debug("'playlistLength not found' error skipped")
             time.sleep(1)
             continue
          else:
