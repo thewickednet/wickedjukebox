@@ -87,22 +87,42 @@ def scan(top, capping=u""):
    @param top: The root folder to scan
    @param capping: Only scan top-level folders starting with this string
    """
+   from sys import stdout
 
    top = fsencode(top)
    capping = fsencode(capping)
    logger.info("Starting scan on %r with capping %r" % (top, capping))
-   i=0
+
+   spinner_chars = r"/-\|"
+   spinner_position = 0
+   stdout.write( "Counting... /" )
+   count_total = 0
+   for root, dirs, files in walk(fsencode(top)):
+      for file in files:
+         spinner_position = (spinner_position + 1) % len(spinner_chars)
+         stdout.write( "\b%s" % spinner_chars[spinner_position] )
+         stdout.flush()
+      count_total += len(files)
+
+   stdout.write( "\n%d files to examine\n" % count_total )
+
+   count_scanned = 0
+   count_processed = 0
+   completed_ratio = 0.0
+   stdout.write( "[%50s]" % " " )
    for root, dirs, files in walk(fsencode(top)):
       relative_path = root[len(top)+1:]
       for file in files:
+         stat_char = "."
          if path.join(relative_path, file).startswith(fsencode(capping)):
             process( *fsdecode( path.join(root, file) ) )
-            i+= 1
-
-   logger.info( "Scanned %d songs" % i )
-   #count = fscan( top,
-   #       filters=[ [filter_capping, [capping]], filter_valid_extenstion ],
-   #       processors = [ processor_todatabase ]
-   #       )
-   #logger.info( "Scanned %d songs" % count )
+            stat_char = "#"
+            count_scanned += 1
+         count_processed += 1
+         completed_ratio = float(count_processed) / float(count_total)
+         progress_chars = int( 50*completed_ratio )*stat_char
+         stdout.write( 51*"\b" + "%-50s]" % progress_chars )
+   stdout.write( "\n" )
+         
+   logger.info( "Scanned %d songs" % count_scanned )
 
