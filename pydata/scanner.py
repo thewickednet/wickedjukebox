@@ -4,7 +4,6 @@ Audio file scanner module
 This module contains everything needed to scan a directory of audio files an
 store the metadata in the jukebox database
 """
-import lastfm
 from os import walk, path, sep
 from util import fsdecode, fsencode
 import logging
@@ -15,12 +14,10 @@ logger = logging.getLogger(__name__)
 
 valid_extensions = Setting.get("recognizedTypes").split(" ")
 
-API_TESTED = False
-
 def is_valid_audio_file(path):
    return path.endswith(valid_extensions[0])
 
-def process(localpath, encoding, api):
+def process(localpath, encoding):
 
    if localpath is None or encoding is None:
       logger.warning( "Skipping undefined filename!" )
@@ -34,10 +31,6 @@ def process(localpath, encoding, api):
          if not song:
             song = Song(localpath, None, None)
          song.scan_from_file( localpath, encoding )
-         if not API_TESTED:
-            print "testing tag-fetch"
-            song.update_tags( api )
-            API_TESTED = True
          session.add(song)
          logger.info( "%r" % (song) )
       except UnicodeDecodeError, ex:
@@ -96,10 +89,8 @@ def scan(top, capping=u""):
    """
    from sys import stdout
 
-   api = lastfm.Api( "0fca8185f57cebd6de99bbdd182ed56a" )
    top = fsencode(top)
    capping = fsencode(capping)
-   print api
 
    # if the capping ends with a path separator, then directly dive into that
    # directory
@@ -131,7 +122,7 @@ def scan(top, capping=u""):
       for file in files:
          stat_char = "."
          if path.join(relative_path, file).startswith(fsencode(capping)):
-            process( *fsdecode( path.join(root, file) ), api )
+            process( *fsdecode( path.join(root, file) ) )
             stat_char = "#"
             count_scanned += 1
          count_processed += 1

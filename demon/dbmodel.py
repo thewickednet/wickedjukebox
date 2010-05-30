@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Table, Column, MetaData, Unicode, DateTime
+from sqlalchemy import create_engine, Table, Column, MetaData, Unicode, DateTime, Integer, ForeignKey, String
 from sqlalchemy.sql import select, update, delete, insert
 from sqlalchemy.orm import mapper, sessionmaker, relation
 from pydata import util
@@ -78,7 +78,10 @@ genreTable     = Table( 'genre', metadata,
       autoload=True )
 songStandingTable = Table( 'user_song_standing', metadata, autoload=True )
 tagTable = Table( 'tag', metadata, autoload=True )
-songHasTagTable = Table( 'song_has_tag', metadata, autoload=True )
+song_has_tag = Table( 'song_has_tag', metadata,
+      Column('song_id', Integer, ForeignKey('song.id')),
+      Column('tag', String(32), ForeignKey('tag.label')),
+      )
 
 # ----------------------------------------------------------------------------
 # Mappers
@@ -96,7 +99,7 @@ class Tag(object):
       self.label = label
       self.inserted = datetime.now()
    def __repr__(self):
-      return "<Tag %s label=%s>" % (self.id, repr(self.name))
+      return "<Tag label=%r>" % (self.label)
 
 class Setting(object):
    @classmethod
@@ -403,18 +406,38 @@ class Song(object):
       return album_id
 
    def update_tags(self, api=None):
+      """
+      @raises: lastfm.error.InvalidApiKeyError
+      """
       if not api:
          import lastfm
          api_key = Settings.get( "lastfm_api_key", None )
-         LOG.warning( "'update_tags' should be called with an instantiated LastFM API instance to avoid unnecessary network traffic!" )_
-         if not api_key:
-            raise ValueError("To update the tags you need a valid API key! Careful, if the key is non-empty, but incorrect the internal library will hang!" )
+         LOG.warning( "'update_tags' should be called with an instantiated LastFM API instance to avoid unnecessary network traffic!" )
          api = lastfm.Api( api_key )
       if not self.title or not self.artist or not self.artist.name:
          LOG.error( "Cannot update the tags for this song. Either artist or track name are unknown" )
 
-      print self.tags
+      lastfm_track = api.get_track(
+         artist = self.artist.name,
+         track = self.title)
+      current_tag_names = set([ tag.label for tag in self.tags ])
+      lastfm_tag_names = set([ tag.name for tag in lastfm_track.top_tags ])
 
+      for remove_tag in current_tag_names.difference( lastfm_tag_names ):
+         LOG.debug("Removing tag %r from song %d", (remove_tag, self.id) )
+         song_has_tag.delete().where( song_has_tag.c.tag == remove_tag )
+
+      for add_tag in lastfm_tag_names.difference(current_tag_names):
+         if len(add_tag) > 32:
+            LOG.debug( "WARNING: tag %r is too long!" % (add_tag) )
+            continue
+         LOG.debug( "Adding tag %r to song %d" % (add_tag, self.id) )
+         sess = Session.object_session(self)
+         t = sess.query(Tag).filter_by( label=add_tag ).first()
+         if not t:
+            LOG.debug( "Creating new tag %r" % (add_tag) )
+            t = Tag( add_tag )
+         self.tags.append( t )
 
 class QueueItem(object):
    def __init__(self):
@@ -466,6 +489,7 @@ mapper( State, stateTable, properties={
       ##'channel': relation(Channel)
    })
 mapper( Genre, genreTable )
+mapper( Tag, tagTable )
 mapper( ChannelStat, channelSongs )
 mapper( DynamicPlaylist, dynamicPLTable )
 mapper(QueueItem, queueTable, properties={

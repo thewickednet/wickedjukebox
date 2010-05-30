@@ -3,7 +3,10 @@
 import cmd
 from os import path
 import sys; sys.path.insert(1, 'pydata')
+import lastfm
 from demon.dbmodel import Setting, \
+                        Session, \
+                        Artist, \
                         genreTable, \
                         songTable, \
                         albumTable, \
@@ -134,6 +137,37 @@ class Console(cmd.Cmd):
       scanner.scan( mediadirs[0], unicode(line) )
 
       print "done"
+
+   def do_update_tags(self, line):
+      """
+      Updates song tags via Last.FM
+
+      To avoid hammering the Lasst.FM API we will add a small sleep between
+      function call, so this may take a long time!
+
+      SYNOPSIS
+         update_tags <artist>
+
+      PARAMETERS
+         artist - The artis name
+      """
+      sess = Session()
+      api = lastfm.Api( "0fca8185f57cebd6de99bbdd182ed56a" )
+      artist = sess.query(Artist).filter_by( name=unicode(line) ).first()
+      if not artist:
+         sess.close()
+         print "Artist %r not found" % line
+         return
+      songs = artist.songs
+      print "%5d songs to update" % len(songs)
+      from time import sleep
+      for song in songs:
+         song.update_tags(api)
+         sleep(1)
+         print "%-40s has now %4d tags" % (song.title, len(song.tags))
+
+      sess.close()
+
 
    def do_orphans(self, line):
       """
