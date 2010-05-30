@@ -77,6 +77,8 @@ genreTable     = Table( 'genre', metadata,
       useexisting=True,
       autoload=True )
 songStandingTable = Table( 'user_song_standing', metadata, autoload=True )
+tagTable = Table( 'tag', metadata, autoload=True )
+songHasTagTable = Table( 'song_has_tag', metadata, autoload=True )
 
 # ----------------------------------------------------------------------------
 # Mappers
@@ -88,6 +90,13 @@ class Genre(object):
       self.added = datetime.now()
    def __repr__(self):
       return "<Genre %s name=%s>" % (self.id, repr(self.name))
+
+class Tag(object):
+   def __init__(self, label):
+      self.label = label
+      self.inserted = datetime.now()
+   def __repr__(self):
+      return "<Tag %s label=%s>" % (self.id, repr(self.name))
 
 class Setting(object):
    @classmethod
@@ -393,6 +402,20 @@ class Song(object):
 
       return album_id
 
+   def update_tags(self, api=None):
+      if not api:
+         import lastfm
+         api_key = Settings.get( "lastfm_api_key", None )
+         LOG.warning( "'update_tags' should be called with an instantiated LastFM API instance to avoid unnecessary network traffic!" )_
+         if not api_key:
+            raise ValueError("To update the tags you need a valid API key! Careful, if the key is non-empty, but incorrect the internal library will hang!" )
+         api = lastfm.Api( api_key )
+      if not self.title or not self.artist or not self.artist.name:
+         LOG.error( "Cannot update the tags for this song. Either artist or track name are unknown" )
+
+      print self.tags
+
+
 class QueueItem(object):
    def __init__(self):
       self.added = datetime.now()
@@ -459,7 +482,8 @@ mapper(Artist, artistTable, properties=dict(
    ))
 mapper(Song, songTable, properties=dict(
    channelstat=relation( ChannelStat, backref='song' ),
-   genres = relation( Genre, secondary=song_has_genre, backref='songs' )
+   genres = relation( Genre, secondary=song_has_genre, backref='songs' ),
+   tags = relation( Tag, secondary=song_has_tag, backref='songs' ),
    ))
 
 if __name__ == "__main__":
