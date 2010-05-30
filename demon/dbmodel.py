@@ -158,6 +158,15 @@ class Setting(object):
             else:
                LOG.debug( "   Required parameter %s was not found in the settings table!" % param_in )
                output = None
+
+            try:   
+               ins_q = insert( settingTable )
+               ins_q = ins_q.values( { 'var': param_in, 'value': output, 'channel_id': channel_id or 0, 'user_id': user_id or 0 } )
+               ins_q.execute()
+               LOG.debug("   Inserted default value into the databse!")
+            except Exception, e:
+               LOG.error( "Unable to insert default setting into the datatabase", exc_info=True ) 
+
          else:
             output = setting["value"]
 

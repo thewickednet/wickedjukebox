@@ -152,7 +152,11 @@ class Console(cmd.Cmd):
          artist - The artis name
       """
       sess = Session()
-      api = lastfm.Api( "0fca8185f57cebd6de99bbdd182ed56a" )
+      api_key = Setting.get( "lastfm_api_key", None )
+      if not api_key:
+         print "ERROR: No API key specified. You can do this it in the settings"
+         return
+      api = lastfm.Api( api_key )
       artist = sess.query(Artist).filter_by( name=unicode(line) ).first()
       if not artist:
          sess.close()
