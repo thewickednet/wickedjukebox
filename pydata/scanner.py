@@ -4,7 +4,7 @@ Audio file scanner module
 This module contains everything needed to scan a directory of audio files an
 store the metadata in the jukebox database
 """
-from os import walk, path
+from os import walk, path, sep
 from util import fsdecode, fsencode
 import logging
 from demon.dbmodel import Song, songTable, Session, Setting
@@ -91,6 +91,13 @@ def scan(top, capping=u""):
 
    top = fsencode(top)
    capping = fsencode(capping)
+
+   # if the capping ends with a path separator, then directly dive into that
+   # directory
+   if capping.endswith(sep):
+      top = path.join(top, *capping.split(sep))
+      capping = u""
+
    logger.info("Starting scan on %r with capping %r" % (top, capping))
 
    spinner_chars = r"/-\|"
