@@ -407,13 +407,14 @@ class Channel(object):
 
          # update tags for the current song
          if self.last_tagged_song != self.__currentSong and self.__lastfm_api:
-            try:
-               self.__currentSong = session.merge(self.__currentSong)
-               self.__currentSong.update_tags(self.__lastfm_api, session=session)
-               session.commit()
-               print self.__currentSong.tags
-            except Exception:
-               LOG.error("Unable to update tags", exc_info=True)
+            pass #todo: currently disabled until it can be handled in a thread
+            # try:
+            #    self.__currentSong = session.merge(self.__currentSong)
+            #    self.__currentSong.update_tags(self.__lastfm_api, session=session)
+            #    session.commit()
+            #    print self.__currentSong.tags
+            # except Exception:
+            #    LOG.error("Unable to update tags", exc_info=True)
 
          # if the song is soon finished, update stats and pick the next one
          currentPosition = self.__player.getPosition()
