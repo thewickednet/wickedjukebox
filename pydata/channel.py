@@ -28,7 +28,7 @@ class Channel(object):
       self.__scrobbler           = None
       self.__keepRunning         = True
       self.__playStatus          = 'stopped'
-      self.__currentSongID       = 0
+      self.__currentSong         = None
       self.__currentSongRecorded = False
       self.__currentSongFile     = ''
       self.__randomstrategy      = None
@@ -36,6 +36,13 @@ class Channel(object):
       self.__jingles_folder      = None
       self.__jingles_interval    = 0
       self.__no_jingle_count     = 0
+      self.__lastfm_api          = None
+      self.last_tagged_song      = None
+
+      lastfm_api_key = Setting.get( "lastfm_api_key", None )
+      if lastfm_api_key:
+         import lastfm
+         self.__lastfm_api = lastfm.Api( lastfm_api_key )
 
       ##signal.signal(signal.SIGINT, self.handle_sigint)
 
@@ -60,8 +67,10 @@ class Channel(object):
       self.id = self.__channel_data["id"]
 
    def currentSong(self):
+      if not self.__currentSong:
+         return None
       selq = select( [queueTable.c.user_id] )
-      selq = selq.where( queueTable.c.song_id == self.__currentSongID )
+      selq = selq.where( queueTable.c.song_id == self.__currentSong.id )
       selq = selq.where( queueTable.c.position == 0 )
       row  = selq.execute().fetchone()
 
@@ -69,7 +78,7 @@ class Channel(object):
       if row:
          userid = row["user_id"]
 
-      return {"id": self.__currentSongID, "userid": userid }
+      return {"id": self.__currentSong.id, "userid": userid }
 
    def isStopped(self):
       return self.__playStatus == 'stopped'
@@ -197,18 +206,18 @@ class Channel(object):
       Updates play statistics and sends a "next" command to the player backend
       """
 
-      if self.__currentSongID is None or self.__currentSongID == 0:
+      if self.__currentSong is None:
          return
 
       session = Session()
 
       query = session.query(ChannelStat).select()
       query = query.filter( songTable.c.id == channelSongs.c.song_id )
-      query = query.filter( songTable.c.id == self.__currentSongID )
+      query = query.filter( songTable.c.id == self.__currentSong.id )
       query = query.filter( channelSongs.c.channel_id == self.id )
       stat = query.first()
       if not stat:
-         stat = ChannelStat( songid = self.__currentSongID,
+         stat = ChannelStat( songid = self.__currentSong.id,
                              channelid = self.id)
          stat.skipped = 1
          stat.lastPlayed = datetime.now()
@@ -389,24 +398,34 @@ class Channel(object):
             song = session.query(Song).filter( songTable.c.localpath == self.__player.getSong() ).first()
 
             if song:
-               self.__currentSongID  = song.id
+               self.__currentSong = song
             else:
-               self.__currentSongID  = 0
+               self.__currentSong = None
 
             self.__currentSongRecorded = False
             self.__currentSongFile     = self.__player.getSong()
 
+         # update tags for the current song
+         if self.last_tagged_song != self.__currentSong and self.__lastfm_api:
+            try:
+               self.__currentSong = session.merge(self.__currentSong)
+               self.__currentSong.update_tags(self.__lastfm_api, session=session)
+               session.commit()
+               print self.__currentSong.tags
+            except Exception:
+               LOG.error("Unable to update tags", exc_info=True)
+
          # if the song is soon finished, update stats and pick the next one
          currentPosition = self.__player.getPosition()
          if (currentPosition[1] - currentPosition[0]) < 3:
-            if self.__currentSongID != 0 and not self.__currentSongRecorded:
+            if self.__currentSong and not self.__currentSongRecorded:
                query = session.query(ChannelStat)
                query = query.filter( songTable.c.id == channelSongs.c.song_id )
-               query = query.filter( songTable.c.id == self.__currentSongID )
+               query = query.filter( songTable.c.id == self.__currentSong.id )
                query = query.filter( channelSongs.c.channel_id == self.id )
                stat = query.first()
                if not stat:
-                  stat = ChannelStat( song_id = self.__currentSongID,
+                  stat = ChannelStat( song_id = self.__currentSong.id,
                                       channel_id = self.id)
                   LOG.debug("Setting last played date")
                   stat.lastPlayed = datetime.now()

@@ -414,7 +414,7 @@ class Song(object):
 
       return album_id
 
-   def update_tags(self, api=None):
+   def update_tags(self, api=None, session=None):
       """
       @raises: lastfm.error.InvalidApiKeyError
       """
@@ -432,6 +432,14 @@ class Song(object):
       current_tag_names = set([ tag.label for tag in self.tags ])
       lastfm_tag_names = set([ tag.name for tag in lastfm_track.top_tags ])
 
+      if not session:
+         # try to get the current session for this object
+         session = Session.object_session(self)
+
+      if not session:
+         # unable to get a session
+         return
+
       for remove_tag in current_tag_names.difference( lastfm_tag_names ):
          LOG.debug("Removing tag %r from song %d", (remove_tag, self.id) )
          song_has_tag.delete().where( song_has_tag.c.tag == remove_tag )
@@ -441,11 +449,8 @@ class Song(object):
             LOG.debug( "WARNING: tag %r is too long!" % (add_tag) )
             continue
          LOG.debug( "Adding tag %r to song %d" % (add_tag, self.id) )
-         sess = Session.object_session(self)
-         t = sess.query(Tag).filter_by( label=add_tag ).first()
-         if not t:
-            LOG.debug( "Creating new tag %r" % (add_tag) )
-            t = Tag( add_tag )
+         t = Tag( add_tag )
+         t = session.merge(t)
          self.tags.append( t )
 
 class QueueItem(object):
