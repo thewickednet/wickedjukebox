@@ -6,6 +6,11 @@ def create(modname, backend_params=None):
          key, value = param.split('=')
          params[key.strip()] = value.strip()
 
+   if modname in globals():
+      module = reload(globals()[modname])
+      modname.config( params )
+      return module
+
    module = 'demon.players.%s' % modname
    __import__(module)
    globals()[modname].config(params)
