@@ -154,6 +154,7 @@ def findSong(channel_id):
    else:
       raise Exception("SQLite support discontinued since revision 346. It may reappear in the future!")
 
+   LOG.debug( query )
    resultProxy = dbText(query, bind=engine).execute()
    res = resultProxy.fetchall()
 
