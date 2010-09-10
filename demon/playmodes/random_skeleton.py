@@ -7,7 +7,9 @@ and you should be fine.
 #
 # These imports might prove useful:
 #
-## from demon.model import create_session, Song
+## from demon.dbmodel import Session, Song, engine
+## import logging
+## LOG = logging.getLogger(__name__)
 
 def bootstrap(channel_id):
    """
@@ -59,5 +61,15 @@ def prefetch(channel_id, async=True):
    @param async: Whether to run the internal prefetch call asynchronously or
                  not. This MUST be implemented for asynchronous prefetchers to
                  ensure thread safety
+   """
+   pass
+
+def test(channel_id):
+   """
+   Used to run a test on the random mode.This should return a list o tuples
+   containing a Song instance as first element, and a dictionary of stats as
+   second element.
+   @param channel_id: The channel ID for which we are returning results
+   @return: List of 2-tuples (Song, stats)
    """
    pass

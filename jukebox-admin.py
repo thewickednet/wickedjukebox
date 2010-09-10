@@ -172,7 +172,6 @@ class Console(cmd.Cmd):
 
       sess.close()
 
-
    def do_orphans(self, line):
       """
       Find files that are in the database but not on disk
@@ -445,6 +444,59 @@ class Console(cmd.Cmd):
             } )
          insq.execute()
       LOG.debug( "New setting stored: %r" % params )
+
+   def do_test_random(self, line):
+      """
+      Peeks at the top 10 elements returned from a random query
+
+      SYNOPSIS
+         test_random <random_mode_name> [channel_id]
+
+      PARAMETERS
+         random_mode_name - The name of the random mode to test
+         channel_id       - The channel ID. If none is given, "1" is assumed as
+                            default
+      """
+      params = line.split()
+      if not params:
+         print "You need to specify a random mode!"
+         return
+
+      if len(params) > 2:
+         print "You did not pass the right number of params. Expected 1 but "\
+               "got %d" % len(params)
+
+      if len(params) == 2 and not params[1].isdigit():
+         print "The second parameter must be numeric!"
+
+      if len(params) == 1:
+         # set the default value for the channel
+         params.append(1)
+
+      # unpack. For readability
+      strat_name, channel_id = params
+
+      import demon.playmodes
+      try:
+         strategy = demon.playmodes.create( strat_name )
+         strategy.bootstrap( channel_id )
+      except ImportError:
+         print "Unknown random mode!"
+         return
+
+      result = strategy.test(channel_id)
+      if not result:
+         print "No results returned!"
+         return
+
+      from pprint import pprint
+
+      for row in result:
+         if not row:
+            continue
+         data, stat = row
+         print data
+         pprint(stat)
 
    do_exit = do_quit
    do_q    = do_quit

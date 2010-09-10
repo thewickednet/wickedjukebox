@@ -210,7 +210,7 @@ def peek(channel_id):
    if not output:
       return None
    else:
-      return output
+      return output, None
 
 def prefetch(channel_id, async=True):
    global prefetch_state
