@@ -7,13 +7,100 @@ and you should be fine.
 from demon.plparser import parseQuery, ParserSyntaxError
 from demon.dbmodel import Session, dynamicPLTable, Setting, Song, usersTable, \
                           channelTable, engine, songTable, songStandingTable, \
-                          channelSongs
-from sqlalchemy.sql import text as dbText, func, select, or_
+                          channelSongs, settingTable
+from sqlalchemy.sql import text as dbText, func, select, or_, and_
 from demon.util import config
+from datetime import datetime, timedelta
 import threading
 
 import logging
 LOG = logging.getLogger(__name__)
+
+def _get_user_settings( channel_id ):
+   """
+   Fetch the settings of all listening users as a dict of dicts. First key is
+   the user_id. The dict contained therein are the settings.
+
+   @param channel_id: The channel ID
+   @return: A dict of dicts
+   """
+   proofoflife_timeout = int(Setting.get('proofoflife_timeout', 120))
+   listeners_query = select([
+         usersTable.c.id,
+         usersTable.c.username,
+         settingTable.c.var,
+         settingTable.c.value,
+         ],
+         from_obj = [ usersTable.join( settingTable, and_(
+               usersTable.c.id == settingTable.c.user_id,
+               settingTable.c.channel_id == channel_id
+            ) ) ]
+         )
+   listeners_query = listeners_query.where(
+         func.unix_timestamp(usersTable.c.proof_of_listening) \
+               + proofoflife_timeout \
+               > func.unix_timestamp(func.now()))
+   LOG.debug( listeners_query )
+   r = listeners_query.execute()
+   online_users = set()
+   user_settings = {}
+   for row in r:
+      online_users.add(row[0])
+      user_settings.setdefault( row[0], {} )
+      user_settings[row[0]][row[2]] = row[3]
+
+   LOG.debug( "The following users are online: %r" % online_users )
+   LOG.debug( "User settings:" )
+   LOG.debug( user_settings )
+   return user_settings
+
+def _get_rough_query( channel_id ):
+   """
+   Construct a first selection of songs. This is later expanded to calculate a
+   more exact scoring
+
+   @param channel_id: The channel ID
+   @return: SQLAlchemy query object
+   """
+   lastPlayed  = int(Setting.get('scoring_lastPlayed',   10, channel_id=channel_id))
+   recency_threshold = int( Setting.get('recency_threshold', 120, channel_id=channel_id))
+   max_random_duration = int(Setting.get('max_random_duration', 600,  channel_id=channel_id))
+   rough_query = select( [
+         songTable.c.id,
+         songTable.c.duration,
+         channelSongs.c.lastPlayed
+      ],
+      from_obj=[
+         songTable.outerjoin( channelSongs, songTable.c.id == channelSongs.c.song_id )
+      ] )
+
+   # skip songs that are too long
+   rough_query = rough_query.where( songTable.c.duration < max_random_duration )
+
+   # skip songs that have been recently played
+   delta = timedelta( minutes=recency_threshold )
+   old_time = datetime.now() - delta
+   rough_query = rough_query.where( or_(
+      channelSongs.c.lastPlayed < old_time,
+      channelSongs.c.lastPlayed == None))
+
+   # bring in some random
+   rough_query = rough_query.order_by( func.rand() )
+
+   # now keep only a selected few
+   rough_query = rough_query.limit(200)
+   LOG.debug( "Rough Query:" )
+   LOG.debug( rough_query )
+   return rough_query
+
+def _get_standing_count( song_id, user_list, standing ):
+   query = select( [songStandingTable.c.user_id] )
+   query = query.where( songStandingTable.c.standing == standing )
+   query = query.where( songStandingTable.c.song_id == song_id )
+   query = query.where( songStandingTable.c.user_id.in_(user_list) )
+   a = query.alias() # MySQL bugfix
+   hate_count = a.count().execute().fetchone()[0]
+   return hate_count
 
 def bootstrap(channel_id):
    """
@@ -78,74 +165,30 @@ def fetch_candidates( channel_id ):
    try:
       # get settings
       userRating  = int(Setting.get('scoring_userRating',   4,  channel_id=channel_id))
-      lastPlayed  = int(Setting.get('scoring_lastPlayed',   10, channel_id=channel_id))
-      songAge     = int(Setting.get('scoring_songAge',      1,  channel_id=channel_id))
       neverPlayed = int(Setting.get('scoring_neverPlayed',  4,  channel_id=channel_id))
-      randomness  = int(Setting.get('scoring_randomness',   1,  channel_id=channel_id))
-      recency_threshold = int( Setting.get('recency_threshold', 120, channel_id=channel_id))
-      max_random_duration = int(Setting.get('max_random_duration', 600,  channel_id=channel_id))
-      proofoflife_timeout = int(Setting.get('proofoflife_timeout', 120))
 
-      # look who's online
-      listeners_query = select([usersTable.c.id,
-                  usersTable.c.username],
-            func.unix_timestamp(usersTable.c.proof_of_listening) \
-                  + proofoflife_timeout \
-                  > func.unix_timestamp(func.now()))
-      LOG.debug( listeners_query )
-      r = listeners_query.execute()
-      online_users = [ row[0] for row in r ]
-      LOG.debug( "The following users are online: %r" % online_users )
+      # fetch the channel ssettings for online users
+      user_settings = _get_user_settings( channel_id )
+      online_users = user_settings.keys()
 
       # first, we fetch a limited number of songs using the basic stats. This will
       # prevent too many queries when determining love/hate stats.
-      rough_query = select( [
-            songTable.c.id,
-            songTable.c.duration,
-            channelSongs.c.lastPlayed
-         ],
-         from_obj=[
-            songTable.outerjoin( channelSongs, songTable.c.id == channelSongs.c.song_id )
-         ] )
-
-      # skip songs that are too long
-      rough_query = rough_query.where( songTable.c.duration < max_random_duration )
-
-      # skip songs that have been recently played
-      from datetime import datetime, timedelta
-      delta = timedelta( minutes=recency_threshold )
-      old_time = datetime.now() - delta
-      rough_query = rough_query.where( or_(
-         channelSongs.c.lastPlayed < old_time,
-         channelSongs.c.lastPlayed == None))
-
-      # bring in some random
-      rough_query = rough_query.order_by( func.rand() )
-
-      # now keep only a selected few
-      rough_query = rough_query.limit(200)
-      LOG.debug( rough_query )
+      rough_query = _get_rough_query( channel_id )
 
       results = []
       count_added = 0
+      users_affecting_hate = [ x for x in user_settings if int(user_settings[x].setdefault( "hates_affect_random", 0 )) == 1  ]
+      users_affecting_love = [ x for x in user_settings if int(user_settings[x].setdefault( "loves_affect_random", 0 )) == 1  ]
+      LOG.debug( "Haters: %r", users_affecting_hate )
+      LOG.debug( "Happy People: %r", users_affecting_love )
       for row in rough_query.execute():
          # if the song is hated by someone, don't consider it further
-         hate_query = select( [songStandingTable.c.user_id] )
-         hate_query = hate_query.where( songStandingTable.c.user_id.in_(online_users) )
-         hate_query = hate_query.where( songStandingTable.c.standing=='hate' )
-         hate_query = hate_query.where( songStandingTable.c.song_id == row[0] )
-         a = hate_query.alias()
-         hate_count = a.count().execute().fetchone()[0]
+         hate_count = _get_standing_count( row[0], users_affecting_hate, 'hate' )
          if hate_count > 0:
             continue
 
          # count the loves, for points calculation
-         love_query = select( [songStandingTable.c.user_id] )
-         love_query = love_query.where( songStandingTable.c.user_id.in_(online_users) )
-         love_query = love_query.where( songStandingTable.c.standing=='love' )
-         love_query = love_query.where( songStandingTable.c.song_id == row[0] )
-         a = love_query.alias()
-         love_count = a.count().execute().fetchone()[0]
+         love_count = _get_standing_count( row[0], users_affecting_love, 'love' )
 
          # okay... let's do the scoring, first, zero in:
          score = 0.0
