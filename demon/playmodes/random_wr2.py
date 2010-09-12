@@ -46,6 +46,7 @@ def get(channel_id):
       return
    sess = Session()
    song = sess.query(Song).filter(songTable.c.id == candidates[0][0] ).first()
+   sess.close()
    return song
 
 def peek(channel_id):
