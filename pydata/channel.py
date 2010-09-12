@@ -309,6 +309,8 @@ class Channel(object):
          upcoming = self.__randomstrategy.peek(self.id)
          if upcoming:
             State.set( "upcoming_song", upcoming.id, self.id )
+         else:
+            State.set( "upcoming_song", None, self.id )
       else:
          State.set( "upcoming_song", None, self.id )
 
