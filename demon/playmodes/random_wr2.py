@@ -194,7 +194,7 @@ def fetch_candidates( channel_id ):
          score = 0.0
          # now, promote loved songs
          if len( online_users ):
-            score = score + (userRating * (love_count / len(online_users)))
+            score = score + (userRating * (float(love_count) / len(online_users)))
          # give songs that have never been played a fair chance too:
          if not row[2]:
             score = score + neverPlayed
