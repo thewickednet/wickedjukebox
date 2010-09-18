@@ -9,11 +9,14 @@ from demon.dbmodel import Setting, \
                         Artist, \
                         genreTable, \
                         songTable, \
+                        song_has_tag, \
                         albumTable, \
                         artistTable, \
                         usersTable, \
                         song_has_genre, \
-                        settingTable
+                        settingTable, \
+                        songStandingTable, \
+                        songStatsTable
 from sqlalchemy.sql import func, select, update, insert
 from util import direxists
 import logging
@@ -175,14 +178,102 @@ class Console(cmd.Cmd):
    def do_orphans(self, line):
       """
       Find files that are in the database but not on disk
+
+      SYNOPSIS
+         orphans [-d] [-q]
+
+      PARAMETERS
+         -d    - If specified, this command will remove all orphaned songs from
+                 the DB
+         -q    - Don't pint each matching row. Print only overall info (counts)
       """
 
+      params = set([_.strip().lower() for _ in line.split()])
+      delete = False
+      quiet = False
+
+      if "-d" in params:
+         delete = True
+      if "-q" in params:
+         quiet = True
+
+      count = 0
+      for row in self._orphaned_songs():
+         if not quiet:
+            print "%10d %s" % (row[0], row[1])
+         count += 1
+         if delete:
+            del_query = songStandingTable.delete().where(songStandingTable.c.song_id == row[0])
+            del_query.execute()
+            del_query = song_has_genre.delete().where(song_has_genre.c.song_id == row[0])
+            del_query.execute()
+            del_query = song_has_tag.delete().where(song_has_tag.c.song_id == row[0])
+            del_query.execute()
+            del_query = songStandingTable.delete().where(songStandingTable.c.song_id == row[0])
+            del_query.execute()
+            del_query = songStatsTable.delete().where(songStatsTable.c.song_id == row[0])
+            del_query.execute()
+            del_query = songTable.delete().where(songTable.c.id == row[0])
+            del_query.execute()
+      print "%d orphaned songs found" % count
+
+      count = 0
+      for row in self._orphaned_albums():
+         if not quiet:
+            print row
+         if delete:
+            del_query = albumTable.delete().where(albumTable.c.id == row[0])
+            del_query.execute()
+         count += 1
+      print "%d orphaned albums found" % count
+
+      count = 0
+      for row in self._orphaned_artists():
+         if not quiet:
+            print row
+         if delete:
+            del_query = artistTable.delete().where(artistTable.c.id == row[0])
+            del_query.execute()
+         count += 1
+      print "%d orphaned artists found" % count
+
+   def _orphaned_artists(self):
+      """Return rows of (artist_id, name, song_count) of artists without attached songs"""
+      s = select( [
+         artistTable.c.id,
+         artistTable.c.name,
+         func.count(songTable.c.id)
+      ], from_obj=[
+         artistTable.outerjoin(songTable, artistTable.c.id == songTable.c.artist_id)
+      ])
+      s = s.group_by( "artist.id, artist.name" )
+      s = s.order_by( "name" )
+      for row in s.execute():
+         if row[2] == 0:
+            yield row
+
+   def _orphaned_albums(self):
+      """Return rows of (album_id, name, song_count) of albums without attached songs"""
+      s = select( [
+         albumTable.c.id,
+         albumTable.c.name,
+         func.count(songTable.c.id)
+      ], from_obj=[
+         albumTable.outerjoin(songTable, albumTable.c.id == songTable.c.album_id)
+      ])
+      s = s.group_by( "album.id, album.name" )
+      s = s.order_by( "name" )
+      for row in s.execute():
+         if row[2] == 0:
+            yield row
+
+   def _orphaned_songs(self):
+      """Return rows of (song_id, path) of songs that are no longer on disk"""
       s = select([songTable.c.id, songTable.c.localpath])
       s = s.order_by( "localpath" )
-      r = s.execute()
-      for row in r:
+      for row in s.execute():
          if not path.exists( row[1] ):
-            print "%10d %s" % (row[0], row[1])
+            yield row
 
    def do_genres(self, line):
       """

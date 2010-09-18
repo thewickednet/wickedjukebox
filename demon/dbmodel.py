@@ -77,6 +77,7 @@ genreTable     = Table( 'genre', metadata,
       useexisting=True,
       autoload=True )
 songStandingTable = Table( 'user_song_standing', metadata, autoload=True )
+songStatsTable = Table( 'user_song_stats', metadata, autoload=True )
 tagTable = Table( 'tag', metadata, autoload=True )
 song_has_tag = Table( 'song_has_tag', metadata,
       Column('song_id', Integer, ForeignKey('song.id')),
