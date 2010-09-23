@@ -420,6 +420,7 @@ function autoRefreshSplash()
 
     $.doTimeout('autoRefresh', 10000, function(){
      $("#queue").load('/index.php?module=queue&action=refresh&mode=splash');
+     $("#shoutboxmsgs").load('/?module=shoutbox');
         return true;
     });
 
