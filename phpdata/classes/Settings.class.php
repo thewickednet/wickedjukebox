@@ -53,16 +53,34 @@ class Settings {
         
         $db = Zend_Registry::get('database');
         
-        $where = array();
-        $data = array(
-            'value'      => $value
-        );
         
-        $where[] = sprintf("user_id = %d", $user_id);
-        $where[] = sprintf("channel_id = %d", $channel_id);
-        $where[] = sprintf("var = '%s'", $param);
-        
-        $n = $db->update('setting', $data, $where);
+        if (self::getChannelSetting($channel_id, $user_id, $param) == false)
+        {
+
+            $data = array(
+                'channel_id' => $channel_id,
+                'user_id'    => $user_id,
+                'var'        => $param,
+                'value'      => $value
+            );
+
+            $n = $db->insert('setting', $data);
+
+        }
+        else
+        {
+
+            $where = array();
+            $data = array(
+                'value'      => $value
+            );
+
+            $where[] = sprintf("user_id = %d", $user_id);
+            $where[] = sprintf("channel_id = %d", $channel_id);
+            $where[] = sprintf("var = '%s'", $param);
+
+            $n = $db->update('setting', $data, $where);
+        }
                 
         
     }
