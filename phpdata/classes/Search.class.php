@@ -50,7 +50,7 @@ class Search {
         return $result;
     }
 
-    function bySong($pattern = "a", $limit = 0) {
+    function bySong($pattern = "a", $limit = 0, $random = false) {
         
         $db = Zend_Registry::get('database');
         $core   = Zend_Registry::get('core');
@@ -62,8 +62,13 @@ class Search {
                      ->join(array('ar' => 'artist'), 's.artist_id = ar.id', array('artist_id' => 'id', 'artist_name' => 'name'))
                      ->joinleft(array('al' => 'album'), 's.album_id = al.id', array('album_id' => 'id', 'album_name' => 'name'))
                      ->where('s.title like ?', $pattern)
-                     ->order('ar.name', 'al.name')
                      ->limit($limit);
+                     
+                     if ($random)
+                     	$select->order('rand()');
+                     else
+                     	$select->order('ar.name', 'al.name');
+                     
         
 
         $stmt = $select->query();

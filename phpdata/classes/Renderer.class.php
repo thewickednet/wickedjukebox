@@ -36,7 +36,7 @@ class Renderer {
         elseif ($this->preset['placeholder'] != '') {
             $src_file = sprintf("../httpd_data/placeholder/%s", $this->preset['placeholder']);
             if (!file_exists($src_file))
-                die("invalid request");
+                $src_file = sprintf("../httpd_data/placeholder/%s", $this->preset['placeholder']);
         } else 
                 die("invalid request");
         //print($src_file);

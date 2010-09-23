@@ -3,6 +3,7 @@
 header('Content-Type: text/html; charset=utf-8');
 session_start();
 
+
 //////////////////////////////////
 // Zend Framework includes
 
@@ -24,6 +25,7 @@ require_once('../phpdata/classes/Backend.class.php');
 require_once('../phpdata/classes/BackendDB.class.php');
 require_once('../phpdata/classes/Artist.class.php');
 require_once('../phpdata/classes/Album.class.php');
+require_once('../phpdata/classes/Event.class.php');
 require_once('../phpdata/classes/Song.class.php');
 require_once('../phpdata/classes/Genre.class.php');
 require_once('../phpdata/classes/Queue.class.php');
@@ -46,7 +48,7 @@ $demon_config = new Zend_Config_Ini('../config.ini', 'demon');
 
 //////////////////////////////////
 // DATABASE
-// 
+//
 // initiate the Database connection
 
 
@@ -113,9 +115,9 @@ $smarty = new Smarty();
 $smarty->template_dir = '../templates/';
 $smarty->compile_dir  = '../httpd_data/templates/';
 
-$core->template = "base.tpl";
 
 $smarty->register_modifier('bytesToHumanReadable', array('core','bytesToHumanReadable'));
+$smarty->register_modifier('escapeDoubleQuotes', array('core','escapeDoubleQuotes'));
 $smarty->register_function('highLight', array('core','highLight'));
 
 if (Auth::isAuthed()) {
@@ -123,6 +125,10 @@ if (Auth::isAuthed()) {
     $core->userdata = User::getUser($core->user_id);
     $core->permissions = User::getPermissions($core->userdata['group_id']);
     User::giveProof();
+    $core->template = "base.tpl";
+} else
+{
+    $core->template = "notloggedin.tpl";
 }
 
 
@@ -155,6 +161,9 @@ switch ($_GET['module']) {
     break;
     case "search":
         include "../phpdata/modules/search/index.php";
+    break;
+    case "event":
+        include "../phpdata/modules/event/index.php";
     break;
     case "album":
         include "../phpdata/modules/album/index.php";
@@ -201,7 +210,7 @@ $player_status = BackendDB::getCurrentSong($core->channel_id);
 if (Auth::isAuthed()) {
     $player_status['standing'] = User::getStanding($player_status['songinfo']['id']);
     $player_status['auth'] = 'yes';
-    
+
     $user_settings = Settings::getChannelSettings($core->channel_id, $core->user_id);
     foreach ($user_settings as $user_setting) {
 		if ($user_setting['var'] == 'hates_affect_random')
@@ -209,25 +218,25 @@ if (Auth::isAuthed()) {
       	if ($user_setting['var'] == 'loves_affect_random')
         	$player_status['loves_affect_random'] = $user_setting['value'];
     }
-    unset($user_settings);    
+    unset($user_settings);
 
     $smarty->assign("PLAYER_STATUS", $player_status);
-    
+
     $alive_useres = User::getAlive();
     $smarty->assign("ALIVE_USERS_COUNT", count($alive_useres));
     $smarty->assign("ALIVE_USERS", $alive_useres);
-    
+
     $smarty->assign("QUEUE", Queue::getCurrent());
     $smarty->assign("QUEUE_TOTAL", Queue::getTotalTime());
-    
+    $smarty->assign("UPCOMING_EVENTS", Event::getUpcoming());
     $smarty->assign("RANDOM_SONGS", Song::getRandom());
-    
+
     $smarty->assign("CHANNEL_LIST", $core->reIndex(Channel::getList(), 'id', 'name'));
 
     if (!isset($_SESSION['idle']))
       $_SESSION['idle'] = time();
-      
-      
+
+
     if ($_GET['module'] != 'queue' && $_GET['module'] != 'authrefresh' && ($_GET['module'] != 'shoutbox' && $_GET['action'] == ''))
         $_SESSION['idle'] = time();
 
@@ -246,4 +255,3 @@ $smarty->assign("BODY_TEMPLATE", $body_template);
 if ($core->display)
     $smarty->display($core->template);
 
-?>

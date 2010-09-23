@@ -2,21 +2,21 @@
 
 
 class BackendDB {
-    
-    
+
+
     function getState($channel_id = null) {
         if (!isset($channel_id))
             return array();
 
         $db = Zend_Registry::get('database');
-        
+
         $select = $db->select()
-                     ->from('state');
-                     //->where('channel_id = ?', $channel_id);
-                     
+                     ->from('state')
+                     ->where('channel_id = ?', $channel_id);
+
         $stmt = $select->query();
         $result = $stmt->fetchAll();
-        
+
         $state = array();
 
         foreach ($result as $item) {
@@ -39,7 +39,7 @@ class BackendDB {
         $songinfo = Song::get($state['current_song']);
         $artistinfo = Artist::getById($songinfo['artist_id']);
         $albuminfo = Album::getById($songinfo['album_id']);
-        
+
         $standings['love'] = Song::getStandings('love', $state['current_song']);
         $standings['hate'] = Song::getStandings('hate', $state['current_song']);
 
@@ -51,8 +51,8 @@ class BackendDB {
 	        $next_artistinfo = Artist::getById($next_songinfo['artist_id']);
 	        $next_albuminfo = Album::getById($next_songinfo['album_id']);
 		} else
-			$nextinfo = array();        
-        
+			$nextinfo = array();
+
    		$progress = $state['progress'];
 		$progress = $songinfo['duration'] / 100 * $progress;
 
@@ -100,19 +100,27 @@ class BackendDB {
                 $params = $default_params;
             break;
             default:
-                return false;            
+                return false;
         }
-            
+
         $xmlrpc_result = $xmlrpc->call($xml_request, $params);
-        
+
         return $xmlrpc_result;
-        
+
     }
-    
-    
-    
+
+
+    function skip() {
+
+    	$db 	= Zend_Registry::get('database');
+    	$core 	= Zend_Registry::get('core');
+
+        $data = array('value' => 1);
+
+        $n = $db->update('state', $data, "state = 'skipping' AND channel_id = " . $core->channel_id);
+    }
+
+
 }
 
 
-
-?>

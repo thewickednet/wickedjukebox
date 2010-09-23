@@ -40,7 +40,7 @@
                   <tr class="resultlist">
             		<td align="right" width="5%">{counter name="items" print=true}.&nbsp;&nbsp;</td>
                     <td width="45%"><a href="/song/detail/{$ITEM.song_id}/">{$ITEM.song_title}</a></td>
-                    <td width="45%"><a href="/artists/detail/{$ITEM.artist_id}/">{$ITEM.artist_name}</a></td>
+                    <td width="45%"><a href="/artist/detail/{$ITEM.artist_id}/">{$ITEM.artist_name}</a></td>
                     <td align="right" width="5%">{$ITEM.counter}</td>
                   </tr>
                 {/foreach}
@@ -58,7 +58,7 @@
                   <tr class="resultlist">
             		<td align="right" width="5%">{counter name="items" print=true}.&nbsp;&nbsp;</td>
                     <td width="45%"><a href="/album/detail/{$ITEM.album_id}/">{$ITEM.album_name}</a></td>
-                    <td width="45%"><a href="/artists/detail/{$ITEM.artist_id}/">{$ITEM.artist_name}</a></td>
+                    <td width="45%"><a href="/artist/detail/{$ITEM.artist_id}/">{$ITEM.artist_name}</a></td>
                     <td align="right" width="5%">{$ITEM.counter}</td>
                   </tr>
                 {/foreach}
@@ -75,7 +75,7 @@
             	{foreach from=$ARTIST_SONGS item=ITEM}
                   <tr class="resultlist">
             		<td align="right" width="5%">{counter name="items" print=true}.&nbsp;&nbsp;</td>
-                    <td width="90%"><a href="/artists/detail/{$ITEM.artist_id}/">{$ITEM.artist_name}</a></td>
+                    <td width="90%"><a href="/artist/detail/{$ITEM.artist_id}/">{$ITEM.artist_name}</a></td>
                     <td align="right" width="5%">{$ITEM.counter}</td>
                   </tr>
                 {/foreach}
@@ -92,7 +92,7 @@
             	{foreach from=$ARTIST_ALBUMS item=ITEM}
                   <tr class="resultlist">
             		<td align="right" width="5%">{counter name="items" print=true}.&nbsp;&nbsp;</td>
-                    <td width="90%"><a href="/artists/detail/{$ITEM.artist_id}/">{$ITEM.artist_name}</a></td>
+                    <td width="90%"><a href="/artist/detail/{$ITEM.artist_id}/">{$ITEM.artist_name}</a></td>
                     <td align="right" width="5%">{$ITEM.counter}</td>
                   </tr>
                 {/foreach}
@@ -111,7 +111,7 @@
                   <tr class="resultlist">
             		<td align="right" width="5%">{counter name="items" print=true}.&nbsp;&nbsp;</td>
                     <td width="45%"><a href="/song/detail/{$ITEM.song_id}/">{$ITEM.song_title}</a></td>
-                    <td width="45%"><a href="/artists/detail/{$ITEM.artist_id}/">{$ITEM.artist_name}</a></td>
+                    <td width="45%"><a href="/artist/detail/{$ITEM.artist_id}/">{$ITEM.artist_name}</a></td>
                     <td align="right" width="5%">{$ITEM.counter}</td>
                   </tr>
                 {/foreach}
@@ -129,7 +129,7 @@
                   <tr class="resultlist">
             		<td align="right" width="5%">{counter name="items" print=true}.&nbsp;&nbsp;</td>
                     <td width="45%"><a href="/song/detail/{$ITEM.song_id}/">{$ITEM.song_title}</a></td>
-                    <td width="45%"><a href="/artists/detail/{$ITEM.artist_id}/">{$ITEM.artist_name}</a></td>
+                    <td width="45%"><a href="/artist/detail/{$ITEM.artist_id}/">{$ITEM.artist_name}</a></td>
                     <td align="right" width="5%">{$ITEM.counter}</td>
                   </tr>
                 {/foreach}

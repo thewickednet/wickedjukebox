@@ -102,6 +102,7 @@ class Artist {
     foreach($songs as $song) {
       foreach($filemasks as $filemask){
         $check = dirname($song['localpath']) . $filemask;
+	$check = utf8_encode($check);
         if (file_exists($check))
           return $check;
       }
@@ -147,8 +148,30 @@ class Artist {
         
     }
 
+    
+    function getFavourites($artist_id = 0) {
+    	
+        $db = Zend_Registry::get('database');
+        $core   = Zend_Registry::get('core');
+    	
+        $output = array();
+        
+        $query = sprintf("SELECT song_id, duration FROM song, user_song_standing WHERE user_song_standing.song_id=song.id AND user_song_standing.user_id=%d AND user_song_standing.standing='love' AND song.artist_id=%d", $core->user_id, $artist_id);
+    	
+        $output['items'] = $db->fetchAll($query);
+        $output['count'] = count($output['items']);
+
+        $duration = 0;
+        foreach ($output['items'] as $item) {
+        	$duration += $item['duration'];
+        }
+        $output['cost'] = round($duration / 60); 
+        
+        return $output;
+        
+    }
+       
 
 }
 
 
-?>

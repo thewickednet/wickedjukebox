@@ -194,8 +194,57 @@ class Song {
     	  return $result;
     }
     
+    /**
+     * Count the number of loves/hates for a given song
+     *
+     * @param $standing: Can either be "love" or "hate"
+     * @param $song_id: The song id
+     */
+    function getCurrentStandingCount($standing = "love", $song_id = 0) {
+        $db     = Zend_Registry::get('database');
 
-    
+        /* find out who's listening */
+        $select = $db->select()
+                     ->from( 'users', array("id") )
+                     ->where( 'NOW() - proof_of_listening <= 300' );
+        $result = $select->query()->fetchAll();
+        $ids = array();
+        foreach ( $result as $row ){
+            $ids[] = $row['id'];
+        }
+        if ( count( $ids ) == 0 ){
+            return 0;
+        }
+
+        $ids = implode( ",", $ids );
+        
+        /* Count the standings */
+        if ($song_id != 0){
+          $select = $db->select()
+                       ->from('user_song_standing', array('song_id', 'counter' => 'COUNT(*)'))
+                       ->group('song_id')
+                       ->where('user_id IN ('.$ids.')')
+                       ->where('song_id = ?', $song_id)
+                       ->where('standing = ?', $standing);
+          
+          $stmt = $select->query();
+          $result = $stmt->fetchAll();
+        } else {
+          $select = $db->select()
+                       ->from(array('uss' => 'user_song_standing'), array('counter' => 'COUNT(*)'))
+                       ->join(array('s' => 'song'), 's.id = uss.song_id', array('song_id' => 'id', 'song_title' => 'title'))
+                       ->join(array('a' => 'artist'), 's.artist_id = a.id', array('artist_id' => 'id', 'artist_name' => 'name'))
+                       ->group('song_id')
+                       ->where('uss.user_id IN ('.$ids.')')
+                       ->where('standing = ?', $standing)
+                       ->order('counter DESC')
+        	             ->limit(10);
+          $stmt = $select->query();
+          $result = $stmt->fetchAll();
+        }
+        return $result;
+    }
+
     /**
      * Retrieves the list of most hated/loved songs, or the count of loves/hates per track
      * @param $standing Either "love" or "hate"
@@ -242,18 +291,17 @@ class Song {
     	
     	$song = self::get($song_id);
     	$artist = Artist::getById($song['artist_id']);
-    	$xml_request = sprintf("http://lyricwiki.org/api.php?func=getSong&artist=%s&song=%s&fmt=xml", urlencode($artist['name']), urlencode($song['title']));
+    	$xml_request = sprintf("http://api.chartlyrics.com/apiv1.asmx/SearchLyricDirect?&artist=%s&song=%s", urlencode($artist['name']), urlencode($song['title']));
     	
     	$response = file_get_contents($xml_request);
     	$xml = new SimpleXMLElement($response);
     	
-    	$result = $xml->xpath('/LyricsResult');
-		$result = $result[0];
-    	
-    	if ($result->lyrics == 'Not found')
+    	$result = $xml->xpath('/GetLyricResult');
+                
+    	if ($xml->LyricId == 0)
     		return $result->lyrics;
     	else		
-    		self::setLyrics($song_id, $result->lyrics);
+    		self::setLyrics($song_id, $xml->Lyric);
     	
     	return ""; 
     	
@@ -298,20 +346,49 @@ class Song {
     	
     }
 
-    function getOverallRating($song_id) {
+    /**
+     * Calculate the song rating
+     *
+     * @param $positive: Count of loves
+     * @param $negative: Count of hates
+     * @param $parametric: return a parametric instead of an absolute value
+     */
+    private function calc_rating( $positive, $negative, $parametric=false ){
+        if ($parametric) {
+            if ( $positive-$negative < 0){ 
+               return -($negative / ($positive+$negative));
+            } elseif ($positive-$negative > 0 ) {
+               return $positive / ($positive+$negative);
+            } else {
+               return "0.0";
+            }
+        } else {
+            return $positive - $negative;
+        }
+    }
+
+    /**
+     * Retrieve the song rating while counting only listening users
+     *
+     * @param $song_id: The song ID
+     * @type $song: int
+     */
+    function getCurrentRating( $song_id, $parametric=false ){
+    	$positive = self::getCurrentStandingCount('love', $song_id);
+    	$negative = self::getCurrentStandingCount('hate', $song_id);
+		$positive = $positive[0]['counter'];
+		$negative = $negative[0]['counter'];
+      return self::calc_rating( $positive, $negative, $parametric );
+    }
+
+    function getOverallRating($song_id, $parametric=false) {
     	
     	$positive = self::getStandingCount('love', $song_id);
     	$negative = self::getStandingCount('hate', $song_id);
 		$positive = $positive[0]['counter'];
 		$negative = $negative[0]['counter'];
-    	
-    	$user_count = User::getTotalCount();
-    	
-    	$absolute = $positive - $negative;
-    	
-    	$rating = $absolute;
-    	
-    	return $rating;
+
+      return self::calc_rating( $positive, $negative, $parametric );
     	
     }
     

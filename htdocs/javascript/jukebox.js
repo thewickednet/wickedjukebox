@@ -2,50 +2,84 @@
 
 function addsong(id) {
 
-  new Ajax.Updater('queue', '/index.php?module=queue&action=addsong&param='+id, {asynchronous:true, evalScripts:true });
+            $("#queue").load('/index.php?module=queue&action=addsong&param='+id);
   return false;
 
 }
 
 function addsplashsong(id) {
 
-  new Ajax.Updater('queue', '/index.php?module=queue&action=addsong&mode=splash&param='+id, {asynchronous:true, evalScripts:true });
+  $("#queue").load('/index.php?module=queue&action=addsong&mode=splash&param='+id);
   return false;
 
 }
 
 function delsong(id) {
-  QueueUpdates.stop();
-  Effect.Fade('queue_' + id);
-  new Ajax.Request('/index.php?module=queue&action=remove&param='+id, {asynchronous:true, evalScripts:true });
-  QueueUpdates.start();
+
+  $("#queue").load('/index.php?module=queue&action=remove&param='+id);
+
 }
 
 function addalbum(id) {
 
-  new Ajax.Updater('queue', '/index.php?module=queue&action=addalbum&param='+id, {asynchronous:true, evalScripts:true });
+  $("#queue").load('/index.php?module=queue&action=addalbum&param='+id);
   return false;
 
 }
 
-function cleanqueue() {
+function queueArtistFavourites(id) {
 
-  new Ajax.Updater('queue', '/index.php?module=queue&action=clear', {asynchronous:true, evalScripts:true });
+    $("#queue").load('/index.php?module=queue&action=addartistfavourites&param='+id);
+    return false;
+
+}
+
+function queueAlbumFavourites(id) {
+
+    $("#queue").load('/index.php?module=queue&action=addalbumfavourites&param='+id);
+    return false;
+
+}
+
+function cleanqueue(mode) {
+    
+     if (mode == 'splash') {
+    $("#queue").load('/index.php?module=queue&action=clear&mode=splash');
+     }
+     else
+         {
+    $("#queue").load('/index.php?module=queue&action=clear');
+         }
   return false;
 
 }
 
 function control(what){
-  new Ajax.Request('/index.php?module=backend&action='+what, {asynchronous:true, evalScripts:true });
+    
+  $.ajax({
+   type: "GET",
+   url: '/index.php?module=backenddb&action='+what
+  });
+  
+  
 }
 
 function refreshQueue(mode){
-  new Ajax.Updater('queue', '/index.php?module=queue&mode='+mode, {asynchronous:true, evalScripts:true });
+     if (mode == 'splash') {
+    $("#queue").load('/index.php?module=queue&mode=splash');
+     }
+     else
+         {
+    $("#queue").load('/index.php?module=queue');
+         }
   return false;
 }
 
 function refreshRandom(mode){
-  new Ajax.Updater('random', '/index.php?module=song&action=randomize&mode='+mode, {asynchronous:true, evalScripts:true, onLoading: showRandomCarousel, onComplete: hideRandomCarousel });
+    showRandomCarousel();
+    $("#random").load('/index.php?module=song&action=randomize&mode='+mode, function(){
+        hideRandomCarousel();
+    });
   return false;
 }
 
@@ -59,11 +93,18 @@ function refreshPlayerPeriodical(){
   return false;
 }
 
+function refreshPlayer(){
+    
+    $("#splashtop").load('/index.php?module=authrefresh&mode=splash');
+    
+  return false;
+}
+
 function refreshProfile(mode) {
   if (mode == 'splash') {
-    new Ajax.Updater('splashtop', '/index.php?module=authrefresh&mode='+mode, {asynchronous:true, evalScripts:true });
+    $("#splashtop").load('/index.php?module=authrefresh&mode='+mode);
   } else {
-    new Ajax.Updater('login', '/index.php?module=authrefresh&mode='+mode, {asynchronous:true, evalScripts:true });
+    $("#login").load('/index.php?module=authrefresh&mode='+mode);
   }
   return false;
 }
@@ -71,9 +112,9 @@ function refreshProfile(mode) {
 
 function setStandingAffects(action, mode) {
   if (mode == 'splash') {
-    new Ajax.Updater('splashtop', '/index.php?module=user&action='+action+'&mode='+mode, {asynchronous:true, evalScripts:true });
+    $("#splashtop").load('/index.php?module=user&action='+action+'&mode='+mode);
   } else {
-    new Ajax.Updater('login', '/index.php?module=user&action='+action+'&mode='+mode, {asynchronous:true, evalScripts:true });
+    $("#login").load('/index.php?module=user&action='+action+'&mode='+mode);
   }
   return false;
 }
@@ -81,11 +122,11 @@ function setStandingAffects(action, mode) {
 
 function setStanding(song, standing,  mode) {
   if (mode == 'splash') {
-	  new Ajax.Updater('nowplaying', '/index.php?module=splash&action=report&param='+song+'&standing='+standing, {asynchronous:true, evalScripts:true });
+	  $("#nowplaying").load('/index.php?module=splash&action=report&param='+song+'&standing='+standing);
   } else if (mode == 'detail') {
-	  new Ajax.Updater('body', '/index.php?module=song&action=detail&param='+song+'&standing='+standing, {asynchronous:true, evalScripts:true });
+	  $("#body").load('/index.php?module=song&action=detail&param='+song+'&standing='+standing);
   } else {
-	  new Ajax.Updater('login', '/index.php?module=song&action=report&song='+song+'&standing='+standing, {asynchronous:true, evalScripts:true });
+	  $("#login").load('/index.php?module=song&action=report&song='+song+'&standing='+standing);
   }
 	
   return false;
@@ -93,15 +134,17 @@ function setStanding(song, standing,  mode) {
 
 
 function getLyrics(song) {
-	  new Ajax.Updater('body', '/index.php?module=song&action=detail&param='+song+'&getLyrics=true', {asynchronous:true, evalScripts:true, onLoading: showLyricsCarousel, onComplete: hideLyricsCarousel });
-		
+          showLyricsCarousel();
+	  $("#body").load('/index.php?module=song&action=detail&param='+song+'&getLyrics=true', function(){
+		hideLyricsCarousel();
+          });
 	  return false;
 	}
 
 
 function setArtistStanding(artist, standing) {
 	  if (confirm('Do you really want to set all songs of this artist to: ' + standing)) {
-		  new Ajax.Updater('body', '/index.php?module=artist&action=detail&param='+artist+'&standing='+standing+'&mode=artist', {asynchronous:true, evalScripts:true });
+              	  $("#body").load('/index.php?module=artist&action=detail&param='+artist+'&standing='+standing+'&mode=artist');
 	  }
 	  return false;
 }
@@ -112,7 +155,7 @@ function setAlbumStanding(album, standing) {
 	  var param = document.helperform.param.value;
 	  
 	  if (confirm('Do you really want to set all songs of this album to: ' + standing)) {
-		  new Ajax.Updater('body', '/index.php?module='+module+'&action='+action+'&param='+param+'&standing='+standing+'&target='+album+'&mode=album', {asynchronous:true, evalScripts:true });
+            $("#body").load('/index.php?module='+module+'&action='+action+'&param='+param+'&standing='+standing+'&target='+album+'&mode=album');
 	  }
 	  return false;
 }
@@ -122,9 +165,9 @@ function search(target){
   var mode = document.searchform.mode.value;
 
   if (target == 'splash') {
-    new Ajax.Updater('splash', '/index.php?module=search&pattern='+pattern+'&target='+target+'&action='+mode, {asynchronous:true, evalScripts:true, onLoading: showSearchCarousel, onComplete: hideSearchCarousel });
+      $("#splash").load('/index.php?module=search&pattern='+pattern+'&target='+target+'&action='+mode);
   } else {
-    new Ajax.Updater('body', '/index.php?module=search&pattern='+pattern+'&target='+target+'&action='+mode, {asynchronous:true, evalScripts:true, onLoading: showSearchCarousel, onComplete: hideSearchCarousel });
+      $("#body").load('/index.php?module=search&pattern='+pattern+'&target='+target+'&action='+mode);
   }
     return false;
 
@@ -134,13 +177,15 @@ function login() {
   var username = document.loginform.username.value;
   var password = hex_md5(document.loginform.password.value);
 
-  new Ajax.Updater('login', '/index.php?module=auth&username='+username+'&password='+password, {asynchronous:true, evalScripts:true });
+  $("#login").load('/index.php?module=auth&username='+username+'&password='+password);
+
   return false;
 
 }
 
 function logout() {
-  new Ajax.Updater('login', '/index.php?module=auth&mode=logout', {asynchronous:true, evalScripts:true });
+  $("#login").load('/index.php?module=auth&mode=logout');
+
   return false;
 
 }
@@ -155,7 +200,7 @@ function listAlpha(alpha) {
     
   var module = document.helperform.active_node.value;
   
-  new Ajax.Updater('body', '/browse/'+module+'/'+alpha+'/', {asynchronous:true, evalScripts:true });
+  $("#body").load('/browse/'+module+'/'+alpha+'/');
   return false;
     
 }
@@ -163,7 +208,7 @@ function listAlpha(alpha) {
 
 function listSpecial(type) {
     
-  new Ajax.Updater('body', '/browse/album/'+type+'/', {asynchronous:true, evalScripts:true });
+    $("#body").load('/browse/album/'+type+'/');
   return false;
     
 }
@@ -174,7 +219,8 @@ function blaatOver(page) {
   var alpha = document.helperform.alpha.value;
   var module = document.helperform.active_node.value;
   
-  new Ajax.Updater('alpha_results', '/'+module+'/browse/'+alpha+'/'+page+'/', {asynchronous:true, evalScripts:true });
+  $("#alpha_results").load('/'+module+'/browse/'+alpha+'/'+page+'/');
+  
     
 }
 
@@ -184,7 +230,7 @@ function blaatOverDetail(page) {
   var param = document.helperform.param.value;
   var module = document.helperform.module.value;
 
-  new Ajax.Updater('results', '/?module='+module+'&action=detail&param='+param+'&pagenum='+page, {asynchronous:true, evalScripts:true });
+  $("#results").load('/?module='+module+'&action=detail&param='+param+'&pagenum='+page);
 
 }
 
@@ -195,7 +241,7 @@ function blaatOverUser(page) {
   var module = document.helperform.module.value;
   var action = document.helperform.action.value;
 
-  new Ajax.Updater('results', '/?module='+module+'&action='+action+'&param='+param+'&pagenum='+page, {asynchronous:true, evalScripts:true });
+  $("#results").load('/?module='+module+'&action='+action+'&param='+param+'&pagenum='+page);
 
 }
 
@@ -206,9 +252,9 @@ function blaatOverSearch(page, target) {
   var mode = document.searchform.mode.value;
 
   if (target == 'splash') {
-    new Ajax.Updater('splash', '/index.php?module=search&pattern='+pattern+'&action='+mode+'&target='+target+'&pagenum='+page, {asynchronous:true, evalScripts:true, onLoading: showSearchCarousel, onComplete: hideSearchCarousel });
+    $("#splash").load('/index.php?module=search&pattern='+pattern+'&action='+mode+'&target='+target+'&pagenum='+page);
   } else {
-    new Ajax.Updater('body', '/index.php?module=search&pattern='+pattern+'&action='+mode+'&target='+target+'&pagenum='+page, {asynchronous:true, evalScripts:true, onLoading: showSearchCarousel, onComplete: hideSearchCarousel });
+    $("#body").load('/index.php?module=search&pattern='+pattern+'&action='+mode+'&target='+target+'&pagenum='+page);
   }
 
 }
@@ -278,15 +324,15 @@ function hideQSearchCarousel() {
 
 
 function openPlayer() {
-    winPlayer = window.open('http://jukebox.wicked.lu/player/', 'wickedJukeboxPlayer', 'toolbar=0, location=0, scrollbars=0, resizable=0, menubar=0, status=0, width=320, height=280');
+    winPlayer = window.open('http://wickedjukebox.com/player/', 'wickedJukeboxPlayer', 'toolbar=0, location=0, scrollbars=0, resizable=0, menubar=0, status=0, width=320, height=280');
 }
 
 
 function shout() {
 	
-	var body = escape(document.shouter.body.value);
-	document.shouter.body.value = '';
-	new Ajax.Updater('shoutboxmsgs', '/?module=shoutbox&action=shout&body='+body, {asynchronous:true, evalScripts:true });
+    var body = escape(document.shouter.body.value);
+    document.shouter.body.value = '';
+    $("#shoutboxmsgs").load('/?module=shoutbox&action=shout&body='+body);
     
     return false;
 	
@@ -295,7 +341,7 @@ function shout() {
 
 function shoutbox() {
 	
-	new Ajax.PeriodicalUpdater('shoutboxmsgs', '/?module=shoutbox', {asynchronous:true, evalScripts:true, frequency: 5, decay: 1 });
+    $("#shoutboxmsgs").load('/?module=shoutbox');
     
     return false;
 	
@@ -304,9 +350,78 @@ function shoutbox() {
 
 function quicksearch() {
 	
-	var body = escape(document.qsearch.body.value);
-	new Ajax.Updater('qresults', '/?module=splash&action=search&body='+body, {asynchronous:true, evalScripts:true, onLoading: showQSearchCarousel, onComplete: hideQSearchCarousel });
+    var body = escape(document.qsearch.body.value);
+    $("#qresults").load('/?module=splash&action=search&body='+body);
     
     return false;
 	
+}
+
+function changeChannel() {
+	
+	var channel = document.getElementById('channel_changer');
+	location.href = "/user/channel/?id=" + channel.value;
+}
+
+
+// added support for multiple counter spans with arbitrary direction
+function counter() {
+	var spans=document.getElementsByName('counter');
+	for (var i=0;i<spans.length;i++){
+		var counter=1*spans[i].getAttribute("sec");
+		var inc=1*spans[i].getAttribute("inc");
+		var max=1*spans[i].getAttribute("max");
+
+		if ((inc<0 && counter>0) || (inc>0 && max>counter )) {
+			counter=counter+inc;
+
+			spans[i].setAttribute("sec",counter);
+			var s=counter;
+			var h=Math.round(Math.floor(s/(60.0*60.0)));
+			s%=(60*60);
+			var m=Math.round(Math.floor(s/60.0));
+			s%=(60);
+                        
+                        s=Math.round(s);
+                        
+                        if (s>59)
+                            {
+                                s=0;
+                                m=m+1;
+                            }
+
+                        if (s<10) {
+				s="0"+s;
+			}
+
+                        if (m<10) {
+                            m="0"+m;
+			}
+                        
+                        
+			try {
+				if (h>0) {
+					spans[i].innerHTML=h+":"+m+":"+s;
+				}else{
+					spans[i].innerHTML=m+":"+s;
+				}
+			}catch(err){} // ignore error
+		}
+                else
+                    {
+                        refreshPlayer();
+                    }
+	}
+}
+
+
+function autoRefreshSplash()
+{
+
+    $.doTimeout('autoRefresh', 10000, function(){
+     $("#queue").load('/index.php?module=queue&action=refresh&mode=splash');
+        return true;
+    });
+
+
 }

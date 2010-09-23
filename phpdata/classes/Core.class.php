@@ -128,6 +128,12 @@ class Core {
         
     }
 
+    function escapeDoubleQuotes($string) {
+        
+        return str_replace('"', '\"', $string);
+        
+    }
+
     function url2link($text) {
 		$text = preg_replace('/(http:\/\/|ftp:\/\/)([^\s,]*)/i','<a href="$1$2" target="_blank">$1$2</a>',$text);
 		$text = preg_replace('/([^"])([A-Z0-9._%-]+@[A-Z0-9.-]+\.[A-Z]{2,4})/i','$1<a href="mailto:$2">$2</a>',$text);
@@ -136,4 +142,4 @@ class Core {
     }
 }
 
-?>
+
