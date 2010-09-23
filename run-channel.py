@@ -2,6 +2,8 @@
 """
 Run a specific jukebox channel
 """
+execfile("env/bin/activate_this.py", dict(__file__="env/bin/activate_this.py"))
+
 import os, sys
 import signal
 import time

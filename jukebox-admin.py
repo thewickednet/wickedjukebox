@@ -1,5 +1,7 @@
-#!/var/www/wicked.lu/jukebox_env_2009/environment/bin/python
+#!/usr/bin/python
 # -*- coding: utf8 -*-
+execfile("env/bin/activate_this.py", dict(__file__="env/bin/activate_this.py"))
+
 import cmd
 from os import path
 import sys; sys.path.insert(1, 'pydata')
