@@ -188,7 +188,7 @@ class Channel(object):
 
    def enqueue(self, songID, userID=None):
 
-      self.__queuestrategy = demon.playmodes.create( Setting.get( 'queue_model',  'queue_positioned' ) )
+      self.__queuestrategy = demon.playmodes.create( Setting.get( 'queue_model',  'queue_positioned', channel_id=self.id ) )
       self.__queuestrategy.enqueue(
             songID,
             userID,
@@ -198,7 +198,7 @@ class Channel(object):
             )
 
    def current_queue(self):
-      self.__queuestrategy = demon.playmodes.create( Setting.get( 'queue_model',  'queue_positioned' ) )
+      self.__queuestrategy = demon.playmodes.create( Setting.get( 'queue_model',  'queue_positioned', channel_id=self.id ) )
       return self.__queuestrategy.list( self.id )
 
    def skipSong(self):
@@ -228,8 +228,8 @@ class Channel(object):
 
       # TODO: This block is found as well in "startPlayback"! --> refactor"
       # set "current song" to the next in the queue or use random
-      self.__randomstrategy = demon.playmodes.create( Setting.get( 'random_model', 'random_weighed_prefetch' ) )
-      self.__queuestrategy  = demon.playmodes.create( Setting.get( 'queue_model',  'queue_positioned' ) )
+      self.__randomstrategy = demon.playmodes.create( Setting.get( 'random_model', 'random_weighed_prefetch', channel_id=self.id ) )
+      self.__queuestrategy  = demon.playmodes.create( Setting.get( 'queue_model',  'queue_positioned', channel_id=self.id ) )
       self.__randomstrategy.bootstrap( self.id )
 
       nextSong = self.__queuestrategy.dequeue(self.id)
@@ -247,11 +247,11 @@ class Channel(object):
          return 'ER: Unable to skip song, no followup song returned'
 
    def moveup(self, qid, delta):
-      self.__queuestrategy = demon.playmodes.create( Setting.get( 'queue_model',  'queue_positioned' ) )
+      self.__queuestrategy = demon.playmodes.create( Setting.get( 'queue_model',  'queue_positioned', channel_id=self.id ) )
       self.__queuestrategy.moveup(self.id, qid, delta)
 
    def movedown(self, qid, delta):
-      self.__queuestrategy = demon.playmodes.create( Setting.get( 'queue_model',  'queue_positioned' ) )
+      self.__queuestrategy = demon.playmodes.create( Setting.get( 'queue_model',  'queue_positioned', channel_id=self.id ) )
       self.__queuestrategy.movedown(self.id, qid, delta)
 
    def get_jingle(self):

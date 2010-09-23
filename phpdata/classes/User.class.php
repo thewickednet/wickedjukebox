@@ -261,6 +261,9 @@ class User {
     
     function set($data = array(), $user_id = 0) {
         
+        $db = Zend_Registry::get('database');
+        $core   = Zend_Registry::get('core');
+
         if ($user_id == 0) {
             $data['added'] = new Zend_Db_Expr('CURDATE()');
         
