@@ -127,6 +127,8 @@ class MP3Meta( AudioMeta ):
          encoded = text.encode("utf_16_le")
          if encoded.startswith( codecs.BOM_UTF16_BE ) or encoded.startswith( codecs.BOM_UTF16_LE ):
             return encoded[2:].replace("\x00", "").decode("utf8")
+         else:
+            return text
       elif data.encoding == 3:
          # utf8
          return text
