@@ -2,16 +2,14 @@
 """
 Run a specific jukebox channel
 """
-execfile("env/bin/activate_this.py", dict(__file__="env/bin/activate_this.py"))
 
-import os, sys
 import signal
 import time
 import logging
-import logging.config
 from pydata.channel import Channel
+from pydata import setup_logging
+setup_logging()
 logger = logging.getLogger(__name__)
-logging.config.fileConfig("logging.ini")
 CHANNEL = None
 KEEP_RUNNING = True
 
@@ -23,7 +21,6 @@ def handle_sigint(signal, frame):
 
 def run_channel( channel_name ):
    "Starts a channel"
-   from pydata.channel import Channel
    global CHANNEL
 
    while KEEP_RUNNING:

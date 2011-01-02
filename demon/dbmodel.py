@@ -5,15 +5,11 @@ from pydata import util
 from datetime import datetime, date
 import sys
 import logging
-import logging.config
 from os import stat
 from os.path import basename
-try:
-   logging.config.fileConfig("logging.ini")
-except Exception, e:
-   import traceback
-   logging.basicConfig(level=logging.DEBUG,)
-   logging.warning( "Unable to configure logger (%r). Will use default DEBUGGING logger.\n%s" % (e, traceback.format_exc()) )
+from pydata import setup_logging
+
+setup_logging()
 
 LOG = logging.getLogger(__name__)
 CFG = util.loadConfig( "config.ini" )

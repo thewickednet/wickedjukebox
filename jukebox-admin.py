@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf8 -*-
-execfile("env/bin/activate_this.py", dict(__file__="env/bin/activate_this.py"))
 
 import cmd
 from os import path
@@ -21,9 +20,10 @@ from demon.dbmodel import Setting, \
                         songStatsTable
 from sqlalchemy.sql import func, select, update, insert
 from util import direxists
+from pydata import setup_logging
 import logging
-import logging.config
-logging.config.fileConfig("logging.ini")
+
+setup_logging()
 
 LOG = logging.getLogger(__name__)
 

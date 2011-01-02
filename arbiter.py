@@ -1,11 +1,11 @@
 from multiprocessing import Process
 import logging
-import logging.config
 from time import sleep
+from pydata import setup_logging
 
 from run_channel import run_channel
 
-logging.config.fileConfig("logging.ini")
+setup_logging()
 
 LOG = logging.getLogger(__name__)
 POOL =[]
