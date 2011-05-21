@@ -1,3 +1,4 @@
+import logging
 import logging.config
 def setup_logging():
     try:
