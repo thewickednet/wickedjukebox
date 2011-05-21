@@ -22,7 +22,7 @@ DBURI = "%s://%s:%s@%s/%s?charset=utf8" % (
          )
 
 metadata      = MetaData()
-engine        = create_engine(DBURI, echo=True)
+engine        = create_engine(DBURI, echo=False)
 metadata.bind = engine
 Session       = sessionmaker( bind = engine )
 
