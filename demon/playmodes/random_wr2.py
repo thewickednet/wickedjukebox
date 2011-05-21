@@ -7,7 +7,7 @@ and you should be fine.
 from demon.plparser import parseQuery, ParserSyntaxError
 from demon.dbmodel import Session, dynamicPLTable, Setting, Song, usersTable, \
                           channelTable, engine, songTable, songStandingTable, \
-                          channelSongs, settingTable
+                          channelSongs, settingTable, albumTable, artistTable
 from sqlalchemy.sql import text as dbText, func, select, or_, and_
 from demon.util import config
 from datetime import datetime, timedelta
@@ -71,7 +71,7 @@ def _get_rough_query( channel_id ):
          channelSongs.c.lastPlayed
       ],
       from_obj=[
-         songTable.outerjoin( channelSongs, songTable.c.id == channelSongs.c.song_id )
+         songTable.outerjoin( channelSongs, songTable.c.id == channelSongs.c.song_id ).outerjoin( albumTable, songTable.c.album_id == albumTable.c.id ).outerjoin( artistTable, songTable.c.artist_id == artistTable.c.id )
       ] )
 
    # skip songs that are too long
@@ -83,6 +83,28 @@ def _get_rough_query( channel_id ):
    rough_query = rough_query.where( or_(
       channelSongs.c.lastPlayed < old_time,
       channelSongs.c.lastPlayed == None))
+
+   # keep only songs that satisfy the dynamic playlist query for this channel
+   sel = select( [dynamicPLTable.c.query] )
+   sel = sel.where(dynamicPLTable.c.group_id > 0)
+   sel = sel.where(dynamicPLTable.c.channel_id == channel_id)
+
+   # only one query will be parsed. for now.... this is a big TODO
+   # as it triggers an unexpected behaviour (bug). i.e.: Why the
+   # heck does it only activate one playlist?!?
+   dpl = sel.execute().fetchone()
+   try:
+      if dpl and parseQuery( dpl["query"] ):
+         rough_query = rough_query.where("(" + parseQuery( dpl["query"] ) + ")")
+   except ParserSyntaxError, ex:
+      import traceback
+      traceback.print_exc()
+      LOG.error( str(ex) )
+      LOG.error( 'Query was: %s' % dpl.query )
+   except:
+      import traceback
+      traceback.print_exc()
+      LOG.error()
 
    # bring in some random
    rough_query = rough_query.order_by( func.rand() )

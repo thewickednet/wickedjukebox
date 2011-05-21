@@ -81,10 +81,10 @@ def p_expression(p):
    '''expression : FIELD EQUALS VALUE
                 | FIELD LIKE VALUE'''
    # map field names to correct db names (a=artist, s=song, b=album, g=genre)
-   if p[1]   == 'artist': p[1] = 'a.name'
-   elif p[1] == 'album':  p[1] = 'b.name'
-   elif p[1] == 'song':   p[1] = 's.title'
-   elif p[1] == 'genre':  p[1] = 'g.name'
+   if p[1]   == 'artist': p[1] = 'artist.name'
+   elif p[1] == 'album':  p[1] = 'album.name'
+   elif p[1] == 'song':   p[1] = 'song.title'
+   elif p[1] == 'genre':  p[1] = 'genre.name'
 
    if p[2] in ['is', '=']:
       p[0] = "%s = '%s'" % (p[1], p[3])
