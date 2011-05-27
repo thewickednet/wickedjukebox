@@ -12,6 +12,8 @@ from sqlalchemy.sql import text as dbText, func, select, or_, and_
 from demon.util import config
 from datetime import datetime, timedelta
 import threading
+import random
+random.seed()
 
 import logging
 LOG = logging.getLogger(__name__)
@@ -85,7 +87,7 @@ def _get_rough_query( channel_id ):
       channelSongs.c.lastPlayed == None))
 
    # keep only songs that satisfy the dynamic playlist query for this channel
-   sel = select( [dynamicPLTable.c.query] )
+   sel = select( [dynamicPLTable.c.query, dynamicPLTable.c.probability] )
    sel = sel.where(dynamicPLTable.c.group_id > 0)
    sel = sel.where(dynamicPLTable.c.channel_id == channel_id)
 
@@ -94,7 +96,9 @@ def _get_rough_query( channel_id ):
    # heck does it only activate one playlist?!?
    dpl = sel.execute().fetchone()
    try:
-      if dpl and parseQuery( dpl["query"] ):
+      rnd = random.random()
+      LOG.debug("Random value=%3.2f, playlist probability=%3.2f" % (rnd, dpl["probability"]))
+      if dpl and rnd >= dpl["probability"] and parseQuery( dpl["query"] ):
          rough_query = rough_query.where("(" + parseQuery( dpl["query"] ) + ")")
    except ParserSyntaxError, ex:
       import traceback
