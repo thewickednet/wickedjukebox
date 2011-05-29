@@ -99,7 +99,7 @@ def _get_rough_query( channel_id ):
       try:
          rnd = random.random()
          LOG.debug("Random value=%3.2f, playlist probability=%3.2f" % (rnd, dpl["probability"]))
-         if dpl and rnd >= dpl["probability"] and parseQuery( dpl["query"] ):
+         if dpl and rnd <= dpl["probability"] and parseQuery( dpl["query"] ):
             rough_query = rough_query.where("(" + parseQuery( dpl["query"] ) + ")")
       except ParserSyntaxError, ex:
          import traceback
