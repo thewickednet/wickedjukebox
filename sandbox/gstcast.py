@@ -54,11 +54,12 @@ def init_player():
    source = gst.element_factory_make( "filesrc", "file-source" )
    decoder = gst.element_factory_make( "mad", "mp3-decoder" )
    conv = gst.element_factory_make( "audioconvert", "converter" )
-   encoder = gst.element_factory_make( "lame", "encoder" )
+   encoder = gst.element_factory_make( "lamemp3enc", "encoder" )
+   resampler = gst.element_factory_make( "audioresample", "resampler" )
    tagger = gst.element_factory_make( "taginject", "tagger" )
    icysource = gst.element_factory_make( "shout2send", "icysource" )
-   PLAYER.add( source, decoder, conv, encoder, tagger, icysource )
-   gst.element_link_many( source, decoder, conv, encoder, tagger, icysource )
+   PLAYER.add( source, decoder, conv, resampler, encoder, tagger, icysource )
+   gst.element_link_many( source, decoder, conv, encoder, icysource )
    bus = PLAYER.get_bus()
    bus.add_signal_watch()
    bus.connect( "message", on_message )
@@ -73,10 +74,10 @@ def init_player():
 # shout2send ip=<ip> port=<pors> password=<pwd> mount=<mount> streamname=<streamname>
 
 if __name__ == "__main__":
-   init_player( )
-   thread.start_new_thread( play, (
-      sys.argv[1],     # filename
-      sys.argv[2]) )   # icecast source password
+   from getpass import getpass
+   init_player()
+   source_pwd = getpass("Icecast source password: ")
+   thread.start_new_thread( play, ( sys.argv[1], source_pwd) )
    gobject.threads_init()
    LOOP = glib.MainLoop()
    LOOP.run()
