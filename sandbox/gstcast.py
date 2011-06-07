@@ -11,22 +11,27 @@ import gst
 
 LOG = logging.getLogger(__name__)
 
-__PORT = None
-__MOUNT = None
-__PASSWORD = None
-__STREAMER = None
-__ADMIN_URL = None
-__ADMIN_USER = None
-__ADMIN_PASSWORD = None
-__CHANNEL_ID = 0
+class PlayerState(object):
+    def __init__(self):
+        self.song_started = None
+        self.admin_password = None
+        self.admin_url = None
+        self.admin_user = None
+        self.channel_id = 0
+        self.mount = None
+        self.password = None
+        self.port = None
+        self.queue = []
+        self.server = None
+        self.streamer = None
 
 class GStreamer(object):
 
-    def __init__(self, passwd):
+    def __init__(self):
         self.position = (0,0)
         self.player = None
         self.thread_id = None
-        self.icy_passwd = passwd
+        self.filename = None
         self.is_playing = False
         self.method = "module_method"
         LOG.info("GStreamer class initialised")
@@ -49,7 +54,7 @@ class GStreamer(object):
         bus.connect( "message", self.on_message )
 
     def current_position(self):
-        pass
+        return self.position
 
     def on_message( self, bus, message ):
         """
@@ -71,14 +76,23 @@ class GStreamer(object):
         else:
             LOG.debug( "Unexpected gst message: %s" %  message )
 
+    def stop(self):
+        LOG.info("Stopping stream")
+        self.filename = None
+        self.thread_id = None
+        self.player.set_state(gst.STATE_NULL)
+        self.is_playing = False
+        self.position = (0, 0)
+
+    def status(self):
+        return self.is_playing and "playing" or "stop"
+
     def start_stop(self, filename):
         if self.is_playing:
-            LOG.info("Stopping stream")
-            self.thread_id = None
-            self.player.set_state(gst.STATE_NULL)
-            self.is_playing = False
+            self.stop()
         else:
             LOG.info("Stream startin for %s" % filename)
+            self.filename = filename
             if not os.path.isfile( filename ):
                 LOG.error( "%r is not a file!" % filename )
                 return
@@ -90,9 +104,9 @@ class GStreamer(object):
         self.player.get_by_name("encoder").set_property("bitrate", 128)
         self.player.get_by_name("tagger").set_property("tags", "album=testalbum,title=testtitle,artist=testartist")
         self.player.get_by_name("icysource").set_property("ip", "127.0.0.1")
-        self.player.get_by_name("icysource").set_property("port", 8001)
-        self.player.get_by_name("icysource").set_property("password", self.icy_passwd)
-        self.player.get_by_name("icysource").set_property("mount", "test.mp3")
+        self.player.get_by_name("icysource").set_property("port", STATE.port)
+        self.player.get_by_name("icysource").set_property("password", STATE.password)
+        self.player.get_by_name("icysource").set_property("mount", STATE.mount)
         self.player.get_by_name("icysource").set_property("streamname", "The Wicked Jukebox - test.mp3")
         self.player.set_state( gst.STATE_PLAYING)
         self.is_playing = True
@@ -110,60 +124,40 @@ class GStreamer(object):
         LOOP.quit()
 
 def config(params):
-   global __PORT, __MOUNT, __PASSWORD, __STREAMER, __ADMIN_URL, __ADMIN_USER, __ADMIN_PASSWORD, __CHANNEL_ID
    LOG.info( "connection to icecast server (params = %s)" % params )
-   __PORT     = int(params['port'])
-   __MOUNT    = str(params['mount'])
-   __PASSWORD = str(params['pwd'])
-   __CHANNEL_ID = int(params['channel_id'])
+   STATE.port     = int(params['port'])
+   STATE.mount    = str(params['mount'])
+   STATE.password = str(params['pwd'])
+   STATE.channel_id = int(params['channel_id'])
 
    if "admin_url" in params:
-      __ADMIN_URL = str(params["admin_url"]) + "/listclients.xsl?mount=" + __MOUNT
+      STATE.admin_url = str(params["admin_url"]) + "/listclients.xsl?mount=" + STATE.mount
 
    if "admin_username" in params:
-      __ADMIN_USER = str(params["admin_username"])
+      STATE.admin_username = str(params["admin_username"])
 
    if "admin_password" in params:
-      __ADMIN_PASSWORD = str(params["admin_password"])
+      STATE.admin_password = str(params["admin_password"])
 
 def getPosition():
-   """
-   Returns the current position in the song. (currentSec, totalSec)
-   """
-
-   return (0, 0)
+    if not STATE.streamer:
+        return (0, 100)
+    return STATE.streamer.current_position()
 
 def getSong():
-   """
-   Returns the full path to the currently running song
-   """
-
-   return None
-
-def playlistPosition():
-   """
-   Returns the position in the playlist as integer
-   """
-   return 0
+    if STATE.streamer:
+        return STATE.streamer.filename
+    return None
 
 def queue(filename):
-   """
-   Appends a new song to the playlist, and removes the first entry in the
-   playlist if it's becoming too large. This prevents having huge playlists
-   after a while playing.
+   from demon.dbmodel import Setting
+   LOG.debug( "Received a queue (%s)" % filename )
+   if Setting.get('sys_utctime', 0) == 0:
+      STATE.song_started = datetime.utcnow()
+   else:
+      STATE.song_started = datetime.now()
 
-   @type  filename: str
-   @param filename: The full path of the file
-   """
-
-   success = True
-   return success
-
-def playlistSize():
-   """
-   Returns the complete size of the playlist
-   """
-   return 0
+   STATE.queue.append( filename )
 
 def cropPlaylist(length=2):
    """
@@ -173,57 +167,94 @@ def cropPlaylist(length=2):
    @type  length: int
    @param length: The new size of the playlist
    """
+   LOG.debug( "Cropping pl to %d songs" % length )
+   if len( STATE.queue ) <= length:
+      return True
 
-   pass #no-op
-
-def clearPlaylist():
-   """
-   Clears the player's playlist
-   """
-   cropPlaylist(0)
+   STATE.queue = STATE.queue[-length:]
+   return True
 
 def skipSong():
-   """
-   Skips the current song
-   """
-
-   pass #no-op
+   LOG.debug( "Received a skip request" )
+   stopPlayback()
+   startPlayback()
 
 def stopPlayback():
-   """
-   Stops playback
-   """
+   from demon.dbmodel import State
 
-   pass #no-op
+   LOG.debug( "Stopping playback" )
+   if STATE.streamer:
+      STATE.streamer.stop()
+
+   State.set("progress", 0, STATE.channel_id)
+   LOG.debug( "Playback stopped" )
 
 def pausePlayback():
-   """
-   Pauses playback
-   """
-
-   pass #no-op
+   pass
 
 def startPlayback():
-   """
-   Starts playback
-   """
+   from demon.dbmodel import State
 
-   pass #no-op
+   LOG.info( "Starting playback" )
+   State.set("progress", 0, STATE.channel_id)
+   if not STATE.queue:
+      LOG.warn( "Nothing on queue." )
+      return False
+
+   if not STATE.server:
+      import sys
+      LOG.warn( "No icecast connection available!" )
+      STATE.server = GStreamer()
+
+   __stream_file( STATE.server, STATE.queue.pop(0) )
 
 def status():
-   """
-   Returns the status of the player (play, stop, pause, unknown)
-   """
-
-   return 'unknown'
+   if STATE.streamer:
+      return STATE.streamer.status()
+   else:
+      return "stopped"
 
 def current_listeners():
    """
-   Returns a list of unique identifiers of current listeners
-
-   Return "None" if this feature is not supported or if the list of listeners is unknown
+   Scrape the Icecast admin page for current listeners and return a list of
+   MD5 hashes of their IPs
    """
-   return []
+
+   if STATE.admin_url is None or \
+      STATE.admin_username is None or \
+      STATE.admin_password is None :
+      # not all required backend parameters supplied
+      LOG.warning( "Not all parameters set for screen scraping icecast statistics. Need admin-url and admin-password" )
+      return
+
+   part = "25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?"
+   p = re.compile(r"(((%s)\.){3}(%s))" % (part, part))
+
+   # Create an OpenerDirector with support for Basic HTTP Authentication...
+   auth_handler = urllib2.HTTPBasicAuthHandler()
+   auth_handler.add_password(realm='Icecast2 Server',
+                             uri=STATE.admin_url,
+                             user=STATE.admin_username,
+                             passwd=STATE.admin_password)
+   opener = urllib2.build_opener(auth_handler)
+   # ...and install it globally so it can be used with urlopen.
+   urllib2.install_opener(opener)
+
+   try:
+      LOG.debug("Opening %r" % STATE.admin_url)
+      handler = urllib2.urlopen(STATE.admin_url)
+      data = handler.read()
+
+      listeners = [md5(x[0]).hexdigest() for x in p.findall(data)]
+      return listeners
+   except urllib2.HTTPError, ex:
+      LOG.error("Error opening %r: Caught %r" % (STATE.admin_url, str(ex)))
+      return None
+   except urllib2.URLError, ex:
+      LOG.error("Error opening %r: Caught %r" % (STATE.admin_url, str(ex)))
+      return None
+
+STATE = PlayerState()
 
 if __name__ == "__main__":
     import sys
@@ -231,8 +262,13 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     LOG.info("Streaming %r to icecast..." % sys.argv[1])
 
-    source_pwd = getpass("Icecast source password: ")
-    obj = GStreamer(source_pwd)
+    params = {}
+    params['port'] = int(raw_input("ICY port: "))
+    params['mount'] = raw_input("ICY Mount: ")
+    params['pwd'] = getpass("ICY Passwd: ")
+    params['channel_id'] = int(raw_input("Channel ID: "))
+    config(params)
+    obj = GStreamer()
     obj.start_stop(sys.argv[1])
     gobject.threads_init()
     LOOP = glib.MainLoop()
