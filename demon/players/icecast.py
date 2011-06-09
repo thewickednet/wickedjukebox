@@ -28,6 +28,12 @@ __SERVER       = None
 __CURRENT_SONG = None
 __STREAMER     = None
 
+def init():
+   pass
+
+def release():
+   pass
+
 class Streamer(threading.Thread):
 
    def __init__(self, filename, server, channel_id):
