@@ -14,35 +14,29 @@ LOG = logging.getLogger(__name__)
 
 class Channel(object):
 
-    def handle_sigint(self, signal, frame):
-        LOG.debug( "SIGINT caught" )
-        self.close()
-
     def __init__(self, name):
         LOG.debug("Initialising channel...")
 
-        self.id                          = None
-        self.name                        = None
-        self.__scrobbler              = None
-        self.__keepRunning            = True
-        self.__playStatus             = 'stopped'
-        self.__currentSong            = None
+        self.id = None
+        self.name = None
+        self.__scrobbler = None
+        self.__keepRunning = True
+        self.__playStatus = 'stopped'
+        self.__currentSong = None
         self.__currentSongRecorded = False
-        self.__currentSongFile      = ''
-        self.__randomstrategy        = None
-        self.__queuestrategy         = None
-        self.__jingles_folder        = None
-        self.__jingles_interval     = 0
-        self.__no_jingle_count      = 0
-        self.__lastfm_api             = None
-        self.last_tagged_song        = None
+        self.__currentSongFile = ''
+        self.__randomstrategy = None
+        self.__queuestrategy = None
+        self.__jingles_folder = None
+        self.__jingles_interval = 0
+        self.__no_jingle_count = 0
+        self.__lastfm_api = None
+        self.last_tagged_song = None
 
         lastfm_api_key = Setting.get( "lastfm_api_key", None )
         if lastfm_api_key:
             import lastfm
             self.__lastfm_api = lastfm.Api( lastfm_api_key )
-
-        ##signal.signal(signal.SIGINT, self.handle_sigint)
 
         s = select([
             channelTable.c.id,
