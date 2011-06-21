@@ -1,4 +1,7 @@
+import distribute_setup
+distribute_setup.use_setuptools()
 from setuptools import setup, find_packages
+
 setup(
     name = "Wicked Jukebox",
     version = "2.0",
