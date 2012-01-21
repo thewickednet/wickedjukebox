@@ -2,7 +2,6 @@
 
 import unittest
 from demon.model import *
-from sqlalchemy import insert, delete
 
 class TestSettings(unittest.TestCase):
    def setUp(self):
