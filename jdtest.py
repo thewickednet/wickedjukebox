@@ -1,7 +1,8 @@
-from jukeboxd import daemon
 from time import sleep
 import logging
 logging.basicConfig()
+
+from jukeboxd import daemon
 
 q = daemon.run()
 print "started"

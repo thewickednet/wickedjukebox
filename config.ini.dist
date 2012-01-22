@@ -1,29 +1,9 @@
-[core]
-debug = 0
-debug_sql = 0
-
-[demon]
-host            = localhost
-port            = 61111
-default_channel = exhuma
-open_channel    = 1
-auto_play       = 1
-
-[xmlrpc]
-port            = 65222
-
-[filesystem]
-;; If you have trouble with the filesystem encodings, you can tell the system to
-;; use this encoding instead of the one from the locale settings (LC_*)
-; force_encoding  = utf-8
-
 [database]
 Type=mysql
 Host=localhost
 User=jukebox
-Pass=
+Pass=jukebox
 Base=jukebox
 
-; the filename for sqlite DBs
-; Will be ignored if a real RDBMS is in use.
-File=
+
+; vim: set filetype=cfg :
