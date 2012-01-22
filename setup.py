@@ -8,4 +8,9 @@ setup(
         'mysql-python',
         'mutagen',
     ],
+    entry_points = {
+        'console_scripts': [
+            'scan = jukeboxd.utils:cli_scan'
+            ]
+        }
 )
