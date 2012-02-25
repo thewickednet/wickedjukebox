@@ -9,7 +9,6 @@ from util import fsdecode, fsencode
 import logging
 from demon.dbmodel import Song, songTable, Session, Setting
 from sqlalchemy.sql import select
-from filescan import scan as fscan
 logger = logging.getLogger(__name__)
 
 valid_extensions = Setting.get("recognizedTypes").split(" ")
