@@ -4,10 +4,14 @@ INSTALLATION
 System dependencies
 -------------------
 
+::
+
    sudo aptitude install python-setuptools python-virtualenv python-gst0.10 python-dev libmysqlclient-dev build-essential libshout-dev icecast2
 
 Virtual Environment
 -------------------
+
+::
 
    virtualenv --no-site-packages /path/to/environment
    /path/to/environment/bin/activate
@@ -27,6 +31,8 @@ Virtual Environment
 
 Install the package
 -------------------
+
+::
 
    python setup.py develop
 
