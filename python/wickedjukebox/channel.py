@@ -1,6 +1,16 @@
-from demon.dbmodel import channelTable, Setting, Session, State, \
-                                  ChannelStat, Artist, Album, Song, \
-                                  usersTable, songTable, queueTable, channelSongs
+from demon.dbmodel import (
+        channelTable,
+        Setting,
+        Session,
+        State,
+        ChannelStat,
+        Artist,
+        Album,
+        Song,
+        usersTable,
+        songTable,
+        queueTable,
+        channelSongs)
 from datetime import datetime
 import time
 from util import fsencode, fsdecode
@@ -33,10 +43,10 @@ class Channel(object):
         self.__lastfm_api = None
         self.last_tagged_song = None
 
-        lastfm_api_key = Setting.get( "lastfm_api_key", None )
+        lastfm_api_key = Setting.get("lastfm_api_key", None)
         if lastfm_api_key:
             import lastfm
-            self.__lastfm_api = lastfm.Api( lastfm_api_key )
+            self.__lastfm_api = lastfm.Api(lastfm_api_key)
 
         s = select([
             channelTable.c.id,
@@ -44,16 +54,16 @@ class Channel(object):
             channelTable.c.backend,
             channelTable.c.backend_params,
             ])
-        s = s.where( channelTable.c.name == name.decode("utf-8") )
+        s = s.where(channelTable.c.name == name.decode("utf-8"))
         r = s.execute()
         self.__channel_data = r.fetchone()
         if not self.__channel_data:
-            raise ValueError( "Failed to load channel %s from database. "
+            raise ValueError("Failed to load channel %s from database. "
                               "Please make sure that the named channel exists "
-                              "in the database table called 'channel'" % name )
+                              "in the database table called 'channel'" % name)
 
         self.name = self.__channel_data["name"]
-        LOG.debug( "Loaded channel %s" % self.name )
+        LOG.debug("Loaded channel %s" % self.name)
 
         self.__player = None
         self.id = self.__channel_data["id"]
@@ -61,9 +71,9 @@ class Channel(object):
     def currentSong(self):
         if not self.__currentSong:
             return None
-        selq = select( [queueTable.c.user_id] )
-        selq = selq.where( queueTable.c.song_id == self.__currentSong.id )
-        selq = selq.where( queueTable.c.position == 0 )
+        selq = select([queueTable.c.user_id])
+        selq = selq.where(queueTable.c.song_id == self.__currentSong.id)
+        selq = selq.where(queueTable.c.position == 0)
         row  = selq.execute().fetchone()
 
         userid = None
@@ -76,10 +86,10 @@ class Channel(object):
         return self.__playStatus == 'stopped'
 
     def close(self):
-        LOG.debug( "Channel closing requested." )
+        LOG.debug("Channel closing requested.")
         self.stopPlayback()
 
-        LOG.debug( "Closing channel" )
+        LOG.debug("Closing channel")
 
         if self.__scrobbler is not None:
             self.__scrobbler.stop()
@@ -93,18 +103,18 @@ class Channel(object):
 
     def queueSong(self, song):
 
-        LOG.info( "Queueing %r" % fsencode(song) )
+        LOG.info("Queueing %r" % fsencode(song))
 
         if not self.__player:
-            LOG.warning( "No player active. Won't queue %r" % song )
+            LOG.warning("No player active. Won't queue %r" % song)
             return False
 
-        if isinstance( song, unicode ):
+        if isinstance(song, unicode):
             # we were passed a unicode string string. Most likely a file system path
             self.__player.queue(song)
             return True
 
-        if isinstance( song, basestring ):
+        if isinstance(song, basestring):
             # we were passed a string. Most likely a file system path
             self.__player.queue(fsdecode(song))
             return True
@@ -112,7 +122,7 @@ class Channel(object):
         session = Session()
 
         # update state in database
-        State.set( "current_song", song.id, self.id )
+        State.set("current_song", song.id, self.id)
 
         # queue the song
         self.__player.queue(song.localpath)
@@ -134,7 +144,7 @@ class Channel(object):
 
     def __init_player(self):
         if not self.__player:
-            self.__player = players.create( self.__channel_data["backend"], self.__channel_data['backend_params'] + ", channel_id=%d" % self.id )
+            self.__player = players.create(self.__channel_data["backend"], self.__channel_data['backend_params'] + ", channel_id=%d" % self.id)
 
     def startPlayback(self):
 
@@ -145,9 +155,9 @@ class Channel(object):
         # TODO: This block is found as well in "skipSong! --> refactor"
         # TODO: The block to retrieve the next song should be a method in itself. Encapsulating queue, random and orphaned files
         # set "current song" to the next in the queue or use random
-        self.__randomstrategy = playmodes.create( Setting.get( 'random_model', 'random_weighed_prefetch', channel_id=self.id ) )
-        self.__queuestrategy  = playmodes.create( Setting.get( 'queue_model',  'queue_positioned',    channel_id=self.id ) )
-        self.__randomstrategy.bootstrap( self.id )
+        self.__randomstrategy = playmodes.create(Setting.get('random_model', 'random_weighed_prefetch', channel_id=self.id))
+        self.__queuestrategy  = playmodes.create(Setting.get('queue_model',  'queue_positioned',    channel_id=self.id))
+        self.__randomstrategy.bootstrap(self.id)
 
         nextSong = self.__queuestrategy.dequeue(self.id)
         if not nextSong:
@@ -180,7 +190,7 @@ class Channel(object):
 
     def enqueue(self, songID, userID=None):
 
-        self.__queuestrategy = playmodes.create( Setting.get( 'queue_model',  'queue_positioned', channel_id=self.id ) )
+        self.__queuestrategy = playmodes.create(Setting.get('queue_model',  'queue_positioned', channel_id=self.id))
         self.__queuestrategy.enqueue(
                 songID,
                 userID,
@@ -190,8 +200,8 @@ class Channel(object):
                 )
 
     def current_queue(self):
-        self.__queuestrategy = playmodes.create( Setting.get( 'queue_model',  'queue_positioned', channel_id=self.id ) )
-        return self.__queuestrategy.list( self.id )
+        self.__queuestrategy = playmodes.create(Setting.get('queue_model',  'queue_positioned', channel_id=self.id))
+        return self.__queuestrategy.list(self.id)
 
     def skipSong(self):
         """
@@ -204,12 +214,12 @@ class Channel(object):
         session = Session()
 
         query = session.query(ChannelStat).select()
-        query = query.filter( songTable.c.id == channelSongs.c.song_id )
-        query = query.filter( songTable.c.id == self.__currentSong.id )
-        query = query.filter( channelSongs.c.channel_id == self.id )
+        query = query.filter(songTable.c.id == channelSongs.c.song_id)
+        query = query.filter(songTable.c.id == self.__currentSong.id)
+        query = query.filter(channelSongs.c.channel_id == self.id)
         stat = query.first()
         if not stat:
-            stat = ChannelStat( songid = self.__currentSong.id,
+            stat = ChannelStat(songid = self.__currentSong.id,
                                       channelid = self.id)
             stat.skipped = 1
             stat.lastPlayed = datetime.now()
@@ -220,14 +230,14 @@ class Channel(object):
 
         # TODO: This block is found as well in "startPlayback"! --> refactor"
         # set "current song" to the next in the queue or use random
-        self.__randomstrategy = playmodes.create( Setting.get( 'random_model', 'random_weighed_prefetch', channel_id=self.id ) )
-        self.__queuestrategy  = playmodes.create( Setting.get( 'queue_model',  'queue_positioned', channel_id=self.id ) )
-        self.__randomstrategy.bootstrap( self.id )
+        self.__randomstrategy = playmodes.create(Setting.get('random_model', 'random_weighed_prefetch', channel_id=self.id))
+        self.__queuestrategy  = playmodes.create(Setting.get('queue_model',  'queue_positioned', channel_id=self.id))
+        self.__randomstrategy.bootstrap(self.id)
 
         nextSong = self.__queuestrategy.dequeue(self.id)
         if nextSong is None:
             nextSong = self.__randomstrategy.get(self.id)
-        LOG.info( "[channel] skipping song" )
+        LOG.info("[channel] skipping song")
 
         session.close()
         if nextSong:
@@ -239,11 +249,11 @@ class Channel(object):
             return 'ER: Unable to skip song, no followup song returned'
 
     def moveup(self, qid, delta):
-        self.__queuestrategy = playmodes.create( Setting.get( 'queue_model',  'queue_positioned', channel_id=self.id ) )
+        self.__queuestrategy = playmodes.create(Setting.get('queue_model',  'queue_positioned', channel_id=self.id))
         self.__queuestrategy.moveup(self.id, qid, delta)
 
     def movedown(self, qid, delta):
-        self.__queuestrategy = playmodes.create( Setting.get( 'queue_model',  'queue_positioned', channel_id=self.id ) )
+        self.__queuestrategy = playmodes.create(Setting.get('queue_model',  'queue_positioned', channel_id=self.id))
         self.__queuestrategy.movedown(self.id, qid, delta)
 
     def get_jingle(self):
@@ -264,11 +274,11 @@ class Channel(object):
             try:
                 rnd = int(random()*(jingle_boundary[1]-jingle_boundary[0])) + self.__no_jingle_count
                 if jingle_boundary[0] <= rnd:
-                    available_jingles = os.listdir( self.__jingles_folder )
+                    available_jingles = os.listdir(self.__jingles_folder)
                     if available_jingles != []:
                         random_file = choice(available_jingles)
                         self.__no_jingle_count = 0
-                        return os.path.join( self.__jingles_folder, random_file )
+                        return os.path.join(self.__jingles_folder, random_file)
                 else:
                     self.__no_jingle_count += 1
                     LOG.debug("No jingle count increased to %d" % self.__no_jingle_count)
@@ -287,24 +297,24 @@ class Channel(object):
             usersTable.update(
                 func.md5(usersTable.c.IP) == l,
                 values={usersTable.c.proof_of_listening: func.now()}
-                ).execute( )
+                ).execute()
 
     def process_upcoming_song(self):
         # A state "upcoming_song" with value -1 means that the upcoming song is
         # unwanted and a new one should be triggered if possible
-        state = State.get( "upcoming_song", self.id )
+        state = State.get("upcoming_song", self.id)
         if state and int(state) == -1:
-            LOG.debug( "Prefetching new song as the current upcoming_song was unwanted." )
+            LOG.debug("Prefetching new song as the current upcoming_song was unwanted.")
             self.__randomstrategy.prefetch(self.id, async=False)
 
         if self.__randomstrategy:
             upcoming = self.__randomstrategy.peek(self.id)
             if upcoming:
-                State.set( "upcoming_song", upcoming.id, self.id )
+                State.set("upcoming_song", upcoming.id, self.id)
             else:
-                State.set( "upcoming_song", None, self.id )
+                State.set("upcoming_song", None, self.id)
         else:
-            State.set( "upcoming_song", None, self.id )
+            State.set("upcoming_song", None, self.id)
 
     def run(self):
         cycleTime = int(Setting.get('channel_cycle', default='3', channel_id=self.id))
@@ -326,10 +336,9 @@ class Channel(object):
                 self.update_current_listeners()
                 lastPing = datetime.now()
 
-                update( channelTable ).                         \
-                    where( channelTable.c.id == self.id ). \
-                    values( {'ping': datetime.now()} ).     \
-                    execute()
+                update(channelTable).where(
+                        channelTable.c.id == self.id).values({
+                            'ping': datetime.now()}).execute()
 
                 proofoflife_timeout = int(Setting.get("proofoflife_timeout", 120))
 
@@ -342,9 +351,9 @@ class Channel(object):
 
                 self.__player.cropPlaylist(0)
 
-                self.__randomstrategy = playmodes.create( Setting.get( 'random_model', 'random_weighed_prefetch', channel_id=self.id ) )
-                self.__queuestrategy  = playmodes.create( Setting.get( 'queue_model',  'queue_positioned',    channel_id=self.id ) )
-                self.__randomstrategy.bootstrap( self.id )
+                self.__randomstrategy = playmodes.create(Setting.get('random_model', 'random_weighed_prefetch', channel_id=self.id))
+                self.__queuestrategy  = playmodes.create(Setting.get('queue_model',  'queue_positioned',    channel_id=self.id))
+                self.__randomstrategy.bootstrap(self.id)
 
                 nextSong = self.get_jingle()
 
@@ -360,7 +369,7 @@ class Channel(object):
                     LOG.debug("What? Still nothing? Either nobody is online, or the database is empty")
                     continue
 
-                if isinstance( nextSong, basestring ):
+                if isinstance(nextSong, basestring):
                     # we got a simple file. Not a tracked library song!
                     LOG.info("Queuing song %s" % nextSong)
                     self.queueSong(nextSong)
@@ -379,9 +388,9 @@ class Channel(object):
             if self.__player.status() == 'play' and self.__playStatus == 'stopped':
                 self.__player.stopPlayback()
 
-            skipState = State.get( "skipping", self.id )
+            skipState = State.get("skipping", self.id)
             if skipState and int(skipState) == 1:
-                State.set( "skipping", 0, self.id )
+                State.set("skipping", 0, self.id)
                 self.__player.skipSong()
 
             # If we are not playing stuff, we can skip the rest
@@ -389,9 +398,9 @@ class Channel(object):
                 continue
 
             # -------------------------------------------------------------------
-            if self.__currentSongFile != self.__player.getSong() \
-                    and self.__player.getSong() is not None:
-                song = session.query(Song).filter( songTable.c.localpath == self.__player.getSong() ).first()
+            if (self.__currentSongFile != self.__player.getSong() and
+                self.__player.getSong() is not None):
+                song = session.query(Song).filter(songTable.c.localpath == self.__player.getSong()).first()
 
                 if song:
                     self.__currentSong = song
@@ -418,12 +427,12 @@ class Channel(object):
             if (currentPosition[1] - currentPosition[0]) < 3:
                 if self.__currentSong and not self.__currentSongRecorded:
                     query = session.query(ChannelStat)
-                    query = query.filter( songTable.c.id == channelSongs.c.song_id )
-                    query = query.filter( songTable.c.id == self.__currentSong.id )
-                    query = query.filter( channelSongs.c.channel_id == self.id )
+                    query = query.filter(songTable.c.id == channelSongs.c.song_id)
+                    query = query.filter(songTable.c.id == self.__currentSong.id)
+                    query = query.filter(channelSongs.c.channel_id == self.id)
                     stat = query.first()
                     if not stat:
-                        stat = ChannelStat( song_id = self.__currentSong.id,
+                        stat = ChannelStat(song_id = self.__currentSong.id,
                                                   channel_id = self.id)
                         LOG.debug("Setting last played date")
                         stat.lastPlayed = datetime.now()
@@ -438,19 +447,19 @@ class Channel(object):
 
             # if we handed out credits more than 5mins ago, we give out some more
             if (datetime.now() - lastCreditGiveaway).seconds > 300:
-                maxCredits = int(Setting.get('max_credits', '30', channel_id=self.id ))
+                maxCredits = int(Setting.get('max_credits', '30', channel_id=self.id))
                 usersTable.update(
                         usersTable.c.credits < maxCredits,
                         values={usersTable.c.credits: usersTable.c.credits+5}
-                        ).execute( )
+                        ).execute()
                 # we may have overshot our target slightly. This fixes it
                 usersTable.update(
                         usersTable.c.credits > maxCredits,
                         values={usersTable.c.credits: maxCredits}
-                        ).execute( )
+                        ).execute()
                 lastCreditGiveaway = datetime.now()
 
             session.close()
 
-        LOG.info( "Channel stopped" )
+        LOG.info("Channel stopped")
 
