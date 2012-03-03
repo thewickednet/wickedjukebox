@@ -13,7 +13,6 @@ from demon.dbmodel import (
         channelSongs)
 from datetime import datetime
 import time
-from util import fsencode, fsdecode
 import os
 from random import choice, random
 from sqlalchemy.sql import select, func, update
@@ -103,7 +102,7 @@ class Channel(object):
 
     def queueSong(self, song):
 
-        LOG.info("Queueing %r" % fsencode(song))
+        LOG.info("Queueing %r" % song)
 
         if not self.__player:
             LOG.warning("No player active. Won't queue %r" % song)
@@ -116,7 +115,7 @@ class Channel(object):
 
         if isinstance(song, basestring):
             # we were passed a string. Most likely a file system path
-            self.__player.queue(fsdecode(song))
+            self.__player.queue(song)
             return True
 
         session = Session()
@@ -165,7 +164,7 @@ class Channel(object):
 
         if nextSong is not None:
             # handle orphaned files
-            while not os.path.exists(fsencode(nextSong.localpath)) and self.__keepRunning:
+            while not os.path.exists(nextSong.localpath) and self.__keepRunning:
                 LOG.error("%r not found!" % nextSong.localpath)
                 songTable.update(songTable.c.id == nextSong.id, values={'broken': True}).execute()
 
@@ -377,7 +376,7 @@ class Channel(object):
                     self.__player.startPlayback()
                 else:
                     # handle orphaned files
-                    while not os.path.exists(fsencode(nextSong.localpath)) and self.__keepRunning:
+                    while not os.path.exists(nextSong.localpath) and self.__keepRunning:
                         LOG.error("%r not found!" % nextSong.localpath)
                         songTable.update(songTable.c.id == nextSong.id, values={'broken': True}).execute()
                         nextSong = self.__randomstrategy.get(self.id)
