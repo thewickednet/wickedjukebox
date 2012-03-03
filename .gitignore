@@ -1,4 +1,5 @@
 httpd_data/users/
+python/*.egg-info
 *.pyc
 *.pyo
 config.ini
