@@ -61,17 +61,6 @@ def filter_valid_extenstion(root, filename):
           return True
     return False
 
-def processor_todatabase(root, localpath):
-    session = Session()
-    song = session.query(Song).filter_by(localpath=localpath).first()
-    if not song:
-       song = Song(localpath, None, None)
-    song.scan_from_file(localpath)
-    session.add(song)
-    logger.debug( "%r at %r" % (song, localpath) )
-    session.commit()
-    session.close()
-
 def scan(top, capping=u""):
     """
     Scans a folder rootet at <top> for audio files. It will only include files starting with <capping>
