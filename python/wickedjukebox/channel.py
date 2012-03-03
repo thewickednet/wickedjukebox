@@ -258,7 +258,7 @@ class Channel(object):
     def get_jingle(self):
         self.__jingles_folder = Setting.get('jingles_folder', default=None, channel_id=self.id)
         self.__jingles_interval = Setting.get('jingles_interval', default=None, channel_id=self.id)
-        if self.__jingles_interval == '' or self.__jingles_interval is None:
+        if not self.__jingles_interval:
             self.__jingles_interval = None
         elif self.__jingles_interval.find("-") > -1:
             jingle_boundary = [ int(x) for x in self.__jingles_interval.split("-") ]
