@@ -5,7 +5,6 @@ This module contains everything needed to scan a directory of audio files an
 store the metadata in the jukebox database
 """
 from os import walk, path, sep
-from util import fsdecode, fsencode
 import logging
 from demon.dbmodel import Song, songTable, Session, Setting
 from sqlalchemy.sql import select
@@ -16,24 +15,20 @@ valid_extensions = Setting.get("recognizedTypes").split(" ")
 def is_valid_audio_file(path):
     return path.endswith(valid_extensions[0])
 
-def process(localpath, encoding):
-
-    if localpath is None or encoding is None:
+def process(localpath):
+    if not localpath:
        logger.warning( "Skipping undefined filename!" )
        return
 
     session = Session()
 
     if is_valid_audio_file(localpath):
-       try:
-          song = session.query(Song).filter_by( localpath=localpath ).first()
-          if not song:
-             song = Song(localpath, None, None)
-          song.scan_from_file( localpath, encoding )
-          session.add(song)
-          logger.info( "%r" % (song) )
-       except UnicodeDecodeError, ex:
-          logger.error( "Unable to decode %r (%s)" % (localpath, ex) ) 
+       song = session.query(Song).filter_by(localpath=localpath).first()
+       if not song:
+          song = Song(localpath, None, None)
+       song.scan_from_file(localpath)
+       session.add(song)
+       logger.info( "%r" % (song) )
     else:
        logger.debug("%r is not a valid audio-file (only scanning extensions %r)" % (localpath, valid_extensions))
 
@@ -41,22 +36,21 @@ def process(localpath, encoding):
     session.close()
 
 def do_housekeeping():
-    "Database cleanup, and set other values that are difficult to read during scanning"
+    """
+    Database cleanup, and set other values that are difficult to read during scanning
+    """
     logger.info( "Performing housekeeping. This may take a while!" )
     songs = select([songTable.c.localpath]).execute()
     for row in songs:
-       try:
-          if not path.exists( fsencode(row[0]) ):
-             print `row[0]`, "removed from disk"
-       except UnicodeEncodeError, e:
-          logger.error( "Unable to decode %r (%s)" % ( row[0], e) )
+       if not path.exists(row[0]):
+           print `row[0]`, "removed from disk (No action taken!)"
 
-def filter_capping( root, filename, capping ):
+def filter_capping(root, filename, capping):
     relative_path = filename[len(root)+1:]
     return not relative_path.startswith(capping)
 
-def filter_valid_extenstion( root, filename ):
-    extinfo = path.splitext( filename )
+def filter_valid_extenstion(root, filename):
+    extinfo = path.splitext(filename)
     if not extinfo:
        logger.warn("Unable to split extension from file %r. This file will be ignored!" % filename )
        return True
@@ -69,11 +63,10 @@ def filter_valid_extenstion( root, filename ):
 
 def processor_todatabase(root, localpath):
     session = Session()
-    song = session.query(Song).filter_by( localpath=localpath ).first()
+    song = session.query(Song).filter_by(localpath=localpath).first()
     if not song:
        song = Song(localpath, None, None)
-    localpath, encoding = fsdecode( localpath )
-    song.scan_from_file( localpath, encoding )
+    song.scan_from_file(localpath)
     session.add(song)
     logger.debug( "%r at %r" % (song, localpath) )
     session.commit()
@@ -88,9 +81,6 @@ def scan(top, capping=u""):
     """
     from sys import stdout
 
-    top = fsencode(top)
-    capping = fsencode(capping)
-
     # if the capping ends with a path separator, then directly dive into that
     # directory
     if capping.endswith(sep):
@@ -103,7 +93,7 @@ def scan(top, capping=u""):
     spinner_position = 0
     stdout.write( "Counting... /" )
     count_total = 0
-    for root, dirs, files in walk(fsencode(top)):
+    for root, dirs, files in walk(top):
        for file in files:
           spinner_position = (spinner_position + 1) % len(spinner_chars)
           stdout.write( "\b%s" % spinner_chars[spinner_position] )
@@ -116,12 +106,12 @@ def scan(top, capping=u""):
     count_processed = 0
     completed_ratio = 0.0
     stdout.write( "[%50s]" % " " )
-    for root, dirs, files in walk(fsencode(top)):
+    for root, dirs, files in walk(top):
        relative_path = root[len(top)+1:]
        for file in files:
           stat_char = "."
-          if path.join(relative_path, file).startswith(fsencode(capping)):
-             process( *fsdecode( path.join(root, file) ) )
+          if path.join(relative_path, file).startswith(capping):
+             process(*path.join(root, file))
              stat_char = "#"
              count_scanned += 1
           count_processed += 1
