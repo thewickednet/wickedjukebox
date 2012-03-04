@@ -16,7 +16,7 @@ from sqlalchemy import (
         String)
 from sqlalchemy.sql import select, update, insert
 from sqlalchemy.orm import mapper, sessionmaker, relation
-from wickedjukebox.util.filesystem import loadConfig
+from wickedjukebox.util.filesystem import load_config
 from datetime import datetime, date
 import sys
 import logging
@@ -24,7 +24,7 @@ from os import stat
 from os.path import basename
 
 LOG = logging.getLogger(__name__)
-CFG = loadConfig( "config.ini" )
+CFG = load_config( "config.ini" )
 DBURI = "%s://%s:%s@%s/%s?charset=utf8" % (
     CFG['database.type'],
     CFG['database.user'],
