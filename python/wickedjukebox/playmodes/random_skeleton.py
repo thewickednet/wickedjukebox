@@ -22,8 +22,8 @@ def bootstrap(channel_id):
 
     @param channel_id: The channel ID
     """
+    # pylint: disable=W0613
     pass
-
 
 def get(channel_id):
     """
@@ -37,6 +37,7 @@ def get(channel_id):
                 or a "Song" instance (as imported from demon.model --> see above)
     """
 
+    # pylint: disable=W0613
     return None
 
 def peek(channel_id):
@@ -48,6 +49,7 @@ def peek(channel_id):
     @return: Either "None" if the upcoming song cannot be determined
                 or a "Song" instance (as imported from demon.model --> see above)
     """
+    # pylint: disable=W0613
     return None
 
 def prefetch(channel_id, async=True):
@@ -62,6 +64,7 @@ def prefetch(channel_id, async=True):
                       not. This MUST be implemented for asynchronous prefetchers to
                       ensure thread safety
     """
+    # pylint: disable=W0613
     pass
 
 def test(channel_id):
@@ -72,4 +75,5 @@ def test(channel_id):
     @param channel_id: The channel ID for which we are returning results
     @return: List of 2-tuples (Song, stats)
     """
+    # pylint: disable=W0613
     pass
