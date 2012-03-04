@@ -38,6 +38,7 @@ class AudioMeta( dict ):
     """
     Wraps Mutagen metadata and exposes it as a standardised dictionary
     """
+    # pylint: disable=R0201
 
     def __init__(self, mutagen_meta):
         """
@@ -50,28 +51,40 @@ class AudioMeta( dict ):
         dict.__init__(self)
 
     def values(self):
-        "@overrides dict.values"
+        """
+        @overrides dict.values
+        """
         return [ self.__getitem__( key ) for key in self._keys ]
 
     def keys(self):
-        "@overrides dict.keys"
+        """
+        @overrides dict.keys
+        """
         return self._keys
 
     def items(self):
-        "@overrides dict.items"
+        """
+        @overrides dict.items
+        """
         return zip( self.keys(), self.values() )
 
     def __getitem__( self, key ):
-        "@overrides dict.__getitem__"
+        """
+        @overrides dict.__getitem__
+        """
         accessor = self.__getattribute__( "get_%s" % key )
         return accessor()
 
     def __len__( self ):
-        "@overrides dict.__len__"
+        """
+        @overrides dict.__len__
+        """
         return len(self._keys)
 
     def __repr__( self ):
-        "@overrides dict.__repr__"
+        """
+        @overrides dict.__repr__
+        """
         reprdict = {}
         for key, value in self.items():
             reprdict[key] = value
@@ -80,38 +93,74 @@ class AudioMeta( dict ):
     # -------------------------------------------------------------------------
 
     def get_artist(self):
+        """
+        @abstract
+        """
         return "Unimplemented meta-info"
 
     def get_title(self):
+        """
+        @abstract
+        """
         return "Unimplemented meta-info"
 
     def get_release_date( self ):
+        """
+        @abstract
+        """
         return "Unimplemented meta-info"
 
     def get_comment( self ):
+        """
+        @abstract
+        """
         return "Unimplemented meta-info"
 
     def get_track_no( self ):
+        """
+        @abstract
+        """
         return "Unimplemented meta-info"
 
     def get_total_tracks( self ):
+        """
+        @abstract
+        """
         return "Unimplemented meta-info"
 
     def get_album( self ):
+        """
+        @abstract
+        """
         return "Unimplemented meta-info"
 
     def get_duration( self ):
+        """
+        @abstract
+        """
         return "Unimplemented meta-info"
 
     def get_genres( self ):
+        """
+        @abstract
+        """
         return ["Unimplemented meta-info"]
 
     def get_bitrate( self ):
+        """
+        @abstract
+        """
         return "Unimplemented meta-info"
 
 class MP3Meta( AudioMeta ):
+    '''
+    Metadata for MP# files
+    '''
 
     def decode_text( self, data ):
+        """
+        Decodes MP3 metadata into unicode
+        """
         import codecs
 
         if isinstance( data.text[0], ID3TimeStamp):
@@ -125,7 +174,8 @@ class MP3Meta( AudioMeta ):
         elif data.encoding == 1 or data.encoding == 2:
             # utf16 or utf16be
             encoded = text.encode("utf_16_le")
-            if encoded.startswith( codecs.BOM_UTF16_BE ) or encoded.startswith( codecs.BOM_UTF16_LE ):
+            if (encoded.startswith( codecs.BOM_UTF16_BE ) or \
+                    encoded.startswith( codecs.BOM_UTF16_LE )):
                 return encoded[2:].replace("\x00", "").decode("utf8")
             else:
                 return text
@@ -133,9 +183,14 @@ class MP3Meta( AudioMeta ):
             # utf8
             return text
         else:
-            raise NotImplementedError( "Unknown character encoding (enoding=%s)" % data.encoding )
+            raise NotImplementedError(
+                    "Unknown character encoding (enoding=%s)" % (
+                        data.encoding ))
 
     def get_release_date(self):
+        """
+        Returns the album release date
+        """
         if "TDRC" not in self.meta:
             return None
 
@@ -145,44 +200,78 @@ class MP3Meta( AudioMeta ):
 
         try:
             if len(elements) == 1:
-                return date(int(elements[0]), 1, 1)
+                return date(
+                        int(elements[0]),
+                        1,
+                        1)
             elif len(elements) == 2:
-                return date(int(elements[0]), int(elements[1]), 1)
+                return date(
+                        int(elements[0]),
+                        int(elements[1]),
+                        1)
             elif len(elements) == 3:
-                return date(int(elements[0]), int(elements[1]), int(elements[2]))
-        except ValueError, e:
-            LOG.warning("%s (datestring was %s)" % (e, raw_string))
+                return date(
+                        int(elements[0]),
+                        int(elements[1]),
+                        int(elements[2]))
+        except ValueError, exc:
+            LOG.warning("%s (datestring was %s)" % (exc, raw_string))
             return None
 
     def get_title(self):
+        """
+        returns the song title
+        """
         data = self.meta["TIT2"]
         return self.decode_text( data )
 
     def get_artist(self):
+        """
+        Returns the song artist
+        """
         return self.decode_text( self.meta["TPE1"] )
 
     def get_track_no( self ):
+        """
+        Returns the track number
+        """
         tmp = self.decode_text( self.meta["TRCK"] ).split("/")
         return int( tmp[0] )
 
     def get_total_tracks( self ):
+        '''
+        Returns the number of total tracks (in case the track number is stored
+        as 1/20)
+        '''
         tmp = self.decode_text( self.meta["TRCK"] ).split("/")
         if len( tmp ) > 1:
             return int( tmp[1] )
 
     def get_album( self ):
+        '''
+        Returns the album name
+        '''
         return self.decode_text( self.meta["TALB"] )
 
     def get_genres( self ):
+        '''
+        Returns a list of genre names
+        '''
         try:
             return [self.decode_text( self.meta["TCON"] )]
         except KeyError:
             return []
 
     def get_duration( self ):
+        '''
+        Returns the song length
+        '''
         return self.meta.info.length
 
     def get_bitrate( self ):
+        '''
+        Returns the bitrate
+        '''
         return self.meta.info.bitrate
 
 class MetaFactory(object):
@@ -190,22 +279,31 @@ class MetaFactory(object):
     Factory to create the proper AudioMeta instance depending on filetype
     """
 
+    # pylint: disable=R0903
+
     @classmethod
-    def create( self, filename ):
+    def create( cls, filename ):
+        '''
+        Returns a metadata instance
+        '''
         from mutagen import File
         try:
             mutagen_meta = File( filename )
-        except IOError, e:
-            LOG.error( e )
+        except IOError, exc:
+            LOG.error( exc )
             return None
 
         if isinstance( mutagen_meta, MP3 ):
             abstract_meta = MP3Meta( mutagen_meta )
             return abstract_meta
         else:
-            raise NotImplementedError( "This filetype (%s) is not yet implemented" % type(mutagen_meta))
+            raise NotImplementedError( "This filetype (%s) is not yet "
+                    "implemented" % type(mutagen_meta))
 
 def display_file( filename ):
+    '''
+    Prints the file metadata to stdout
+    '''
     metadata = MetaFactory.create( filename )
 
     if metadata is None:
