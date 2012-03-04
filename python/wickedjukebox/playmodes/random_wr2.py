@@ -6,17 +6,17 @@ and you should be fine.
 
 from wickedjukebox.util.plparser import parseQuery, ParserSyntaxError
 from wickedjukebox.model.core import (
-        Session,
-        dynamicPLTable,
+        SESSION,
+        DYNAMIC_PL_TABLE,
         Setting,
         Song,
-        usersTable,
-        songTable,
-        songStandingTable,
-        channelSongs,
-        settingTable,
-        albumTable,
-        artistTable)
+        USERS_TABLE,
+        SONG_TABLE,
+        SONG_STANDING_TABLE,
+        CHANNEL_SONGS_TABLE,
+        SETTING_TABLE,
+        ALBUM_TABLE,
+        ARTIST_TABLE)
 from sqlalchemy.sql import func, select, or_, and_
 from datetime import datetime, timedelta
 import random
@@ -35,18 +35,18 @@ def _get_user_settings( channel_id ):
     """
     proofoflife_timeout = int(Setting.get('proofoflife_timeout', 120))
     listeners_query = select([
-            usersTable.c.id,
-            usersTable.c.username,
-            settingTable.c.var,
-            settingTable.c.value,
+            USERS_TABLE.c.id,
+            USERS_TABLE.c.username,
+            SETTING_TABLE.c.var,
+            SETTING_TABLE.c.value,
             ],
-            from_obj = [ usersTable.join( settingTable, and_(
-                    usersTable.c.id == settingTable.c.user_id,
-                    settingTable.c.channel_id == channel_id
+            from_obj = [ USERS_TABLE.join( SETTING_TABLE, and_(
+                    USERS_TABLE.c.id == SETTING_TABLE.c.user_id,
+                    SETTING_TABLE.c.channel_id == channel_id
                 ) ) ]
             )
     listeners_query = listeners_query.where(
-            func.unix_timestamp(usersTable.c.proof_of_listening) \
+            func.unix_timestamp(USERS_TABLE.c.proof_of_listening) \
                     + proofoflife_timeout \
                     > func.unix_timestamp(func.now()))
     LOG.debug( listeners_query )
@@ -76,35 +76,35 @@ def _get_rough_query( channel_id ):
     max_random_duration = int(Setting.get('max_random_duration', 600,
         channel_id=channel_id))
     rough_query = select( [
-            songTable.c.id,
-            songTable.c.duration,
-            channelSongs.c.lastPlayed
+            SONG_TABLE.c.id,
+            SONG_TABLE.c.duration,
+            CHANNEL_SONGS_TABLE.c.lastPlayed
         ],
         from_obj=[
-            songTable.outerjoin(
-                channelSongs,
-                songTable.c.id == channelSongs.c.song_id).outerjoin(
-                    albumTable,
-                    songTable.c.album_id == albumTable.c.id).outerjoin(
-                        artistTable,
-                        songTable.c.artist_id == artistTable.c.id)
+            SONG_TABLE.outerjoin(
+                CHANNEL_SONGS_TABLE,
+                SONG_TABLE.c.id == CHANNEL_SONGS_TABLE.c.song_id).outerjoin(
+                    ALBUM_TABLE,
+                    SONG_TABLE.c.album_id == ALBUM_TABLE.c.id).outerjoin(
+                        ARTIST_TABLE,
+                        SONG_TABLE.c.artist_id == ARTIST_TABLE.c.id)
         ] )
 
     # skip songs that are too long
     rough_query = rough_query.where(
-            songTable.c.duration < max_random_duration)
+            SONG_TABLE.c.duration < max_random_duration)
 
     # skip songs that have been recently played
     delta = timedelta( minutes=recency_threshold )
     old_time = datetime.now() - delta
     rough_query = rough_query.where( or_(
-        channelSongs.c.lastPlayed < old_time,
-        channelSongs.c.lastPlayed == None))
+        CHANNEL_SONGS_TABLE.c.lastPlayed < old_time,
+        CHANNEL_SONGS_TABLE.c.lastPlayed == None))
 
     # keep only songs that satisfy the dynamic playlist query for this channel
-    sel = select( [dynamicPLTable.c.query, dynamicPLTable.c.probability] )
-    sel = sel.where(dynamicPLTable.c.group_id > 0)
-    sel = sel.where(dynamicPLTable.c.channel_id == channel_id)
+    sel = select( [DYNAMIC_PL_TABLE.c.query, DYNAMIC_PL_TABLE.c.probability] )
+    sel = sel.where(DYNAMIC_PL_TABLE.c.group_id > 0)
+    sel = sel.where(DYNAMIC_PL_TABLE.c.channel_id == channel_id)
 
     # only one query will be parsed. for now.... this is a big TODO
     # as it triggers an unexpected behaviour (bug). i.e.: Why the
@@ -141,10 +141,10 @@ def _get_standing_count( song_id, user_list, standing ):
     """
     Returns the amount of users who have the given standing for this song
     """
-    query = select( [songStandingTable.c.user_id] )
-    query = query.where( songStandingTable.c.standing == standing )
-    query = query.where( songStandingTable.c.song_id == song_id )
-    query = query.where( songStandingTable.c.user_id.in_(user_list) )
+    query = select( [SONG_STANDING_TABLE.c.user_id] )
+    query = query.where( SONG_STANDING_TABLE.c.standing == standing )
+    query = query.where( SONG_STANDING_TABLE.c.song_id == song_id )
+    query = query.where( SONG_STANDING_TABLE.c.user_id.in_(user_list) )
     alias = query.alias() # MySQL bugfix
     hate_count = alias.count().execute().fetchone()[0]
     return hate_count
@@ -179,8 +179,8 @@ def get(channel_id):
     if not candidates:
         LOG.warning( "No song returned!" )
         return
-    sess = Session()
-    song = sess.query(Song).filter(songTable.c.id == candidates[0][0] ).first()
+    sess = SESSION()
+    song = sess.query(Song).filter(SONG_TABLE.c.id == candidates[0][0] ).first()
     sess.close()
     return song
 

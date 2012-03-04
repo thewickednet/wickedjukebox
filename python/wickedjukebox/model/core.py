@@ -1,3 +1,9 @@
+"""
+The core model of the application
+
+This maps database tables to business classes.
+"""
+
 from sqlalchemy import (
         create_engine,
         Table,
@@ -10,18 +16,15 @@ from sqlalchemy import (
         String)
 from sqlalchemy.sql import select, update, insert
 from sqlalchemy.orm import mapper, sessionmaker, relation
-from pydata import util
+from wickedjukebox.util.filesystem import loadConfig
 from datetime import datetime, date
 import sys
 import logging
 from os import stat
 from os.path import basename
-from pydata import setup_logging
-
-setup_logging()
 
 LOG = logging.getLogger(__name__)
-CFG = util.loadConfig( "config.ini" )
+CFG = loadConfig( "config.ini" )
 DBURI = "%s://%s:%s@%s/%s?charset=utf8" % (
     CFG['database.type'],
     CFG['database.user'],
@@ -30,78 +33,78 @@ DBURI = "%s://%s:%s@%s/%s?charset=utf8" % (
     CFG['database.base'],
     )
 
-metadata = MetaData()
-engine = create_engine(DBURI, echo=False)
-metadata.bind = engine
-Session = sessionmaker( bind = engine )
+METADATA = MetaData()
+ENGINE = create_engine(DBURI, echo=False)
+METADATA.bind = ENGINE
+SESSION = sessionmaker( bind = ENGINE )
 
-stateTable = Table( 'state', metadata,
+STATE_TABLE = Table( 'state', METADATA,
     autoload=True )
 
-channelTable = Table( 'channel', metadata,
+CHANNEL_TABLE = Table( 'channel', METADATA,
     Column( 'name', Unicode(32) ),
     Column( 'backend', Unicode(64) ),
     Column( 'backend_params', Unicode() ),
     autoload=True )
 
-settingTable = Table( 'setting', metadata,
+SETTING_TABLE = Table( 'setting', METADATA,
     Column( 'value', Unicode()),
     autoload=True )
 
-settingTextTable = Table( 'setting_text', metadata,
+SETTING_TEXT_TABLE = Table( 'setting_text', METADATA,
     Column( 'comment', Unicode()),
     autoload=True )
 
-artistTable = Table( 'artist', metadata,
+ARTIST_TABLE = Table( 'artist', METADATA,
     Column('name', Unicode(128)),
     Column( 'added', DateTime, nullable=False, default=datetime.now ),
     autoload=True )
 
-albumTable = Table( 'album', metadata,
+ALBUM_TABLE = Table( 'album', METADATA,
     Column( 'name', Unicode(128) ),
     Column( 'type', Unicode(32) ),
     Column( 'added', DateTime, nullable=False, default=datetime.now ),
     autoload=True )
 
-songTable = Table( 'song', metadata,
+SONG_TABLE = Table( 'song', METADATA,
     Column( 'title', Unicode(128) ),
     Column( 'localpath', Unicode(255) ),
     Column( 'lyrics', Unicode() ),
     Column( 'added', DateTime, nullable=False, default=datetime.now ),
     autoload=True )
 
-queueTable = Table( 'queue', metadata,
+QUEUE_TABLE = Table( 'queue', METADATA,
     Column( 'added', DateTime, nullable=False, default=datetime.now ),
     autoload=True )
 
-channelSongs = Table( 'channel_song_data', metadata, autoload=True )
+CHANNEL_SONGS_TABLE = Table( 'channel_song_data', METADATA, autoload=True )
 
-lastfmTable = Table( 'lastfm_queue', metadata, autoload=True )
+LASTFM_TABLE = Table( 'lastfm_queue', METADATA, autoload=True )
 
-usersTable = Table( 'users', metadata,
+USERS_TABLE = Table( 'users', METADATA,
     Column( 'added', DateTime, nullable=False, default=datetime.now ),
     useexisting=True,
     autoload=True )
 
-dynamicPLTable = Table( 'dynamicPlaylist', metadata,
+DYNAMIC_PL_TABLE = Table( 'dynamicPlaylist', METADATA,
     Column( 'label', Unicode(64) ),
     Column( 'query', Unicode() ),
     autoload=True )
 
-song_has_genre = Table( 'song_has_genre', metadata, autoload=True )
+SONG_HAS_GENRE_TABLE = Table( 'song_has_genre', METADATA, autoload=True )
 
-genreTable = Table( 'genre', metadata,
+GENRE_TABLE = Table( 'genre', METADATA,
     Column( 'added', DateTime, nullable=False, default=datetime.now ),
     useexisting=True,
     autoload=True )
 
-songStandingTable = Table( 'user_song_standing', metadata, autoload=True )
+SONG_STANDING_TABLE = Table( 'user_song_standing', METADATA, autoload=True )
 
-songStatsTable = Table( 'user_song_stats', metadata, autoload=True )
+SONG_STATS_TABLE = Table( 'user_song_stats', METADATA, autoload=True )
 
-tagTable = Table( 'tag', metadata, autoload=True )
+TAG_TABLE = Table( 'tag', METADATA, autoload=True )
 
-song_has_tag = Table( 'song_has_tag', metadata,
+SONG_HAS_TAG = Table( 'song_has_tag', METADATA,
     Column('song_id', Integer, ForeignKey('song.id')),
     Column('tag', String(32), ForeignKey('tag.label')),
     )
@@ -111,8 +114,13 @@ song_has_tag = Table( 'song_has_tag', metadata,
 # ----------------------------------------------------------------------------
 
 class Genre(object):
+    """
+    A musical genre (could also be represented using tags!)
+    """
+    # pylint: disable=R0903
 
     def __init__(self, name):
+        self.id = None # pylint: disable=C0103
         self.name = name
         self.added = datetime.now()
 
@@ -121,6 +129,10 @@ class Genre(object):
 
 
 class Tag(object):
+    """
+    A folksonomy tag
+    """
+    # pylint: disable=R0903
 
     def __init__(self, label):
         self.label = label
@@ -131,71 +143,92 @@ class Tag(object):
 
 
 class Setting(object):
+    """
+    Convenience class to access application settings
+    """
+    # pylint: disable=R0903
 
     @classmethod
-    def get(self, param_in, default=None, channel_id=None, user_id=None):
+    def get(cls, param_in, default=None, channel_id=None, user_id=None):
         """
         Retrieves a setting from the database.
 
-        @type  param_in:    str
-        @param param_in:    The name of the setting as string
-        @param default:     If it's set, it provides the default value in case the
-                                 value was not found in the database.
+        @type  param_in: str
+        @param param_in: The name of the setting as string
+        @param default: If it's set, it provides the default value in case the
+                        value was not found in the database.
         @type  channel_id: int
         @param channel_id: The channel id if the setting is bound to a channel.
-        @type  user_id:     int
-        @param user_id:     The user id if the setting is bound to a user.
+        @type  user_id: int
+        @param user_id: The user id if the setting is bound to a user.
         """
 
         if LOG.isEnabledFor( logging.DEBUG ):
             import traceback
-            tb = traceback.extract_stack()
-            source = tb[-2]
-            LOG.debug("Retriveing setting %r for user %r and channel %r with default: %r (source: %s:%s)..." % (
-                param_in, user_id, channel_id, default, basename(source[0]), source[1] ))
+            trace = traceback.extract_stack()
+            source = trace[-2]
+            LOG.debug("Retriveing setting %r for user %r and channel %r with "
+                    "default: %r (source: %s:%s)..." % (
+                        param_in, user_id, channel_id, default,
+                        basename(source[0]), source[1] ))
 
         output = default
 
         try:
-            s = select( [settingTable.c.value] )
-            s = s.where( settingTable.c.var == param_in )
+            query = select( [SETTING_TABLE.c.value] )
+            query = query.where( SETTING_TABLE.c.var == param_in )
 
             if channel_id:
-                s = s.where( settingTable.c.channel_id == channel_id )
+                query = query.where( SETTING_TABLE.c.channel_id == channel_id )
             else:
-                s = s.where( settingTable.c.channel_id == 0 )
+                query = query.where( SETTING_TABLE.c.channel_id == 0 )
 
             if user_id:
-                s = s.where( settingTable.c.user_id == user_id )
+                query = query.where( SETTING_TABLE.c.user_id == user_id )
             else:
-                s = s.where( settingTable.c.user_id == 0 )
+                query = query.where( SETTING_TABLE.c.user_id == 0 )
 
-            r = s.execute()
-            if r:
-                setting = r.fetchone()
+            result = query.execute()
+            if result:
+                setting = result.fetchone()
 
-            # if a channel-setting was requested but no entry was found, we fall back to a global setting
+            # if a channel-setting was requested but no entry was found, we
+            # fall back to a global setting
             if channel_id and not setting:
-                LOG.debug("    No per-channel setting found. falling back to global setting...")
-                return self.get( param_in=param_in, default=default, channel_id=None, user_id=user_id )
+                LOG.debug("    No per-channel setting found. falling back to "
+                        "global setting...")
+                return cls.get(
+                        param_in=param_in,
+                        default=default,
+                        channel_id=None,
+                        user_id=user_id)
 
             if not setting:
-                # The parameter was not found in the database. Do we have a default?
+                # The parameter was not found in the database. Do we have a
+                # default?
                 if default:
-                    # yes, we have a default. Return that instead the database value.
-                    LOG.debug("    Requested setting was not found! Returning default value...")
+                    # yes, we have a default. Return that instead the database
+                    # value.
+                    LOG.debug("    Requested setting was not found! "
+                            "Returning default value...")
                     output = default
                 else:
-                    LOG.debug( "    Required parameter %s was not found in the settings table!" % param_in )
+                    LOG.debug( "    Required parameter %s was not found in "
+                            "the settings table!" % param_in )
                     output = None
 
-                try:    
-                    ins_q = insert( settingTable )
-                    ins_q = ins_q.values( { 'var': param_in, 'value': output, 'channel_id': channel_id or 0, 'user_id': user_id or 0 } )
+                try:
+                    ins_q = insert( SETTING_TABLE )
+                    ins_q = ins_q.values({
+                        'var': param_in,
+                        'value': output,
+                        'channel_id': channel_id or 0,
+                        'user_id': user_id or 0})
                     ins_q.execute()
                     LOG.debug("    Inserted default value into the databse!")
-                except Exception, e:
-                    LOG.error( "Unable to insert default setting into the datatabase", exc_info=True ) 
+                except Exception:
+                    LOG.error( "Unable to insert default setting into "
+                            "the datatabase", exc_info=True )
 
             else:
                 output = setting["value"]
@@ -205,10 +238,12 @@ class Setting(object):
 
         except Exception, ex:
             if str(ex).lower().find('connect') > 0:
-                LOG.critical('Unable to connect to the database. Error was: \n%s' % ex)
+                LOG.critical('Unable to connect to the database. '
+                    'Error was: \n%s' % ex)
                 sys.exit(0)
             if str(ex).lower().find('exist') > 0:
-                LOG.critical('Settings table not found. Did you create the database tables?')
+                LOG.critical('Settings table not found. Did you create '
+                    'the database tables?')
                 sys.exit(0)
             else:
                 # An unknown error occured. We raise it again
@@ -216,25 +251,23 @@ class Setting(object):
 
 
 class Channel(object):
+    """
+    A channel instance
+    """
+    # pylint: disable=R0903
 
     def __repr__(self):
-        return "<Channel %s name=%s>" % (self.id, repr(self.name))
-
-
-class Artist(object):
-
-    def __init__( self, name ):
-        self.name  = name
-        self.added = datetime.now()
-
-    def __repr__(self):
-        return "<Artist %s name=%s>" % (self.id, repr(self.name))
+        return "<Channel %s name=%s>" % (self.id, repr(self.name)) # pylint: disable=E1101, C0301
 
 
 class State(object):
+    """
+    Represents the current state of the jukebox. The state variables are shared
+    in this DB table.
+    """
 
     @classmethod
-    def set(self, statename, value, channel_id=0):
+    def set(cls, statename, value, channel_id=0):
         """
         Saves a state variable into the database
 
@@ -244,31 +277,36 @@ class State(object):
                                  the channel.
         """
 
-        s = select( [stateTable.c.state] )
-        s = s.where( stateTable.c.state == statename )
-        s = s.where( stateTable.c.channel_id == channel_id )
-        r = s.execute()
-        if r and r.fetchone():
+        query = select( [STATE_TABLE.c.state] )
+        query = query.where( STATE_TABLE.c.state == statename )
+        query = query.where( STATE_TABLE.c.channel_id == channel_id )
+        result = query.execute()
+        if result and result.fetchone():
             # the state exists, we need to update it
-            uq = update( stateTable )
-            uq = uq.values( {'value': value, 'channel_id': channel_id} )
-            uq = uq.where( stateTable.c.state == statename )
-            uq = uq.where( stateTable.c.channel_id == channel_id )
-            uq.execute()
+            upd_q = update( STATE_TABLE )
+            upd_q = upd_q.values( {'value': value, 'channel_id': channel_id} )
+            upd_q = upd_q.where( STATE_TABLE.c.state == statename )
+            upd_q = upd_q.where( STATE_TABLE.c.channel_id == channel_id )
+            upd_q.execute()
         else:
             # unknown state, store it in the DB
-            ins_q = insert( stateTable )
-            ins_q = ins_q.values( { 'state': statename, 'value': value, 'channel_id': channel_id } )
+            ins_q = insert( STATE_TABLE )
+            ins_q = ins_q.values({
+                'state': statename,
+                'value': value,
+                'channel_id': channel_id})
             ins_q.execute()
 
         if LOG.isEnabledFor( logging.DEBUG ):
             import traceback
-            tb = traceback.extract_stack()
-            source = tb[-2]
-            LOG.debug( "State %r stored with value %r for channel %r (from %s:%d)" % ( statename, value, channel_id, basename( source[0] ), source[1] ) )
+            trace = traceback.extract_stack()
+            source = trace[-2]
+            LOG.debug("State %r stored with value %r for channel %r ("
+                    "from %s:%d)" % (statename, value, channel_id, basename(
+                        source[0]), source[1]))
 
     @classmethod
-    def get(self, statename, channel_id=0):
+    def get(cls, statename, channel_id=0):
         """
         Retrieve a specific state
 
@@ -276,48 +314,91 @@ class State(object):
         @param: (optional) The channel id for states bound to a specific channel
         @return: The state value
         """
-        s = select( [stateTable.c.value] )
-        s = s.where( stateTable.c.state == statename )
-        s = s.where( stateTable.c.channel_id == channel_id )
-        r = s.execute()
-        if r:
-            row = r.fetchone()
+        query = select( [STATE_TABLE.c.value] )
+        query = query.where( STATE_TABLE.c.state == statename )
+        query = query.where( STATE_TABLE.c.channel_id == channel_id )
+        result = query.execute()
+        if result:
+            row = result.fetchone()
             if row:
                 return row[0]
         if LOG.isEnabledFor( logging.WARNING ):
             import traceback
-            tb = traceback.extract_stack()
-            source = tb[-2]
-            LOG.warn( "State %r not found for channel %r (from %s:%d)" % ( statename, channel_id, basename( source[0] ), source[1] ) )
+            trace = traceback.extract_stack()
+            source = trace[-2]
+            LOG.warn("State %r not found for channel %r (from %s:%d)" % (
+                statename, channel_id, basename( source[0] ), source[1]))
         return None
 
 
 class Album(object):
+    """
+    An album
+
+    :param name: The album name
+    :param artist: The artist of this album (default=None)
+    :param artist_id: The artist ID (default=None)
+    :param path: The folder containing files of this album (default=None)
+    """
+    # pylint: disable=R0903
 
     def __init__( self, name, artist=None, artist_id=None, path=None ):
-        self.name  = name
-        if artist: self.artist_id = artist.id
-        elif artist_id: self.artist_id = artist_id
-
-        self.path = path
         self.added = datetime.now()
+        self.id = None # pylint: disable=C0103
+        self.name = name
+        self.path = path
+
+        if artist:
+            self.artist_id = artist.id
+        elif artist_id:
+            self.artist_id = artist_id
 
     def __repr__(self):
         return "<Album %s name=%s>" % (self.id, repr(self.name))
 
 
 class Song(object):
+    """
+    A song instance
+
+    :param localpath: The filesystem path
+    :param artist: The artist of this song
+    :param album: The album on which to find this song
+    """
 
     def __init__( self, localpath, artist, album ):
-        if localpath: self.localpath = localpath
-      # if artist:     self.artist_id = artist.id
-      # if album:      self.album_id  = album.id
+        # pylint: disable=W0613
+
+        self.__album_name = None
+        self.__artist_name = None
+        self.__genre_name = None
         self.added = datetime.now()
+        self.album_id = None
+        self.artist = None
+        self.artist_id = None
+        self.bitrate = None
+        self.duration = None
+        self.filesize = None
+        self.genre_id = None
+        self.id = None # pylint: disable=C0103
+        self.last_scanned = None
+        self.localpath = localpath
+        self.tags = []
+        self.title = None
+        self.track_no = None
+        self.year = None
+
+        #if album:
+        #    self.album_id  = album.id
+
+        #if artist:
+        #    self.artist_id = artist.id
 
     def __repr__(self):
-        return "<Song id=%r artist_id=%r title=%r path=%r>" % (self.id, self.artist_id, self.title, self.localpath)
+        return "<Song id=%r artist_id=%r title=%r path=%r>" % (
+                self.id, self.artist_id, self.title, self.localpath)
 
-    def scan_from_file(self, localpath, encoding):
+    def scan_from_file(self, localpath):
         """
         Scans a file on the disk and loads the metadata from that file
 
@@ -330,36 +411,30 @@ class Song(object):
 
         LOG.debug( "Extracting metadata from %r" % localpath )
 
-        try:
-            audiometa = MetaFactory.create( localpath.encode(encoding) )
-        except Exception, ex:
-            LOG.warning("%r contained invalid metadata. Error message: %r" % (localpath, str(ex) ) )
+        audiometa = MetaFactory.create(localpath)
+        dirname = path.dirname(localpath)
 
-        dirname = path.dirname( localpath.encode(encoding) )
-
-        self.__artistName = audiometa['artist']
-        self.__genreName  = len( audiometa['genres'] ) > 0 and audiometa['genres'][0] or None
-        self.__albumName  = audiometa['album']
-        self.localpath     = localpath
-        self.title          = audiometa['title']
-        self.duration      = audiometa['duration']
-        self.bitrate        = audiometa['bitrate']
-        self.track_no      = audiometa['track_no']
+        self.__artist_name = audiometa['artist']
+        self.__genre_name = (len(audiometa['genres']) > 0 and
+            audiometa['genres'][0] or
+            None)
+        self.__album_name = audiometa['album']
+        self.localpath = localpath
+        self.title = audiometa['title']
+        self.duration = audiometa['duration']
+        self.bitrate = audiometa['bitrate']
+        self.track_no = audiometa['track_no']
 
         release_date    = audiometa['release_date']
         if release_date:
             self.year = release_date.year
 
-        try:
-            self.filesize = stat(localpath.encode(encoding)).st_size
-        except Exception, ex:
-            LOG.warning(ex)
-            self.filesize = None
+        self.filesize = stat(localpath).st_size
 
-        self.artist_id = self.get_artist_id( self.__artistName )
-        self.genre_id  = self.get_genre_id( self.__genreName )
+        self.artist_id = self.get_artist_id( self.__artist_name )
+        self.genre_id  = self.get_genre_id( self.__genre_name )
         self.album_id  = self.get_album_id(dirname)
-        self.lastScanned = datetime.now()
+        self.last_scanned = datetime.now()
 
     def get_genre_id( self, genre_name ):
         """
@@ -370,14 +445,14 @@ class Song(object):
         @todo: instead of using the mapped object "Genre" we could use the genreTable for performance gains
         """
 
-        testsel = select( [genreTable.c.id] )
-        testsel = testsel.where( genreTable.c.name == genre_name )
+        testsel = select( [GENRE_TABLE.c.id] )
+        testsel = testsel.where( GENRE_TABLE.c.name == genre_name )
         res = testsel.execute()
         row = res.fetchone()
         if row:
             return row[0]
 
-        insq = insert( genreTable ).values({
+        insq = insert( GENRE_TABLE ).values({
                 'name': genre_name
             })
         result = insq.execute()
@@ -389,17 +464,18 @@ class Song(object):
 
         @param artist_name: The name of the artist
         @return: The ID of the matching artist
+        @todo: This does not need to be an instance method of Song!
         """
 
-        testsel = select( [artistTable.c.id] )
-        testsel = testsel.where( artistTable.c.name == artist_name )
+        testsel = select( [ARTIST_TABLE.c.id] )
+        testsel = testsel.where( ARTIST_TABLE.c.name == artist_name )
         res = testsel.execute()
         row = res.fetchone()
 
         if row:
             return row[0]
 
-        insq = insert( artistTable ).values({
+        insq = insert( ARTIST_TABLE ).values({
                 'name': artist_name
             })
         result = insq.execute()
@@ -411,15 +487,17 @@ class Song(object):
 
         @param dirname: The path where the files of this album are stored
         @return: The ID of the matching album
+        @todo: This does not need to be an instance method of Song!
         """
-        if not self.artist_id or not self.__albumName:
-            LOG.warning( "Unable to determine the album ID without a valid srtist_id and album-name!" )
+        if not self.artist_id or not self.__album_name:
+            LOG.warning("Unable to determine the album ID without a valid "
+                    "artist_id and album-name!" )
 
         artist_id = self.artist_id
-        album_name = self.__albumName
+        album_name = self.__album_name
 
-        testsel = select( [albumTable.c.id, albumTable.c.release_date] )
-        testsel = testsel.where( albumTable.c.path == dirname )
+        testsel = select( [ALBUM_TABLE.c.id, ALBUM_TABLE.c.release_date] )
+        testsel = testsel.where( ALBUM_TABLE.c.path == dirname )
         row = testsel.execute().fetchone()
 
         album_id = None
@@ -435,17 +513,19 @@ class Song(object):
             if self.year:
                 data["release_date"] = date(self.year, 1, 1)
 
-            insq = insert( albumTable ).values(data)
+            insq = insert( ALBUM_TABLE ).values(data)
             result = insq.execute()
             album_id = result.last_inserted_ids()[0]
 
-        # if this song's release date is newer than the album's release date, we update the album release date
+        # if this song's release date is newer than the album's release date,
+        # we update the album release date
         if self.year and row:
-            if (row["release_date"] and row["release_date"] < date(self.year, 1, 1)) \
-                or (not row["release_date"] and self.year):
+            if ((row["release_date"] and
+                    row["release_date"] < date(self.year, 1, 1))
+                or (not row["release_date"] and self.year)):
 
-                updq = update( albumTable )
-                updq = updq.where( albumTable.c.path == dirname )
+                updq = update( ALBUM_TABLE )
+                updq = updq.where( ALBUM_TABLE.c.path == dirname )
                 updq = updq.values({ 'release_date': date( self.year, 1, 1 ) })
                 updq.execute()
 
@@ -457,11 +537,15 @@ class Song(object):
         """
         if not api:
             import lastfm
-            api_key = Settings.get( "lastfm_api_key", None )
-            LOG.warning( "'update_tags' should be called with an instantiated LastFM API instance to avoid unnecessary network traffic!" )
+            api_key = Setting.get( "lastfm_api_key", None )
+            LOG.warning( "'update_tags' should be called with an "
+                    "instantiated LastFM API instance to avoid "
+                    "unnecessary network traffic!"
+                    )
             api = lastfm.Api( api_key )
         if not self.title or not self.artist or not self.artist.name:
-            LOG.error( "Cannot update the tags for this song. Either artist or track name are unknown" )
+            LOG.error( "Cannot update the tags for this song. Either artist "
+                    "or track name are unknown" )
 
         lastfm_track = api.get_track(
             artist = self.artist.name,
@@ -471,7 +555,7 @@ class Song(object):
 
         if not session:
             # try to get the current session for this object
-            session = Session.object_session(self)
+            session = SESSION.object_session(self)
 
         if not session:
             # unable to get a session
@@ -479,75 +563,88 @@ class Song(object):
 
         for remove_tag in current_tag_names.difference( lastfm_tag_names ):
             LOG.debug("Removing tag %r from song %d", (remove_tag, self.id) )
-            song_has_tag.delete().where( song_has_tag.c.tag == remove_tag )
+            SONG_HAS_TAG.delete().where( SONG_HAS_TAG.c.tag == remove_tag )
 
         for add_tag in lastfm_tag_names.difference(current_tag_names):
             if len(add_tag) > 32:
                 LOG.debug( "WARNING: tag %r is too long!" % (add_tag) )
                 continue
             LOG.debug( "Adding tag %r to song %d" % (add_tag, self.id) )
-            t = Tag( add_tag )
-            t = session.merge(t)
-            self.tags.append( t )
-
-
-class QueueItem(object):
-
-    def __init__(self):
-        self.added = datetime.now()
-
-    def __repr__(self):
-        return "<QueueItem %s>" % (self.id)
+            tag = Tag(add_tag)
+            tag = session.merge(tag)
+            self.tags.append(tag)
 
 
 class DynamicPlaylist(object):
+    """
+    A dynamic playlist
+    """
+    # pylint: disable=R0903
 
     def __repr__(self):
-        return "<DynamicPlaylist %s>" % (self.id)
+        return "<DynamicPlaylist %s>" % (self.id) # pylint: disable=E1101
 
 
 class ChannelStat(object):
+    """
+    Statistics for a channel
+    """
+    # pylint: disable=R0903
 
     def __init__( self, song_id, channel_id ):
-        self.song_id     = song_id
+        self.song_id = song_id
         self.channel_id = channel_id
 
 
 class Artist(object):
+    """
+    An artist
+    """
+    # pylint: disable=R0903
 
     def __init__( self, name ):
         self.name  = name
         self.added = datetime.now()
 
+    def __repr__(self):
+        return "<Artist %s name=%s>" % (self.id, repr(self.name)) # pylint: disable=E1101,C0301
+
 
 class QueueItem(object):
+    """
+    An Song in the current Queue
+    """
+    # pylint: disable=R0903
 
     def __init__(self):
         self.added = datetime.now()
 
+    def __repr__(self):
+        return "<QueueItem %s>" % (self.id) # pylint: disable=E1101
 
-mapper( State, stateTable, properties={
+
+mapper( State, STATE_TABLE, properties={
     ##'channel': relation(Channel)
 })
-mapper( Genre, genreTable )
-mapper( Tag, tagTable )
-mapper( ChannelStat, channelSongs )
-mapper( DynamicPlaylist, dynamicPLTable )
-mapper(QueueItem, queueTable, properties={
+mapper( Genre, GENRE_TABLE )
+mapper( Tag, TAG_TABLE )
+mapper( ChannelStat, CHANNEL_SONGS_TABLE )
+mapper( DynamicPlaylist, DYNAMIC_PL_TABLE )
+mapper(QueueItem, QUEUE_TABLE, properties={
     'song': relation(Song)
 })
-mapper(Setting, settingTable)
-mapper(Channel, channelTable)
-mapper(Album, albumTable, properties=dict(
+mapper(Setting, SETTING_TABLE)
+mapper(Channel, CHANNEL_TABLE)
+mapper(Album, ALBUM_TABLE, properties=dict(
     songs=relation(Song, backref='album')))
 
-mapper(Artist, artistTable, properties=dict(
+mapper(Artist, ARTIST_TABLE, properties=dict(
     albums= relation(Album, backref='artist'),
     songs = relation(Song,  backref='artist')
     ))
-mapper(Song, songTable, properties=dict(
+mapper(Song, SONG_TABLE, properties=dict(
     channelstat=relation( ChannelStat, backref='song' ),
-    genres = relation( Genre, secondary=song_has_genre, backref='songs' ),
-    tags = relation( Tag, secondary=song_has_tag, backref='songs' ),
+    genres = relation( Genre, secondary=SONG_HAS_GENRE_TABLE, backref='songs' ),
+    tags = relation( Tag, secondary=SONG_HAS_TAG, backref='songs' ),
     ))
 

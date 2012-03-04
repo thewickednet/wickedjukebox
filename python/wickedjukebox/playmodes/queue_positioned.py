@@ -7,12 +7,12 @@ each item and finally removes all items with an id smaller than -10
 """
 
 from wickedjukebox.model.core import (
-        Session,
+        SESSION,
         QueueItem,
-        queueTable,
-        songTable,
-        artistTable,
-        albumTable)
+        QUEUE_TABLE,
+        SONG_TABLE,
+        ARTIST_TABLE,
+        ALBUM_TABLE)
 from datetime import datetime
 from sqlalchemy import and_
 
@@ -30,11 +30,11 @@ def enqueue(song_id, user_id, channel_id):
     @param user_id: The user who added the queue action
     """
 
-    session = Session()
+    session = SESSION()
 
     # determine the next position
     old = session.query(QueueItem)
-    old = old.filter( queueTable.c.position > 0 )
+    old = old.filter( QUEUE_TABLE.c.position > 0 )
     old = old.order_by = ('-position')
     old = old.first() # pylint: disable=E1101
     if old:
@@ -56,28 +56,28 @@ def list(channel_id):
     """
     Returns an ordered list of the items on the queue including position.
     """
-    query = queueTable.join(songTable) \
-         .join(artistTable) \
-         .join(albumTable, onclause=songTable.c.album_id==albumTable.c.id) \
-         .select(order_by=queueTable.c.position, use_labels=True) \
-         .where( queueTable.c.channel_id == channel_id )
+    query = QUEUE_TABLE.join(SONG_TABLE) \
+         .join(ARTIST_TABLE) \
+         .join(ALBUM_TABLE, onclause=SONG_TABLE.c.album_id==ALBUM_TABLE.c.id) \
+         .select(order_by=QUEUE_TABLE.c.position, use_labels=True) \
+         .where( QUEUE_TABLE.c.channel_id == channel_id )
     items = query.execute()
     out = []
     for item in items:
         data = {
-            'position': item[queueTable.c.position],
+            'position': item[QUEUE_TABLE.c.position],
             'song': {
-                'id': item[songTable.c.id],
-                'title': item[songTable.c.title].encode('utf-8'),
-                'duration': item[songTable.c.duration],
+                'id': item[SONG_TABLE.c.id],
+                'title': item[SONG_TABLE.c.title].encode('utf-8'),
+                'duration': item[SONG_TABLE.c.duration],
             },
             'album': {
-                'id': item[albumTable.c.id],
-                'name': item[albumTable.c.name].encode('utf-8')
+                'id': item[ALBUM_TABLE.c.id],
+                'name': item[ALBUM_TABLE.c.name].encode('utf-8')
             },
             'artist': {
-                'id': item[artistTable.c.id],
-                'name': item[artistTable.c.name].encode('utf-8')
+                'id': item[ARTIST_TABLE.c.id],
+                'name': item[ARTIST_TABLE.c.name].encode('utf-8')
             }
         }
         out.append( data )
@@ -92,11 +92,11 @@ def dequeue( channel_id ):
     @param channel_id: The id of the channel
     """
 
-    session = Session()
+    session = SESSION()
 
     next_song = session.query(QueueItem) \
-            .filter(queueTable.c.position == 1 ) \
-            .filter(queueTable.c.channel_id == channel_id ) \
+            .filter(QUEUE_TABLE.c.position == 1 ) \
+            .filter(QUEUE_TABLE.c.channel_id == channel_id ) \
             .first()
 
     if next_song:
@@ -106,11 +106,11 @@ def dequeue( channel_id ):
 
     if song:
 
-        queueTable.update().where(
-                queueTable.c.channel_id == channel_id).values(
-                        {queueTable.c.position:queueTable.c.position-1}
+        QUEUE_TABLE.update().where(
+                QUEUE_TABLE.c.channel_id == channel_id).values(
+                        {QUEUE_TABLE.c.position:QUEUE_TABLE.c.position-1}
                         ).execute()
-        queueTable.delete(queueTable.c.position < -20)
+        QUEUE_TABLE.delete(QUEUE_TABLE.c.position < -20)
 
         session.close()
         return song
@@ -133,7 +133,7 @@ def moveup( channel_id, qid, delta):
     @param qid: The database ID of the queue item (*not* the song!)
     """
 
-    session = Session()
+    session = SESSION()
 
     qitem = session.query(QueueItem).get(qid)
 
@@ -142,32 +142,32 @@ def moveup( channel_id, qid, delta):
         old_position = qitem.position
         min_ = old_position - delta
         max_ = old_position
-        queueTable.update(
-            and_(queueTable.c.position <= max_,
-                queueTable.c.position >= min_,
-                queueTable.c.channel_id == channel_id),
+        QUEUE_TABLE.update(
+            and_(QUEUE_TABLE.c.position <= max_,
+                QUEUE_TABLE.c.position >= min_,
+                QUEUE_TABLE.c.channel_id == channel_id),
             values = {
-                queueTable.c.position:queueTable.c.position + 1
+                QUEUE_TABLE.c.position:QUEUE_TABLE.c.position + 1
             } ).execute()
-        queueTable.update(
-            queueTable.c.id == qitem.id,
+        QUEUE_TABLE.update(
+            QUEUE_TABLE.c.id == qitem.id,
             values = {
-                queueTable.c.position: min_
+                QUEUE_TABLE.c.position: min_
             }).execute()
 
     elif qitem.position > 1 and (qitem.position - delta) < 1:
-        queueTable.update(
-            and_(queueTable.c.position >= 1,
-                queueTable.c.position < qitem.position,
-                queueTable.c.channel_id == channel_id
+        QUEUE_TABLE.update(
+            and_(QUEUE_TABLE.c.position >= 1,
+                QUEUE_TABLE.c.position < qitem.position,
+                QUEUE_TABLE.c.channel_id == channel_id
             ),
             values = {
-                queueTable.c.position:queueTable.c.position + 1
+                QUEUE_TABLE.c.position:QUEUE_TABLE.c.position + 1
             }).execute()
-        queueTable.update(
-            queueTable.c.id == qitem.id,
+        QUEUE_TABLE.update(
+            QUEUE_TABLE.c.id == qitem.id,
             values = {
-                queueTable.c.position: 1
+                QUEUE_TABLE.c.position: 1
             }).execute()
 
     session.close()
@@ -187,7 +187,7 @@ def movedown( channel_id, qid, delta):
     @param qid: The database ID of the queue item (*not* the song!)
     """
 
-    session = Session()
+    session = SESSION()
 
     qitem = session.query(QueueItem).get(qid)
 
@@ -203,35 +203,35 @@ def movedown( channel_id, qid, delta):
         old_position = qitem.position
         min_ = old_position
         max_ = old_position + delta
-        queueTable.update(
-            and_(queueTable.c.position <= max_,
-                queueTable.c.position >= min_,
-                queueTable.c.channel_id == channel_id
+        QUEUE_TABLE.update(
+            and_(QUEUE_TABLE.c.position <= max_,
+                QUEUE_TABLE.c.position >= min_,
+                QUEUE_TABLE.c.channel_id == channel_id
             ),
             values = {
-                queueTable.c.position:queueTable.c.position - 1
+                QUEUE_TABLE.c.position:QUEUE_TABLE.c.position - 1
             }).execute()
 
-        queueTable.update(
-            queueTable.c.id == qitem.id,
+        QUEUE_TABLE.update(
+            QUEUE_TABLE.c.id == qitem.id,
             values = {
-                queueTable.c.position: max_
+                QUEUE_TABLE.c.position: max_
             }).execute()
 
     elif qitem.position < bottom and (qitem.position + delta) > bottom:
-        queueTable.update(
-            and_(queueTable.c.position <= bottom,
-                queueTable.c.position > qitem.position,
-                queueTable.c.channel_id == channel_id
+        QUEUE_TABLE.update(
+            and_(QUEUE_TABLE.c.position <= bottom,
+                QUEUE_TABLE.c.position > qitem.position,
+                QUEUE_TABLE.c.channel_id == channel_id
             ),
             values = {
-                queueTable.c.position:queueTable.c.position - 1
+                QUEUE_TABLE.c.position:QUEUE_TABLE.c.position - 1
             }).execute()
 
-        queueTable.update(
-            queueTable.c.id == qitem.id,
+        QUEUE_TABLE.update(
+            QUEUE_TABLE.c.id == qitem.id,
             values = {
-                queueTable.c.position: bottom
+                QUEUE_TABLE.c.position: bottom
             }).execute()
 
     session.close()
