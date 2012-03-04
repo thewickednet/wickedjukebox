@@ -22,7 +22,7 @@ def loadConfig(file, config={}):
     for sec in cp.sections():
         name = sec.lower()
         for opt in cp.options(sec):
-            config[name + "." + opt.lower()] = cp.get(sec, opt).strip()
+            config[name + "." + opt.lower()] = unicode(cp.get(sec, opt)).strip()
     return config
 
 def direxists(dir):
