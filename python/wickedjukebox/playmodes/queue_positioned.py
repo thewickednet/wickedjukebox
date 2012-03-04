@@ -6,7 +6,7 @@ Pops off the song with position 1, then substracts 1 from the position field of
 each item and finally removes all items with an id smaller than -10
 """
 
-from demon.dbmodel import (
+from wickedjukebox.model.core import (
         Session,
         QueueItem,
         queueTable,
@@ -16,18 +16,18 @@ from demon.dbmodel import (
 from datetime import datetime
 from sqlalchemy import and_
 
-def enqueue(songID, userID, channel_id):
+def enqueue(song_id, user_id, channel_id):
     """
     Enqueues a song onto a queue of a given channel
 
-    @type  songID: int
-    @param songID: The id of the song to be enqueued
+    @type  song_id: int
+    @param song_id: The id of the song to be enqueued
 
     @type  channel_id: int
     @param channel_id: The id of the channel
 
-    @type  userID: int
-    @param userID: The user who added the queue action
+    @type  user_id: int
+    @param user_id: The user who added the queue action
     """
 
     session = Session()
@@ -35,33 +35,33 @@ def enqueue(songID, userID, channel_id):
     # determine the next position
     old = session.query(QueueItem)
     old = old.filter( queueTable.c.position > 0 )
-    old = old.order_by=('-position')
+    old = old.order_by = ('-position')
     old = old.first()
     if old:
-        nextPos = old.position + 1
+        next_pos = old.position + 1
     else:
-        nextPos = 1
+        next_pos = 1
 
-    qi = QueueItem()
-    qi.position = nextPos
-    qi.added     = datetime.now()
-    qi.song_id  = songID
-    qi.user_id  = userID
-    qi.channel_id = channel_id
+    queue_item = QueueItem()
+    queue_item.position = next_pos
+    queue_item.added = datetime.now()
+    queue_item.song_id = song_id
+    queue_item.user_id = user_id
+    queue_item.channel_id = channel_id
 
-    session.add(qi)
+    session.add(queue_item)
     session.close()
 
 def list(channel_id):
     """
     Returns an ordered list of the items on the queue including position.
     """
-    q = queueTable.join(songTable) \
+    query = queueTable.join(songTable) \
          .join(artistTable) \
          .join(albumTable, onclause=songTable.c.album_id==albumTable.c.id) \
          .select(order_by=queueTable.c.position, use_labels=True) \
          .where( queueTable.c.channel_id == channel_id )
-    items = q.execute()
+    items = query.execute()
     out = []
     for item in items:
         data = {
@@ -94,19 +94,22 @@ def dequeue( channel_id ):
 
     session = Session()
 
-    nextSong = session.query(QueueItem) \
+    next_song = session.query(QueueItem) \
             .filter(queueTable.c.position == 1 ) \
             .filter(queueTable.c.channel_id == channel_id ) \
             .first()
 
-    if nextSong:
-        song = nextSong.song
+    if next_song:
+        song = next_song.song
     else:
         song = None
 
     if song:
 
-        queueTable.update().where(queueTable.c.channel_id == channel_id).values( {queueTable.c.position:queueTable.c.position-1} ).execute()
+        queueTable.update().where(
+                queueTable.c.channel_id == channel_id).values(
+                        {queueTable.c.position:queueTable.c.position-1}
+                        ).execute()
         queueTable.delete(queueTable.c.position < -20)
 
         session.close()
@@ -194,14 +197,15 @@ def movedown( channel_id, qid, delta):
     else:
         bottom = 1
 
-    # we only need to do this for songs that are not already at the end of the queue
+    # we only need to do this for songs that are not already at the end of the
+    # queue
     if qitem.position < bottom and (qitem.position + delta) < bottom:
         old_position = qitem.position
-        min = old_position
-        max = old_position + delta
+        min_ = old_position
+        max_ = old_position + delta
         queueTable.update(
-            and_(queueTable.c.position <= max,
-                queueTable.c.position >= min,
+            and_(queueTable.c.position <= max_,
+                queueTable.c.position >= min_,
                 queueTable.c.channel_id == channel_id
             ),
             values = {
@@ -211,7 +215,7 @@ def movedown( channel_id, qid, delta):
         queueTable.update(
             queueTable.c.id == qitem.id,
             values = {
-                queueTable.c.position: max
+                queueTable.c.position: max_
             }).execute()
 
     elif qitem.position < bottom and (qitem.position + delta) > bottom:
