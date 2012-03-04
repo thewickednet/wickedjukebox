@@ -36,9 +36,7 @@ class Channel(object):
         self.__currentSongFile = ''
         self.__randomstrategy = None
         self.__queuestrategy = None
-        self.__jingles_folder = None
-        self.__jingles_interval = 0
-        self.__no_jingle_count = 0
+        self.__no_jingle_count = 0 # how long it has been since the last jingle played
         self.__lastfm_api = None
         self.last_tagged_song = None
 
@@ -256,35 +254,32 @@ class Channel(object):
         self.__queuestrategy.movedown(self.id, qid, delta)
 
     def get_jingle(self):
-        self.__jingles_folder = Setting.get('jingles_folder', default=None, channel_id=self.id)
-        self.__jingles_interval = Setting.get('jingles_interval', default=None, channel_id=self.id)
-        if not self.__jingles_interval:
-            self.__jingles_interval = None
-        elif self.__jingles_interval.find("-") > -1:
-            jingle_boundary = [ int(x) for x in self.__jingles_interval.split("-") ]
+        folder = Setting.get('jingles_folder', default=None, channel_id=self.id)
+        interval_setting = Setting.get('jingles_interval', default=None, channel_id=self.id)
+
+        if not folder or not interval_setting:
+            return None
+
+        if '-' in interval_setting:
+            low, high= ( int(x) for x in interval_setting.split("-") )
+            rnd = int(random() * (high - low)) + self.__no_jingle_count
+            should_play_jingle = low <= rnd
         else:
-            jingle_boundary = [ int(self.__jingles_interval), int(self.__jingles_interval) ]
+            should_play_jingle = int(interval_setting) <= self.__no_jingle_count
 
-        if self.__jingles_folder == '':
-            self.__jingles_folder = None
+        if should_play_jingle:
+            available_jingles = os.listdir(folder)
+            self.__no_jingle_count = 0
+            if available_jingles:
+                random_file = choice(available_jingles)
+                return os.path.join(folder, random_file)
+            else:
+                LOG.warning("No jingles available in %s" % folder)
+        else:
+            self.__no_jingle_count += 1
+            LOG.debug("No jingle count increased to %d" % self.__no_jingle_count)
 
-        if (self.__jingles_interval is not None and self.__jingles_folder is not None):
-
-            try:
-                rnd = int(random()*(jingle_boundary[1]-jingle_boundary[0])) + self.__no_jingle_count
-                if jingle_boundary[0] <= rnd:
-                    available_jingles = os.listdir(self.__jingles_folder)
-                    if available_jingles != []:
-                        random_file = choice(available_jingles)
-                        self.__no_jingle_count = 0
-                        return os.path.join(self.__jingles_folder, random_file)
-                else:
-                    self.__no_jingle_count += 1
-                    LOG.debug("No jingle count increased to %d" % self.__no_jingle_count)
-            except OSError, ex:
-                import traceback
-                traceback.print_exc()
-                LOG.warning("Unable to open jingles: %s" % str(ex))
+        return None
 
     def update_current_listeners(self):
         "Scrape the Icecast admin page for current listeners and update theit state in the DB"
