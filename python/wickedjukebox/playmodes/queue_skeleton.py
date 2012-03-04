@@ -24,6 +24,7 @@ def enqueue(song_id, user_id, channel_id):
     @param user_id: The user who added the queue action
     """
 
+    # pylint: disable=W0613
     pass
 
 def dequeue( channel_id ):
@@ -40,6 +41,7 @@ def dequeue( channel_id ):
                 "None", so the system can fall back to random mode.
     """
 
+    # pylint: disable=W0613
     return None
 
 def moveup( channel_id, qid, delta ):
@@ -56,6 +58,7 @@ def moveup( channel_id, qid, delta ):
     @type  qid: int
     @param qid: The database ID of the queue item (*not* the song!)
     """
+    # pylint: disable=W0613
     pass
 
 def movedown( channel_id, qid, delta):
@@ -72,6 +75,7 @@ def movedown( channel_id, qid, delta):
     @type  qid: int
     @param qid: The database ID of the queue item (*not* the song!)
     """
+    # pylint: disable=W0613
     pass
 
 def movetop( channel_id, qid ):
@@ -84,6 +88,7 @@ def movetop( channel_id, qid ):
     @type  qid: int
     @param qid: The database ID of the queue item (*not* the song!)
     """
+    # pylint: disable=W0613
     pass
 
 def movebottom( channel_id, qid ):
@@ -96,6 +101,7 @@ def movebottom( channel_id, qid ):
     @type  qid: int
     @param qid: The database ID of the queue item (*not* the song!)
     """
+    # pylint: disable=W0613
     pass
 
 def list( channel_id ):
@@ -126,4 +132,5 @@ def list( channel_id ):
 
     @rtype: dict
     """
+    # pylint: disable=W0613
     pass

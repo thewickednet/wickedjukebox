@@ -36,7 +36,7 @@ def enqueue(song_id, user_id, channel_id):
     old = session.query(QueueItem)
     old = old.filter( queueTable.c.position > 0 )
     old = old.order_by = ('-position')
-    old = old.first()
+    old = old.first() # pylint: disable=E1101
     if old:
         next_pos = old.position + 1
     else:
@@ -140,11 +140,11 @@ def moveup( channel_id, qid, delta):
     # we only need to do this for songs that are not already queue as next song
     if qitem.position > 1 and (qitem.position - delta) > 1:
         old_position = qitem.position
-        min = old_position - delta
-        max = old_position
+        min_ = old_position - delta
+        max_ = old_position
         queueTable.update(
-            and_(queueTable.c.position <= max,
-                queueTable.c.position >= min,
+            and_(queueTable.c.position <= max_,
+                queueTable.c.position >= min_,
                 queueTable.c.channel_id == channel_id),
             values = {
                 queueTable.c.position:queueTable.c.position + 1
@@ -152,7 +152,7 @@ def moveup( channel_id, qid, delta):
         queueTable.update(
             queueTable.c.id == qitem.id,
             values = {
-                queueTable.c.position: min
+                queueTable.c.position: min_
             }).execute()
 
     elif qitem.position > 1 and (qitem.position - delta) < 1:
@@ -246,6 +246,7 @@ def movetop( channel_id, qid ):
     @type  qid: int
     @param qid: The database ID of the queue item (*not* the song!)
     """
+    # pylint: disable=W0613
     pass
 
 def movebottom( channel_id, qid ):
@@ -258,4 +259,5 @@ def movebottom( channel_id, qid ):
     @type  qid: int
     @param qid: The database ID of the queue item (*not* the song!)
     """
+    # pylint: disable=W0613
     pass
