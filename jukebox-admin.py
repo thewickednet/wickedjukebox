@@ -512,6 +512,18 @@ class Console(cmd.Cmd):
          self.listSettings( *params )
          return
 
+      if len(params) == 3:
+          channel_id, user_id, var = params
+          # we already have the setting. Go and update it
+          upq = update(settingTable)
+          upq = upq.where(settingTable.c.channel_id == int(channel_id))
+          upq = upq.where(settingTable.c.user_id == int(user_id))
+          upq = upq.where(settingTable.c.var == var)
+          upq = upq.values({"value": None})
+          upq.execute()
+          print 'Setting %s-%s-%s reverted to "NULL"' % (channel_id, user_id, var)
+          return
+
       channel_id, user_id, var, value = params
       testsel = select( [settingTable.c.value] )
       testsel = testsel.where( settingTable.c.channel_id == int(channel_id) )
