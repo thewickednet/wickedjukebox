@@ -1,1 +1,0 @@
-{ldelim}"success": {$SUCCESS}, "message": "{$MESSAGE}"{rdelim}
