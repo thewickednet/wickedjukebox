@@ -1,9 +1,2 @@
-httpd_data/users/
-*.pyc
-*.pyo
-config.ini
-parser.out
-parsetab.py
-env
-.*.swp
-*~
+wickedjukebox/env
+wickedjukebox/*.egg-info
