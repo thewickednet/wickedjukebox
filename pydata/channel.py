@@ -484,7 +484,7 @@ class Channel(object):
 
             # if the song is soon finished, update stats and pick the next one
             currentPosition = self.__player.getPosition()
-            LOG.debug("Current position: %r/%r")
+            LOG.debug("Current position: %r/%r" % currentPosition)
             if (currentPosition[1] - currentPosition[0]) < 3:
                 if self.__currentSong and not self.__currentSongRecorded:
                     query = session.query(ChannelStat)
