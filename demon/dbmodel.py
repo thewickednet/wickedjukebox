@@ -70,7 +70,7 @@ channelSongs = Table('channel_song_data', metadata, autoload=True)
 lastfmTable = Table('lastfm_queue', metadata, autoload=True)
 usersTable = Table('users', metadata,
       Column('added', DateTime, nullable=False, default=datetime.now),
-      useexisting=True,
+      extend_existing=True,
       autoload=True)
 dynamicPLTable = Table('dynamicPlaylist', metadata,
       Column('label', Unicode(64)),
@@ -79,7 +79,7 @@ dynamicPLTable = Table('dynamicPlaylist', metadata,
 song_has_genre = Table('song_has_genre', metadata, autoload=True)
 genreTable = Table('genre', metadata,
       Column('added', DateTime, nullable=False, default=datetime.now),
-      useexisting=True,
+      extend_existing=True,
       autoload=True)
 songStandingTable = Table('user_song_standing', metadata, autoload=True)
 songStatsTable = Table('user_song_stats', metadata, autoload=True)
