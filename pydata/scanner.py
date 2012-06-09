@@ -110,6 +110,8 @@ def scan(top, capping=u""):
          stdout.write( "\b%s" % spinner_chars[spinner_position] )
          stdout.flush()
       count_total += len(files)
+   stdout.write("\b ")
+   stdout.flush()
 
    stdout.write( "\n%d files to examine\n" % count_total )
 
