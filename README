@@ -10,25 +10,11 @@ Virtual Environment
 -------------------
 
    virtualenv --no-site-packages /path/to/environment
-   /path/to/environment/bin/activate
-
-   # Download and install the latest python icecast bindings (sorry, the
-   # package is not installable via easy_install)
-   #
-   # download-page: http://icecast.org/download.php
-   # package name: shout-python
-
-   wget http://downloads.us.xiph.org/releases/libshout/shout-python-0.2.1.tar.gz
-   tar xzf shout-python-0.2.1.tar.gz
-   cd shout-python-0.2.1
-   python setup.py install
-   cd ..
-   rm -rf shout-python-0.2.1 shout-python-0.2.1.tar.gz
 
 Install the package
 -------------------
 
-   python setup.py develop
+   /path/to/environment/bin/python setup.py develop
 
 USAGE
 =====
