@@ -397,7 +397,7 @@ class Song(object):
                 'name': genre_name
             })
         result = insq.execute()
-        return result.last_inserted_ids()[0]
+        return result.inserted_primary_key[0]
 
     def get_artist_id(self, artist_name):
         """
@@ -420,7 +420,7 @@ class Song(object):
                 'name': artist_name
             })
         result = insq.execute()
-        return result.last_inserted_ids()[0]
+        return result.inserted_primary_key[0]
 
     def get_album_id(self, dirname):
         """
@@ -456,7 +456,7 @@ class Song(object):
 
             insq = insert(albumTable).values(data)
             result = insq.execute()
-            album_id = result.last_inserted_ids()[0]
+            album_id = result.inserted_primary_key[0]
 
         # if this song's release date is newer than the album's release date,
         # we update the album release date
