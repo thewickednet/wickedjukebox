@@ -5,8 +5,8 @@ Entry points, and helpers for the command line interface.
 import signal
 import time
 import logging
-from pydata.channel import Channel
-from pydata import setup_logging
+from wickedjukebox.core.channel import Channel
+from wickedjukebox import setup_logging
 setup_logging()
 logger = logging.getLogger(__name__)
 CHANNEL = None

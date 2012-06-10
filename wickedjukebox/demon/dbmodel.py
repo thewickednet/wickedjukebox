@@ -1,3 +1,9 @@
+from datetime import datetime, date
+import sys
+import logging
+from os import stat
+from os.path import basename
+
 from sqlalchemy import (
         create_engine,
         Table,
@@ -10,13 +16,9 @@ from sqlalchemy import (
         String)
 from sqlalchemy.sql import select, update, insert
 from sqlalchemy.orm import mapper, sessionmaker, relation
-from pydata import util
-from datetime import datetime, date
-import sys
-import logging
-from os import stat
-from os.path import basename
-from pydata import setup_logging
+
+from wickedjukebox import util
+from wickedjukebox import setup_logging
 
 setup_logging()
 
@@ -339,7 +341,7 @@ class Song(object):
         """
 
         from os import path
-        from audiometa import MetaFactory
+        from wickedjukebox.model.audiometa import MetaFactory
 
         LOG.debug("Extracting metadata from %r" % localpath)
 
@@ -477,7 +479,7 @@ class Song(object):
         @raises: lastfm.error.InvalidApiKeyError
         """
         if not api:
-            import lastfm
+            from wickedjukebox import lastfm
             api_key = getSetting.get("lastfm_api_key")
             LOG.warning("'update_tags' should be called with an instantiated "
                         "LastFM API instance to avoid unnecessary network "

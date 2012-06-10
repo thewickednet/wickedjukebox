@@ -4,11 +4,10 @@
 import cmd
 from os import path
 import sys
-sys.path.insert(1, 'pydata')
 
 from sqlalchemy.sql import func, select, update, insert, bindparam, and_
 
-import lastfm
+from wickedjukebox.remotes import lastfm
 from wickedjukebox.demon.dbmodel import (Setting,
     Session,
     Artist,
@@ -23,7 +22,7 @@ from wickedjukebox.demon.dbmodel import (Setting,
     songStandingTable,
     songStatsTable)
 from util import direxists
-from pydata import setup_logging
+from wickedjukebox import setup_logging
 import logging
 
 setup_logging()
@@ -154,8 +153,8 @@ class Console(cmd.Cmd):
         """
         mediadirs = [x for x in Setting.get('mediadir').split(' ')
                      if direxists(x)]
-        import scanner
-        scanner.scan(mediadirs[0], unicode(line))
+        import wickedjukebox.scanner
+        wickedjukebox.scanner.scan(mediadirs[0], unicode(line))
 
         print "done"
 

@@ -1,20 +1,13 @@
-import sys, os, threading, mutagen, time
+import sys, os, threading, mutagen
 sys.path.insert(1, '..')
 from model import create_session, Artist, Album, Song, \
-                  ChannelStat, Channel as dbChannel,\
-                  getSetting, metadata as dbMeta,\
-                  songTable, LastFMQueue, usersTable,\
-                  State, setState, getState, \
-                  queueTable, Genre, genreTable
-from sqlalchemy import and_, func
+                  getSetting,\
+                  Genre, genreTable
+from sqlalchemy import and_
 from datetime import datetime
-from util import Scrobbler, fs_encoding
-import playmodes, players
+from util import fs_encoding
 from wickedjukebox.demon.util import config
-from random import choice, random
-import urllib2, re
-from pydata.channel import Channel
-from pydata.util import direxists
+from wickedjukebox.util import direxists
 import logging
 logger = logging.getLogger(__name__)
 

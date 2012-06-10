@@ -48,7 +48,7 @@ class Channel(object):
 
         lastfm_api_key = Setting.get("lastfm_api_key", None)
         if lastfm_api_key:
-            import lastfm
+            from wickedjukebox import lastfm
             self.__lastfm_api = lastfm.Api(lastfm_api_key)
 
         s = select([
