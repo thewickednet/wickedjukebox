@@ -1,11 +1,2 @@
-httpd_data/users/
-*.pyc
-*.pyo
-*.egg-info
-logs/
-config.ini
-parser.out
-parsetab.py
-env
-.*.swp
 *~
+.*.swp

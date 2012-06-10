@@ -1,37 +1,15 @@
-INSTALLATION
-============
+Wicked Jukebox Development Repository
+=====================================
 
-System dependencies
--------------------
+The development repository is split into two main (master) branches:
 
-::
+- frontend
 
-   sudo aptitude install python-setuptools python-virtualenv python-gst0.10 python-dev libmysqlclient-dev build-essential libshout-dev icecast2
+- backend
 
-Virtual Environment
--------------------
+``frontend`` contains the primary user interface of the application, whereas
+``backend`` contains the main code for the background service.
 
-::
+The ``master`` branch should only contain this README.
 
-   virtualenv --no-site-packages /path/to/environment
-
-Install the package
--------------------
-
-   /path/to/environment/bin/python setup.py develop
-
-USAGE
-=====
-
-The shell scripts are installed into you virtual environment. You can either
-"activate" the environment, or run the script directly from
-/path/to/environment/bin/script-name
-
-Available scripts:
-
-   jukebox-admin.py
-      Script to manage your collection
-
-   run_channel.py
-      Script to start a specific channel
-
+The split of the old ``master`` branch makes deployment on the server easier!
