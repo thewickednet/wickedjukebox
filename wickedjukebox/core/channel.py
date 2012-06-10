@@ -19,7 +19,7 @@ from wickedjukebox.demon.dbmodel import (
     songTable,
     queueTable,
     channelSongs)
-from util import fsencode, fsdecode
+from wickedjukebox.util import fsencode, fsdecode
 
 import logging
 LOG = logging.getLogger(__name__)

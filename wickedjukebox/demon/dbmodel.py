@@ -17,9 +17,7 @@ from sqlalchemy import (
 from sqlalchemy.sql import select, update, insert
 from sqlalchemy.orm import mapper, sessionmaker, relation
 
-from wickedjukebox import setup_logging, load_config
-
-setup_logging()
+from wickedjukebox import load_config
 
 LOG = logging.getLogger(__name__)
 CFG = load_config("config.ini")

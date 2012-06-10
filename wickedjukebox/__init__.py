@@ -2,7 +2,7 @@ import os
 import sys
 import logging
 import logging.config
-import ConfigParser
+from ConfigParser import SafeConfigParser
 
 __version__ = '2.1b1'
 
@@ -29,7 +29,7 @@ def load_config(file, config={}):
                              'located!' % ENV_CONF)
         sys.exit(9)
     config = config.copy()
-    cp = ConfigParser.ConfigParser()
+    cp = SafeConfigParser()
     cp.read(file)
     for sec in cp.sections():
         name = sec.lower()
@@ -46,7 +46,22 @@ def setup_logging():
 
     try:
         logging.config.fileConfig(logging_conf_name)
+    except Exception, exc:
+        print >>sys.stderr, ("""\
+------------------------------------------------------------------------------
+WARNING: Unable to load the logging configuration. The received error message
+         was: %s.
+
+         It may simply be the case, that the logging configuration file named:
+             %s
+         was not found. If you have it in a different folder, you can override
+         the default folder using the environment vairable:
+            %s.
+------------------------------------------------------------------------------
+""" % (
+        exc, logging_conf_name, ENV_CONF,))
+
     except IOError:
-        print >>sys.stderr, ("Unable to open logging files. Make sure there "
-                             "exists a folder 'logs' in the project root and "
-                             "is writable!")
+        print >>sys.stderr, ("""\
+WARNING: Unable to open logging files. Make sure there exists a folder 'logs'
+         in the project root and is writable!""")

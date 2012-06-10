@@ -1,5 +1,4 @@
 from sqlalchemy import *
-from sqlalchemy.exceptions import SQLError
 import logging
 from util import config
 from datetime import datetime, date
@@ -180,16 +179,14 @@ class Song(object):
       """
       session = create_session()
       try:
-         genre = session.query(Genre).selectfirst_by( name=genre_name )
+         genre = session.query(Genre).filter(name=genre_name)
+         genre = genre.first()
          if not genre:
             genre = Genre( name=genre_name )
             session.save(genre)
             session.flush()
 
          return genre.id
-      except SQLError, e:
-         logger.error("Unable to retrieve genre id for %r (%s)" % ( genre_name, str(e) ) )
-         return None
       finally:
          session.close()
 
