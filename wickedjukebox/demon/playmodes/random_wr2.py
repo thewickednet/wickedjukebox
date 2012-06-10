@@ -51,7 +51,6 @@ def _get_user_settings( channel_id ):
          func.unix_timestamp(usersTable.c.proof_of_listening) \
                + proofoflife_timeout \
                > func.unix_timestamp(func.now()))
-   LOG.debug( listeners_query )
    r = listeners_query.execute()
    online_users = set()
    user_settings = {}
@@ -125,8 +124,6 @@ def _get_rough_query( channel_id ):
 
    # now keep only a selected few
    rough_query = rough_query.limit(200)
-   LOG.debug( "Rough Query:" )
-   LOG.debug( rough_query )
    return rough_query
 
 def _get_standing_count( song_id, user_list, standing ):
@@ -262,9 +259,8 @@ def fetch_candidates( channel_id ):
       results.sort( cmp = lambda x, y: cmp( float(y[1]["sortkey"]), float(x[1]["sortkey"]) ) )
       return results
 
-   except Exception, e:
-      from  traceback import format_exc
-      LOG.critical(format_exc() )
+   except Exception:
+      LOG.exception("Unable to fetch any candidates!")
 
 def test(channel_id):
    """
