@@ -101,24 +101,6 @@ def fsdecode_old(filename):
 
    return decoded, working_charset
 
-def loadConfig(file, config={}):
-    """
-    returns a dictionary with key's of the form
-    <section>.<option> and the values.
-
-    from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/65334
-    """
-    if not os.path.exists( file ):
-       raise ValueError, 'Cannot find configfile "%s"' % file
-    config = config.copy()
-    cp = ConfigParser.ConfigParser()
-    cp.read(file)
-    for sec in cp.sections():
-        name = sec.lower()
-        for opt in cp.options(sec):
-            config[name + "." + opt.lower()] = cp.get(sec, opt).strip()
-    return config
-
 def direxists(dir):
    import os.path
    if not os.path.exists( dir ):

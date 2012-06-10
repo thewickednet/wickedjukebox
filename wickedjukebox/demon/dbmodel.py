@@ -17,13 +17,12 @@ from sqlalchemy import (
 from sqlalchemy.sql import select, update, insert
 from sqlalchemy.orm import mapper, sessionmaker, relation
 
-from wickedjukebox import util
-from wickedjukebox import setup_logging
+from wickedjukebox import setup_logging, load_config
 
 setup_logging()
 
 LOG = logging.getLogger(__name__)
-CFG = util.loadConfig("config.ini")
+CFG = load_config("config.ini")
 DBURI = "%s://%s:%s@%s/%s?charset=utf8" % (
          CFG['database.type'],
          CFG['database.user'],

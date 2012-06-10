@@ -1,5 +1,4 @@
 import os
-import ConfigParser
 import threading
 import time
 import sys
@@ -7,26 +6,11 @@ import logging
 
 import scrobbler
 
-def loadConfig(file, config={}):
-    """
-    returns a dictionary with key's of the form
-    <section>.<option> and the values.
+from wickedjukebox import load_config
 
-    from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/65334
-    """
-    if not os.path.exists( file ):
-       raise ValueError, 'Cannot find configfile "%s"' % file
-    config = config.copy()
-    cp = ConfigParser.ConfigParser()
-    cp.read(file)
-    for sec in cp.sections():
-        name = sec.lower()
-        for opt in cp.options(sec):
-            config[name + "." + opt.lower()] = cp.get(sec, opt).strip()
-    return config
 
 # load the configuration file, and set up the DB-conenction
-config = loadConfig(os.path.join('config.ini'))
+config = load_config(os.path.join('config.ini'))
 LOG = logging.getLogger(__name__)
 
 
