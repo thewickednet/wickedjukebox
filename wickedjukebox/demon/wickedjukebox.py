@@ -10,7 +10,7 @@ from sqlalchemy import and_, func
 from datetime import datetime
 from util import Scrobbler, fs_encoding
 import playmodes, players
-from demon.util import config
+from wickedjukebox.demon.util import config
 from random import choice, random
 import urllib2, re
 from pydata.channel import Channel

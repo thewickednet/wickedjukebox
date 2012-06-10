@@ -5,8 +5,11 @@ import cmd
 from os import path
 import sys
 sys.path.insert(1, 'pydata')
+
+from sqlalchemy.sql import func, select, update, insert, bindparam, and_
+
 import lastfm
-from demon.dbmodel import (Setting,
+from wickedjukebox.demon.dbmodel import (Setting,
     Session,
     Artist,
     genreTable,
@@ -19,7 +22,6 @@ from demon.dbmodel import (Setting,
     settingTable,
     songStandingTable,
     songStatsTable)
-from sqlalchemy.sql import func, select, update, insert, bindparam, and_
 from util import direxists
 from pydata import setup_logging
 import logging
@@ -616,9 +618,9 @@ class Console(cmd.Cmd):
         # unpack. For readability
         strat_name, channel_id = params
 
-        import demon.playmodes
+        import wickedjukebox.demon.playmodes
         try:
-            strategy = demon.playmodes.create(strat_name)
+            strategy = wickedjukebox.demon.playmodes.create(strat_name)
             strategy.bootstrap(channel_id)
         except ImportError:
             print "Unknown random mode!"

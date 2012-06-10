@@ -11,7 +11,7 @@ def create(modname, backend_params=None):
       modname.config( params )
       return module
 
-   module = 'demon.players.%s' % modname
+   module = 'wickedjukebox.demon.players.%s' % modname
    __import__(module)
    globals()[modname].config(params)
    return globals()[modname]

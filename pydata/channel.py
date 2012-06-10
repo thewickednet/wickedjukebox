@@ -1,4 +1,12 @@
-from demon.dbmodel import (
+from datetime import datetime
+import time
+import os
+from random import choice, random
+
+from sqlalchemy.sql import select, func, update
+
+from wickedjukebox.demon import playmodes, players
+from wickedjukebox.demon.dbmodel import (
     channelTable,
     Setting,
     Session,
@@ -11,13 +19,7 @@ from demon.dbmodel import (
     songTable,
     queueTable,
     channelSongs)
-from datetime import datetime
-import time
 from util import fsencode, fsdecode
-import os
-from random import choice, random
-from sqlalchemy.sql import select, func, update
-from demon import playmodes, players
 
 import logging
 LOG = logging.getLogger(__name__)

@@ -150,7 +150,7 @@ def getSong():
     return None
 
 def queue(filename):
-   from demon.dbmodel import Setting
+   from wickedjukebox.demon.dbmodel import Setting
    LOG.debug( "Received a queue (%s)" % filename )
    if Setting.get('sys_utctime', 0) == 0:
       STATE.song_started = datetime.utcnow()
@@ -180,7 +180,7 @@ def skipSong():
    startPlayback()
 
 def stopPlayback():
-   from demon.dbmodel import State
+   from wickedjukebox.demon.dbmodel import State
 
    LOG.debug( "Stopping playback" )
    if STATE.streamer:
@@ -193,7 +193,7 @@ def pausePlayback():
    pass
 
 def startPlayback():
-   from demon.dbmodel import State
+   from wickedjukebox.demon.dbmodel import State
 
    LOG.info( "Starting playback" )
    State.set("progress", 0, STATE.channel_id)

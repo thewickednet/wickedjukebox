@@ -5,11 +5,17 @@ This module contains everything needed to scan a directory of audio files an
 store the metadata in the jukebox database
 """
 from os import walk, path, sep
-from util import fsdecode, fsencode
 import logging
-from demon.dbmodel import Song, songTable, Session, Setting
+
 from sqlalchemy.sql import select
-from filescan import scan as fscan
+
+from util import fsdecode, fsencode
+from wickedjukebox.demon.dbmodel import (
+    Song,
+    songTable,
+    Session,
+    Setting)
+
 logger = logging.getLogger(__name__)
 
 valid_extensions = Setting.get("recognizedTypes").split(" ")

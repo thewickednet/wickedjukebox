@@ -65,7 +65,7 @@ class Streamer(threading.Thread):
       self.__keep_running = False
 
    def run(self):
-      from demon.dbmodel import State
+      from wickedjukebox.demon.dbmodel import State
       LOG.debug( "Starting to stream %r..." % self.__filename )
       fp = open( self.__filename, "rb" )
       chunk = fp.read(1024)
@@ -174,7 +174,7 @@ def getSong():
    return __CURRENT_SONG
 
 def queue(filename):
-   from demon.dbmodel import Setting
+   from wickedjukebox.demon.dbmodel import Setting
    global SONG_STARTED
    LOG.debug( "Received a queue (%s)" % filename )
    if Setting.get('sys_utctime', 0) == 0:
@@ -190,7 +190,7 @@ def skipSong():
    startPlayback()
 
 def stopPlayback():
-   from demon.dbmodel import State
+   from wickedjukebox.demon.dbmodel import State
    global __PROGRESS, __CURRENT_SONG, __STREAMER, __SERVER
 
    LOG.debug( "Stopping playback" )
@@ -211,7 +211,7 @@ def pausePlayback():
    pass
 
 def startPlayback():
-   from demon.dbmodel import State
+   from wickedjukebox.demon.dbmodel import State
    global __QUEUE, __CURRENT_SONG, __SERVER
 
    LOG.info( "Starting playback" )

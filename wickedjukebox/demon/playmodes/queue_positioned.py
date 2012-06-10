@@ -5,11 +5,17 @@ Strict FIFO Queuing (ordered by position)
 Pops off the song with position 1, then substracts 1 from the position field of
 each item and finally removes all items with an id smaller than -10
 """
-
-from demon.dbmodel import Session, QueueItem, queueTable, songTable, \
-                        artistTable, albumTable
 from datetime import datetime
+
 from sqlalchemy import and_
+
+from wickedjukebox.demon.dbmodel import (
+    Session,
+    QueueItem,
+    queueTable,
+    songTable,
+    artistTable,
+    albumTable)
 
 def enqueue(songID, userID, channel_id):
    """

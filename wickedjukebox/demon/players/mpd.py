@@ -5,12 +5,13 @@ and hence it's a simple implementation
 http://www.musicpd.org
 """
 
-from demon.lib import mpdclient
-from demon.model import getSetting
 from datetime import datetime
 import os, sys, time
 import logging
 logger = logging.getLogger(__name__)
+
+from wickedjukebox.demon.lib import mpdclient
+from wickedjukebox.demon.model import getSetting
 
 connection = None  # The interface to mpd
 host       = None

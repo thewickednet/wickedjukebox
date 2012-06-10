@@ -8,10 +8,10 @@ from twisted.python      import log
 from twisted.web         import server
 
 import os
-from demon.wickedjukebox import Librarian
-from demon.util import config
-from demon.wickedjukebox import Channel
-from demon.xmlrpc import SatelliteAPI
+from wickedjukebox.demon.wickedjukebox import Librarian
+from wickedjukebox.demon.util import config
+from wickedjukebox.demon.wickedjukebox import Channel
+from wickedjukebox.demon.xmlrpc import SatelliteAPI
 
 gate = None
 

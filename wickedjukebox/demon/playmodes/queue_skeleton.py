@@ -7,8 +7,8 @@ and you should be fine.
 #
 # These imports might prove useful:
 #
-## from demon.model import create_session, Song
-## from demon.model import create_session, QueueItem
+## from wickedjukebox.demon.model import create_session, Song
+## from wickedjukebox.demon.model import create_session, QueueItem
 
 def enqueue(songID, userID, channelID):
    """

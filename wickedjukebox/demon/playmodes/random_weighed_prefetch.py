@@ -4,14 +4,23 @@
 Weighed random. Different factors are considered when selecting a song at
 random. Like the time it was last played, how often it was skipped, and so on.
 """
-
-from demon.plparser import parseQuery, ParserSyntaxError
-from demon.dbmodel import Session, dynamicPLTable, Setting, Song, usersTable, channelTable, engine, songTable
-from sqlalchemy.sql import text as dbText, func, select
-from demon.util import config
 import threading
-
 import logging
+
+from sqlalchemy.sql import text as dbText, func, select
+
+from wickedjukebox.demon.plparser import parseQuery, ParserSyntaxError
+from wickedjukebox.demon.dbmodel import (
+    Session,
+    dynamicPLTable,
+    Setting,
+    Song,
+    usersTable,
+    channelTable,
+    engine,
+    songTable)
+from wickedjukebox.demon.util import config
+
 LOG = logging.getLogger(__name__)
 
 ALREADY_INITIALISED = False

@@ -7,7 +7,7 @@ and you should be fine.
 #
 # These imports might prove useful:
 #
-## from demon.dbmodel import Session, Song, engine
+## from wickedjukebox.demon.dbmodel import Session, Song, engine
 ## import logging
 ## LOG = logging.getLogger(__name__)
 
@@ -34,7 +34,8 @@ def get(channel_id):
 
    @rtype:  None | Song
    @return: Either "None" if no random song could be determined,
-            or a "Song" instance (as imported from demon.model --> see above)
+            or a "Song" instance (as imported from wickedjukebox.demon.model
+            --> see above)
    """
 
    return None
@@ -46,7 +47,8 @@ def peek(channel_id):
    @note: Returns "None" if the playmode does not support this feature
    @rtype:  None | Song
    @return: Either "None" if the upcoming song cannot be determined
-            or a "Song" instance (as imported from demon.model --> see above)
+            or a "Song" instance (as imported from wickedjukebox.demon.model
+            --> see above)
    """
    return None
 

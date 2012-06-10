@@ -3,16 +3,25 @@ This is a no-op playmode used as blueprint for new playmodes.
 Simply complete the methods in this module and make them return the right type
 and you should be fine.
 """
-
-from demon.plparser import parseQuery, ParserSyntaxError
-from demon.dbmodel import Session, dynamicPLTable, Setting, Song, usersTable, \
-                          channelTable, engine, songTable, songStandingTable, \
-                          channelSongs, settingTable, albumTable, artistTable
-from sqlalchemy.sql import text as dbText, func, select, or_, and_
-from demon.util import config
 from datetime import datetime, timedelta
-import threading
 import random
+
+from sqlalchemy.sql import func, select, or_, and_
+
+from wickedjukebox.demon.plparser import parseQuery, ParserSyntaxError
+from wickedjukebox.demon.dbmodel import (
+    Session,
+    dynamicPLTable,
+    Setting,
+    Song,
+    usersTable,
+    songTable,
+    songStandingTable,
+    channelSongs,
+    settingTable,
+    albumTable,
+    artistTable)
+
 random.seed()
 
 import logging
@@ -151,7 +160,8 @@ def get(channel_id):
 
    @rtype:  None | Song
    @return: Either "None" if no random song could be determined,
-            or a "Song" instance (as imported from demon.model --> see above)
+            or a "Song" instance (as imported from wickedjukebox.demon.model
+            --> see above)
    """
 
    candidates = fetch_candidates( channel_id )
@@ -170,7 +180,8 @@ def peek(channel_id):
    @note: Returns "None" if the playmode does not support this feature
    @rtype:  None | Song
    @return: Either "None" if the upcoming song cannot be determined
-            or a "Song" instance (as imported from demon.model --> see above)
+            or a "Song" instance (as imported from wickedjukebox.demon.model
+            --> see above)
    """
    return None
 

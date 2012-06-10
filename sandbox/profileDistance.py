@@ -1,9 +1,13 @@
 #!/usr/bin/python
-
-from demon.model import songTable, songStandingTable, usersTable
-from sqlalchemy import select, join, outerjoin, and_
 from cStringIO import StringIO
 import sys
+
+from sqlalchemy import select, join, outerjoin, and_
+
+from wickedjukebox.demon.model import (
+    songTable,
+    songStandingTable,
+    usersTable)
 
 def similarity( s1, s2 ):
    same_rating_count = 0
