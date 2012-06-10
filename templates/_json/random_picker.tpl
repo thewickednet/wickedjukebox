@@ -1,1 +1,0 @@
-[{foreach from=$RANDOM_SONGS item=SONG name=randomsongs}{ldelim}"song_id": {$SONG.id}, "title": "{$SONG.title}", "artist": "{$SONG.artist_name}"{rdelim}{if !$smarty.foreach.randomsongs.last}, {/if}{/foreach}]
