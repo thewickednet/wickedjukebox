@@ -4,7 +4,7 @@ setup(
     name="wickedjukebox",
     version="2.0",
     packages=find_packages(),
-    scripts=['arbiter.py', 'run_channel.py', 'jukebox-admin.py'],
+    scripts=['run_channel.py', 'jukebox-admin.py'],
     install_requires=[
         'sqlalchemy==0.7.1',
         'mysql-python==1.2.3',
