@@ -1,37 +1,7 @@
-INSTALLATION
-============
+Frontend
+========
 
-System dependencies
--------------------
+You are looking at the main frontend branch.
 
-::
-
-   sudo aptitude install python-setuptools python-virtualenv python-gst0.10 python-dev libmysqlclient-dev build-essential libshout-dev icecast2
-
-Virtual Environment
--------------------
-
-::
-
-   virtualenv --no-site-packages /path/to/environment
-
-Install the package
--------------------
-
-   /path/to/environment/bin/python setup.py develop
-
-USAGE
-=====
-
-The shell scripts are installed into you virtual environment. You can either
-"activate" the environment, or run the script directly from
-/path/to/environment/bin/script-name
-
-Available scripts:
-
-   jukebox-admin.py
-      Script to manage your collection
-
-   run_channel.py
-      Script to start a specific channel
-
+Currently this contains a PHP application. To see the main branch for the
+background-service, switch to "backend".
