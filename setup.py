@@ -4,10 +4,10 @@ setup(
     name="wickedjukebox",
     version="2.0",
     packages=find_packages(),
-    scripts=['jukebox-admin.py'],
     entry_points={
         'console_scripts': [
-                'run_channel=wickedjukebox.cli:run_channel_cli'
+                'run-channel=wickedjukebox.cli.run_channel:main',
+                'jukebox-admin=wickedjukebox.cli.jukebox_admin:main',
             ]
         },
     install_requires=[

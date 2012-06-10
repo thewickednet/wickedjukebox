@@ -642,6 +642,7 @@ class Console(cmd.Cmd):
     do_q = do_quit
     do_EOF = do_quit
 
-if __name__ == '__main__':
+
+def main():
     app = Console()
     app.cmdloop()

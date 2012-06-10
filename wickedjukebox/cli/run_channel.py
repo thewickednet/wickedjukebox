@@ -50,7 +50,7 @@ def run_channel(channel_name):
         time.sleep(1)
 
 
-def run_channel_cli():
+def main():
     """
     Parse command line options, bootstrap the app and run the channel
     """
