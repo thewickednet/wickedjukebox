@@ -11,7 +11,7 @@ ENV_CONF = 'WICKEDJB_CONFIG_FOLDER'
 "The name of the environment variable controlling the config location"
 
 
-def load_config(file, config={}):
+def load_config(filename, config={}):
     """
     returns a dictionary with key's of the form
     <section>.<option> and the values.
@@ -19,18 +19,21 @@ def load_config(file, config={}):
     from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/65334
     """
     if ENV_CONF in os.environ:
-        file = os.path.join(os.environ[ENV_CONF],
-                            os.path.basename(file))
+        filename = os.path.join(os.environ[ENV_CONF],
+                                os.path.basename(filename))
 
-    if not os.path.exists(file):
-        print >>sys.stderr, 'Cannot find configfile "%s"' % file
-        print >>sys.stderr, ('You can set the %s environment variable to '
-                             'specify the folder in which the file is '
-                             'located!' % ENV_CONF)
+    if not os.path.exists(filename):
+        print >>sys.stderr, ('''\
+------------------------------------------------------------------------------
+ERROR: Cannot find configfile "%s"
+  FIX: You can set the %s environment variable to specify the folder in which
+       the file is located!
+------------------------------------------------------------------------------
+''' % (filename, ENV_CONF))
         sys.exit(9)
     config = config.copy()
     cp = SafeConfigParser()
-    cp.read(file)
+    cp.read(filename)
     for sec in cp.sections():
         name = sec.lower()
         for opt in cp.options(sec):
@@ -49,14 +52,19 @@ def setup_logging():
     except Exception, exc:
         print >>sys.stderr, ("""\
 ------------------------------------------------------------------------------
-WARNING: Unable to load the logging configuration. The received error message
-         was: %s.
+WARNING: There was an error loading the logging configuration! The received
+         error message was:
+
+            %s.
 
          It may simply be the case, that the logging configuration file named:
              %s
          was not found. If you have it in a different folder, you can override
          the default folder using the environment vairable:
             %s.
+
+         If the file exists, and you get other errors, consult the
+         documentation for the python 'logging' package.
 ------------------------------------------------------------------------------
 """ % (
         exc, logging_conf_name, ENV_CONF,))
