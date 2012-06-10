@@ -4,7 +4,12 @@ setup(
     name="wickedjukebox",
     version="2.0",
     packages=find_packages(),
-    scripts=['run_channel.py', 'jukebox-admin.py'],
+    scripts=['jukebox-admin.py'],
+    entry_points={
+        'console_scripts': [
+                'run_channel=wickedjukebox.cli:run_channel_cli'
+            ]
+        },
     install_requires=[
         'sqlalchemy==0.7.1',
         'mysql-python==1.2.3',
