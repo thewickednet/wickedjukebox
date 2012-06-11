@@ -1,6 +1,6 @@
 from sqlalchemy import *
 import logging
-from util import config
+from wickedjukebox.util import config
 from datetime import datetime, date
 from mutagen import File as MediaFile
 import sys

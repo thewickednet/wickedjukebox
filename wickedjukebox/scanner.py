@@ -9,7 +9,7 @@ import logging
 
 from sqlalchemy.sql import select
 
-from util import fsdecode, fsencode
+from wickedjukebox.util import fsdecode, fsencode
 from wickedjukebox.demon.dbmodel import (
     Song,
     songTable,
