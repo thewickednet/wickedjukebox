@@ -21,7 +21,7 @@ from wickedjukebox.demon.dbmodel import (Setting,
     settingTable,
     songStandingTable,
     songStatsTable)
-from util import direxists
+from wickedjukebox.util import direxists
 from wickedjukebox import setup_logging
 import logging
 
