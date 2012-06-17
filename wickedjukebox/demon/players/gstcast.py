@@ -17,6 +17,7 @@ LOG = logging.getLogger(__name__)
 GLOOP = None
 GCONTEXT = None
 
+
 class PlayerState(object):
     def __init__(self):
         self.song_started = None
@@ -29,6 +30,7 @@ class PlayerState(object):
         self.port = None
         self.queue = []
         self.server = None
+
 
 class GStreamer(Thread):
 
@@ -44,29 +46,32 @@ class GStreamer(Thread):
 
     def init_player(self):
         LOG.debug("Initialising the player thread")
-        self.player = gst.Pipeline( "player" )
-        source = gst.element_factory_make( "filesrc", "file-source" )
-        decoder = gst.element_factory_make( "mad", "mp3-decoder" )
-        conv = gst.element_factory_make( "audioconvert", "converter" )
-        encoder = gst.element_factory_make( "lamemp3enc", "encoder" )
-        resampler = gst.element_factory_make( "audioresample", "resampler" )
-        tagger = gst.element_factory_make( "taginject", "tagger" )
-        icysource = gst.element_factory_make( "shout2send", "icysource" )
-        self.player.add( source, decoder, conv, resampler, encoder, tagger, icysource )
-        gst.element_link_many( source, decoder, conv, encoder, icysource )
+        self.player = gst.Pipeline("player")
+        source = gst.element_factory_make("filesrc", "file-source")
+        decoder = gst.element_factory_make("mad", "mp3-decoder")
+        conv = gst.element_factory_make("audioconvert", "converter")
+        encoder = gst.element_factory_make("lamemp3enc", "encoder")
+        resampler = gst.element_factory_make("audioresample", "resampler")
+        tagger = gst.element_factory_make("taginject", "tagger")
+        icysource = gst.element_factory_make("shout2send", "icysource")
+        self.player.add(
+            source, decoder, conv, resampler, encoder, tagger, icysource)
+        gst.element_link_many(source, decoder, conv, encoder, icysource)
         bus = self.player.get_bus()
         bus.add_signal_watch()
-        bus.connect( "message", self.on_message )
+        bus.connect("message", self.on_message)
 
     def current_position(self):
         try:
-            return ( int(self.player.query_position(gst.FORMAT_TIME, None)[0] * 1E-9),
-                     int(self.player.query_duration(gst.FORMAT_TIME, None)[0] * 1E-9))
+            return (int(self.player.query_position(
+                        gst.FORMAT_TIME, None)[0] * 1E-9),
+                    int(self.player.query_duration(
+                        gst.FORMAT_TIME, None)[0] * 1E-9))
         except Exception, exc:
             LOG.error(exc)
             return (0, 100)
 
-    def on_message( self, bus, message ):
+    def on_message(self, bus, message):
         """
         gstramer callback.
 
@@ -75,16 +80,16 @@ class GStreamer(Thread):
         """
         if message.type == gst.MESSAGE_EOS:
             LOG.debug("End of stream reached")
-            self.player.set_state( gst.STATE_NULL )
+            self.player.set_state(gst.STATE_NULL)
             self.is_playing = False
         elif message.type == gst.MESSAGE_ERROR:
-            self.player.set_state( gst.STATE_NULL )
+            self.player.set_state(gst.STATE_NULL)
             err, debug = message.parse_error()
-            LOG.error( "Error: %s" % err )
-            LOG.debug( "Debug info: %s" % debug )
+            LOG.error("Error: %s" % err)
+            LOG.debug("Debug info: %s" % debug)
             self.is_playing = False
         else:
-            LOG.debug( "Unhandled gst message: %s" %  message )
+            LOG.debug("Unhandled gst message: %s" % message)
 
     def stop(self):
         LOG.info("Stopping stream")
@@ -117,32 +122,40 @@ class GStreamer(Thread):
     def run(self):
         LOG.debug("GStreamer player thread started")
         self.player.get_by_name("encoder").set_property("bitrate", 128)
-        self.player.get_by_name("tagger").set_property("tags", "album=testalbum,title=testtitle,artist=testartist")
+        self.player.get_by_name("tagger").set_property(
+            "tags", "album=testalbum,title=testtitle,artist=testartist")
         self.player.get_by_name("icysource").set_property("ip", "127.0.0.1")
         self.player.get_by_name("icysource").set_property("port", STATE.port)
-        self.player.get_by_name("icysource").set_property("password", STATE.password)
-        self.player.get_by_name("icysource").set_property("mount", STATE.mount)
-        self.player.get_by_name("icysource").set_property("streamname", "The Wicked Jukebox - test.mp3")
+        self.player.get_by_name("icysource").set_property(
+            "password", STATE.password)
+        self.player.get_by_name("icysource").set_property(
+            "mount", STATE.mount)
+        self.player.get_by_name("icysource").set_property(
+            "streamname", "The Wicked Jukebox - test.mp3")
         while self.keep_running:
-            if not self.filename or not os.path.isfile( self.filename):
-                LOG.error( "%r is not a file!" % self.filename )
+            if not self.filename or not os.path.isfile(self.filename):
+                LOG.error("%r is not a file!" % self.filename)
                 time.sleep(1)
                 continue
 
             if self.player.get_state()[1] == gst.STATE_NULL:
-                LOG.debug("Player is in STATE_NULL. Setting file and starting playback")
+                LOG.debug("Player is in STATE_NULL. Setting file and starting "
+                        "playback")
                 self.player.get_by_name("file-source").set_property(
                         "location",
                         self.filename)
                 self.is_playing = True
                 self.player.set_state(gst.STATE_PLAYING)
             else:
-                LOG.debug("Player is in STATE_PLAYING. Waiting for playback to finish")
+                LOG.debug("Player is in STATE_PLAYING. Waiting for playback "
+                        "to finish")
                 while self.is_playing:
                     try:
                         self.position = (
-                            int(self.player.query_position(gst.FORMAT_TIME, None)[0] * 1E-9),
-                            int(self.player.query_duration(gst.FORMAT_TIME, None)[0] * 1E-9),
+                            int(self.player.query_position(
+                                gst.FORMAT_TIME, None)[0] * 1E-9),
+                            int(self.player.query_duration(
+                                gst.FORMAT_TIME, None)[0] * 1E-9),
                         )
                         LOG.debug("Current position: %r/%r " % self.position)
                     except Exception, exc:
@@ -164,29 +177,35 @@ class GStreamer(Thread):
         #        LOG.error(exc)
         #    time.sleep(1)
 
+
 def init():
     global GLOOP, GCONTEXT
     LOG.info("Initialising gstreamer player")
+
 
 def release():
     LOG.info("Releasing gstreamer player resources")
     GLOOP.quit()
 
+
 def config(params):
-    LOG.info( "GStreamer client initialised with params %s" % params )
+    LOG.info("GStreamer client initialised with params %s" % params)
     STATE.port = int(params['port'])
     STATE.mount = str(params['mount'])
     STATE.password = str(params['pwd'])
     STATE.channel_id = int(params['channel_id'])
 
     if "admin_url" in params:
-       STATE.admin_url = str(params["admin_url"]) + "/listclients.xsl?mount=" + STATE.mount
+        STATE.admin_url = (str(params["admin_url"]) +
+               "/listclients.xsl?mount=" +
+               STATE.mount)
 
     if "admin_username" in params:
-       STATE.admin_username = str(params["admin_username"])
+        STATE.admin_username = str(params["admin_username"])
 
     if "admin_password" in params:
-       STATE.admin_password = str(params["admin_password"])
+        STATE.admin_password = str(params["admin_password"])
+
 
 def getPosition():
     if not STATE.server:
@@ -196,20 +215,23 @@ def getPosition():
     State.set("progress", output[0], STATE.channel_id)
     return output
 
+
 def getSong():
     if STATE.server:
         return STATE.server.filename
     return None
 
+
 def queue(filename):
     from wickedjukebox.demon.dbmodel import Setting
-    LOG.debug( "Received a queue (%s)" % filename )
+    LOG.debug("Received a queue (%s)" % filename)
     if Setting.get('sys_utctime', 0) == 0:
-       STATE.song_started = datetime.utcnow()
+        STATE.song_started = datetime.utcnow()
     else:
-       STATE.song_started = datetime.now()
+        STATE.song_started = datetime.now()
 
-    STATE.queue.append( filename )
+    STATE.queue.append(filename)
+
 
 def cropPlaylist(length=2):
     """
@@ -219,51 +241,57 @@ def cropPlaylist(length=2):
     @type  length: int
     @param length: The new size of the playlist
     """
-    LOG.debug( "Cropping pl to %d songs" % length )
-    if len( STATE.queue ) <= length:
-       return True
+    LOG.debug("Cropping pl to %d songs" % length)
+    if len(STATE.queue) <= length:
+        return True
 
     STATE.queue = STATE.queue[-length:]
     return True
 
+
 def skipSong():
-    LOG.debug( "Received a skip request" )
+    LOG.debug("Received a skip request")
     stopPlayback()
     startPlayback()
+
 
 def stopPlayback():
     from wickedjukebox.demon.dbmodel import State
 
-    LOG.debug( "Stopping playback" )
+    LOG.debug("Stopping playback")
     if STATE.server:
-       STATE.server.stop()
+        STATE.server.stop()
 
     State.set("progress", 0, STATE.channel_id)
-    LOG.debug( "Playback stopped" )
+    LOG.debug("Playback stopped")
+
 
 def pausePlayback():
     pass
 
+
 def startPlayback():
     from wickedjukebox.demon.dbmodel import State
 
-    LOG.info( "Starting playback" )
+    LOG.info("Starting playback")
     State.set("progress", 0, STATE.channel_id)
     if not STATE.queue:
-       LOG.warn( "Nothing on queue." )
-       return False
+        LOG.warn("Nothing on queue.")
+        return False
 
     if not STATE.server:
-       LOG.warn( "No icecast connection available!" )
-       STATE.server = GStreamer()
+        LOG.warn("No icecast connection available!")
+        STATE.server = GStreamer()
 
     STATE.server.start_stop(STATE.queue.pop(0))
 
+
 def status():
     if STATE.server:
-       return STATE.server.status()
+        return STATE.server.status()
     else:
-       return "stopped"
+        return "stopped"
+
 
 def current_listeners():
     """
@@ -272,11 +300,12 @@ def current_listeners():
     """
 
     if STATE.admin_url is None or \
-       STATE.admin_username is None or \
-       STATE.admin_password is None :
-       # not all required backend parameters supplied
-       LOG.warning( "Not all parameters set for screen scraping icecast statistics. Need admin-url and admin-password" )
-       return
+        STATE.admin_username is None or \
+        STATE.admin_password is None:
+        # not all required backend parameters supplied
+        LOG.warning("Not all parameters set for screen scraping icecast "
+                "statistics. Need admin-url and admin-password")
+        return
 
     part = "25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?"
     p = re.compile(r"(((%s)\.){3}(%s))" % (part, part))
@@ -292,20 +321,22 @@ def current_listeners():
     urllib2.install_opener(opener)
 
     try:
-       LOG.debug("Opening %r" % STATE.admin_url)
-       handler = urllib2.urlopen(STATE.admin_url)
-       data = handler.read()
+        LOG.debug("Opening %r" % STATE.admin_url)
+        handler = urllib2.urlopen(STATE.admin_url)
+        data = handler.read()
 
-       listeners = [md5(x[0]).hexdigest() for x in p.findall(data)]
-       return listeners
+        listeners = [md5(x[0]).hexdigest() for x in p.findall(data)]
+        return listeners
     except urllib2.HTTPError, ex:
-       LOG.error("Error opening %r: Caught %r" % (STATE.admin_url, str(ex)))
-       return None
+        LOG.error("Error opening %r: Caught %r" % (STATE.admin_url, str(ex)))
+        return None
     except urllib2.URLError, ex:
-       LOG.error("Error opening %r: Caught %r" % (STATE.admin_url, str(ex)))
-       return None
+        LOG.error("Error opening %r: Caught %r" % (STATE.admin_url, str(ex)))
+        return None
+
 
 STATE = PlayerState()
+
 
 if __name__ == "__main__":
     import sys
