@@ -17,10 +17,10 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
             $bisnaAutoloader, 'loadClass'
         ), 'Bisna');
 
-        $appAutoloader = new \Doctrine\Common\ClassLoader('JB');
+        $appAutoloader = new \Doctrine\Common\ClassLoader('WJB');
         $autoloader->pushAutoloader(array(
             $appAutoloader, 'loadClass'
-        ), 'JB');
+        ), 'WJB');
     }
 
 
