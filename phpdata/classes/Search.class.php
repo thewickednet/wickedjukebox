@@ -26,6 +26,40 @@ class Search {
         return $result;
     }
 
+    function onlyArtist($pattern = "a") {
+        
+        $db = Zend_Registry::get('database');
+        
+        $pattern = sprintf("%%%s%%", $pattern);
+        
+        $select = $db->select()
+                     ->from(array('ar' => 'artist'), array('artist_id' => 'id', 'name' => 'name'))
+                     ->where('ar.name like ?', $pattern)
+                     ->order('ar.name');
+
+        $stmt = $select->query();
+        $result = $stmt->fetchAll();
+
+        return $result;
+    }
+
+    function onlyAlbum($pattern = "a") {
+        
+        $db = Zend_Registry::get('database');
+        
+        $pattern = sprintf("%%%s%%", $pattern);
+        
+        $select = $db->select()
+                     ->from(array('al' => 'album'), array('album_id' => 'id', 'name' => 'name'))
+                     ->where('al.name like ?', $pattern)
+                     ->order('al.name');
+
+        $stmt = $select->query();
+        $result = $stmt->fetchAll();
+
+        return $result;
+    }
+
     function byAlbum($pattern = "a") {
         
         $db = Zend_Registry::get('database');
@@ -135,5 +169,3 @@ class Search {
 }
 
 
-
-?>

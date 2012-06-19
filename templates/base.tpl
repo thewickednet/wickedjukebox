@@ -7,19 +7,20 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Wicked Jukebox 2.o</title>
 <link href="/style.css" rel="stylesheet" type="text/css" />
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
 <link rel="shortcut icon" href="http://wickedjukebox.com/favicon.png" type="image/x-icon">
 <link rel="icon" href="http://wickedjukebox.com/favicon.png" type="image/x-icon"> {literal}
   <script type="text/javascript" src="/javascript/jukebox.js"></script>
   <script type="text/javascript" src="/javascript/md5.js"></script>
   <script type="text/javascript" src="/javascript/overlib.js"></script>
-  <script src="http://www.google.com/jsapi?key=ABQIAAAAmJWIty3l04f-hP9etJ5tJxQ8PCliOA2hL4TQ7QbYFl3l_wGMkhRNUNk6y4AxkJadkNykOr35h_v4kQ" type="text/javascript"></script>
+<script src="https://www.google.com/jsapi?key=ABQIAAAAmJWIty3l04f-hP9etJ5tJxTtZ4N5dXLGUlJvVEwYk4QNCXmwgRSODbsU23oUdM0re3Cc5d6l-lQfKg" type="text/javascript"></script>
 <script>
-  google.load("jquery", "1.4.2");
+    google.load("jquery", "1.6.1");
+    google.load("jqueryui", "1.8.13");
 </script>
   <script type="text/javascript" src="/javascript/jquery.ba-dotimeout.min.js"></script>
   <script type="text/javascript" src="/javascript/jquery.innerfade.js"></script>
   <script type="text/javascript" src="/javascript/jquery.watermark.js"></script>
-  <script type="text/javascript" src="/javascript/jquery-ui-1.8.4.custom.min.js"></script>
 {/literal}
 </head>
 
@@ -36,20 +37,16 @@
 <center>
 		<div id="menu">
                 {if $PLAYER_STATUS.auth eq 'yes'}
-				<a href="/" {if $CORE->active_node eq 'splash'}class="active"{/if}>splash</a> <a href="/artist/browse/" {if $CORE->active_node eq 'artist'}class="active"{/if}>artists</a> <a href="/album/browse/" {if $CORE->active_node eq 'album'}class="active"{/if}>albums</a> <a href="/user/favorites/" {if $CORE->active_node eq 'favorites'}class="active"{/if}>favorites</a> <a href="/event/" {if $CORE->active_node eq 'event'}class="active"{/if}>events</a> <a href="/song/history/" {if $CORE->active_node eq 'history'}class="active"{/if}>history</a> <a href="/album/latest/" {if $CORE->active_node eq 'latest'}class="active"{/if}>latest additions</a> <a href="/stats/" {if $CORE->active_node eq 'stats'}class="active"{/if}>statistics</a>{if $CORE->permissions.admin eq '1'} <a href="/admin/" {if $CORE->active_node eq 'admin'}class="active"{/if}>admin</a>{/if} <a href="/index.php?module=auth&mode=logout">logout</a>
+				<a href="/" {if $CORE->active_node eq 'splash'}class="active"{/if}>splash</a> <a href="/artist/browse/" {if $CORE->active_node eq 'artist'}class="active"{/if}>artists</a> <a href="/album/browse/" {if $CORE->active_node eq 'album'}class="active"{/if}>albums</a> <a href="/user/favorites/" {if $CORE->active_node eq 'favorites'}class="active"{/if}>favorites</a> <a href="/event/" {if $CORE->active_node eq 'event'}class="active"{/if}>events</a> <a href="/song/history/" {if $CORE->active_node eq 'history'}class="active"{/if}>history</a> <a href="/album/latest/" {if $CORE->active_node eq 'latest'}class="active"{/if}>latest additions</a> <a href="/stats/" {if $CORE->active_node eq 'stats'}class="active"{/if}>statistics</a>{if $CORE->permissions.admin eq '1'} <a href="/admin/" {if $CORE->active_node eq 'admin'}class="active"{/if}>admin</a>{/if} <a href="/auth/logout/">logout</a>
 				{/if}
         </div>
 
 		<div id="header">
-
+<div id="search">
 		  {if $PLAYER_STATUS.auth eq 'yes'}
-		    {if $CORE->active_node eq 'splash'}
-			<form name="searchform" onsubmit="return search('splash');" class="search">
-			{else}
-			<form name="searchform" onsubmit="return search('sidebar');" class="search">
-			{/if}
+			<form name="searchform" action="/search/" class="search" method="post">
 		    <img src="/images/carousel.gif" align="left" style="display:none;" id="search_carousel" />&nbsp;&nbsp;
-		   <input id="search_input" type="text" name="pattern" maxlength="20" />
+		   <input id="search_input" type="text" name="pattern" maxlength="20" value="{$SEARCH_PATTERN}" />
 			<select name="mode">
             <option value="any">Any</option>
             <option value="artist">Artist</option>
@@ -59,8 +56,11 @@
           </select>
 					{*<input type="submit" value="Find!"  />*}
           </form>
+<div id="search_preview">
+</div>
+</div>
           {/if}
-				<h1><img src="/images/jukebox_logo.jpg" /></h1>
+				<h1><a href="/"><img border="0" src="/images/jukebox_logo.jpg" /></a></h1>
 		</div>
 
 		<div id="content">
@@ -74,6 +74,10 @@
 {if $CORE->active_node eq 'splash' && $CORE->user_id ne '-1'}
     <div id="splash">
 	      {include file='splash/splash.tpl'}
+	</div>
+{elseif $CORE->active_node eq 'search' && $CORE->user_id ne '-1'}
+    <div id="search_results_list">
+	      {include file='search.tpl'}
 	</div>
 {else}
 
@@ -129,12 +133,41 @@
   Design based on <a href="http://www.oswd.org/design/preview/id/2087" target="_blank">Plain 1.0</a> by <a href="http://www.jameskoster.co.uk" target="_blank">James Koster</a> - Logo by <a href="http://www.koreatabs.de" target="_blank">Jens Lumm</a> - all the rest by exhuma.twn & doc.twn - <a href="http://www.wicked.lu" target="_blank">The Wicked Net</a></div>
  </center>
 
+{if $CORE->active_node ne 'search'}
 {literal}
 <script>
 $('#search_input').watermark('Search!', {className: 'watermark'});
 </script>
 {/literal}
-
+{/if}
+{*
+{literal}
+<script>
+$(document).ready(function(){
+$("#search_input").keyup(function() 
+{
+var searchbox = $(this).val();
+var dataString = 'pattern='+ searchbox;
+if(searchbox=='')
+{}
+else
+{
+$.ajax({
+type: "POST",
+url: "/search/preview/",
+data: dataString,
+cache: false,
+success: function(html)
+{
+$("#search_preview").html(html).show();
+}
+});
+}return false; 
+});
+});
+</script>
+{/literal}
+*}
 </div>
 </body>
 </html>

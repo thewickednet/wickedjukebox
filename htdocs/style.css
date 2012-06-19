@@ -365,20 +365,7 @@ li {
 }
 
 #results table {
-  width: 700px;
-  border: 0px solid black;
-
-}
-
-#results table.albums {
-  width: 700px;
-  border: 0px solid black;
-
-}
-
-#results table.songs {
-  width: 570px;
-  border: 0px solid black;
+  width: 994px;
 
 }
 
@@ -457,5 +444,75 @@ div#coverinfo {
 }
 
 .watermark {
-   color: #cfc;
+    color: #333333;
+}
+
+input::-webkit-input-placeholder {
+    color: #cccccc
+   }
+   
+#bardivs {
+    width:500px; /* or whatever the of the porgress bar is */
+    /* 
+       The position of #bardivs must be something other than
+       static (the default) so that its children will be positioned
+       relative to it.
+    */
+    position:relative;
+}
+#progress {
+    position:absolute;
+    top:5px;
+    left:12px;
+}
+
+#duration {
+    position:absolute;
+    top:5px;
+    left:460px;
+}
+
+#search input, #search select {
+	background-color:#FFFFFF;
+	padding:2px;
+	font-family:Verdana, Arial, Helvetica, sans-serif;
+	font-size:14px;
+	color:#ffffff;
+	border:1px solid #728c40;
+	background-color:#94ae62;
+	margin-bottom:2px;
+}
+
+#search input {
+  width: 250px;
+  height: 16px;
+}
+
+#search select {
+  width: 100px;
+  height: 24px;
+}
+
+#search_preview
+{
+
+width:250px;
+display:none;
+float:right; margin-right:30px;
+border-left:solid 1px #dedede;
+border-right:solid 1px #dedede;
+border-bottom:solid 1px #dedede;
+overflow:hidden;
+}
+.preview_box
+{
+padding:4px; 
+border-top:solid 1px #dedede; 
+font-size:12px; 
+height:30px;
+}
+.preview_box:hover
+{
+background:#3b5998;
+color:#FFFFFF;
 }

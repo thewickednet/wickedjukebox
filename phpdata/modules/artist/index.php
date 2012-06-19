@@ -12,5 +12,3 @@ switch ($_GET['action']) {
         include "../phpdata/modules/artist/list.php";
     break;
 }
-
-?>

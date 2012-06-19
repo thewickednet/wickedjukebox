@@ -161,13 +161,16 @@ function setAlbumStanding(album, standing) {
 }
 
 function search(target){
-  var pattern = document.searchform.pattern.value;
-  var mode = document.searchform.mode.value;
 
+    var options = {
+                    method : 'post',
+                    parameters : Sortable.serialize('searchform')
+                  };
+ 
   if (target == 'splash') {
-      $("#splash").load('/index.php?module=search&pattern='+pattern+'&target='+target+'&action='+mode);
+      $("#splash").load('/index.php?module=search&target='+target, options);
   } else {
-      $("#body").load('/index.php?module=search&pattern='+pattern+'&target='+target+'&action='+mode);
+      $("#body").load('/index.php?module=search&target='+target, options);
   }
     return false;
 
@@ -246,16 +249,11 @@ function blaatOverUser(page) {
 }
 
 
-function blaatOverSearch(page, target) {
+function blaatOverSearch(page) {
 
-  var pattern = document.searchform.pattern.value;
-  var mode = document.searchform.mode.value;
+  var search_pattern = escape(document.searchform.pattern.value);
 
-  if (target == 'splash') {
-    $("#splash").load('/index.php?module=search&pattern='+pattern+'&action='+mode+'&target='+target+'&pagenum='+page);
-  } else {
-    $("#body").load('/index.php?module=search&pattern='+pattern+'&action='+mode+'&target='+target+'&pagenum='+page);
-  }
+    $("#search_results_list").load('/index.php?module=search&ajax=1&pagenum='+page, {pattern: search_pattern});
 
 }
 

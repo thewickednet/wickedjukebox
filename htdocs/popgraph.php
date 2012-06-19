@@ -106,7 +106,7 @@ if ( empty( $_REQUEST['radius'] ) ){
 }
 
 $image = imagecreatetruecolor($p['radius']*2, $p['radius']*2 );
-imageantialias($image, true);
+//imageantialias($image, true);
 ImageAlphaBlending($image, false);
 ImageSaveAlpha($image, true);
 ImageFill($image, 0, 0, IMG_COLOR_TRANSPARENT);

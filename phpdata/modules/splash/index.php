@@ -10,5 +10,3 @@ switch ($_GET['action']) {
         include "../phpdata/modules/splash/report.php";
     break;
 }
-
-?>

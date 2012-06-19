@@ -142,6 +142,7 @@ if(!$data = $cache->load($cache_key)) {
 	$cache->save($data, $cache_key);
 }
 
+header("Content-Type: image/png\n");
 echo base64_decode($data);
 
 exit();

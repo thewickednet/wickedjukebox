@@ -60,7 +60,7 @@
 					{*<input type="submit" value="Find!"  />*}
           </form>
           {/if}
-				<h1><img src="/images/jukebox_logo.jpg" /></h1>
+				<h1><img border="0" src="/images/jukebox_logo.jpg" /></h1>
 		</div>
 
 		<div id="content">

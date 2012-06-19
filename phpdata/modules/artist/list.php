@@ -43,5 +43,3 @@ if (!empty($_GET['pagenum']))
     $smarty->assign("ARTISTS", $data);
 
     $body_template = "artist/list.tpl";
-
-?>

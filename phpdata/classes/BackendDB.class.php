@@ -46,15 +46,17 @@ class BackendDB {
         $standings['love_count'] = count($standings['love']);
         $standings['hate_count'] = count($standings['hate']);
 
-		if ($state['upcoming_song'] > 0) {
-	        $next_songinfo = Song::get($state['upcoming_song']);
-	        $next_artistinfo = Artist::getById($next_songinfo['artist_id']);
-	        $next_albuminfo = Album::getById($next_songinfo['album_id']);
-		} else
-			$nextinfo = array();
+        if ($state['upcoming_song'] > 0) {
+        $next_songinfo = Song::get($state['upcoming_song']);
+        $next_artistinfo = Artist::getById($next_songinfo['artist_id']);
+        $next_albuminfo = Album::getById($next_songinfo['album_id']);
+        } else
+                $nextinfo = array();
 
-   		$progress = $state['progress'];
-		$progress = $songinfo['duration'] / 100 * $progress;
+        $progress = $state['progress'];
+        $progress = $songinfo['duration'] / 100 * $progress;
+        
+        $step = 100 / $songinfo['duration'];
 
         $result = array(
                         'songinfo'      =>  $songinfo,
@@ -62,10 +64,12 @@ class BackendDB {
                         'artistinfo'    =>  $artistinfo,
                         'albuminfo'     =>  $albuminfo,
                         'standings'     =>  $standings,
-        				'nextsong'		=>  $next_songinfo,
-        				'nextartist'	=>  $next_artistinfo,
-        				'nextalbum'		=>	$next_albuminfo,
-			            'progress'	    =>  $progress
+                        'state'         =>  $state,
+                        'nextsong'	=>  $next_songinfo,
+                        'nextartist'	=>  $next_artistinfo,
+                        'nextalbum'	=>  $next_albuminfo,
+                        'step'          =>  $step,
+                        'progress'      =>  $progress
                         );
 
         return $result;

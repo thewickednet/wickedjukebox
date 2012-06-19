@@ -3,17 +3,17 @@
 
             <h2>You were looking for "{$SEARCH_PATTERN}" in "{$SEARCH_MODE}"</h2>
 
-            <h3>Results ({$RESULT_COUNT} matches found)</h3>
+            <h3>Results ({$SEARCH_RESULT_COUNT} matches found)</h3>
             <div id="results">
             {if $ERROR_MESSAGE ne ''}
                 <p><img src="/images/exclamation.png" /> {$ERROR_MESSAGE}</p>
             {else}
             
 
-                {if count($RESULTS) ne '0'}
+                {if count($SEARCH_RESULT_COUNT) ne '0'}
                 <p align="center">{$LINKS}</p>
                 <table cellspacing="1" cellpadding="4">
-                {foreach from=$RESULTS item=RESULT}
+                {foreach from=$SEARCH_RESULTS item=RESULT}
                   <tr {if $RESULT.standing ne ''}class="{$RESULT.standing} resultlist"{else}class="resultlist"{/if}>
                     <td><a href="/artist/detail/{$RESULT.artist_id}/">{highLight string=$RESULT.artist_name mask=$SEARCH_PATTERN}</a></td>
                     <td><a href="javascript:;" onclick="javascript:addsong({$RESULT.song_id});"><img src="/images/bullet_add.png" class="button" /></a> <a href="/song/detail/{$RESULT.song_id}/">{highLight string=$RESULT.song_name mask=$SEARCH_PATTERN}</a></td>

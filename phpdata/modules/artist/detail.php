@@ -65,4 +65,3 @@ if ($ajax)
 else
 	$body_template = "artist/detail.tpl";
 
-?>

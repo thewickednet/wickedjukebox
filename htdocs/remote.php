@@ -141,13 +141,9 @@ switch ($_GET['module']) {
 // AUTO-APPEND STARTS HERE
 /////////////////////////////////////////////////////////////
 
-$icecast = new Icecast();
+header('Cache-Control: no-cache, must-revalidate');
+header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+header('Content-type: application/json');
 
-$smarty->assign("ICECAST", $icecast->getData("localhost", 8001, "admin", "matourenstepp"));
+echo json_encode($payload);
 
-$smarty->assign("CORE", $core);
-$player_status = BackendDB::getCurrentSong($core->channel_id);
-
-$smarty->display($core->template);
-
-?>
