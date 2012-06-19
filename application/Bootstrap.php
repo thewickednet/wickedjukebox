@@ -51,7 +51,12 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
             'automatic_serialization' => true
         );
 
-        $this->_cache = Zend_Cache::factory('Core', 'Memcached', $cacheFrontendOptions, $cacheBackendOptions);
+        $memcache = Zend_Cache::factory('Core', 'Memcached', $cacheFrontendOptions, $cacheBackendOptions);
+        $front = Zend_Controller_Front::getInstance();
+
+        $front->setParam('cache', $memcache);
+        Zend_Registry::set('cache', $memcache);
+
     }
 
 
