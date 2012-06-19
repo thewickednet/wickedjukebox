@@ -1,0 +1,13 @@
+<h1><?php echo $this->artist->getName(); ?></h1>
+
+<ul>
+<?php foreach ($this->artist->getAlbums() as $album) : ?>
+<li><?php echo $album->getName() ?>
+<ul>
+<?php foreach ($album->getSongs() as $song) : ?>
+<li><?php echo $song->getTitle() ?></li>
+<?php endforeach ?>
+</ul>
+</li>
+<?php endforeach ?>
+</ul>
