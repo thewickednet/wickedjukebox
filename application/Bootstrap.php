@@ -55,6 +55,22 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
     }
 
 
+    protected function _initLog()
+    {
+        $this->bootstrap('frontController');
+        $logger = new \Zend_Log();
+        Zend_Registry::set('log', $logger);
+        try
+        {
+            $file_writer = new Zend_Log_Writer_Stream(APPLICATION_ROOT . '/logs/app.log');
+            $logger->addWriter($file_writer);
+        }
+        catch (Exception $e)
+        {
+            $null_writer = new Zend_Log_Writer_Null();
+            $logger->addWriter($null_writer);
+        }
+    }
 
 }
 
