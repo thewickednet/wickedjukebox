@@ -28,7 +28,7 @@ class ImagesController extends Zend_Controller_Action
         $this->_filename = $this->getRequest()->getParam('filename');
 
         $options = $bootstrap->getOptions();
-        $this->_config = $options['images'][$this->_category];
+        $this->_config = $options['wjb']['images'];
 
         $imagePath = sprintf("%s/%s/", rtrim($this->_config['srcpath'], '/'), $this->_category);
 
