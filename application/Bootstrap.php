@@ -85,5 +85,16 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
         $frontController->getRouter()->addRoute('rest', $restRoute);
     }
 
+    protected function _initImagesRoute()
+    {
+        $this->bootstrap('frontController');
+        $frontController = Zend_Controller_Front::getInstance();
+        $route = new Zend_Controller_Router_Route(
+            'images/:category/:preset/:filename',
+            array('controller' => 'images', 'action' => 'render')
+        );
+        $frontController->getRouter()->addRoute('images', $route);
+    }
+
 }
 
