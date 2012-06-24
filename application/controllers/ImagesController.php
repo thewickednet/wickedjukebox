@@ -32,13 +32,6 @@ class ImagesController extends Zend_Controller_Action
 
         $imagePath = sprintf("%s/%s/", rtrim($this->_config['srcpath'], '/'), $this->_category);
 
-        if (!is_dir($imagePath) && !is_readable($imagePath))
-        {
-            $this->getResponse()
-                ->setHttpResponseCode(500);
-            die("not readable: " . $imagePath);
-        }
-
         if ($this->_preset == 'original')
         {
             $requestId = $this->getRequest()->getParam('original');

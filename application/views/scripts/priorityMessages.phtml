@@ -1,0 +1,15 @@
+<?php
+echo '<div id="priority_messages">';
+echo '<ul>';
+foreach ($this->priorityMessages as $label=>$messages) {
+    if (count($messages)) {
+        echo '<li class="'.$label.'_message">';
+        echo '<ul class="'.$label.'_message">';
+        foreach ($messages as $message) {
+            echo '<li>'.$message.'</li>';
+        }
+        echo '</ul></li>';
+    }
+}
+echo '</ul>';
+echo '</div>';

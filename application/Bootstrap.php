@@ -38,6 +38,11 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
         return $moduleLoader;
     }
 
+    protected function _initDoctitle()
+    {
+        $view = new Zend_View($this->getOptions());
+        $view->headTitle('Wicked Jukebox');
+    }
 
     protected function _initCache() {
 
@@ -77,6 +82,18 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
         }
     }
 
+    protected function _initRequest()
+    {
+        $this->bootstrap('frontController');
+        $front = Zend_Controller_Front::getInstance();
+        $request = $front->getRequest();
+        if ($front->getRequest() === null) {
+            $request = new Zend_Controller_Request_Http();
+            $front->setRequest($request);
+        }
+        return $request;
+    }
+
     protected function _initRestRoute()
     {
         $this->bootstrap('frontController');
@@ -94,6 +111,16 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
             array('controller' => 'images', 'action' => 'render')
         );
         $frontController->getRouter()->addRoute('images', $route);
+    }
+
+    protected static function _initAuth()
+    {
+        $auth = Zend_Auth::getInstance();
+        $front = Zend_Controller_Front::getInstance();
+        $front->registerPlugin(
+            new WJB_Controller_Plugin_Auth($auth), 1
+        );
+
     }
 
 }

@@ -26,6 +26,7 @@ class Rest_ChannelController extends WJB\Rest\Controller
             );
         }
         $this->view->payload = $results;
+        $this->view->user = Zend_Registry::get('auth');
         $this->getResponse()
             ->setHttpResponseCode(200);
 

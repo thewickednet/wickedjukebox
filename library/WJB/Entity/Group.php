@@ -192,4 +192,17 @@ class Group
     {
         return $this->users;
     }
+
+    public function toArray($deep = false)
+    {
+        return array(
+            'title' => $this->getTitle(),
+            'queue_add' => $this->getQueueAdd(),
+            'queue_skip' => $this->getQueueSkip(),
+            'queue_remove' => $this->getQueueRemove(),
+            'nocredits' => $this->getNocredits(),
+            'admin' => $this->getAdmin()
+        );
+    }
+
 }

@@ -14,9 +14,9 @@ use Doctrine\ORM\Mapping as ORM;
 class User
 {
     /**
-     * @var string $name
+     * @var string $username
      *
-     * @ORM\Column(name="name", type="string", length=32)
+     * @ORM\Column(name="username", type="string", length=32)
      */
     private $username;
 
@@ -407,4 +407,26 @@ class User
     {
         return $this->votes;
     }
+
+
+    public function toArray()
+    {
+        return array(
+            'username' => $this->getUsername(),
+            'fullname' => $this->getFullname(),
+            'email' => $this->getEmail(),
+            'selects' => $this->getSelects(),
+            'skips' => $this->getSkips(),
+            'downloads' => $this->getDownloads(),
+            'votes' => $this->getVotes(),
+            'group' => $this->getGroup()->toArray(),
+            'credits' => $this->getCredits(),
+            'proof_of_life' => $this->getProofOfLife()->getTimestamp(),
+            'proof_of_listening' => $this->getProofOfListening()->getTimestamp(),
+            'ip' => $this->getIP(),
+            'added' => $this->getAdded()->getTimestamp(),
+            'picture' => $this->getPicture()
+        );
+    }
+
 }
