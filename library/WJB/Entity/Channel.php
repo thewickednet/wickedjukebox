@@ -71,6 +71,11 @@ class Channel
     private $users;
 
     /**
+     * @ORM\OneToMany(targetEntity="State", mappedBy="channel")
+     */
+    private $states;
+
+    /**
      * @param int $active
      */
     public function setActive($active)
@@ -173,4 +178,16 @@ class Channel
     {
         return $this->public;
     }
+
+    public function getUsers()
+    {
+        return $this->users;
+    }
+
+    public function getStates()
+    {
+        return $this->states;
+    }
+
+
 }
