@@ -35,6 +35,13 @@ class Song
     private $trackNo;
 
     /**
+     * @var string $duration
+     *
+     * @ORM\Column(name="duration", type="float")
+     */
+    private $duration;
+
+    /**
      * @var datetime $added
      *
      * @ORM\Column(name="added", type="datetime")
@@ -155,4 +162,22 @@ class Song
     {
         return $this->trackNo;
     }
+
+    /**
+     * @param string $duration
+     */
+    public function setDuration($duration)
+    {
+        $this->duration = $duration;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDuration()
+    {
+        return $this->duration;
+    }
+
+
 }
