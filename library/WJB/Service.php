@@ -40,7 +40,7 @@ abstract class Service {
 
     public function getById($id)
     {
-        return $this->_channelRepo->find($id);
+        return $this->getRepo()->find($id);
     }
 
 
