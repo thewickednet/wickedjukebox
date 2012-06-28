@@ -8,6 +8,7 @@ abstract class Service {
      * @var null|EntityManager
      */
     protected $_entityManager = null;
+    protected $_defaultRepo = null;
 
     public function __construct()
     {
@@ -20,9 +21,28 @@ abstract class Service {
         return $this->_entityManager;
     }
 
-    public function getRepo($repo)
+    public function getRepo($repo = null)
     {
+        if ($repo == null)
+            $repo = $this->_defaultRepo;
         return $this->_entityManager->getRepository($repo);
     }
+
+    public function setDefaultRepo($name)
+    {
+        $this->_defaultRepo = $name;
+    }
+
+    public function getAll()
+    {
+        return $this->getRepo()->findAll();
+    }
+
+    public function getById($id)
+    {
+        return $this->_channelRepo->find($id);
+    }
+
+
 
 }

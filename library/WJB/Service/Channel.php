@@ -10,20 +10,8 @@ class Channel extends \WJB\Service {
     public function __construct()
     {
         parent::__construct();
-        $this->_channelRepo = $this->getRepo('\WJB\Entity\Channel');
+        $this->setDefaultRepo('\WJB\Entity\Channel');
     }
-
-
-    public function getAll()
-    {
-        return $this->_channelRepo->findAll();
-    }
-
-    public function getById($id)
-    {
-        return $this->_channelRepo->find($id);
-    }
-
 
 
 
