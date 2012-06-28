@@ -1,5 +1,8 @@
 <?php
 
+use WJB\Service\Channel as ChannelService;
+
+
 class Rest_ChannelController extends WJB\Rest\Controller
 {
 
@@ -14,8 +17,10 @@ class Rest_ChannelController extends WJB\Rest\Controller
 
     public function indexAction()
     {
-        $results = array();
-        $channels = $this->_channelRep->findAll();
+
+        $channelService = new ChannelService();
+
+        $channels = $channelService->getAll();
 
         foreach ($channels as $channel)
         {
@@ -26,12 +31,11 @@ class Rest_ChannelController extends WJB\Rest\Controller
             );
         }
         $this->view->payload = $results;
-        $this->view->user = Zend_Registry::get('auth');
         $this->getResponse()
             ->setHttpResponseCode(200);
 
     }
 
 
-
 }
+
