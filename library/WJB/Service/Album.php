@@ -3,13 +3,13 @@
 namespace WJB\Service;
 
 
-class Channel extends \WJB\Service {
+class Album extends \WJB\Service {
 
 
     public function __construct()
     {
         parent::__construct();
-        $this->setDefaultRepo('\WJB\Entity\Channel');
+        $this->setDefaultRepo('\WJB\Entity\Album');
     }
 
 
