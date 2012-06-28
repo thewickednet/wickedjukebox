@@ -12,8 +12,8 @@ abstract class Service {
 
     public function __construct()
     {
-        $bootstrap = \Zend_Controller_Front::getInstance()->getParam('bootstrap');
-        $this->_entityManager = $bootstrap->getResource('doctrine')->getEntityManager();
+        $doctrine = \Zend_Registry::get('doctrine');
+        $this->_entityManager = $doctrine->getEntityManager();
     }
 
     public function getEm()
