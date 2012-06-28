@@ -1,0 +1,51 @@
+<?php
+$auth = Zend_Auth::getInstance();
+?>
+!DOCTYPE html>
+<html>
+<head>
+    <?php
+    # Title
+    echo $this->headTitle();
+
+    # Meta data
+    echo $this->headMeta();
+
+    # CSS
+    echo $this->headLink()
+        ->appendStylesheet($this->baseUrl() . '/css/jquery.mobile-1.1.0.min.css');
+
+    # Javascript
+    echo $this->headScript()
+        ->appendFile($this->baseUrl() . '/js/jquery-1.7.2.min.js', 'text/javascript')
+        ->appendFile($this->baseUrl() . '/js/jquery.mobile-1.1.0.min.js', 'text/javascript');
+    ?>
+</head>
+<body>
+<div data-role="page" id="home">
+    <div data-role="header">
+        <h1><?php echo $this->headerString ?></h1>
+        <?php if ($auth->hasIdentity()) : ?>
+        <form><input type="search" name="search" id="searc-basic" value="" data-mini="true" /></form>
+        <div data-role="navbar">
+            <ul>
+                <li><a href="#">One</a></li>
+                <li><a href="#">Two</a></li>
+                <li><a href="#">Three</a></li>
+            </ul>
+        </div>
+        <?php endif ?>
+    </div>
+    <div data-role="content">
+        <?php echo $this->layout()->content; ?>
+    </div>
+    <div data-role="footer">
+        <h4>The Wicked Net</h4>
+    </div>
+</div>
+</body>
+</html>
+
+
+
+

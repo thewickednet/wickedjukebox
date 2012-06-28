@@ -37,7 +37,7 @@ class WJB_Form_Login extends Zend_Form
             ->addErrorMessage('Form timed out. Please reload the page & try again');
 
         # Submit
-        $submit = new Zend_Form_Element_Submit('login');
+        $submit = new Zend_Form_Element_Submit('Login');
 
         # Create
         $this->addElements(array($username, $password, $submit));

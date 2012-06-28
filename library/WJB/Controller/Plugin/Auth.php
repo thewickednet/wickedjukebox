@@ -48,6 +48,7 @@ class WJB_Controller_Plugin_Auth extends Zend_Controller_Plugin_Abstract
         exit();
     }
 
+
     private function handleDefaultAuth($request)
     {
 
