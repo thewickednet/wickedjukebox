@@ -123,5 +123,14 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 
     }
 
+    protected function _initPlugins() {
+
+        $front = Zend_Controller_Front::getInstance();
+        $front->registerPlugin(
+            new WJB_Controller_Plugin_ModuleConfigurator(),
+            90
+        );
+    }
+
 }
 
