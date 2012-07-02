@@ -123,10 +123,34 @@ class Song extends \WJB\Entity\Song implements \Doctrine\ORM\Proxy\Proxy
         return parent::getTrackNo();
     }
 
+    public function setDuration($duration)
+    {
+        $this->__load();
+        return parent::setDuration($duration);
+    }
+
+    public function getDuration()
+    {
+        $this->__load();
+        return parent::getDuration();
+    }
+
+    public function setLyrics($lyrics)
+    {
+        $this->__load();
+        return parent::setLyrics($lyrics);
+    }
+
+    public function getLyrics()
+    {
+        $this->__load();
+        return parent::getLyrics();
+    }
+
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'title', 'localpath', 'trackNo', 'added', 'id', 'artist', 'album');
+        return array('__isInitialized__', 'title', 'localpath', 'lyrics', 'trackNo', 'duration', 'added', 'id', 'artist', 'album');
     }
 
     public function __clone()

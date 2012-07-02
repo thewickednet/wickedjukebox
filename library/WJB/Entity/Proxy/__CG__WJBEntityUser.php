@@ -255,6 +255,18 @@ class User extends \WJB\Entity\User implements \Doctrine\ORM\Proxy\Proxy
         return parent::getVotes();
     }
 
+    public function setChannelId($channelId)
+    {
+        $this->__load();
+        return parent::setChannelId($channelId);
+    }
+
+    public function getChannelId()
+    {
+        $this->__load();
+        return parent::getChannelId();
+    }
+
     public function toArray()
     {
         $this->__load();
@@ -264,7 +276,7 @@ class User extends \WJB\Entity\User implements \Doctrine\ORM\Proxy\Proxy
 
     public function __sleep()
     {
-        return array('__isInitialized__', 'username', 'password', 'cookie', 'fullname', 'email', 'credits', 'downloads', 'votes', 'skips', 'selects', 'added', 'proofOfLife', 'proofOfListening', 'picture', 'IP', 'id', 'group', 'channel');
+        return array('__isInitialized__', 'username', 'password', 'cookie', 'fullname', 'email', 'credits', 'downloads', 'votes', 'skips', 'selects', 'channelId', 'added', 'proofOfLife', 'proofOfListening', 'picture', 'IP', 'id', 'group', 'channel');
     }
 
     public function __clone()
