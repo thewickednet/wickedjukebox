@@ -28,6 +28,13 @@ class Song
     private $localpath;
 
     /**
+     * @var string $lyrics
+     *
+     * @ORM\Column(name="lyrics", type="text")
+     */
+    private $lyrics;
+
+    /**
      * @var string $trackNo
      *
      * @ORM\Column(name="track_no", type="integer")
@@ -177,6 +184,22 @@ class Song
     public function getDuration()
     {
         return $this->duration;
+    }
+
+    /**
+     * @param string $lyrics
+     */
+    public function setLyrics($lyrics)
+    {
+        $this->lyrics = $lyrics;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLyrics()
+    {
+        return $this->lyrics;
     }
 
 
