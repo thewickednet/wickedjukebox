@@ -84,6 +84,13 @@ class User
     private $selects;
 
     /**
+     * @var integer $channelId
+     *
+     * @ORM\Column(name="channel_id", type="integer")
+     */
+    private $channelId;
+
+    /**
      * @var string $added
      *
      * @ORM\Column(name="added", type="datetime")
@@ -409,9 +416,27 @@ class User
     }
 
 
+    /**
+     * @param int $channelId
+     */
+    public function setChannelId($channelId)
+    {
+        $this->channelId = $channelId;
+    }
+
+    /**
+     * @return int
+     */
+    public function getChannelId()
+    {
+        return $this->channelId;
+    }
+
     public function toArray()
     {
         return array(
+            'id' => $this->getId(),
+            'channel_id' => $this->getChannelId(),
             'username' => $this->getUsername(),
             'fullname' => $this->getFullname(),
             'email' => $this->getEmail(),
@@ -428,5 +453,6 @@ class User
             'picture' => $this->getPicture()
         );
     }
+
 
 }
