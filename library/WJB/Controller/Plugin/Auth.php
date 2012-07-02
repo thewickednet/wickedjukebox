@@ -29,12 +29,19 @@ class WJB_Controller_Plugin_Auth extends Zend_Controller_Plugin_Abstract
     private function handleRestAuth($request)
     {
 
-        $auth = $request->getHeader('Authorization');
-        if ($auth)
+        if ($this->_auth->hasIdentity())
         {
-            $auth = str_replace('Basic ', '', $auth);
-            $auth = base64_decode($auth);
-            list ($username, $password) = explode(":", $auth);
+            $identity = $this->_auth->getIdentity();
+            $user = $this->_em->getRepository('\WJB\Entity\User')->findOneByUsername($identity);
+            return $user->toArray();
+        }
+
+        $httpAuth = $request->getHeader('Authorization');
+        if ($httpAuth)
+        {
+            $httpAuth = str_replace('Basic ', '', $httpAuth);
+            $httpAuth = base64_decode($httpAuth);
+            list ($username, $password) = explode(":", $httpAuth);
             $user = $this->_em->getRepository('\WJB\Entity\User')->findOneByUsername($username);
             if (md5($password) == $user->getPassword())
             {
