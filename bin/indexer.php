@@ -36,6 +36,9 @@ $search = $options['lucene'];
 // Retrieve Doctrine Container resource
 $container = $bootstrap->getResource('doctrine');
 
+set_time_limit(0);
+error_reporting(0);
+
 $index = Zend_Search_Lucene::create($search['index_path']);
 
 $artistService = new \WJB\Service\Artist();
@@ -93,6 +96,7 @@ foreach ($songs as $song)
     $index->addDocument($doc);
 
     $i++;
+    unset($song);
 
 }
 
@@ -108,6 +112,7 @@ foreach ($albums as $album)
 
     $doc = new Zend_Search_Lucene_Document();
 
+
     $doc->addField(Zend_Search_Lucene_Field::Keyword('class', 'album'));
     $doc->addField(Zend_Search_Lucene_Field::UnIndexed('key', $album->getId()));
     $doc->addField(Zend_Search_Lucene_Field::UnIndexed('created', time()));
@@ -116,7 +121,9 @@ foreach ($albums as $album)
     $doc->addField(Zend_Search_Lucene_Field::UnIndexed('data', serialize($album->toArray(true))));
 
     $doc->addField(Zend_Search_Lucene_Field::Text('album', $album->getName()));
-    $doc->addField(Zend_Search_Lucene_Field::Text('year', $album->getReleaseDate()->format('Y')));
+
+    if ($album->getReleaseDate() != null)
+        $doc->addField(Zend_Search_Lucene_Field::Text('year', $album->getReleaseDate()->format('Y')));
 
     $index->addDocument($doc);
 
