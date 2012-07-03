@@ -2,6 +2,7 @@
 
 namespace WJB\Service;
 
+use \WJB\Rest\Uri as Uri;
 
 class Channel extends \WJB\Service {
 
@@ -33,8 +34,10 @@ class Channel extends \WJB\Service {
                     $current['song_id'] = $song->getId();
                     $current['song_title'] = $song->getTitle();
                     $current['song_duration'] = $song->getDuration();
+                    $current['song_uri'] = Uri::build($song->getId(), 'song');
                     $current['artist_id'] = $artist->getId();
                     $current['artist_name'] = $artist->getName();
+                    $current['artist_uri'] = Uri::build($artist->getId(), 'artist');
                 break;
             }
             if ($state->getState() == 'progress')
