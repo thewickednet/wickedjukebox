@@ -6,7 +6,7 @@ class ImagesController extends Zend_Controller_Action
     private $_image;
     private $_config;
 
-    private $_filename;
+    private $_id;
     private $_srcFilename;
 
     private $_preset_dim;
@@ -25,59 +25,58 @@ class ImagesController extends Zend_Controller_Action
         $bootstrap = Zend_Controller_Front::getInstance()->getParam('bootstrap');
         $this->_category = $this->getRequest()->getParam('category');
         $this->_preset = $this->getRequest()->getParam('preset');
-        $this->_filename = $this->getRequest()->getParam('filename');
+        $this->_id = str_replace('.png', '', $this->getRequest()->getParam('id'));
 
         $options = $bootstrap->getOptions();
         $this->_config = $options['wjb']['images'];
 
-        $imagePath = sprintf("%s/%s/", rtrim($this->_config['srcpath'], '/'), $this->_category);
+        $this->_preset_dim = $this->_config['preset'][$this->_category][$this->_preset];
 
-        if ($this->_preset == 'original')
-        {
-            $requestId = $this->getRequest()->getParam('original');
-            $file = Application_Model_Image::getSourceFilename($this->_category, $this->_filename);
-        }
-        else
-        {
-            $file = Application_Model_Image::getSourceFilename($this->_category, $this->_filename);
+        $this->_image = new \WJB\Image();
 
-            if (!$file)
-            {
-                $this->getResponse()
-                    ->setHttpResponseCode(404);
-                die("not found in database");
-            }
-            $this->_preset_dim = $this->_config['preset'][$this->_preset];
+        switch ($this->_category)
+        {
+            case "album":
+                $albumService = new \WJB\Service\Album();
+                $album = $albumService->getById($this->_id);
+                $filename = $album->getPictureFile();
+            break;
+            case "artist":
+                $artistService = new \WJB\Service\Artist();
+                $artist = $artistService->getById($this->_id);
+                $filename = $artist->getPictureFile();
+            break;
         }
-        $this->_srcFilename =  $imagePath . $file;
-        if (!file_exists($this->_srcFilename))
+
+
+        if (!$filename)
         {
             switch($this->_category)
             {
-                case "channel":
+                case "album":
+                    $this->_image->writeFile(false);
                     $this->_srcFilename = $this->_config['placeholder']['channel'];
                     break;
-                case "bouquet":
+                case "artist":
+                    $this->_image->writeFile(false);
                     $this->_srcFilename = $this->_config['placeholder']['bouquet'];
                     break;
                 default:
+                    $this->_image->writeFile(false);
                     $this->getResponse()
                         ->setHttpResponseCode(404);
                     die();
             }
         }
 
+        $this->_image->setSource($filename);
+
+
     }
 
 
     public function renderAction()
     {
-
-        $this->_image = new Model_Image($this->_srcFilename);
-
-        $destPath = sprintf("%s/%s/%s/", rtrim($this->_config['destpath'], '/'), trim($this->_category, '/'), trim($this->_preset, '/'));
-        if (!is_dir($destPath))
-            mkdir ($destPath, 0775, true);
 
         if ($this->_preset == 'original')
         {
@@ -89,12 +88,19 @@ class ImagesController extends Zend_Controller_Action
         }
         else
         {
-            $destFile = $destPath . $this->_filename;
+            $destPath = sprintf("%s/public/images/%s/%s/", rtrim(APPLICATION_ROOT, '/'), trim($this->_category, '/'), trim($this->_preset, '/'));
 
-            $this->log->info(sprintf("RENDERING source: %s -> destination: %s", $this->_filename, $destFile));
+            if (!is_dir($destPath))
+                mkdir ($destPath, 0775, true);
+
+            $destFile = $destPath . $this->_id . '.png';
+
+            $this->log->info(sprintf("RENDERING source: %s -> destination: %s", $this->_srcFilename, $destFile));
+
             $this->_image->setPreset($this->_preset_dim);
             $this->_image->setDestination($destFile);
             $this->_image->generate_image_thumbnail();
+            exit();
         }
 
     }
