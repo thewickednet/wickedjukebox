@@ -4,6 +4,7 @@ namespace WJB\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use WJB\Rest\Uri as Uri;
 
 /**
  * Artist
@@ -127,6 +128,26 @@ class Artist
                 return $check;
         }
         return false;
+    }
+
+    public function toArray($deep = false)
+    {
+        $result = array(
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'added' => $this->getAdded()->getTimestamp(),
+            'uri' => Uri::build($this->getId(), 'artist'),
+            'class' => 'artist'
+        );
+        if ($deep)
+        {
+            $result['albums'] = array();
+            foreach ($this->getAlbums() as $album)
+            {
+                $result['albums'][] = $album->toArray();
+            }
+        }
+        return $result;
     }
 
 }

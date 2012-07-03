@@ -4,6 +4,7 @@ namespace WJB\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use WJB\Rest\Uri as Uri;
 
 /**
  * Album
@@ -197,7 +198,6 @@ class Album
         return $this->songs;
     }
 
-
     public function getPictureFile()
     {
 
@@ -223,6 +223,30 @@ class Album
                 return $check;
         }
         return false;
+    }
+
+    public function toArray($deep = false)
+    {
+        $result = array(
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'release_date' => $this->getReleaseDate()->getTimestamp(),
+            'type' => $this->getType(),
+            'downloads' => $this->getDownloaded(),
+            'added' => $this->getAdded()->getTimestamp(),
+            'uri' => Uri::build($this->getId(), 'album'),
+            'class' => 'album'
+        );
+        if ($deep)
+        {
+            $result['artist'] = $this->getArtist()->toArray();
+            $result['songs'] = array();
+            foreach ($this->getSongs() as $song)
+            {
+                $result['songs'][] = $song->toArray();
+            }
+        }
+        return $result;
     }
 
 }

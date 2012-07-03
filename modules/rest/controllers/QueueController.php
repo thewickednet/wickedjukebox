@@ -27,14 +27,8 @@ class Rest_QueueController extends WJB\Rest\Controller
                 'queue_position' => $entry->getPosition(),
                 'user_id' => $entry->getUserId(),
                 'user_name' => $entry->getUser()->getFullname(),
-                'song_id' => $entry->getSongId(),
-                'song_title' => $entry->getSong()->getTitle(),
-                'song_duration' => $entry->getSong()->getDuration(),
-                'artist_id' => $entry->getSong()->getArtist()->getId(),
-                'artist_name' => $entry->getSong()->getArtist()->getName(),
-                'album_id' => $entry->getSong()->getAlbum()->getId(),
-                'album_name' => $entry->getSong()->getAlbum()->getName(),
-
+                'song' => $entry->getSong()->toArray(true),
+                'class' => 'queue'
             );
         }
 

@@ -4,6 +4,7 @@ namespace WJB\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use WJB\Rest\Uri as Uri;
 
 /**
  * Song
@@ -202,5 +203,25 @@ class Song
         return $this->lyrics;
     }
 
+    public function toArray($deep = false)
+    {
+        $result = array(
+            'id' => $this->getId(),
+            'title' => $this->getTitle(),
+            'duration' => $this->getDuration(),
+            'track_no' => $this->getTrackNo(),
+            'lyrics' => $this->getLyrics(),
+            'added' => $this->getAdded()->getTimestamp(),
+            'uri' => Uri::build($this->getId(), 'song'),
+            'class' => 'song'
+        );
+        if ($deep)
+        {
+            $result['artist'] = $this->getArtist()->toArray();
+            if ($this->getAlbum())
+                $result['album'] = $this->getAlbum()->toArray();
+        }
+        return $result;
+    }
 
 }
