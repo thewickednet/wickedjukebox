@@ -198,4 +198,31 @@ class Album
     }
 
 
+    public function getPictureFile()
+    {
+
+        $filemasks = array(
+            'folder.jpg',
+            'Folder.jpg',
+            'cover.jpg',
+            'Cover.jpg',
+            'Folder.png',
+            'folder.png',
+            'cover.png',
+            'Cover.png',
+            'folder.gif',
+            'Folder.gif'
+        );
+
+        $path = $this->getPath();
+
+        foreach ($filemasks as $filemask){
+            $check = realpath($path . '/' . $filemask);
+            $check = utf8_encode($check);
+            if (file_exists($check))
+                return $check;
+        }
+        return false;
+    }
+
 }

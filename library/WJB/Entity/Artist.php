@@ -89,4 +89,44 @@ class Artist
     }
 
 
+
+    public function getPictureFile()
+    {
+
+        $path = '';
+        $filemasks = array(
+            'folder.jpg',
+            'Folder.jpg',
+            'cover.jpg',
+            'Cover.jpg',
+            'Folder.png',
+            'folder.png',
+            'cover.png',
+            'Cover.png',
+            'folder.gif',
+            'Folder.gif'
+        );
+
+        $albums = $this->getAlbums();
+
+        $sourceAlbum = null;
+
+        foreach ($albums as $album)
+        {
+            if ($album->getType() == 'album')
+            {
+                $path = sprintf("%s/../", $album->getPath());
+                $path = realpath($path);
+            }
+        }
+
+        foreach ($filemasks as $filemask){
+            $check = realpath($path . '/' . $filemask);
+            $check = utf8_encode($check);
+            if (file_exists($check))
+                return $check;
+        }
+        return false;
+    }
+
 }
