@@ -81,6 +81,12 @@ class Artist extends \WJB\Entity\Artist implements \Doctrine\ORM\Proxy\Proxy
         return parent::getAlbums();
     }
 
+    public function getPictureFile()
+    {
+        $this->__load();
+        return parent::getPictureFile();
+    }
+
 
     public function __sleep()
     {

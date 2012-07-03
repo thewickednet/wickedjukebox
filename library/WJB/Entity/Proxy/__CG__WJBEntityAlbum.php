@@ -141,6 +141,12 @@ class Album extends \WJB\Entity\Album implements \Doctrine\ORM\Proxy\Proxy
         return parent::getSongs();
     }
 
+    public function getPictureFile()
+    {
+        $this->__load();
+        return parent::getPictureFile();
+    }
+
 
     public function __sleep()
     {
