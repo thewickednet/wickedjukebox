@@ -227,10 +227,15 @@ class Album
 
     public function toArray($deep = false)
     {
+        $releaseDate = $this->getReleaseDate();
+
+        if ($releaseDate != null)
+            $releaseDate = $releaseDate->getTimestamp();
+
         $result = array(
             'id' => $this->getId(),
             'name' => $this->getName(),
-            'release_date' => $this->getReleaseDate()->getTimestamp(),
+            'release_date' => $releaseDate,
             'type' => $this->getType(),
             'downloads' => $this->getDownloaded(),
             'added' => $this->getAdded()->getTimestamp(),

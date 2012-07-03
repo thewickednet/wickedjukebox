@@ -29,52 +29,66 @@ $application = new Zend_Application(
 
 // Bootstrapping resources
 $bootstrap = $application->bootstrap()->getBootstrap();
+$options = $bootstrap->getOptions();
+$search = $options['lucene'];
+
 
 // Retrieve Doctrine Container resource
 $container = $bootstrap->getResource('doctrine');
 
-$index = Zend_Search_Lucene::create(APPLICATION_ROOT . '/data/lucence');
-
+$index = Zend_Search_Lucene::create($search['index_path']);
 
 $artistService = new \WJB\Service\Artist();
 $songService = new \WJB\Service\Song();
 $albumService = new \WJB\Service\Album();
 $i = 0;
 
-foreach ($artistService->getAll() as $artist)
+$artists = $artistService->getAll();
+$songs = $songService->getAll();
+$albums = $albumService->getAll();
+
+$total = count($songs) + count($artists) + count($albums);
+
+foreach ($artists as $artist)
 {
 
     $doc = new Zend_Search_Lucene_Document();
 
-    $doc->addField(Zend_Search_Lucene_Field::UnIndexed('class', 'artist'));
+    $doc->addField(Zend_Search_Lucene_Field::Keyword('class', 'artist'));
     $doc->addField(Zend_Search_Lucene_Field::UnIndexed('key', $artist->getId()));
     $doc->addField(Zend_Search_Lucene_Field::Keyword('created', time()));
+    $doc->addField(Zend_Search_Lucene_Field::UnIndexed('data', serialize($artist->toArray(true))));
 
-    $doc->addField(Zend_Search_Lucene_Field::Text('artist_name', $artist->getName()));
+    $doc->addField(Zend_Search_Lucene_Field::Text('artist', $artist->getName()));
 
     $index->addDocument($doc);
 
     $i++;
+    unset($artist);
 
 }
 
 $index->commit();
 
 printf("%d artists added to index\n", $i);
+unset($artists);
 
 $i = 0;
-foreach ($songService->getAll() as $song)
+foreach ($songs as $song)
 {
 
     $doc = new Zend_Search_Lucene_Document();
 
-    $doc->addField(Zend_Search_Lucene_Field::UnIndexed('class', 'song'));
+    $doc->addField(Zend_Search_Lucene_Field::Keyword('class', 'song'));
     $doc->addField(Zend_Search_Lucene_Field::UnIndexed('key', $song->getId()));
     $doc->addField(Zend_Search_Lucene_Field::UnIndexed('created', time()));
-    $doc->addField(Zend_Search_Lucene_Field::UnIndexed('artist_name', $song->getArtist()->getName()));
+    $doc->addField(Zend_Search_Lucene_Field::Text('artist', $song->getArtist()->getName()));
+    $doc->addField(Zend_Search_Lucene_Field::UnIndexed('artist_key', $song->getArtist()->getId()));
     $doc->addField(Zend_Search_Lucene_Field::Unstored('lyrics', $song->getLyrics()));
+    $doc->addField(Zend_Search_Lucene_Field::UnIndexed('data', serialize($song->toArray(true))));
 
-    $doc->addField(Zend_Search_Lucene_Field::Text('song_title', $song->getTitle()));
+    $doc->addField(Zend_Search_Lucene_Field::Text('song', $song->getTitle()));
+    $doc->addField(Zend_Search_Lucene_Field::Text('duration', (int) $song->getDuration()));
 
     $index->addDocument($doc);
 
@@ -85,20 +99,24 @@ foreach ($songService->getAll() as $song)
 $index->commit();
 
 printf("%d songs added to index\n", $i);
+unset($songs);
 
 $i = 0;
 
-foreach ($albumService->getAll() as $album)
+foreach ($albums as $album)
 {
 
     $doc = new Zend_Search_Lucene_Document();
 
-    $doc->addField(Zend_Search_Lucene_Field::UnIndexed('class', 'album'));
-    $doc->addField(Zend_Search_Lucene_Field::UnIndexed('key', $song->getId()));
+    $doc->addField(Zend_Search_Lucene_Field::Keyword('class', 'album'));
+    $doc->addField(Zend_Search_Lucene_Field::UnIndexed('key', $album->getId()));
     $doc->addField(Zend_Search_Lucene_Field::UnIndexed('created', time()));
-    $doc->addField(Zend_Search_Lucene_Field::UnIndexed('artist_name', $album->getArtist()->getName()));
+    $doc->addField(Zend_Search_Lucene_Field::Text('artist', $album->getArtist()->getName()));
+    $doc->addField(Zend_Search_Lucene_Field::UnIndexed('artist_key', $album->getArtist()->getId()));
+    $doc->addField(Zend_Search_Lucene_Field::UnIndexed('data', serialize($album->toArray(true))));
 
-    $doc->addField(Zend_Search_Lucene_Field::Text('album_name', $album->getName()));
+    $doc->addField(Zend_Search_Lucene_Field::Text('album', $album->getName()));
+    $doc->addField(Zend_Search_Lucene_Field::Text('year', $album->getReleaseDate()->format('Y')));
 
     $index->addDocument($doc);
 

@@ -6,14 +6,22 @@ namespace WJB\Rest;
 class Uri
 {
 
-    public function build($id, $class, $module = null)
+    public function build($id, $class)
     {
 
-        if ($module == null)
-            $module = \Zend_Controller_Front::getInstance()->getRequest()->getModuleName();
+        $front = \Zend_Controller_Front::getInstance();
 
-        $protocol = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')) ? 'https' : 'http';
-        return sprintf("%s://%s/%s/%s/%s", $protocol, $_SERVER['HTTP_HOST'], $module, $class, $id);
+        $config = \Zend_Registry::get('config')->toArray();
+
+        $rest_config = $config['wjb']['rest'];
+
+        $module = $rest_config['module'];
+        $http_host = $rest_config['http_host'];
+
+        return sprintf("%s/%s/%s/%d", $http_host, $module, $class, $id);
+
+        //$protocol = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')) ? 'https' : 'http';
+        //return sprintf("%s://%s/%s/%s/%s", $protocol, $_SERVER['HTTP_HOST'], $module, $class, $id);
     }
 
 
