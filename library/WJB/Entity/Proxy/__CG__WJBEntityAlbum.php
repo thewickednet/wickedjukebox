@@ -147,6 +147,12 @@ class Album extends \WJB\Entity\Album implements \Doctrine\ORM\Proxy\Proxy
         return parent::getPictureFile();
     }
 
+    public function toArray($deep = false)
+    {
+        $this->__load();
+        return parent::toArray($deep);
+    }
+
 
     public function __sleep()
     {

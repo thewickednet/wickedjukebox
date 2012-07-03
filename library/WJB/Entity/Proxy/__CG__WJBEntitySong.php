@@ -147,6 +147,12 @@ class Song extends \WJB\Entity\Song implements \Doctrine\ORM\Proxy\Proxy
         return parent::getLyrics();
     }
 
+    public function toArray($deep = false)
+    {
+        $this->__load();
+        return parent::toArray($deep);
+    }
+
 
     public function __sleep()
     {
