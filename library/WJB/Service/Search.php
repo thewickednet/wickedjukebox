@@ -10,6 +10,7 @@ use WJB\Service\Song as SongService;
 class Search {
 
     private $_lucene = null;
+    private $_hits = null;
 
     public function __construct()
     {
@@ -17,60 +18,29 @@ class Search {
         $this->_lucene = \Zend_Search_Lucene::open($options['index_path']);
     }
 
-    public function execute($pattern, $toArray = false)
+
+    public function execute($pattern)
     {
-        $hits = $this->_lucene->find($pattern);
-
-        if ($toArray)
-        {
-            $data = array();
-
-            foreach ($hits as $hit)
-            {
-                $item = unserialize($hit->data);
-                $item['score'] = $hit->score;
-                $data[] = $item;
-            }
-            return $data;
-
-        }
-
-        return $hits;
+        $this->_hits = $this->_lucene->find($pattern);
     }
 
 
-    private function transformEntry($entry)
+    public function getHitsArray()
     {
-        switch($entry->class)
+        $data = array();
+        foreach ($this->_hits as $hit)
         {
-            case "artist":
-                return array(
-                    'class' => 'artist',
-                    'id' => (int) $entry->key,
-                    'name' => $entry->artist,
-                    'score' => $entry->score
-                );
-            break;
-            case "album":
-                return array(
-                    'class' => 'album',
-                    'id' => (int) $entry->key,
-                    'name' => $entry->album,
-                    'artist' => $entry->artist,
-                    'score' => $entry->score
-                );
-            break;
-            case "song":
-                return array(
-                    'class' => 'song',
-                    'id' => (int) $entry->key,
-                    'title' => $entry->song,
-                    'artist' => $entry->artist,
-                    'score' => $entry->score
-                );
-            break;
+            $item = unserialize($hit->data);
+            $item['score'] = $hit->score;
+            $data[] = $item;
         }
+        return $data;
     }
 
+
+    public function getHits()
+    {
+        return $this->_hits;
+    }
 
 }

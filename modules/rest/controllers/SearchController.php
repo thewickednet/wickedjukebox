@@ -13,12 +13,12 @@ class Rest_SearchController extends WJB\Rest\Controller
     public function indexAction()
     {
 
-        $pattern = $this->getRequest()->getParam('pattern');
+        $query = $this->getRequest()->getParam('q');
 
         $searchService = new SearchService();
-        $search = $searchService->execute($pattern, true);
+        $searchService->execute($query);
 
-        $this->view->payload = $search;
+        $this->view->payload = $searchService->getHitsArray();
 
         $this->getResponse()
             ->setHttpResponseCode(200);
