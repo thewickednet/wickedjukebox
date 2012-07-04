@@ -86,7 +86,6 @@ foreach ($songs as $song)
     $doc->addField(Zend_Search_Lucene_Field::UnIndexed('key', $song->getId()));
     $doc->addField(Zend_Search_Lucene_Field::UnIndexed('created', time()));
     $doc->addField(Zend_Search_Lucene_Field::Text('artist', $song->getArtist()->getName()));
-    $doc->addField(Zend_Search_Lucene_Field::UnIndexed('artist_key', $song->getArtist()->getId()));
     $doc->addField(Zend_Search_Lucene_Field::Unstored('lyrics', $song->getLyrics()));
     $doc->addField(Zend_Search_Lucene_Field::UnIndexed('data', serialize($song->toArray(true))));
 
@@ -117,7 +116,6 @@ foreach ($albums as $album)
     $doc->addField(Zend_Search_Lucene_Field::UnIndexed('key', $album->getId()));
     $doc->addField(Zend_Search_Lucene_Field::UnIndexed('created', time()));
     $doc->addField(Zend_Search_Lucene_Field::Text('artist', $album->getArtist()->getName()));
-    $doc->addField(Zend_Search_Lucene_Field::UnIndexed('artist_key', $album->getArtist()->getId()));
     $doc->addField(Zend_Search_Lucene_Field::UnIndexed('data', serialize($album->toArray(true))));
 
     $doc->addField(Zend_Search_Lucene_Field::Text('album', $album->getName()));
