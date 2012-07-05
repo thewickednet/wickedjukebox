@@ -1,0 +1,13 @@
+
+<div class="content-primary">
+    <ul data-role="listview">
+        <li data-role="list-divider">Search results</li>
+        <?php if (count($this->hits) > 0) : ?>
+        <?php foreach ($this->hits as $h) : ?>
+            <?php echo $this->partial('_partials/searchResult' . ucfirst($h->class) . '.phtml', array('data' => unserialize($h->data))); ?>
+            <?php endforeach ?>
+        <?php else :  ?>
+        <li>no results found</li>
+        <?php endif ?>
+    </ul>
+</div>

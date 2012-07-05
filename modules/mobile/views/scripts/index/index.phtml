@@ -1,0 +1,38 @@
+<?php
+    $current = $this->channel['current'];
+?>
+
+<div class="currentlyPlaying">
+
+    <h3>Currently playing</h3>
+
+    <div>
+        <img src="/images/album/detail/<?php echo $current['song']['album']['id']; ?>.png"
+    </div>
+    <div>
+
+
+
+        <p>
+            <?php echo $current['song']['title']; ?><br />
+            by <?php echo $current['song']['artist']['name']; ?><br />
+            on <?php echo $current['song']['album']['name']; ?>
+        </p>
+
+    </div>
+
+</div>
+
+
+			<div class="content-primary">
+                <ul data-role="listview">
+                    <li data-role="list-divider">Queue</li>
+                    <?php if (count($this->queue) > 0) : ?>
+                    <?php foreach ($this->queue as $q) : ?>
+        <li><a href="index.html"><?php echo $q->getSong()->getArtist()->getName() ?> - <?php echo $q->getSong()->getTitle() ?></a></li>
+        <?php endforeach ?>
+                    <?php else :  ?>
+    <li>the queue is empty</li>
+                    <?php endif ?>
+                </ul>
+            </div>

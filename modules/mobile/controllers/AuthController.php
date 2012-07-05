@@ -29,8 +29,7 @@ class Mobile_AuthController extends Zend_Controller_Action {
                 $auth_service = new WJB_Service_Auth($data['username'], $data['password']);
                 $auth = Zend_Auth::getInstance()->authenticate($auth_service);
                 $this->view->priorityMessenger($auth->getMessages() , $auth->getCode());
-                if ($auth->isValid())
-                    $this->_helper->redirector('index', 'index', 'mobile');
+                $this->_helper->redirector('login', 'auth', 'mobile');
             }
             $form->populate($data);
         }
@@ -48,7 +47,7 @@ class Mobile_AuthController extends Zend_Controller_Action {
     {
         $auth = Zend_Auth::getInstance();
         $auth->clearIdentity();
-        $this->_redirect('/');
+        $this->_redirect('/mobile/');
 
     }
 

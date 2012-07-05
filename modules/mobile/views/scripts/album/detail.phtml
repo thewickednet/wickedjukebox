@@ -1,0 +1,22 @@
+
+<h3><?php echo $this->album->getName(); ?></h3>
+
+
+<div class="content-primary">
+    <ul data-role="listview">
+        <li data-role="list-divider">Songs</li>
+        <?php foreach ($this->album->getSongs() as $song) : ?>
+        <li>
+            <?php echo $song->getTitle(); ?> (<?php echo $song->getDuration(); ?>)
+        </li>
+        <?php endforeach ?>
+    </ul>
+</div>
+
+<div>
+
+<form id="login" method="post" action="/mobile/album/queue/id/<?php echo $this->album->getId(); ?>/" data-ajax="false">
+    <input type="submit" data-theme="c" value="Add album to queue" />
+</form>
+
+</div>

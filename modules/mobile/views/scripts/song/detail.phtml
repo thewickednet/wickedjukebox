@@ -1,0 +1,6 @@
+
+<h3><?php echo $this->song->getTitle(); ?></h3>
+
+<form id="login" method="post" action="/mobile/song/queue/id/<?php echo $this->song->getId(); ?>/" data-ajax="false">
+    <input type="submit" data-theme="c" value="Add to queue" />
+</form>
