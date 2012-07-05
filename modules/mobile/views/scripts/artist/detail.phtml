@@ -5,7 +5,7 @@
     <ul data-role="listview">
         <li data-role="list-divider">Albums</li>
         <?php foreach ($this->artist->getAlbums() as $album) : ?>
-        <li><a href="/mobile/album/list/id/<?php echo $album->getId(); ?>/">
+        <li><a href="/mobile/album/detail/id/<?php echo $album->getId(); ?>/">
             <img src="/images/album/list/<?php echo $album->getId(); ?>.png" />
             <h3><?php echo $album->getName(); ?></h3>
         </a></li>
