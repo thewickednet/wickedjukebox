@@ -6,23 +6,24 @@
 
     <h3>Currently playing</h3>
 
-    <div>
-        <img src="/images/album/detail/<?php echo $current['song']['album']['id']; ?>.png"
+    <div style="float: left;"">
+        <img src="/images/album/splash/<?php echo $current['song']['album']['id']; ?>.png" style="border: 1px grey solid; padding: 4px;"/>
     </div>
-    <div>
-
-
+    <div style="float: left; padding:   10px;">
 
         <p>
-            <?php echo $current['song']['title']; ?><br />
-            by <?php echo $current['song']['artist']['name']; ?><br />
-            on <?php echo $current['song']['album']['name']; ?>
+            <strong><?php echo $current['song']['title']; ?></strong><br />
+            by <strong><?php echo $current['song']['artist']['name']; ?></strong><br />
+            on <strong><?php echo $current['song']['album']['name']; ?></strong><br />
+            <?php echo $current['song']['duration']; ?>
         </p>
 
     </div>
 
 </div>
 
+<hr style="clear: both; border: 0" />
+    <p>&nbsp;</p>
 
 			<div class="content-primary">
                 <ul data-role="listview">

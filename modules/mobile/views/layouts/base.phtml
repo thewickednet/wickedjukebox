@@ -29,10 +29,8 @@ $auth = Zend_Auth::getInstance();
 <div data-role="page" id="wjbpage">
     <div data-theme="a" data-role="header">
 <?php if ($auth->hasIdentity()) : ?>
-        <?php if (Zend_Controller_Front::getInstance()->getRequest()->getControllerName() == 'index') : ?>
-            <a href="/mobile/auth/logout/" data-icon="home" class="ui-btn-left" rel="external">Logout</a>
-        <?php else: ?>
-            <a href="/mobile/" data-icon="home" class="ui-btn-left" rel="external">Home</a>
+        <?php if (Zend_Controller_Front::getInstance()->getRequest()->getControllerName() != 'index') : ?>
+            <a data-rel="back" data-icon="home" class="ui-btn-left" rel="external">Back</a>
         <?php endif ?>
 <?php endif ?>
         <h3>
