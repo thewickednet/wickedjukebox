@@ -7,7 +7,7 @@ class Mobile_ArtistController extends Zend_Controller_Action
 
     public function init()
     {
-
+        $this->view->headerString = 'Artist';
     }
 
     public function detailAction()

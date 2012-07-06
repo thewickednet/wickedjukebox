@@ -1,22 +1,41 @@
+<ul data-role="listview">
+    <li>
+        <img src="/images/album/list/<?php echo $this->album->getId(); ?>.png" />
+        <h3><?php echo $this->album->getName(); ?></h3>
+        <p><?php echo date('Y', $this->album->getReleaseDate()->getTimestamp()) ?> - <?php echo count($this->album->getSongs()) ?> songs</p>
+    </li>
+</ul>
 
-<h3><?php echo $this->album->getName(); ?></h3>
+
+<span style="clear: both; margin: 10px;"></span>
 
 
-<div class="content-primary">
-    <ul data-role="listview">
-        <li data-role="list-divider">Songs</li>
-        <?php foreach ($this->album->getSongs() as $song) : ?>
-        <li>
-            <?php echo $song->getTitle(); ?> (<?php echo $song->getDuration(); ?>)
-        </li>
-        <?php endforeach ?>
-    </ul>
-</div>
-
-<div>
 
 <form id="login" method="post" action="/mobile/album/queue/id/<?php echo $this->album->getId(); ?>/" data-ajax="false">
     <input type="submit" data-theme="c" value="Add album to queue" />
 </form>
 
-</div>
+<span style="clear: both; margin: 10px;"></span>
+
+
+<ul data-role="listview">
+    <li data-role="list-divider">Artist</li>
+    <li>
+        <a href="/mobile/artist/detail/id/<?php echo $this->album->getArtist()->getId(); ?>/">
+            <img src="/images/artist/list/<?php echo $this->album->getArtist()->getId(); ?>.png" />
+            <h3><?php echo $this->album->getArtist()->getName(); ?></h3>
+            <p><?php echo count($this->album->getArtist()->getAlbums()) ?> albums</p>
+        </a>
+    </li>
+    <li data-role="list-divider">Songs</li>
+    <?php foreach ($this->album->getSongs() as $song): ?>
+    <li>
+        <a href="/mobile/song/detail/id/<?php echo $song->getId(); ?>/">
+            <h3><?php echo $song->getTitle(); ?></h3>
+            <p><?php echo $this->jukeboxTime($song->getDuration()); ?></p>
+        </a>
+    </li>
+    <?php endforeach ?>
+</ul>
+
+

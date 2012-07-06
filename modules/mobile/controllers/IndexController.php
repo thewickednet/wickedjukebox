@@ -16,6 +16,12 @@ class Mobile_IndexController extends Zend_Controller_Action {
 
     public function indexAction()
     {
+
+        $ajax = $this->getRequest()->getParam('ajax', false);
+        if ($ajax)
+            $this->_helper->layout->disableLayout();
+
+
         $queueService = new QueueService();
         $queue = $queueService->getByChannel($this->_auth['channel_id']);
 

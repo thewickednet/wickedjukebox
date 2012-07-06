@@ -1,7 +1,8 @@
 <?php
 $auth = Zend_Auth::getInstance();
+$controller = Zend_Controller_Front::getInstance()->getRequest()->getControllerName();
 ?>
-!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -29,8 +30,10 @@ $auth = Zend_Auth::getInstance();
 <div data-role="page" id="wjbpage">
     <div data-theme="a" data-role="header">
 <?php if ($auth->hasIdentity()) : ?>
-        <?php if (Zend_Controller_Front::getInstance()->getRequest()->getControllerName() != 'index') : ?>
-            <a data-rel="back" data-icon="home" class="ui-btn-left" rel="external">Back</a>
+        <?php if ($controller != 'index') : ?>
+            <a data-rel="back" data-icon="back" class="ui-btn-left" rel="external">Back</a>
+        <?php else: ?>
+            <a href="/mobile/" data-icon="refresh" class="ui-btn-left" rel="external">Refresh</a>
         <?php endif ?>
 <?php endif ?>
         <h3>
@@ -48,13 +51,24 @@ $auth = Zend_Auth::getInstance();
             </div>
 </form>
 <?php endif ?>
-
+    <div id="contentBox">
             <?php echo $this->layout()->content; ?>
     </div>
+    </div>
     <div data-theme="a" data-role="footer" data-position="fixed">
+        <?php if ($auth->hasIdentity()) : ?>
+        <?php if (Zend_Controller_Front::getInstance()->getRequest()->getControllerName() != 'index') : ?>
+            <a href="/mobile/" data-icon="home" class="ui-btn-left" rel="external">Home</a>
+            <?php endif ?>
+        <?php endif ?>
         <h3>
             The Wicked Net
         </h3>
+        <?php if ($auth->hasIdentity()) : ?>
+        <?php if (Zend_Controller_Front::getInstance()->getRequest()->getControllerName() != 'index') : ?>
+            <a href="/mobile/auth/logout/" data-icon="delete" class="ui-btn-right" rel="external">Logout</a>
+            <?php endif ?>
+        <?php endif ?>
     </div>
 </div>
 
@@ -64,10 +78,7 @@ $auth = Zend_Auth::getInstance();
             ajaxFormsEnabled: false
         });
     });
+
 </script>
 </body>
 </html>
-
-
-
-

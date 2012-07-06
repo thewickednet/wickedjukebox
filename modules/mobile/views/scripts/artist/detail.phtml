@@ -1,5 +1,11 @@
+<ul data-role="listview">
+    <li>
+        <img src="/images/artist/list/<?php echo $this->artist->getId(); ?>.png" />
+        <h3><?php echo $this->artist->getName(); ?></h3>
+        <p><?php echo count($this->artist->getAlbums()) ?> albums</p>
+    </li>
+</ul>
 
-<h3><?php echo $this->artist->getName(); ?></h3>
 
 <div class="content-primary">
     <ul data-role="listview">
@@ -7,7 +13,8 @@
         <?php foreach ($this->artist->getAlbums() as $album) : ?>
         <li><a href="/mobile/album/detail/id/<?php echo $album->getId(); ?>/">
             <img src="/images/album/list/<?php echo $album->getId(); ?>.png" />
-            <h3><?php echo $album->getName(); ?></h3>
+            <h3><?php echo $album->getName(); ?> </h3>
+            <p><?php echo date('Y', $album->getReleaseDate()->getTimestamp()) ?> - <?php echo count($album->getSongs()) ?> songs</p>
         </a></li>
 
         <?php endforeach ?>

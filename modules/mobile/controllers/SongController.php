@@ -8,7 +8,7 @@ class Mobile_SongController extends Zend_Controller_Action
 
     public function init()
     {
-
+        $this->view->headerString = 'Song';
     }
 
     public function detailAction()
@@ -23,7 +23,6 @@ class Mobile_SongController extends Zend_Controller_Action
     {
         $id = $this->getRequest()->getParam('id');
 
-        $songService = new SongService();
         $auth = Zend_Registry::get('auth');
 
         $queueService = new QueueService();

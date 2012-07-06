@@ -9,6 +9,7 @@ class Mobile_SearchController extends Zend_Controller_Action
 
     public function init()
     {
+        $this->view->headerString = 'Search';
         $this->_em = $this->getInvokeArg('bootstrap')->getResource('doctrine')->getEntityManager();
         /* Initialize action controller here */
     }

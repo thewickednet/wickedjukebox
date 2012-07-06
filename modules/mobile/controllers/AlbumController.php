@@ -8,7 +8,7 @@ class Mobile_AlbumController extends Zend_Controller_Action
 
     public function init()
     {
-
+        $this->view->headerString = 'Album';
     }
 
     public function detailAction()

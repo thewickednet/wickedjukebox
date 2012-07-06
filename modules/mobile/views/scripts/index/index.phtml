@@ -1,36 +1,26 @@
 <?php
     $current = $this->channel['current'];
 ?>
-
-<div class="currentlyPlaying">
-
-    <h3>Currently playing</h3>
-
-    <div style="float: left;"">
-        <img src="/images/album/splash/<?php echo $current['song']['album']['id']; ?>.png" style="border: 1px grey solid; padding: 4px;"/>
-    </div>
-    <div style="float: left; padding:   10px;">
-
-        <p>
-            <strong><?php echo $current['song']['title']; ?></strong><br />
-            by <strong><?php echo $current['song']['artist']['name']; ?></strong><br />
-            on <strong><?php echo $current['song']['album']['name']; ?></strong><br />
-            <?php echo $current['song']['duration']; ?>
-        </p>
-
-    </div>
-
-</div>
-
-<hr style="clear: both; border: 0" />
-    <p>&nbsp;</p>
-
 			<div class="content-primary">
                 <ul data-role="listview">
-                    <li data-role="list-divider">Queue</li>
+                    <li data-role="list-divider">Currently playing</li>
+                    <li><a href="/mobile/song/detail/id/<?php echo $current['song']['id']; ?>/">
+                        <img src="/images/album/list/<?php echo $current['song']['album']['id']; ?>.png" />
+                        <h3><?php echo $current['song']['title']; ?> (<?php echo $this->jukeboxTime($current['song']['duration']); ?>)</h3>
+                        <p>by <strong><?php echo $current['song']['artist']['name']; ?></strong></p>
+                        <p>on <strong><?php echo $current['song']['album']['name']; ?></strong> (<?php echo date('Y', $current['song']['album']['release_date']) ?>)</p>
+                    </a></li>
+
+                    <li data-role="list-divider">Queue <?php if (count($this->queue) > 0) : ?>(<?php echo count($this->queue) ?> items)<?php endif ?></li>
                     <?php if (count($this->queue) > 0) : ?>
                     <?php foreach ($this->queue as $q) : ?>
-        <li><a href="index.html"><?php echo $q->getSong()->getArtist()->getName() ?> - <?php echo $q->getSong()->getTitle() ?></a></li>
+        <li>
+            <a href="/mobile/song/detail/id/<?php echo $q->getSong()->getId(); ?>/">
+                <img src="/images/album/list/<?php echo $q->getSong()->getAlbum()->getId(); ?>.png" />
+                <h3><?php echo $q->getSong()->getTitle() ?> (<?php echo $this->jukeboxTime($q->getSong()->getDuration()) ?>)</h3>
+                <p><?php echo $q->getSong()->getArtist()->getName() ?></p>
+            </a>
+        </li>
         <?php endforeach ?>
                     <?php else :  ?>
     <li>the queue is empty</li>

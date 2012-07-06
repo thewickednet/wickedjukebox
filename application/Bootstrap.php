@@ -38,10 +38,16 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
         return $moduleLoader;
     }
 
-    protected function _initDoctitle()
+    protected function _initViewSettings()
     {
         $view = new Zend_View($this->getOptions());
         $view->headTitle('Wicked Jukebox');
+
+        $this->bootstrap('view');
+        $this->_view = $this->getResource('view');
+        // add global helpers
+        $this->_view->addHelperPath(APPLICATION_PATH . '/views/helpers', 'Zend_View_Helper');
+
     }
 
     protected function _initConfig()
