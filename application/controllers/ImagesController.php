@@ -55,11 +55,11 @@ class ImagesController extends Zend_Controller_Action
             {
                 case "album":
                     $this->_image->setWriteFile(false);
-                    $this->_srcFilename = $this->_config['placeholder']['album'];
+                    $filename = $this->_config['placeholder']['album'];
                     break;
                 case "artist":
                     $this->_image->setWriteFile(false);
-                    $this->_srcFilename = $this->_config['placeholder']['artist'];
+                    $filename = $this->_config['placeholder']['artist'];
                     break;
                 default:
                     $this->_image->setWriteFile(false);
@@ -69,8 +69,8 @@ class ImagesController extends Zend_Controller_Action
             }
         }
 
+        $this->_srcFilename = $filename;
         $this->_image->setSource($filename);
-
 
     }
 
