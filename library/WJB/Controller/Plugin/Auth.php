@@ -13,6 +13,10 @@ class WJB_Controller_Plugin_Auth extends Zend_Controller_Plugin_Abstract
         $front = Zend_Controller_Front::getInstance();
         $this->_em = $front->getParam('bootstrap')->getResource('doctrine')->getEntityManager();;
 
+        $controller = $request->getControllerName();
+        if ($controller == 'images')
+            return;
+
         $res = false;
         switch ($request->getModuleName())
         {
