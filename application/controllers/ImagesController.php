@@ -54,15 +54,15 @@ class ImagesController extends Zend_Controller_Action
             switch($this->_category)
             {
                 case "album":
-                    $this->_image->writeFile(false);
+                    $this->_image->setWriteFile(false);
                     $this->_srcFilename = $this->_config['placeholder']['channel'];
                     break;
                 case "artist":
-                    $this->_image->writeFile(false);
+                    $this->_image->setWriteFile(false);
                     $this->_srcFilename = $this->_config['placeholder']['bouquet'];
                     break;
                 default:
-                    $this->_image->writeFile(false);
+                    $this->_image->setWriteFile(false);
                     $this->getResponse()
                         ->setHttpResponseCode(404);
                     die();
