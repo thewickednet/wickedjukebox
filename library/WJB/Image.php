@@ -130,6 +130,8 @@ class Image
         }
         elseif ($this->_displayOutput)
         {
+            header("Content-Type: image/png");
+            header('Content-Transfer-Encoding: binary');
             imagepng($thumbnail_gd_image, null, $this->_quality);
         }
 
