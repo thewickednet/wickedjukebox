@@ -27,14 +27,3 @@
                     <?php endif ?>
                 </ul>
             </div>
-<script>
-    $(document).ready(function(){
-        $('#contentBox').pull_to_refresh({
-            refresh: function(){
-                $("#contentBox").load('/mobile/index/index/?ajax=1');
-                return false;
-
-            }
-        });
-    });
-</script>
