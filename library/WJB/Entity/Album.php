@@ -201,7 +201,7 @@ class Album
     public function getPictureFile()
     {
 
-        $log = Zend_Registry::get('log');
+        $log = \Zend_Registry::get('log');
 
         $filemasks = array(
             'folder.jpg',

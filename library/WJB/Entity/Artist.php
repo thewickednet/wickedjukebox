@@ -117,13 +117,13 @@ class Artist
     }
 
 
-
     public function getPictureFile()
     {
 
-        $log = Zend_Registry::get('log');
+        $log = \Zend_Registry::get('log');
 
         $path = '';
+
         $filemasks = array(
             'folder.jpg',
             'Folder.jpg',
