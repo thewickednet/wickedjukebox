@@ -29,6 +29,33 @@ class Artist
     private $added;
 
     /**
+     * @var string $countryCode
+     *
+     * @ORM\Column(name="country", type="string", length=16)
+     */
+    private $countryCode;
+
+    /**
+     * @var string $bio
+     *
+     * @ORM\Column(name="bio", type="text")
+     */
+    private $bio;
+
+    /**
+     * @var string $summary
+     *
+     * @ORM\Column(name="summary", type="text")
+     */
+    private $summary;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Country")
+     * @ORM\JoinColumn(name="country", referencedColumnName="country_code")
+     */
+    private $country;
+
+    /**
      * @var integer $id
      *
      * @ORM\Column(name="id", type="integer")
@@ -94,6 +121,8 @@ class Artist
     public function getPictureFile()
     {
 
+        $log = Zend_Registry::get('log');
+
         $path = '';
         $filemasks = array(
             'folder.jpg',
@@ -125,7 +154,14 @@ class Artist
             $check = realpath($path . '/' . $filemask);
             $check = utf8_encode($check);
             if (file_exists($check))
+            {
+                $log->info(sprintf("testing path: %s - result: %s", $check, 'FOUND'));
                 return $check;
+            }
+            else
+            {
+                $log->info(sprintf("testing path: %s - result: %s", $check, 'NOT FOUND'));
+            }
         }
         return false;
     }
@@ -148,6 +184,64 @@ class Artist
             }
         }
         return $result;
+    }
+
+    /**
+     * @param string $summary
+     */
+    public function setSummary($summary)
+    {
+        $this->summary = $summary;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSummary()
+    {
+        return $this->summary;
+    }
+
+    /**
+     * @param string $bio
+     */
+    public function setBio($bio)
+    {
+        $this->bio = $bio;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBio()
+    {
+        return $this->bio;
+    }
+
+    public function setCountry($country)
+    {
+        $this->country = $country;
+    }
+
+    public function getCountry()
+    {
+        return $this->country;
+    }
+
+    /**
+     * @param string $countryCode
+     */
+    public function setCountryCode($countryCode)
+    {
+        $this->countryCode = $countryCode;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCountryCode()
+    {
+        return $this->countryCode;
     }
 
 }

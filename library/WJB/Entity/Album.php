@@ -201,6 +201,8 @@ class Album
     public function getPictureFile()
     {
 
+        $log = Zend_Registry::get('log');
+
         $filemasks = array(
             'folder.jpg',
             'Folder.jpg',
@@ -220,7 +222,14 @@ class Album
             $check = realpath($path . '/' . $filemask);
             $check = utf8_encode($check);
             if (file_exists($check))
+            {
+                $log->info(sprintf("testing path: %s - result: %s", $check, 'FOUND'));
                 return $check;
+            }
+            else
+            {
+                $log->info(sprintf("testing path: %s - result: %s", $check, 'NOT FOUND'));
+            }
         }
         return false;
     }
