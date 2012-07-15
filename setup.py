@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="wickedjukebox",
-    version="2.0",
+    version="2.0.1",
     packages=find_packages(),
     entry_points={
         'console_scripts': [
