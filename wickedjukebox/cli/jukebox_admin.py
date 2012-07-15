@@ -151,12 +151,16 @@ class Console(cmd.Cmd):
             jukebox> newscan
             jukebox> newscan Depeche
         """
-        mediadirs = [x for x in Setting.get('mediadir').split(' ')
+        mediadirs = [x for x in Setting.get('mediadir', '').split(' ')
                      if direxists(x)]
         import wickedjukebox.scanner
-        wickedjukebox.scanner.scan(mediadirs[0], unicode(line))
+        print "Scanning inside %s" % ", ".join(mediadirs)
+        try:
+            wickedjukebox.scanner.scan(mediadirs[0], unicode(line))
+            print "done"
+        except KeyboardInterrupt:
+            print "\naborted!"
 
-        print "done"
 
     def do_update_tags(self, line):
         """

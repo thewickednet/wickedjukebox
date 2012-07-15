@@ -18,7 +18,7 @@ from wickedjukebox.demon.dbmodel import (
 
 logger = logging.getLogger(__name__)
 
-valid_extensions = Setting.get("recognizedTypes").split(" ")
+valid_extensions = Setting.get("recognizedTypes", "").split(" ")
 
 def is_valid_audio_file(path):
    return path.endswith(valid_extensions[0])
