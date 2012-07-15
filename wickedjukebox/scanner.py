@@ -65,24 +65,6 @@ def do_housekeeping():
         except UnicodeEncodeError, e:
             LOG.error( "Unable to decode %r (%s)" % ( row[0], e) )
 
-def filter_capping( root, filename, capping ):
-    relative_path = filename[len(root)+1:]
-    return not relative_path.startswith(capping)
-
-def filter_valid_extenstion( root, filename ):
-    extinfo = path.splitext( filename )
-    if not extinfo:
-        LOG.warn("Unable to split extension from file %r. "
-                 "This file will be ignored!" % filename )
-        return True
-    else:
-        extension = extinfo[1].replace(".", "")
-        if extension not in EXTS:
-            LOG.info("%r is not a valid audio-file "
-                     "(only scanning extensions %r)" % (filename, EXTS))
-            return True
-    return False
-
 def processor_todatabase(root, localpath):
     session = Session()
     song = session.query(Song).filter_by( localpath=localpath ).first()
