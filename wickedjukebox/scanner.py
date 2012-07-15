@@ -4,7 +4,7 @@ Audio file scanner module
 This module contains everything needed to scan a directory of audio files an
 store the metadata in the jukebox database
 """
-from os import walk, path, sep
+from os import walk, path, sep, listdir
 import logging
 
 from sqlalchemy.sql import select
@@ -77,59 +77,57 @@ def processor_todatabase(root, localpath):
     session.commit()
     session.close()
 
-def scan(top, capping=u""):
+def scan(top, subfolder=u""):
     """
-    Scans a folder rootet at <top> for audio files. It will only include files
-    starting with <capping>
+    Scans a folder rootet at <top> for audio files. It will scan the supfolder
+    named in ``subfolder``. The "*" character can be used for globbing.
 
     @param top: The root folder to scan
-    @param capping: Only scan top-level folders starting with this string
+    @param subfolder: The subfolder to scan.
     """
     from sys import stdout
 
     top = fsencode(top)
-    capping = fsencode(capping)
-
-    # if the capping ends with a path separator, then directly dive into that
-    # directory
-    if capping.endswith(sep):
-        top = path.join(top, *capping.split(sep))
-        capping = u""
-
-    LOG.info("Starting scan on %r with capping %r" % (top, capping))
+    subfolder = fsencode(subfolder)
 
     spinner_chars = r"/-\|"
-    spinner_position = 0
-    stdout.write( "Counting... /" )
-    count_total = 0
-    for root, dirs, files in walk(fsencode(top)):
-        for file in files:
-            spinner_position = (spinner_position + 1) % len(spinner_chars)
-            stdout.write( "\b%s" % spinner_chars[spinner_position] )
-            stdout.flush()
-        count_total += len(files)
-    stdout.write("\b ")
-    stdout.flush()
+    def scan_folder(folder):
+        LOG.info("Scanning %r" % (folder))
+        print("Scanning %r" % (folder))
+        spinner_position = 0
+        stdout.write( "Counting... /" )
+        count_total = 0
+        for root, dirs, files in walk(folder):
+            for file in files:
+                spinner_position = (spinner_position + 1) % len(spinner_chars)
+                stdout.write( "\b%s" % spinner_chars[spinner_position] )
+                stdout.flush()
+            count_total += len(files)
+        stdout.write("\b ")
+        stdout.flush()
+        stdout.write( "\n%d files to examine\n" % count_total )
 
-    stdout.write( "\n%d files to examine\n" % count_total )
-
-    count_scanned = 0
-    count_processed = 0
-    completed_ratio = 0.0
-    stdout.write( "[%50s]" % " " )
-    for root, dirs, files in walk(fsencode(top)):
-        relative_path = root[len(top)+1:]
-        for file in files:
-            stat_char = "."
-            if path.join(relative_path, file).startswith(fsencode(capping)):
+        count_scanned = 0
+        count_processed = 0
+        completed_ratio = 0.0
+        stdout.write( "[%50s]" % " " )
+        for root, dirs, files in walk(folder):
+            for file in files:
                 process( *fsdecode( path.join(root, file) ) )
                 stat_char = "#"
                 count_scanned += 1
-            count_processed += 1
-            completed_ratio = float(count_processed) / float(count_total)
-            progress_chars = int( 50*completed_ratio )*stat_char
-            stdout.write( 51*"\b" + "%-50s]" % progress_chars )
-    stdout.write( "\n" )
-            
-    LOG.info( "Scanned %d songs" % count_scanned )
+                count_processed += 1
+                completed_ratio = float(count_processed) / float(count_total)
+                progress_chars = int( 50*completed_ratio )*stat_char
+                stdout.write( 51*"\b" + "%-50s]" % progress_chars )
+        stdout.write( "\n" )
 
+    glob = subfolder.endswith('*')
+
+    if glob:
+        subfolder = subfolder[0:-1]
+        candidates = [_ for _ in listdir(top) if _.startswith(subfolder)]
+        for subfolder in candidates:
+            scan_folder(path.join(top, subfolder))
+    else:
+        scan_folder(path.join(top, subfolder))
