@@ -21,7 +21,7 @@ from wickedjukebox.demon.dbmodel import (Setting,
     settingTable,
     songStandingTable,
     songStatsTable)
-from wickedjukebox.util import direxists
+from wickedjukebox.util import direxists, TerminalController
 from wickedjukebox import setup_logging
 import logging
 
@@ -77,6 +77,7 @@ class Console(cmd.Cmd):
     def __init__(self):
         "Bootstrap the command line interpreter"
         cmd.Cmd.__init__(self)
+        self.tc = TerminalController()
         self.set_promt()
 
     def listSettings(self, channel_id=None, user_id=None):
@@ -113,11 +114,13 @@ class Console(cmd.Cmd):
         pass
 
     def set_promt(self):
-        "Sets the default prompt"
+        """
+        Sets the default prompt
+        """
         if len(self.__path) == 0:
-            self.prompt = "---\njukebox> "
+            self.prompt = self.tc.render("${GREEN}jukebox>${NORMAL} ")
         else:
-            self.prompt = "---\n%s> " % "/".join(self.__path)
+            self.prompt = self.tc.render("${GREEN}jukebox:${BLUE}%s${GREEN}>${NORMAL} " % "/".join(self.__path))
 
     def get_string(self, string):
         """
@@ -141,16 +144,18 @@ class Console(cmd.Cmd):
         Scan the defined library folders for new songs.
 
         SYNOPSIS
-            newscan [capping]
+            rescan <folder>[*]
 
         PARAMETERS
-            capping  - [optional] Only scan folders that start with the string
-                       <capping>
+            folder  -  Only scan files withing the named folder. If the
+                       foldername ends with an asterisk (*), then all folders
+                       starting with the given name will be scanned.
 
         EXAMPLES
-            jukebox> newscan
-            jukebox> newscan Depeche
+            jukebox> rescan Depeche Mode
+            jukebox> rescan Dep*
         """
+        print self.tc.HIDE_CURSOR
         mediadirs = [x for x in Setting.get('mediadir', '').split(' ')
                      if direxists(x)]
         import wickedjukebox.scanner
@@ -160,6 +165,7 @@ class Console(cmd.Cmd):
             print "done"
         except KeyboardInterrupt:
             print "\naborted!"
+        print self.tc.SHOW_CURSOR
 
 
     def complete_rescan(self, line, *args):

@@ -5,6 +5,7 @@ This module contains everything needed to scan a directory of audio files an
 store the metadata in the jukebox database
 """
 from os import walk, path, sep, listdir
+import sys
 import logging
 
 from sqlalchemy.sql import select
@@ -25,9 +26,9 @@ def is_valid_audio_file(path):
     return path.endswith(EXTS[0])
 
 
-def process(localpath, encoding):
+def process(localpath):
 
-    if localpath is None or encoding is None:
+    if not localpath:
         LOG.warning( "Skipping undefined filename!" )
         return
 
@@ -38,11 +39,11 @@ def process(localpath, encoding):
             song = session.query(Song).filter_by( localpath=localpath ).first()
             if not song:
                 song = Song(localpath, None, None)
-            song.scan_from_file( localpath, encoding )
+            song.scan_from_file(localpath, sys.getfilesystemencoding())
             session.add(song)
             LOG.info( "%r" % (song) )
         except UnicodeDecodeError, ex:
-            LOG.error( "Unable to decode %r (%s)" % (localpath, ex) ) 
+            LOG.error( "Unable to decode %r (%s)" % (localpath, ex) )
     else:
         LOG.debug("%r is not a valid audio-file "
                   "(only scanning extensions %r)" % (localpath, EXTS))
@@ -86,9 +87,9 @@ def scan(top, subfolder=u""):
     @param subfolder: The subfolder to scan.
     """
     from sys import stdout
+    from wickedjukebox.util import TerminalController, ProgressBar
 
-    top = fsencode(top)
-    subfolder = fsencode(subfolder)
+    tc = TerminalController()
 
     spinner_chars = r"/-\|"
     def scan_folder(folder):
@@ -99,6 +100,8 @@ def scan(top, subfolder=u""):
         count_total = 0
         for root, dirs, files in walk(folder):
             for file in files:
+                if not any([file.endswith(_) for _ in EXTS]):
+                    continue
                 spinner_position = (spinner_position + 1) % len(spinner_chars)
                 stdout.write( "\b%s" % spinner_chars[spinner_position] )
                 stdout.flush()
@@ -107,19 +110,21 @@ def scan(top, subfolder=u""):
         stdout.flush()
         stdout.write( "\n%d files to examine\n" % count_total )
 
+        pb = ProgressBar(tc, "Scanning...")
+
         count_scanned = 0
         count_processed = 0
         completed_ratio = 0.0
-        stdout.write( "[%50s]" % " " )
         for root, dirs, files in walk(folder):
             for file in files:
-                process( *fsdecode( path.join(root, file) ) )
-                stat_char = "#"
+                if not any([file.endswith(_) for _ in EXTS]):
+                    continue
+                process(path.join(root, file))
                 count_scanned += 1
                 count_processed += 1
                 completed_ratio = float(count_processed) / float(count_total)
-                progress_chars = int( 50*completed_ratio )*stat_char
-                stdout.write( 51*"\b" + "%-50s]" % progress_chars )
+                pb.update(completed_ratio, path.join(root, file))
+        pb.update(1.0, "done")
         stdout.write( "\n" )
 
     glob = subfolder.endswith('*')
