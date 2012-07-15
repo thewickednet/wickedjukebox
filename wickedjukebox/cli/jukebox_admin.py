@@ -162,6 +162,17 @@ class Console(cmd.Cmd):
             print "\naborted!"
 
 
+    def complete_rescan(self, line, *args):
+        mediadirs = [x for x in Setting.get('mediadir', '').split(' ')
+                     if direxists(x)]
+        from os import listdir
+        folders = []
+        for root in mediadirs:
+            folders.extend(listdir(root))
+        candidates = filter(lambda x: x.startswith(line), folders)
+        return candidates
+
+
     def do_update_tags(self, line):
         """
         Updates song tags via Last.FM
