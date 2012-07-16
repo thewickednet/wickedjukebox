@@ -155,18 +155,19 @@ class Console(cmd.Cmd):
             jukebox> rescan Depeche Mode
             jukebox> rescan Dep*
         """
+        line = line.decode(sys.stdin.encoding)
+
         print self.tc.HIDE_CURSOR
         mediadirs = [x for x in Setting.get('mediadir', '').split(' ')
                      if direxists(x)]
         import wickedjukebox.scanner
         print "Scanning inside %s" % ", ".join(mediadirs)
         try:
-            wickedjukebox.scanner.scan(mediadirs[0], unicode(line))
+            wickedjukebox.scanner.scan(mediadirs[0], line)
             print "done"
         except KeyboardInterrupt:
             print "\naborted!"
         print self.tc.SHOW_CURSOR
-
 
     def complete_rescan(self, line, *args):
         mediadirs = [x for x in Setting.get('mediadir', '').split(' ')
@@ -177,7 +178,6 @@ class Console(cmd.Cmd):
             folders.extend(listdir(root))
         candidates = filter(lambda x: x.startswith(line), folders)
         return candidates
-
 
     def do_update_tags(self, line):
         """
@@ -192,6 +192,8 @@ class Console(cmd.Cmd):
         PARAMETERS
             artist - The artis name
         """
+        line = line.decode(sys.stdin.encoding)
+
         sess = Session()
         api_key = Setting.get("lastfm_api_key", None)
         if not api_key:
@@ -199,7 +201,7 @@ class Console(cmd.Cmd):
                    "settings")
             return
         api = lastfm.Api(api_key)
-        artist = sess.query(Artist).filter_by(name=unicode(line)).first()
+        artist = sess.query(Artist).filter_by(name=line).first()
         if not artist:
             sess.close()
             print "Artist %r not found" % line
@@ -227,6 +229,7 @@ class Console(cmd.Cmd):
             -q     - Don't pint each matching row. Print only overall info
                      (counts)
         """
+        line = line.decode(sys.stdin.encoding)
 
         params = set([_.strip().lower() for _ in line.split()])
         delete = False
@@ -344,6 +347,7 @@ class Console(cmd.Cmd):
             order  - may be one of "name" or "count". If ommitted, "count" is
                         used.
         """
+        line = line.decode(sys.stdin.encoding)
 
         if line == "count" or line == "":
             order_by = "song_count"
@@ -375,6 +379,8 @@ class Console(cmd.Cmd):
             Both "A" and "B" are id's to genres in the database. Use "genres"
             to get a list
         """
+        line = line.decode(sys.stdin.encoding)
+
         try:
             old_genre, new_genre = line.split(" ")
         except Exception, ex:
@@ -410,9 +416,9 @@ class Console(cmd.Cmd):
                 order_by=["aname", "bname", "title"])
         r = s.execute()
         for s in r.fetchall():
-            aname = s.aname is not None and s.aname.encode("utf-8") or "None"
-            bname = s.bname is not None and s.bname.encode("utf-8") or "None"
-            title = s.title is not None and s.title.encode("utf-8") or "None"
+            aname = s.aname is not None and s.aname or "None"
+            bname = s.bname is not None and s.bname or "None"
+            title = s.title is not None and s.title or "None"
             print "%5d | %-30s | %-30s | %-30s" % (s.id, aname, bname, title)
 
     def do_rename_genre(self, line):
@@ -422,6 +428,7 @@ class Console(cmd.Cmd):
         SYNOPSIS
             rename_genre <genre_id> <new_name>
         """
+        line = line.decode(sys.stdin.encoding)
 
         try:
             args = line.split(" ")
@@ -448,6 +455,7 @@ class Console(cmd.Cmd):
         PARAMETERS
             log_file -- path to a log file
         """
+        line = line.decode(sys.stdin.encoding)
 
         hashtable = {}
         logfile = None
@@ -501,6 +509,7 @@ class Console(cmd.Cmd):
         PARAMETERS
             path     - name of the artist/album or ".."
         """
+        line = line.decode(sys.stdin.encoding)
         arg = self.get_string(line)
 
         if arg.strip() == "..":
@@ -518,29 +527,35 @@ class Console(cmd.Cmd):
         self.set_promt()
 
     def do_ls(self, line):
-        "Lists entries in the current context"
+        """
+        Lists entries in the current context
+        """
+        line = line.decode(sys.stdin.encoding)
+
         glob = self.get_string(line)
         if len(self.__path) == 0:
             artists = get_artists(glob)
             for a in artists:
                 if a.name is None:
                     continue
-                print a.name.encode("utf-8")
+                print a.name
         elif len(self.__path) == 1:
             albums = get_albums(self.__path[-1], glob)
             for b in albums:
                 if b.name is None:
                     continue
-                print b.name.encode("utf-8")
+                print b.name
         elif len(self.__path) == 2:
             songs = get_songs(self.__path[-1], glob)
             for s in songs:
                 if s.title is None:
                     continue
-                print s.title.encode("utf-8")
+                print s.title
 
     def do_online_users(self, line):
-        "Lists users currently online in the web interface"
+        """
+        Lists users currently online in the web interface
+        """
         s = select([usersTable],
                 func.addtime(
                     usersTable.c.proof_of_life, '0:03:00') > func.now())
@@ -562,6 +577,7 @@ class Console(cmd.Cmd):
             setting    - the setting name (when modifying the setting)
             value      - if specified, change that setting
         """
+        line = line.decode(sys.stdin.encoding)
 
         params = line.split()
         if len(params) <= 2:
@@ -619,7 +635,9 @@ class Console(cmd.Cmd):
             channel_id       - The channel ID. If none is given, "1" is
                                assumed as default.
         """
+        line = line.decode(sys.stdin.encoding)
         params = line.split()
+
         if not params:
             print "You need to specify a random mode!"
             return
