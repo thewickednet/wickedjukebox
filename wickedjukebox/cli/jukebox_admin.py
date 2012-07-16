@@ -30,10 +30,11 @@ setup_logging()
 LOG = logging.getLogger(__name__)
 
 
-def get_artists(glob="*"):
-    if glob == "":
-        glob = "*"
-    glob = glob.replace("*", "%")
+def get_artists(glob=u"*"):
+    if not glob.strip():
+        glob = u"*"
+
+    glob = glob.replace(u"*", u"%")
     s = select([artistTable],
             artistTable.c.name.like(glob),
         order_by=["name"]
@@ -42,10 +43,11 @@ def get_artists(glob="*"):
     return r.fetchall()
 
 
-def get_albums(aname, glob="*"):
-    if glob == "":
-        glob = "*"
-    glob = glob.replace("*", "%")
+def get_albums(aname, glob=u"*"):
+    if not glob.strip():
+        glob = u"*"
+
+    glob = glob.replace(u"*", u"%")
     s = select([albumTable])
     s = s.where(artistTable.c.name == aname)
     s = s.where(albumTable.c.artist_id == artistTable.c.id)
@@ -56,9 +58,10 @@ def get_albums(aname, glob="*"):
 
 
 def get_songs(bname, glob):
-    if glob == "":
-        glob = "*"
-    glob = glob.replace("*", "%")
+    if not glob.strip():
+        glob = u"*"
+
+    glob = glob.replace(u"*", u"%")
     s = select([songTable])
     s = s.where(albumTable.c.name == bname)
     s = s.where(songTable.c.album_id == albumTable.c.id)
