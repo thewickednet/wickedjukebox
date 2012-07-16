@@ -23,7 +23,8 @@ from wickedjukebox.util import fsencode, fsdecode
 
 import logging
 LOG = logging.getLogger(__name__)
-
+DEFAULT_RANDOM_MODE = 'random_wr2'
+DEFAULT_QUEUE_MODE = 'queue_positioned'
 
 class Channel(object):
 
@@ -164,9 +165,9 @@ class Channel(object):
         # TODO: The block to retrieve the next song should be a method in itself. Encapsulating queue, random and orphaned files
         # set "current song" to the next in the queue or use random
         self.__randomstrategy = playmodes.create(Setting.get(
-            'random_model', 'random_wr2', channel_id=self.id))
+            'random_model', DEFAULT_RANDOM_MODE, channel_id=self.id))
         self.__queuestrategy = playmodes.create(Setting.get(
-            'queue_model',  'queue_positioned',    channel_id=self.id))
+            'queue_model', DEFAULT_QUEUE_MODE, channel_id=self.id))
         self.__randomstrategy.bootstrap(self.id)
 
         nextSong = self.__queuestrategy.dequeue(self.id)
@@ -204,7 +205,7 @@ class Channel(object):
 
         self.__queuestrategy = playmodes.create(Setting.get(
             'queue_model',
-            'queue_positioned', channel_id=self.id))
+            DEFAULT_QUEUE_MODE, channel_id=self.id))
         self.__queuestrategy.enqueue(
                 songID,
                 userID,
@@ -216,7 +217,7 @@ class Channel(object):
     def current_queue(self):
         self.__queuestrategy = playmodes.create(Setting.get(
             'queue_model',
-            'queue_positioned',
+            DEFAULT_QUEUE_MODE,
             channel_id=self.id))
         return self.__queuestrategy.list(self.id)
 
@@ -250,11 +251,11 @@ class Channel(object):
         # set "current song" to the next in the queue or use random
         self.__randomstrategy = playmodes.create(Setting.get(
             'random_model',
-            'random_weighed_prefetch',
+            DEFAULT_RANDOM_MODE,
             channel_id=self.id))
         self.__queuestrategy = playmodes.create(Setting.get(
             'queue_model',
-            'queue_positioned',
+            DEFAULT_QUEUE_MODE,
             channel_id=self.id))
         self.__randomstrategy.bootstrap(self.id)
 
@@ -275,14 +276,14 @@ class Channel(object):
     def moveup(self, qid, delta):
         self.__queuestrategy = playmodes.create(Setting.get(
             'queue_model',
-            'queue_positioned',
+            DEFAULT_QUEUE_MODE,
             channel_id=self.id))
         self.__queuestrategy.moveup(self.id, qid, delta)
 
     def movedown(self, qid, delta):
         self.__queuestrategy = playmodes.create(Setting.get(
             'queue_model',
-            'queue_positioned',
+            DEFAULT_QUEUE_MODE,
             channel_id=self.id))
         self.__queuestrategy.movedown(self.id, qid, delta)
 
@@ -408,11 +409,11 @@ class Channel(object):
 
                 self.__randomstrategy = playmodes.create(Setting.get(
                     'random_model',
-                    'random_weighed_prefetch',
+                    DEFAULT_RANDOM_MODE,
                     channel_id=self.id))
                 self.__queuestrategy = playmodes.create(Setting.get(
                     'queue_model',
-                    'queue_positioned',
+                    DEFAULT_QUEUE_MODE,
                     channel_id=self.id))
                 self.__randomstrategy.bootstrap(self.id)
 
