@@ -14,6 +14,7 @@ from wickedjukebox.demon.dbmodel import (Setting,
     genreTable,
     songTable,
     song_has_tag,
+    channelTable,
     albumTable,
     artistTable,
     usersTable,
@@ -83,6 +84,54 @@ class Console(cmd.Cmd):
         self.tc = TerminalController()
         self.set_promt()
 
+    def _orphaned_artists(self):
+        """
+        Return rows of (artist_id, name, song_count) of artists without
+        attached songs
+        """
+        s = select([
+            artistTable.c.id,
+            artistTable.c.name,
+            func.count(songTable.c.id)
+        ], from_obj=[
+            artistTable.outerjoin(songTable,
+                                  artistTable.c.id == songTable.c.artist_id)
+        ])
+        s = s.group_by("artist.id, artist.name")
+        s = s.order_by("name")
+        for row in s.execute():
+            if row[2] == 0:
+                yield row
+
+    def _orphaned_albums(self):
+        """
+        Return rows of (album_id, name, song_count) of albums without attached
+        songs.
+        """
+        s = select([
+            albumTable.c.id,
+            albumTable.c.name,
+            func.count(songTable.c.id)
+        ], from_obj=[
+            albumTable.outerjoin(songTable,
+                                 albumTable.c.id == songTable.c.album_id)
+        ])
+        s = s.group_by("album.id, album.name")
+        s = s.order_by("name")
+        for row in s.execute():
+            if row[2] == 0:
+                yield row
+
+    def _orphaned_songs(self):
+        """
+        Return rows of (song_id, path) of songs that are no longer on disk.
+        """
+        s = select([songTable.c.id, songTable.c.localpath])
+        s = s.order_by("localpath")
+        for row in s.execute():
+            if not path.exists(row[1]):
+                yield row
+
     def listSettings(self, channel_id=None, user_id=None):
         """
         List settings
@@ -111,6 +160,16 @@ class Console(cmd.Cmd):
                     row["var"],
                     row["value"],
                    )
+
+    def complete_rescan(self, line, *args):
+        mediadirs = [x for x in Setting.get('mediadir', '').split(' ')
+                     if direxists(x)]
+        from os import listdir
+        folders = []
+        for root in mediadirs:
+            folders.extend(listdir(root))
+        candidates = filter(lambda x: x.startswith(line), folders)
+        return candidates
 
     def emptyline(self):
         """Do nothing on empty input line"""
@@ -171,16 +230,6 @@ class Console(cmd.Cmd):
         except KeyboardInterrupt:
             print "\naborted!"
         print self.tc.SHOW_CURSOR
-
-    def complete_rescan(self, line, *args):
-        mediadirs = [x for x in Setting.get('mediadir', '').split(' ')
-                     if direxists(x)]
-        from os import listdir
-        folders = []
-        for root in mediadirs:
-            folders.extend(listdir(root))
-        candidates = filter(lambda x: x.startswith(line), folders)
-        return candidates
 
     def do_update_tags(self, line):
         """
@@ -290,54 +339,6 @@ class Console(cmd.Cmd):
                 del_query.execute()
             count += 1
         print "%d orphaned artists found" % count
-
-    def _orphaned_artists(self):
-        """
-        Return rows of (artist_id, name, song_count) of artists without
-        attached songs
-        """
-        s = select([
-            artistTable.c.id,
-            artistTable.c.name,
-            func.count(songTable.c.id)
-        ], from_obj=[
-            artistTable.outerjoin(songTable,
-                                  artistTable.c.id == songTable.c.artist_id)
-        ])
-        s = s.group_by("artist.id, artist.name")
-        s = s.order_by("name")
-        for row in s.execute():
-            if row[2] == 0:
-                yield row
-
-    def _orphaned_albums(self):
-        """
-        Return rows of (album_id, name, song_count) of albums without attached
-        songs.
-        """
-        s = select([
-            albumTable.c.id,
-            albumTable.c.name,
-            func.count(songTable.c.id)
-        ], from_obj=[
-            albumTable.outerjoin(songTable,
-                                 albumTable.c.id == songTable.c.album_id)
-        ])
-        s = s.group_by("album.id, album.name")
-        s = s.order_by("name")
-        for row in s.execute():
-            if row[2] == 0:
-                yield row
-
-    def _orphaned_songs(self):
-        """
-        Return rows of (song_id, path) of songs that are no longer on disk.
-        """
-        s = select([songTable.c.id, songTable.c.localpath])
-        s = s.order_by("localpath")
-        for row in s.execute():
-            if not path.exists(row[1]):
-                yield row
 
     def do_genres(self, line):
         """
@@ -581,8 +582,8 @@ class Console(cmd.Cmd):
             value      - if specified, change that setting
         """
         line = line.decode(sys.stdin.encoding)
-
         params = line.split()
+
         if len(params) <= 2:
             self.listSettings(*params)
             return
@@ -625,6 +626,72 @@ class Console(cmd.Cmd):
                 })
             insq.execute()
         LOG.debug("New setting stored: %r" % params)
+
+    def do_channel_settings(self, line):
+        """
+        Modify the settings of one channel.
+
+        SYNOPSIS
+            channel_settings <channel> <settings>
+
+        PARAMETERS
+            channel - The channel name
+        """
+        line = line.decode(sys.stdin.encoding)
+        params = line.split(' ', 1)
+
+        if len(params) != 2:
+            print "Error. See `help channel_settings`"
+            return
+
+        name, params = params
+
+        u = channelTable.update(channelTable.c.name == name,
+                    values={'backend_params': params})
+        u.execute()
+
+    def do_channels(self, line):
+        """
+        List existing channels.
+        """
+        line = line.decode(sys.stdin.encoding)
+
+        sel = select([
+            channelTable.c.name,
+            channelTable.c.backend,
+            channelTable.c.backend_params])
+        res = sel.execute()
+        for row in res.fetchall():
+            print "%-15s | %-10s | %s" % tuple(row)
+
+    def do_add_channel(self, line):
+        """
+        Adds a new channel to the database.
+
+        SYNOPSIS
+            add_channel <name> <backend> <params>
+
+        PARAMETERS
+            name            - The channel name
+            backend         - Backend (currently tested and supported:
+                              'icecast')
+            backend_params  - Parameters for the backend.
+        """
+        line = line.decode(sys.stdin.encoding)
+        params = line.split(' ', 2)
+
+        if len(params) != 3:
+            print "Error. See `help add_channel`"
+            return
+
+        name, back, be_parms = params
+        insq = insert(channelTable)
+        insq = insq.values({
+            "name": name,
+            "backend": back,
+            "backend_params": be_parms,
+            })
+        insq.execute()
 
     def do_test_random(self, line):
         """
