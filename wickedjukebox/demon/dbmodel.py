@@ -272,13 +272,14 @@ class State(object):
                           basename(source[0]), source[1]))
 
     @classmethod
-    def get(self, statename, channel_id=0):
+    def get(self, statename, channel_id=0, default=None):
         """
-        Retrieve a specific state
+        Retrieve a specific state.
 
         @param: The variable name
         @param: (optional) The channel id for states bound to a specific
                 channel
+        @param default: Return this value is the state is not found in the DB.
         @return: The state value
         """
         s = select([stateTable.c.value])
@@ -293,9 +294,18 @@ class State(object):
             import traceback
             tb = traceback.extract_stack()
             source = tb[-2]
-            LOG.warn("State %r not found for channel %r (from %s:%d)" %
-                    (statename, channel_id, basename(source[0]), source[1]))
-        return None
+            LOG.warn("State %r not found for channel %r. "
+                     "Returning %r (from %s:%d)" % (
+                         statename, channel_id, default,
+                         basename(source[0]), source[1]))
+        ins_q = insert(stateTable)
+        ins_q = ins_q.values({
+            'channel_id': channel_id,
+            'state': statename,
+            'value': default})
+        ins_q.execute()
+        LOG.debug("    Inserted default value into the databse!")
+        return default
 
 
 class Album(object):

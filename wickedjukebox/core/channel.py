@@ -164,7 +164,7 @@ class Channel(object):
         # TODO: The block to retrieve the next song should be a method in itself. Encapsulating queue, random and orphaned files
         # set "current song" to the next in the queue or use random
         self.__randomstrategy = playmodes.create(Setting.get(
-            'random_model', 'random_weighed_prefetch', channel_id=self.id))
+            'random_model', 'random_wr2', channel_id=self.id))
         self.__queuestrategy = playmodes.create(Setting.get(
             'queue_model',  'queue_positioned',    channel_id=self.id))
         self.__randomstrategy.bootstrap(self.id)
@@ -349,7 +349,7 @@ class Channel(object):
     def process_upcoming_song(self):
         # A state "upcoming_song" with value -1 means that the upcoming song is
         # unwanted and a new one should be triggered if possible
-        state = State.get("upcoming_song", self.id)
+        state = State.get("upcoming_song", self.id, default=None)
         if state and int(state) == -1:
             LOG.debug("Prefetching new song as the current upcoming_song "
                     "was unwanted.")
@@ -455,7 +455,7 @@ class Channel(object):
                     self.__playStatus == 'stopped'):
                 self.__player.stopPlayback()
 
-            skipState = State.get("skipping", self.id)
+            skipState = State.get("skipping", self.id, default=False)
             if skipState and int(skipState) == 1:
                 State.set("skipping", 0, self.id)
                 self.__player.skipSong()
