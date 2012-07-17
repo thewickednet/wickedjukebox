@@ -26,8 +26,6 @@ from wickedjukebox.util import direxists, TerminalController
 from wickedjukebox import setup_logging
 import logging
 
-setup_logging()
-
 LOG = logging.getLogger(__name__)
 
 
@@ -754,5 +752,7 @@ class Console(cmd.Cmd):
 
 
 def main():
+    setup_logging()
+    # TODO: Catch logging messages from the scanner!
     app = Console()
     app.cmdloop()
