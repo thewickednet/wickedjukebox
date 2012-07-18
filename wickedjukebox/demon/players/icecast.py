@@ -201,7 +201,10 @@ def stopPlayback():
       __STREAMER.join()
 
    if __SERVER:
-      __SERVER.close()
+      try:
+         __SERVER.close()
+      except shout.ShoutException as exc:
+         LOG.warning('Unable to close connection: %s' % exc)
       __SERVER = None
    LOG.debug( "Playback stopped" )
 
