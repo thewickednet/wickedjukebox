@@ -87,6 +87,7 @@ song_has_tag = Table('song_has_tag', metadata,
       Column('song_id', Integer, ForeignKey('song.id')),
       Column('tag', String(32), ForeignKey('tag.label')),
       )
+groupsTable = Table('groups', metadata, autoload=True)
 
 # ----------------------------------------------------------------------------
 # Mappers
