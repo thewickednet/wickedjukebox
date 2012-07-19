@@ -38,6 +38,16 @@ artist_in_band_table = Table('artist_in_band', BASE.metadata,
     PrimaryKeyConstraint('artist_id', 'band_id'))
 
 
+manifestation_on_album_table = Table('manifestation_on_album', BASE.metadata,
+    Column('musical_manifestation_id', Integer, ForeignKey(
+        'musical_manifestation.id', onupdate='CASCADE', ondelete='CASCADE'
+        ), nullable=False),
+    Column('album_id', Integer, ForeignKey(
+        'album.id', onupdate='CASCADE', ondelete='CASCADE'
+        ), nullable=False),
+    PrimaryKeyConstraint('musical_manifestation_id', 'album_id'))
+
+
 class TimestampMixin(object):
 
     inserted = Column(DateTime, nullable=False,
@@ -50,7 +60,7 @@ class TimestampMixin(object):
 
 
 def init(uri):
-    BASE.metadata.bind = create_engine(uri, echo=True)
+    BASE.metadata.bind = create_engine(uri)
 
 
 class MusicalWork(TimestampMixin, BASE):
@@ -164,3 +174,31 @@ class Artist(TimestampMixin, BASE):
     id = Column(Integer, primary_key=True)
     name = Column(Unicode)
     birthdate = Column(Date)
+
+
+class Album(TimestampMixin, BASE):
+    __tablename__ = 'album'
+    log = logging.getLogger('{0}.Album'.format(__name__))
+    id = Column(Integer, primary_key=True)
+    name = Column(Unicode)
+    release_date = Column(Date)
+
+    manifestations = relationship('MusicalManifestation',
+        secondary=manifestation_on_album_table,
+        backref='albums')
+
+    def __init__(self, name):
+        self.name = name
+
+    @staticmethod
+    def get_or_add(session, name):
+        Album.log.debug(u'Retrieving {0}'.format(name))
+        q = session.query(Album)
+        q = q.filter_by(name=name)
+        result = q.first()
+        if not result:
+            Album.log.info(u'Album {0} did not exist. '
+                u'Adding it to the DB'.format(name))
+            result = Album(name)
+            session.add(result)
+        return result

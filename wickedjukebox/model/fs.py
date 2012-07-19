@@ -86,7 +86,7 @@ class File(object):
         self.filename = filename
 
     artists = property(field_getter('artist'))
-    albums = property(field_getter('albums'))
+    albums = property(field_getter('album'))
     titles = property(field_getter('title'))
     length = property(field_getter('length', True))
     genres = property(field_getter('genres'))

@@ -30,11 +30,15 @@ def main():
 
         mw = db.MusicalWork.get_or_add(sess, meta.titles[0])
         band = db.Band.get_or_add(sess, meta.artists[0])
+        album = db.Album.get_or_add(sess, meta.albums[0])
+        album.release_date = meta.date
 
         mm = db.MusicalManifestation.get_or_add(sess, band, mw)
         mm.duration = meta.length
         mm.release_date = meta.date
         mm.filename = meta.filename
+        if album:
+            mm.albums.append(album)
         mm.last_scanned = datetime.now()
 
     md.walk(processor=processor)
