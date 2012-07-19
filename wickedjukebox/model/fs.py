@@ -4,8 +4,10 @@ Model for filesystem related code, including audio metadata.
 import logging
 
 from mutagen import File as MutaFile
+from datetime import datetime
 
-def field_getter(field, single=False):
+
+def field_getter(field, single=False, converter=lambda x: x):
     """
     Creates a method to retrieve a field from an instance-field named 'meta'.
     If the named field does not exist, log a warning using the class-level
@@ -21,7 +23,11 @@ def field_getter(field, single=False):
     :type field: string
     :param single: Wether to return a single field or not.
     :type single: boolean
+    :param converter: A function to convert values from the meta-tag *to* a
+                      python object.
+    :type converter: function
     """
+
     def the_getter(self):
         if not self.meta:
             self.__class__.log.error(u'No metadata available for {0}'.format(
@@ -34,10 +40,28 @@ def field_getter(field, single=False):
                     filename=self.filename))
             return None
         if single:
-            return self.meta[field][0]
+            return converter(self.meta[field][0])
         else:
-            return self.meta[field]
+            return converter(self.meta[field])
     return the_getter
+
+
+def from_datestring(date):
+    """
+    Converts a date string to a datetime object.
+    """
+    if not date:
+        return None
+
+    if len(date) == 4:
+        return datetime.strptime(date, '%Y')
+    elif len(date) == 7:
+        return datetime.strptime(date, '%Y-%m')
+    elif len(date) == 10:
+        return datetime.strptime(date, '%Y-%m-%d')
+    else:
+        raise ValueError('Unsupported date format for the value {0!r}'.format(
+            date))
 
 
 class File(object):
@@ -66,6 +90,7 @@ class File(object):
     titles = property(field_getter('title'))
     length = property(field_getter('length', True))
     genres = property(field_getter('genres'))
+    date = property(field_getter('date', True, converter=from_datestring))
     tracknumber = property(field_getter('tracknumber', True))
 
     def __repr__(self):

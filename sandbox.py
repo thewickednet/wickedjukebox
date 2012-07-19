@@ -5,6 +5,7 @@ Test script for the jukebox model.
 def main():
     import logging
     import sys
+    from datetime import datetime
     from wickedjukebox.model.fs import Mediadir
     import wickedjukebox.model.db as db
     from os import unlink
@@ -14,6 +15,7 @@ def main():
         print >>sys.stderr, exc
 
     db.init('sqlite:///data.db')
+    db.BASE.metadata.create_all()
 
     sess = db.SESSION()
     log = logging.getLogger(__name__)
@@ -26,16 +28,14 @@ def main():
             log.warning(u'{0} did not have a title... skipping!'.format(meta))
             return
 
-        song = db.Song.get_or_add(sess, meta.titles[0])
+        mw = db.MusicalWork.get_or_add(sess, meta.titles[0])
+        band = db.Band.get_or_add(sess, meta.artists[0])
 
-        if meta.artists:
-            psong = db.PerformedSong()
-            psong.song = song.id
-            psong.band = db.Band.get_or_add(sess, meta.artists[0]).id
-            if psong.song:
-                sess.add(psong)
-            else:
-                print ">>>>>>>", psong
+        mm = db.MusicalManifestation.get_or_add(sess, band, mw)
+        mm.duration = meta.length
+        mm.release_date = meta.date
+        mm.filename = meta.filename
+        mm.last_scanned = datetime.now()
 
     md.walk(processor=processor)
     sess.commit()
