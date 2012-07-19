@@ -2,21 +2,24 @@
 Database model
 """
 import logging
+from datetime import datetime
 
 from sqlalchemy import (
+    func,
     Table,
+    String,
     Integer,
     Unicode,
     Column,
     ForeignKey,
     PrimaryKeyConstraint,
     Date,
+    DateTime,
     create_engine,
     MetaData)
 
 from sqlalchemy.orm import (
     mapper,
-    relationship,
     sessionmaker)
 
 SESSION = sessionmaker()
@@ -24,15 +27,25 @@ META = MetaData()
 
 def init(uri):
     META.bind = create_engine(uri, echo=True)
-    META.create_all()
 
-song_table = Table('song', META,
+musical_work_table = Table('musical_work', META,
     Column('id', Integer, primary_key=True),
     Column('title', Unicode)
     )
 
-performed_song_table = Table('performed_song', META,
+# Songs
+musical_manifestation_table = Table('musical_manifestation', META,
     Column('id', Integer, primary_key=True),
+    Column('duration', Integer),
+    Column('release_date', Date),
+    Column('filename', Unicode),
+    Column('last_scanned', DateTime),
+    Column('inserted', DateTime, nullable=False,
+        server_default=func.now(),
+        default=func.now()),
+    Column('updated', DateTime, nullable=False,
+        onupdate=datetime.now,
+        default=func.now()),
     Column('band', Integer,
         ForeignKey('band.id',  onupdate="CASCADE", ondelete="CASCADE")),
     Column('song', Integer,
