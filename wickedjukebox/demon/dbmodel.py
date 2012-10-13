@@ -90,7 +90,7 @@ song_has_tag = Table('song_has_tag', metadata,
 shoutboxTable = Table('shoutbox', metadata,
       Column('message', Unicode(255)),
       )
-
+groupsTable = Table('groups', metadata, autoload=True)
 
 # ----------------------------------------------------------------------------
 # Mappers

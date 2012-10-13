@@ -9,3 +9,4 @@ parsetab.py
 env
 .*.swp
 *~
+dist

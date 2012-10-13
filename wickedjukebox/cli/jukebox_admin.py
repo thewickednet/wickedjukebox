@@ -12,6 +12,7 @@ from wickedjukebox.demon.dbmodel import (Setting,
     Session,
     Artist,
     genreTable,
+    groupsTable,
     songTable,
     song_has_tag,
     channelTable,
@@ -25,8 +26,6 @@ from wickedjukebox.demon.dbmodel import (Setting,
 from wickedjukebox.util import direxists, TerminalController
 from wickedjukebox import setup_logging
 import logging
-
-setup_logging()
 
 LOG = logging.getLogger(__name__)
 
@@ -748,11 +747,81 @@ class Console(cmd.Cmd):
             print data
             pprint(stat)
 
+    def do_login(self, line):
+        """
+        Creates a user-session.
+        """
+        from getpass import getpass
+        from hashlib import md5
+        username = raw_input(self.tc.render('${YELLOW}%20s:${NORMAL} ' % 'Login'))
+        passwd = getpass(self.tc.render('${YELLOW}%20s:${NORMAL} ' % 'Password'))
+        username = username.decode(sys.stdin.encoding)
+        passwd = passwd.decode(sys.stdin.encoding)
+        s = select([usersTable.c.id])
+        s = s.where(usersTable.c.username == username)
+        identity = s.execute().fetchone()
+        if not identity:
+            print self.tc.render('${RED}Acceess denied!${NORMAL}')
+            return
+
+        self.user_id = identity[0]
+
+    def do_register(self, line):
+        """
+        Registers a new user.
+        """
+        from getpass import getpass
+        from hashlib import md5
+        username = raw_input(self.tc.render('${YELLOW}%20s:${NORMAL} ' % 'Login'))
+        passwd = getpass(self.tc.render('${YELLOW}%20s:${NORMAL} ' % 'Password'))
+        passwd2 = getpass(self.tc.render('${YELLOW}%20s:${NORMAL} ' % 'Verify password'))
+        username = username.decode(sys.stdin.encoding)
+        if passwd != passwd2:
+            print self.tc.render('${RED}Passwords do not match!${NORMAL}')
+            return
+
+        passwd = md5(passwd.decode(sys.stdin.encoding)).hexdigest()
+        insq = insert(usersTable)
+        insq = insq.values({
+            'username': username,
+            'cookie': '',
+            'password': passwd,
+            'fullname': '',
+            'email': '',
+            'credits': 0,
+            'group_id': 0,
+            'added': func.now(),
+            'proof_of_life': func.now(),
+            'IP': '',
+            'picture': '',
+            'lifetime': 0
+            })
+        insq.execute()
+        print self.tc.render('${GREEN}User created!${NORMAL}\n'
+                             'You may now login.')
+
+    def do_add_group(self, line):
+        """
+        Adds a new group.
+        """
+        line = line.decode(sys.stdin.encoding)
+
+        insq = insert(groupsTable)
+        insq = insq.values({
+            'title': line.strip()
+            })
+        insq.execute()
+        s = select([groupsTable.c.id, groupsTable.c.title])
+        for id, title in s.execute():
+            print id, title
+
     do_exit = do_quit
     do_q = do_quit
     do_EOF = do_quit
 
 
 def main():
+    setup_logging()
+    # TODO: Catch logging messages from the scanner!
     app = Console()
     app.cmdloop()

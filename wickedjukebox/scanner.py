@@ -119,10 +119,14 @@ def scan(top, subfolder=u""):
             for file in files:
                 if not any([file.endswith(_) for _ in EXTS]):
                     continue
-                process(path.join(root, file))
-                count_scanned += 1
-                count_processed += 1
-                completed_ratio = float(count_processed) / float(count_total)
+                try:
+                    process(path.join(root, file))
+                    count_scanned += 1
+                    count_processed += 1
+                    completed_ratio = float(count_processed) / float(count_total)
+                except TypeError as exc:
+                    LOG.error('Unable to scan %s (%s)' % (
+                            path.join(root, file), exc))
                 pb.update(completed_ratio, path.join(root, file))
         pb.update(1.0, "done")
         stdout.write( "\n" )
