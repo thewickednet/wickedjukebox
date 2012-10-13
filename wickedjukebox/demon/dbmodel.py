@@ -87,6 +87,10 @@ song_has_tag = Table('song_has_tag', metadata,
       Column('song_id', Integer, ForeignKey('song.id')),
       Column('tag', String(32), ForeignKey('tag.label')),
       )
+shoutboxTable = Table('shoutbox', metadata,
+      Column('message', Unicode(255)),
+      )
+
 
 # ----------------------------------------------------------------------------
 # Mappers
