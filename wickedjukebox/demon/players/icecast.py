@@ -1,7 +1,6 @@
 import os
 import threading
 from datetime import datetime
-import mutagen
 import shout
 import time
 import urllib2
