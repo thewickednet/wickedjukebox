@@ -89,38 +89,10 @@ class Streamer(threading.Thread):
             if isinstance( thread, threading._Timer ):
                thread.cancel()
          self.__keep_running = False
-      except shout.ShoutException:
-         LOG.error( "Something went wrong while sending data to the icecast\n"
-                    "backend. Reconnecting in 5s...", exc_info=True )
-         time.sleep(5)
-         self.__reconnect()
 
       LOG.debug("Shoutcast stream finished")
       fp.close()
       self.__server.sync()
-
-   def __reconnect(self):
-      LOG.warning( "Reconnecting to icecast server. Old reference: %d" % id(self.__server) )
-      new_server = shout.Shout()
-      new_server.format     = self.__server.format
-      new_server.audio_info = self.__server.audio_info
-      new_server.user       = self.__server.user
-      new_server.name       = self.__server.name
-      new_server.url        = self.__server.url
-      new_server.password   = self.__server.password
-      new_server.mount      = self.__server.mount
-      new_server.port       = self.__server.port
-      try:
-         self.__server.close()
-      except:
-         pass
-      self.__server = new_server
-      try:
-         self.__server.open()
-      except shout.ShoutException:
-         LOG.critical( "Unable to reconnect", exc_info=True )
-         self.__keep_running = False
-      LOG.warning( "... new reference: %d" % id( self.__server ) )
 
 def config(params):
    global __PORT, __MOUNT, __PASSWORD, __STREAMER, __ADMIN_URL, __ADMIN_USER, __ADMIN_PASSWORD, __CHANNEL_ID
