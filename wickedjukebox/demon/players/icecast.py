@@ -90,6 +90,13 @@ class Streamer(threading.Thread):
                thread.cancel()
          self.__keep_running = False
 
+      except shout.ShoutException:
+          LOG.exception("Something happend sending to icecast. Stopping the stream!")
+          # TODO: Killing like this is really bad! The whole threading needs
+          # TODO: to be reworked!
+          import sys
+          sys.exit(9)
+
       LOG.debug("Shoutcast stream finished")
       fp.close()
       self.__server.sync()
