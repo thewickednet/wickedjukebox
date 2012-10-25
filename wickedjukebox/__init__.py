@@ -4,7 +4,10 @@ import logging
 import logging.config
 from ConfigParser import SafeConfigParser
 
-__version__ = '2.1b1'
+import pkg_resources
+
+
+__version__ = pkg_resources.resource_string(__name__, 'version.txt').strip()
 
 
 ENV_CONF = 'WICKEDJB_CONFIG_FOLDER'

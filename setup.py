@@ -1,8 +1,12 @@
 from setuptools import setup, find_packages
+from os.path import join
+
+NAME = 'wickedjukebox'
+VERSION = open(join(NAME, 'version.txt')).read().strip()
 
 setup(
-    name="wickedjukebox",
-    version="2.0.2",
+    name=NAME,
+    version=VERSION,
     packages=find_packages(),
     entry_points={
         'console_scripts': [
