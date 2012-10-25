@@ -6,7 +6,7 @@ import signal
 import time
 import logging
 from wickedjukebox.core.channel import Channel
-from wickedjukebox import setup_logging
+from wickedjukebox import setup_logging, __version__
 setup_logging()
 logger = logging.getLogger(__name__)
 CHANNEL = None
@@ -56,6 +56,8 @@ def main():
     """
     from optparse import OptionParser
     signal.signal(signal.SIGINT, handle_sigint)
+
+    print " Wicked Jukebox {0} ".format(__version__).center(79, '#')
 
     parser = OptionParser()
     parser.add_option("-c", "--channel", dest="channel_name",
