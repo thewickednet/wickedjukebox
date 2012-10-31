@@ -1,5 +1,7 @@
 <?php
 
+require_once('CachedHttpDownload.class.php');
+
 class User {
 
 
@@ -158,10 +160,25 @@ class User {
         $db     = Zend_Registry::get('database');
         
         $query = "SELECT *, UNIX_TIMESTAMP()-UNIX_TIMESTAMP(proof_of_listening) AS listen FROM users WHERE UNIX_TIMESTAMP()-UNIX_TIMESTAMP(proof_of_life) < 180";
-        
+
+        // Add a custom field for the avatar URL
+        // To prevent name-clashes, let's prefix it with underscores... Not the 
+        // cleanest solutions but as the rows are currently not instantiated as 
+        // Users, this is the best solution.
         $result = $db->fetchAll($query);
+        foreach($result as &$row) {
+            // By default, use the existing image.
+            $row["__avatar_url"] = "/img.php?category=user&preset=icon&id=" . $row['id'];
+
+            // if the user has an e-mail set, try to get the gravatar image.
+            if (isset($row['email']) && !empty($row['email'])) {
+                $url = 'http://gravatar.com/avatar/' . md5($row['email']) . '?d=404&s=60';
+                $row['__avatar_url'] = CachedHttpDownload::cache_url($url, $row['__avatar_url']);
+            }
+        }
+
         return $result;
-    	
+
     }
     
     function giveProof() {

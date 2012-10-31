@@ -20,7 +20,7 @@
             {if count($ALIVE_USERS) > 0}
             <p>
             {foreach name="ulist" from=$ALIVE_USERS item=ALIVE_USER}
-            <a href="/user/detail/{$ALIVE_USER.id}/"><img src="/img.php?category=user&preset=icon&id={$ALIVE_USER.id}" style="border: 1px solid #cccccc; background-color: #ffffff; padding: 3px; margin-right: 2px; margin-top: 3px; {if $ALIVE_USER.listen > 180}filter:alpha(opacity=05);-moz-opacity:.50;opacity:.50;{/if}" id="img_album" title="{$ALIVE_USER.fullname}"/></a>&nbsp;
+            <a href="/user/detail/{$ALIVE_USER.id}/"><img src="{$ALIVE_USER.__avatar_url}" style="border: 1px solid #cccccc; background-color: #ffffff; padding: 3px; margin-right: 2px; margin-top: 3px; {if $ALIVE_USER.listen > 180}filter:alpha(opacity=05);-moz-opacity:.50;opacity:.50;{/if}" id="img_album" title="{$ALIVE_USER.fullname}"/></a>&nbsp;
             {/foreach}
             </p>
             {else}
