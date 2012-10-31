@@ -172,7 +172,7 @@ class User {
 
             // if the user has an e-mail set, try to get the gravatar image.
             if (isset($row['email']) && !empty($row['email'])) {
-                $url = 'http://gravatar.com/avatar/' . md5($row['email']) . '?d=404&s=60';
+                $url = 'http://gravatar.com/avatar/' . md5($row['email']) . '?d=404&s=60&r=x';
                 $row['__avatar_url'] = CachedHttpDownload::cache_url($url, $row['__avatar_url']);
             }
         }
