@@ -793,7 +793,7 @@ class Console(cmd.Cmd):
             'username': username,
             'cookie': md5(urandom(30)).hexdigest(),
             'password': passwd,
-            'fullname': '',
+            'fullname': username,
             'email': '',
             'credits': 0,
             'group_id': 0,
