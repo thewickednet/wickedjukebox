@@ -800,7 +800,7 @@ class Console(cmd.Cmd):
             'added': func.now(),
             'proof_of_life': func.now(),
             'IP': '',
-            'picture': '',
+            'picture': '{0}.jpg'.format(username.encode('ascii', 'replace')),
             'lifetime': 0
             })
 
