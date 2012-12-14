@@ -23,6 +23,8 @@ setup(
         'shout-python==0.2.1',
         'elementtree==1.2.7-20070827-preview',  # required by lastfm module
     ],
+    zip_safe=False,
+    include_package_data=True,
     dependency_links=['http://downloads.us.xiph.org/releases/libshout/']
 
 )

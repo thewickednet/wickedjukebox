@@ -94,12 +94,17 @@ class Streamer(threading.Thread):
           LOG.exception("Something happend sending to icecast. Stopping the stream!")
           # TODO: Killing like this is really bad! The whole threading needs
           # TODO: to be reworked!
-          import sys
-          sys.exit(9)
+          self.stop()
+          LOG.debug('Reconnecting to icecast.')
+          self.__server = __ic_connect()
 
       LOG.debug("Shoutcast stream finished")
       fp.close()
-      self.__server.sync()
+
+      try:
+          self.__server.sync()
+      except:
+          LOG.exception("Unable to sync with icecast. As this is the end of the stream, we'll ignore it")
 
 def config(params):
    global __PORT, __MOUNT, __PASSWORD, __STREAMER, __ADMIN_URL, __ADMIN_USER, __ADMIN_PASSWORD, __CHANNEL_ID
@@ -202,8 +207,7 @@ def startPlayback():
       return False
 
    if not __SERVER:
-      import sys
-      LOG.warn( "No icecast connection available!" )
+      LOG.warn( "No icecast connection available (yet)!" )
       __SERVER = __ic_connect()
 
    __CURRENT_SONG = __QUEUE.pop(0)
@@ -284,7 +288,7 @@ def __stream_file( server, filename ):
    __STREAMER.start()
 
 if __name__ == "__main__":
-   import sys,os
+   import sys
    logging.basicConfig(level=logging.DEBUG,)
    sys.path.insert(0, os.getcwd())
    if len(sys.argv) < 2:
