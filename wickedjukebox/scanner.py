@@ -96,9 +96,9 @@ def scan(top, subfolder=u""):
     spinner_chars = r"/-\|"
     def scan_folder(folder):
         LOG.info("Scanning %r" % (folder))
-        print("Scanning %r" % (folder))
+        print u"Scanning %r" % (folder)
         spinner_position = 0
-        stdout.write( "Counting... /" )
+        stdout.write("Counting... /")
         count_total = 0
         for root, dirs, files in walk(folder):
             for file in files:
