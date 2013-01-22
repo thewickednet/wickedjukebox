@@ -44,6 +44,8 @@ def process(localpath):
             LOG.info( "%r" % (song) )
         except UnicodeDecodeError, ex:
             LOG.error( "Unable to decode %r (%s)" % (localpath, ex) )
+        except KeyError as exc:
+            LOG.error("Key Error: %s" % exc)
     else:
         LOG.debug("%r is not a valid audio-file "
                   "(only scanning extensions %r)" % (localpath, EXTS))
