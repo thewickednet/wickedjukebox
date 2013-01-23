@@ -20,13 +20,13 @@ from sqlalchemy.orm import mapper, sessionmaker, relation
 from wickedjukebox import load_config
 
 LOG = logging.getLogger(__name__)
-CFG = load_config("config.ini")
+CFG = load_config()
 DBURI = "%s://%s:%s@%s/%s?charset=utf8" % (
-         CFG['database.type'],
-         CFG['database.user'],
-         CFG['database.pass'],
-         CFG['database.host'],
-         CFG['database.base'],
+         CFG.get('database', 'type'),
+         CFG.get('database', 'user'),
+         CFG.get('database', 'pass'),
+         CFG.get('database', 'host'),
+         CFG.get('database', 'base'),
          )
 
 metadata = MetaData()

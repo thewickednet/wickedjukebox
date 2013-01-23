@@ -1,4 +1,3 @@
-import os
 import threading
 import time
 import sys
@@ -10,7 +9,7 @@ from wickedjukebox import load_config
 
 
 # load the configuration file, and set up the DB-conenction
-config = load_config(os.path.join('config.ini'))
+config = load_config()
 LOG = logging.getLogger(__name__)
 
 
@@ -95,7 +94,8 @@ class Scrobbler(threading.Thread):
     def stop(self):
         self.__keepRunning = False
 
-if 'filesystem.force_encoding' in config:
-    fs_encoding = config['filesystem.force_encoding']
+if (config.has_section('filesystem') and
+        config.has_option('filesystem', 'force_encoding')):
+    fs_encoding = config.get('filesystem', 'force_encoding')
 else:
     fs_encoding = sys.getfilesystemencoding()

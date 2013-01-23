@@ -788,6 +788,8 @@ class Console(cmd.Cmd):
             return
 
         passwd = md5(passwd.decode(sys.stdin.encoding)).hexdigest()
+        group_select = select([groupsTable.c.id])
+        group_select = group_select.where(groupsTable.c.title == 'User')
         insq = insert(usersTable)
         insq = insq.values({
             'username': username,
@@ -795,8 +797,8 @@ class Console(cmd.Cmd):
             'password': passwd,
             'fullname': username,
             'email': '',
-            'credits': 0,
-            'group_id': 0,
+            'credits': 10,
+            'group_id': group_select.scalar(),
             'added': func.now(),
             'proof_of_life': func.now(),
             'IP': '',
