@@ -72,6 +72,14 @@ class Channel(object):
         self.__player = None
         self.id = self.__channel_data["id"]
 
+    def __init_player(self):
+        if not self.__player:
+            self.__player = players.create(
+                    self.__channel_data["backend"],
+                    "%s, channel_id=%d" % (
+                        self.__channel_data['backend_params'],
+                        self.id))
+
     def currentSong(self):
         if not self.__currentSong:
             return None
@@ -146,14 +154,6 @@ class Channel(object):
                     traceback.print_exc()
                     LOG.error(ex)
         session.close()
-
-    def __init_player(self):
-        if not self.__player:
-            self.__player = players.create(
-                    self.__channel_data["backend"],
-                    "%s, channel_id=%d" % (
-                        self.__channel_data['backend_params'],
-                        self.id))
 
     def startPlayback(self):
 
