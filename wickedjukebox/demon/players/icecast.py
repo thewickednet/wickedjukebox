@@ -49,10 +49,12 @@ class Streamer(threading.Thread):
         """
         Returns a percentage of how far we are in the song
         """
-        # TODO: do some real calculations with bitrate (CBR & VBR) to return the
-        #       position in seconds!
+        # TODO: do some real calculations with bitrate (CBR & VBR) to return
+        #       the position in seconds!
         try:
-            return float(self.__progress[0]) / float(self.__progress[1]) * 100.0
+            return (float(self.__progress[0]) /
+                    float(self.__progress[1]) *
+                    100.0)
         except ZeroDivisionError:
             return 0
 
@@ -80,7 +82,7 @@ class Streamer(threading.Thread):
                         self.__progress[1])
                 chunk = fp.read(1024)
 
-                if count % 100 == 0: # TODO: Ticket #13
+                if count % 100 == 0:  # TODO: Ticket #13
                     State.set("progress", self.position(), self.__channel_id)
 
                 count += 1
@@ -98,14 +100,14 @@ class Streamer(threading.Thread):
 
 
 def config(params):
-    global (__PORT,
-            __MOUNT,
-            __PASSWORD,
-            __STREAMER,
-            __ADMIN_URL,
-            __ADMIN_USER,
-            __ADMIN_PASSWORD,
-            __CHANNEL_ID)
+    global __PORT, \
+            __MOUNT, \
+            __PASSWORD, \
+            __STREAMER, \
+            __ADMIN_URL, \
+            __ADMIN_USER, \
+            __ADMIN_PASSWORD, \
+            __CHANNEL_ID
     LOG.info("connection to icecast server (params = %s)" % params)
     __PORT = int(params['port'])
     __MOUNT = str(params['mount'])
@@ -215,7 +217,6 @@ def startPlayback():
         return False
 
     if not __SERVER:
-        import sys
         LOG.warn("No icecast connection available!")
         __SERVER = __ic_connect()
 
@@ -236,9 +237,9 @@ def current_listeners():
     MD5 hashes of their IPs
     """
 
-    if __ADMIN_URL is None or \
-        __ADMIN_USER is None or \
-        __ADMIN_PASSWORD is None :
+    if (__ADMIN_URL is None or
+        __ADMIN_USER is None or
+        __ADMIN_PASSWORD is None):
         # not all required backend parameters supplied
         LOG.warning("Not all parameters set for screen scraping icecast "
                 "statistics. Need admin-url and admin-password")
@@ -277,7 +278,8 @@ def __ic_connect(name="The wicked jukebox", url="http://jukebox.wicked.lu",
     """
     Return a conenction to an icecast server
 
-    TODO: This method's parameter should all be removed and set with the "config" method above (see Task #12)
+    TODO: This method's parameter should all be removed and set with the
+          "config" method above (see Task #12)
     """
     server = shout.Shout()
     server.format = 'mp3'
