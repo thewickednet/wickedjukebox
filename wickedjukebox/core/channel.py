@@ -339,7 +339,7 @@ class Channel(object):
         listeners = self.__player.current_listeners()
         if listeners is None:
             # feature not supported by backedd player, or list of listeners
-            # unknwon
+            # unknown
             return
         for l in listeners:
             usersTable.update(
