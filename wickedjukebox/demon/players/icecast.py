@@ -245,8 +245,8 @@ def current_listeners():
                 "statistics. Need admin-url and admin-password")
         return
 
-    part = "25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?"
-    p = re.compile(r"(((%s)\.){3}(%s))" % (part, part))
+    int_octet = "25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?"
+    p = re.compile(r"(((%s)\.){3}(%s))" % (int_octet, int_octet))
 
     # Create an OpenerDirector with support for Basic HTTP Authentication...
     auth_handler = urllib2.HTTPBasicAuthHandler()
