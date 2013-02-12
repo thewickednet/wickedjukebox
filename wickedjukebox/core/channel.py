@@ -340,7 +340,7 @@ class Channel(object):
         if listeners is None:
             # feature not supported by backedd player, or list of listeners
             # unknown
-            return
+            return []
 
         for l in listeners:
             query = usersTable.update(
