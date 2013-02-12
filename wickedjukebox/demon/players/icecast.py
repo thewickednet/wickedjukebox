@@ -309,32 +309,6 @@ def __stream_file(server, filename):
 
 
 if __name__ == "__main__":
-<<<<<<< HEAD
-   import sys
-   logging.basicConfig(level=logging.DEBUG,)
-   sys.path.insert(0, os.getcwd())
-   if len(sys.argv) < 2:
-      print """
-      USAGE: %s <filename>
-      """ % sys.argv[0]
-      sys.exit(1)
-
-   if len(sys.argv) > 2:
-      threading.Timer( float(sys.argv[2]), stopPlayback ).start()
-
-   config( dict (
-         port=8001,
-         mount="/wicked.mp3",
-         pwd="mussdulauschtren",
-         channel_id=1
-      ) )
-
-   LOG.debug( "Connecting to icecast..." )
-   __SERVER = __ic_connect()
-   LOG.debug( "Connected on %r" % __SERVER )
-   queue( sys.argv[1] )
-   startPlayback()
-=======
     import sys
     logging.basicConfig(level=logging.DEBUG)
     sys.path.insert(0, os.getcwd())
@@ -359,4 +333,3 @@ if __name__ == "__main__":
     LOG.debug("Connected on %r" % __SERVER)
     queue(sys.argv[1])
     startPlayback()
->>>>>>> bda8d0235f1bc1793898c855233ae4eaa09df048
