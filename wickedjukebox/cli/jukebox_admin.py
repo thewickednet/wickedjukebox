@@ -6,6 +6,7 @@ from os import path
 import sys
 
 from sqlalchemy.sql import func, select, update, insert, bindparam, and_
+from sqlalchemy.exc import IntegrityError
 
 from wickedjukebox.remotes import lastfm
 from wickedjukebox.demon.dbmodel import (Setting,
@@ -772,33 +773,46 @@ class Console(cmd.Cmd):
         """
         from getpass import getpass
         from hashlib import md5
-        username = raw_input(self.tc.render('${YELLOW}%20s:${NORMAL} ' % 'Login'))
-        passwd = getpass(self.tc.render('${YELLOW}%20s:${NORMAL} ' % 'Password'))
-        passwd2 = getpass(self.tc.render('${YELLOW}%20s:${NORMAL} ' % 'Verify password'))
-        username = username.decode(sys.stdin.encoding)
+        from os import urandom
+        try:
+            username = raw_input(self.tc.render('${YELLOW}%20s:${NORMAL} ' % 'Login'))
+            passwd = getpass(self.tc.render('${YELLOW}%20s:${NORMAL} ' % 'Password'))
+            passwd2 = getpass(self.tc.render('${YELLOW}%20s:${NORMAL} ' % 'Verify password'))
+            username = username.decode(sys.stdin.encoding)
+        except KeyboardInterrupt:
+            print self.tc.render('${YELLOW}Aborted!${NORMAL}')
+            return
+
         if passwd != passwd2:
             print self.tc.render('${RED}Passwords do not match!${NORMAL}')
             return
 
         passwd = md5(passwd.decode(sys.stdin.encoding)).hexdigest()
+        group_select = select([groupsTable.c.id])
+        group_select = group_select.where(groupsTable.c.title == 'User')
         insq = insert(usersTable)
         insq = insq.values({
             'username': username,
-            'cookie': '',
+            'cookie': md5(urandom(30)).hexdigest(),
             'password': passwd,
-            'fullname': '',
+            'fullname': username,
             'email': '',
-            'credits': 0,
-            'group_id': 0,
+            'credits': 10,
+            'group_id': group_select.scalar(),
             'added': func.now(),
             'proof_of_life': func.now(),
             'IP': '',
-            'picture': '',
+            'picture': '{0}.jpg'.format(username.encode('ascii', 'replace')),
             'lifetime': 0
             })
-        insq.execute()
-        print self.tc.render('${GREEN}User created!${NORMAL}\n'
-                             'You may now login.')
+
+        try:
+            insq.execute()
+            print self.tc.render('${GREEN}User created!${NORMAL}\n'
+                                 'You may now login.')
+        except IntegrityError as exc:
+            print self.tc.render('${RED}ERROR:${NORMAL}%s' % exc)
+
 
     def do_add_group(self, line):
         """

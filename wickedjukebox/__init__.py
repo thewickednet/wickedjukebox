@@ -2,7 +2,6 @@ import os
 import sys
 import logging
 import logging.config
-from ConfigParser import SafeConfigParser
 
 import pkg_resources
 
@@ -14,34 +13,20 @@ ENV_CONF = 'WICKEDJB_CONFIG_FOLDER'
 "The name of the environment variable controlling the config location"
 
 
-def load_config(filename, config={}):
+def load_config():
     """
-    returns a dictionary with key's of the form
-    <section>.<option> and the values.
-
-    from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/65334
+    Loads the application config.
     """
-    if ENV_CONF in os.environ:
-        filename = os.path.join(os.environ[ENV_CONF],
-                                os.path.basename(filename))
-
-    if not os.path.exists(filename):
-        print >>sys.stderr, ('''\
-------------------------------------------------------------------------------
-ERROR: Cannot find configfile "%s"
-  FIX: You can set the %s environment variable to specify the folder in which
-       the file is located!
-------------------------------------------------------------------------------
-''' % (filename, ENV_CONF))
-        sys.exit(9)
-    config = config.copy()
-    cp = SafeConfigParser()
-    cp.read(filename)
-    for sec in cp.sections():
-        name = sec.lower()
-        for opt in cp.options(sec):
-            config[name + "." + opt.lower()] = cp.get(sec, opt).strip()
-    return config
+    from config_resolver import Config
+    clog = logging.getLogger('config_resolver')
+    stderr = logging.StreamHandler()
+    stderr.setLevel(logging.WARNING)
+    clog.addHandler(stderr)
+    cfg = Config('wicked', 'wickedjukebox', filename='config.ini')
+    if not cfg.loaded_files:
+        raise IOError('No valid config file found. Search path was: %s' % (
+            cfg.active_path))
+    return cfg
 
 
 def setup_logging():

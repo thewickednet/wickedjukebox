@@ -44,6 +44,8 @@ def process(localpath):
             LOG.info( "%r" % (song) )
         except UnicodeDecodeError, ex:
             LOG.error( "Unable to decode %r (%s)" % (localpath, ex) )
+        except KeyError as exc:
+            LOG.error("Key Error: %s" % exc)
     else:
         LOG.debug("%r is not a valid audio-file "
                   "(only scanning extensions %r)" % (localpath, EXTS))
@@ -94,9 +96,9 @@ def scan(top, subfolder=u""):
     spinner_chars = r"/-\|"
     def scan_folder(folder):
         LOG.info("Scanning %r" % (folder))
-        print("Scanning %r" % (folder))
+        print u"Scanning %r" % (folder)
         spinner_position = 0
-        stdout.write( "Counting... /" )
+        stdout.write("Counting... /")
         count_total = 0
         for root, dirs, files in walk(folder):
             for file in files:

@@ -3,7 +3,7 @@ import time
 import os
 from random import choice, random
 
-from sqlalchemy.sql import select, func, update
+from sqlalchemy.sql import select, func, update, or_
 
 from wickedjukebox.demon import playmodes, players
 from wickedjukebox.demon.dbmodel import (
@@ -71,6 +71,14 @@ class Channel(object):
 
         self.__player = None
         self.id = self.__channel_data["id"]
+
+    def __init_player(self):
+        if not self.__player:
+            self.__player = players.create(
+                    self.__channel_data["backend"],
+                    "%s, channel_id=%d" % (
+                        self.__channel_data['backend_params'],
+                        self.id))
 
     def currentSong(self):
         if not self.__currentSong:
@@ -146,14 +154,6 @@ class Channel(object):
                     traceback.print_exc()
                     LOG.error(ex)
         session.close()
-
-    def __init_player(self):
-        if not self.__player:
-            self.__player = players.create(
-                    self.__channel_data["backend"],
-                    "%s, channel_id=%d" % (
-                        self.__channel_data['backend_params'],
-                        self.id))
 
     def startPlayback(self):
 
@@ -339,13 +339,17 @@ class Channel(object):
         listeners = self.__player.current_listeners()
         if listeners is None:
             # feature not supported by backedd player, or list of listeners
-            # unknwon
-            return
+            # unknown
+            return []
+
         for l in listeners:
-            usersTable.update(
-                func.md5(usersTable.c.IP) == l,
-                values={usersTable.c.proof_of_listening: func.now()}
-                ).execute()
+            query = usersTable.update(
+                or_(
+                    func.md5(usersTable.c.IP) == l,
+                    func.md5(usersTable.c.pinnedIp) == l
+                ),
+                values={usersTable.c.proof_of_listening: func.now()})
+            query.execute()
 
     def process_upcoming_song(self):
         # A state "upcoming_song" with value -1 means that the upcoming song is

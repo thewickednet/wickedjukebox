@@ -21,6 +21,7 @@ setup(
         'ply==3.4',
         'scrobbler==1.0.0a2',
         'shout-python==0.2.1',
+        'config_resolver==3.0',
         'elementtree==1.2.7-20070827-preview',  # required by lastfm module
     ],
     zip_safe=False,
