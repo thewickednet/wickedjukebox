@@ -1,0 +1,8 @@
+This folder contains interfaces to various audio-player backends.
+The files are loaded according to the "backend" parameter in the "channel"
+settings.
+
+If the "backend" variable is set to "fubar", the system tries to load
+"fubar.py" in this folder.
+
+Required methods are outlined in the "skeleton.py" file.
