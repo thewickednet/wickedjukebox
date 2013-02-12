@@ -22,3 +22,7 @@ CREATE TABLE collection_has_song (
 ) ENGINE=InnoDB;
 
 COMMIT;
+
+BEGIN;
+    ALTER TABLE users ADD pinnedIp varchar(32);
+COMMIT;
