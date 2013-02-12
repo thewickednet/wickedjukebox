@@ -3,7 +3,7 @@ import time
 import os
 from random import choice, random
 
-from sqlalchemy.sql import select, func, update
+from sqlalchemy.sql import select, func, update, or_
 
 from wickedjukebox.demon import playmodes, players
 from wickedjukebox.demon.dbmodel import (
@@ -341,11 +341,15 @@ class Channel(object):
             # feature not supported by backedd player, or list of listeners
             # unknown
             return
+
         for l in listeners:
-            usersTable.update(
-                func.md5(usersTable.c.IP) == l,
-                values={usersTable.c.proof_of_listening: func.now()}
-                ).execute()
+            query = usersTable.update(
+                or_(
+                    func.md5(usersTable.c.IP) == l,
+                    func.md5(usersTable.c.pinnedIp) == l
+                ),
+                values={usersTable.c.proof_of_listening: func.now()})
+            query.execute()
 
     def process_upcoming_song(self):
         # A state "upcoming_song" with value -1 means that the upcoming song is
