@@ -75,7 +75,7 @@ def _get_rough_query(channel_id):
     @param channel_id: The channel ID
     @return: SQLAlchemy query object
     """
-    lastPlayed  = int(Setting.get('scoring_lastPlayed', 10,
+    lastPlayed = int(Setting.get('scoring_lastPlayed', 10,
         channel_id=channel_id))
     recency_threshold = int(Setting.get('recency_threshold', 120,
         channel_id=channel_id))
@@ -104,7 +104,7 @@ def _get_rough_query(channel_id):
     old_time = datetime.now() - delta
     rough_query = rough_query.where(or_(
        channelSongs.c.lastPlayed < old_time,
-       channelSongs.c.lastPlayed == None))
+       channelSongs.c.lastPlayed == None))  # NOQA
 
     # keep only songs that satisfy the dynamic playlist query for this channel
     sel = select([dynamicPLTable.c.query, dynamicPLTable.c.probability])
@@ -118,14 +118,16 @@ def _get_rough_query(channel_id):
     if dpl:
         try:
             rnd = random.random()
-            LOG.debug("Random value=%3.2f, playlist probability=%3.2f" % (rnd, dpl["probability"]))
-            if dpl and rnd <= dpl["probability"] and parseQuery( dpl["query"] ):
-                rough_query = rough_query.where("(" + parseQuery( dpl["query"] ) + ")")
+            LOG.debug("Random value=%3.2f, playlist probability=%3.2f" % (
+                rnd, dpl["probability"]))
+            if dpl and rnd <= dpl["probability"] and parseQuery(dpl["query"]):
+                rough_query = rough_query.where(
+                        "(%s)" % parseQuery(dpl["query"]))
         except ParserSyntaxError, ex:
             import traceback
             traceback.print_exc()
-            LOG.error( str(ex) )
-            LOG.error( 'Query was: %s' % dpl.query )
+            LOG.error(str(ex))
+            LOG.error('Query was: %s' % dpl.query)
         except:
             import traceback
             traceback.print_exc()
@@ -144,7 +146,7 @@ def _get_standing_count(song_id, user_list, standing):
     query = query.where(songStandingTable.c.standing == standing)
     query = query.where(songStandingTable.c.song_id == song_id)
     query = query.where(songStandingTable.c.user_id.in_(user_list))
-    a = query.alias() # MySQL bugfix
+    a = query.alias()  # MySQL bugfix
     hate_count = a.count().execute().fetchone()[0]
     return hate_count
 
@@ -214,56 +216,66 @@ def prefetch(channel_id, async=True):
     pass
 
 
-def fetch_candidates( channel_id ):
+def fetch_candidates(channel_id):
     try:
         # get settings
-        userRating = int(Setting.get('scoring_userRating', 4, channel_id=channel_id))
-        neverPlayed = int(Setting.get('scoring_neverPlayed', 4, channel_id=channel_id))
+        userRating = int(Setting.get('scoring_userRating', 4,
+            channel_id=channel_id))
+        neverPlayed = int(Setting.get('scoring_neverPlayed', 4,
+            channel_id=channel_id))
 
         # fetch the channel ssettings for online users
         user_settings = _get_user_settings(channel_id)
         online_users = user_settings.keys()
 
-        # first, we fetch a limited number of songs using the basic stats. This will
-        # prevent too many queries when determining love/hate stats.
+        # first, we fetch a limited number of songs using the basic stats.
+        # This will prevent too many queries when determining love/hate stats.
         rough_query = _get_rough_query(channel_id)
 
         results = []
         count_added = 0
-        users_affecting_hate = [x for x in user_settings if int(user_settings[x].setdefault( "hates_affect_random", 0 )) == 1]
-        users_affecting_love = [x for x in user_settings if int(user_settings[x].setdefault( "loves_affect_random", 0 )) == 1]
+        users_affecting_hate = [x for x in user_settings
+                if int(user_settings[x].setdefault(
+                    "hates_affect_random", 0)) == 1]
+        users_affecting_love = [x for x in user_settings
+                if int(user_settings[x].setdefault(
+                    "loves_affect_random", 0)) == 1]
         LOG.debug("Haters: %r", users_affecting_hate)
         LOG.debug("Happy People: %r", users_affecting_love)
         for row in rough_query.execute():
             # if the song is hated by someone, don't consider it further
-            hate_count = _get_standing_count(row[0], users_affecting_hate, 'hate')
+            hate_count = _get_standing_count(row[0], users_affecting_hate,
+                    'hate')
             if hate_count > 0:
                 continue
 
             # count the loves, for points calculation
-            love_count = _get_standing_count(row[0], users_affecting_love, 'love')
+            love_count = _get_standing_count(row[0], users_affecting_love,
+                    'love')
 
             # okay... let's do the scoring, first, zero in:
             score = 0.0
             # now, promote loved songs
             if len(online_users):
-                score = score + (userRating * (float(love_count) / len(online_users)))
+                score = score + (userRating * (
+                    float(love_count) / len(online_users)))
             # give songs that have never been played a fair chance too:
             if not row[2]:
                 score = score + neverPlayed
 
             # construct a string representation of the recency of the song.
-            # using the number of minutes since it's last played. If it hasn't,
-            # we'll assume 1. jan. 1900.
-            # We then zero-pad this, reverse the string and prefix the score. This
-            # will give us a usable sort key to sort by score descending, then by
-            # recency ascending.
-            delta = datetime.now() - (row[2] and row[2] or datetime(1900, 01, 01))
-            num_delta = "%08d" % (delta.days*24*60 + delta.seconds/60)
+            # using the number of minutes since it's last played. If it
+            # hasn't, we'll assume 1. jan. 1900.  We then zero-pad this,
+            # reverse the string and prefix the score. This will give us a
+            # usable sort key to sort by score descending, then by recency
+            # ascending.
+            delta = datetime.now() - (row[2] and row[2] or datetime(
+                1900, 01, 01))
+            num_delta = "%08d" % (delta.days * 24 * 60 + delta.seconds / 60)
             # num_delta = num_delta[::-1] # reverses the string
             key_score = "%05.2f" % score
             key_score = key_score.replace(".", "")
-            sortkey="%s%s" % (key_score, num_delta)
+            sortkey = "%s%s" % (key_score, num_delta)
             results.append((row[0],
                   {"score": score,
                    "love_count": love_count,
@@ -274,7 +286,9 @@ def fetch_candidates( channel_id ):
             if count_added == 10:
                 break
 
-        results.sort(cmp = lambda x, y: cmp(float(y[1]["sortkey"]), float(x[1]["sortkey"])))
+        results.sort(cmp=lambda x, y: cmp(
+            float(y[1]["sortkey"]),
+            float(x[1]["sortkey"])))
         return results
 
     except Exception:
