@@ -24,13 +24,13 @@ class Renderer {
     
 
     function __construct($category, $preset, $filename = "") {
-        
+
         $this->preset = $this->getPreset($category, $preset);
-        
+
         if (count($this->preset) == 0)
             die("invalid request - preset empty");
-        
-        
+
+
         if (!empty($filename))
             $src_file = $filename;
         elseif ($this->preset['placeholder'] != '') {
@@ -47,7 +47,7 @@ class Renderer {
         $this->out_hmax     = $this->preset['hmax'];
         $this->noproportion = $this->preset['noproportion'];
         $this->force_mime   = $this->preset['force_mime'];
-        
+
         $this->src_w        = $info[0];
         $this->src_h        = $info[1];
         $this->src_channels = $info[2];
@@ -68,9 +68,9 @@ class Renderer {
           default:
             die("input format not supported");
         }
-        
+
     }
-    
+
     function render() {
 
         $w_max = $this->out_wmax;

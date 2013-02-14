@@ -121,7 +121,7 @@ if ($_GET['flush'] == '1')
 	$cache->remove($cache_key);
 
 if(!$data = $cache->load($cache_key)) {
-    
+
 	$img = new Renderer($category, $preset, $cover);
 	$img->true_color   = true;
 	$img->out_file	   = $cache_key;
@@ -146,5 +146,3 @@ header("Content-Type: image/png\n");
 echo base64_decode($data);
 
 exit();
-
-?>
