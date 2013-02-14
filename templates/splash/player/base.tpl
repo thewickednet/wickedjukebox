@@ -12,7 +12,7 @@
   <script type="text/javascript" src="/javascript/jukebox.js"></script>
   <script type="text/javascript" src="/javascript/md5.js"></script>
   <script type="text/javascript" src="/javascript/overlib.js"></script>
-  <script src="http://www.google.com/jsapi?key=ABQIAAAAmJWIty3l04f-hP9etJ5tJxQ8PCliOA2hL4TQ7QbYFl3l_wGMkhRNUNk6y4AxkJadkNykOr35h_v4kQ" type="text/javascript"></script>
+  <script src="/javascript/google-jsapi.js" type="text/javascript"></script>
 <script>
   google.load("jquery", "1.4.2");
 </script>

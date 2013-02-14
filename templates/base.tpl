@@ -7,17 +7,15 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Wicked Jukebox 2.o</title>
 <link href="/style.css" rel="stylesheet" type="text/css" />
-<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<link href="/jquery-ui.css" rel="stylesheet" type="text/css"/>
 <link rel="shortcut icon" href="http://wickedjukebox.com/favicon.png" type="image/x-icon">
 <link rel="icon" href="http://wickedjukebox.com/favicon.png" type="image/x-icon"> {literal}
   <script type="text/javascript" src="/javascript/jukebox.js"></script>
   <script type="text/javascript" src="/javascript/md5.js"></script>
   <script type="text/javascript" src="/javascript/overlib.js"></script>
-<script src="https://www.google.com/jsapi?key=ABQIAAAAmJWIty3l04f-hP9etJ5tJxTtZ4N5dXLGUlJvVEwYk4QNCXmwgRSODbsU23oUdM0re3Cc5d6l-lQfKg" type="text/javascript"></script>
-<script>
-    google.load("jquery", "1.6.1");
-    google.load("jqueryui", "1.8.13");
-</script>
+  <script type="text/javascript" src="/javascript/jquery-1.6.1.min.js"></script>
+  <script type="text/javascript" src="/javascript/jquery-ui-1.8.13.min.js"></script>
+  <script src="/javascript/google-jsapi.js" type="text/javascript"></script>
   <script type="text/javascript" src="/javascript/jquery.ba-dotimeout.min.js"></script>
   <script type="text/javascript" src="/javascript/jquery.innerfade.js"></script>
   <script type="text/javascript" src="/javascript/jquery.watermark.js"></script>

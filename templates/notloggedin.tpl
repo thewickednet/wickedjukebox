@@ -9,7 +9,7 @@
 <link href="/style.css" rel="stylesheet" type="text/css" />
 <link rel="shortcut icon" href="http://wickedjukebox.com/favicon.png" type="image/x-icon">
 <link rel="icon" href="http://wickedjukebox.com/favicon.png" type="image/x-icon"> {literal}
-  <script src="http://www.google.com/jsapi?key=ABQIAAAAmJWIty3l04f-hP9etJ5tJxQ8PCliOA2hL4TQ7QbYFl3l_wGMkhRNUNk6y4AxkJadkNykOr35h_v4kQ" type="text/javascript"></script>
+  <script src="/javascript/google-jsapi.js" type="text/javascript"></script>
 <script>
   google.load("jquery", "1.4.2");
 </script>
