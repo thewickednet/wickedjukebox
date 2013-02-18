@@ -1,311 +1,267 @@
+import time
 import os
-import threading
+from threading import Thread
+from Queue import Empty, Queue
 from datetime import datetime
+from os import urandom
 import shout
 import urllib2
 import re
 from hashlib import md5
+from wickedjukebox.demon.dbmodel import State
 
 import logging
 LOG = logging.getLogger(__name__)
 
-STATUS_STOPPED = 1
-STATUS_PLAYING = 2
-STATUS_PAUSED = 3
-SONG_STARTED = None
-__KEEP_RUNNING = True
-__PORT = None
-__MOUNT = None
-__PASSWORD = None
-__ADMIN_URL = None
-__ADMIN_USER = None
-__ADMIN_PASSWORD = None
-__CHANNEL_ID = 0
-__QUEUE = []
-__SERVER = None
-__CURRENT_SONG = None
-__STREAMER = None
+SCMD_QUEUE = 'queue'
+SCMD_PAUSE = 'pause'
+SCMD_SKIP = 'skip'
+SCMD_START = 'start'
+SCMD_STOP = 'stop'
+
+STATUS_PAUSED = 'paused'
+STATUS_STARTED = 'started'
+STATUS_STOPPED = 'stopped'
 
 
-def init():
-    pass
+class Player(object):
 
+    LOG = logging.getLogger('{0}.Player'.format(__name__))
 
-def release():
-    pass
+    def __init__(self, channel_id, icy_conf):
+        Player.LOG.debug('Initialising with {0!r}, {1!r}'.format(channel_id,
+            icy_conf))
+        self.source_command = Queue()
+        dataq = Queue()
+        self.filereader = FileReader(self.source_command, dataq)
+        self.provider = IceProvider(dataq, icy_conf)
+        self.filereader.start()
+        self.provider.start()
+        # TODO: Set progress
+        #    State.set("progress", self.position(), self.__channel_id)
+        #    State.set("progress", 0, __CHANNEL_ID)
 
+    def crop_playlist(self, max_items=2):
+        Player.LOG.debug('Cropping playlist to {0} items'.format(max_items))
+        self.filereader.crop_queue(max_items)
 
-class Streamer(threading.Thread):
-
-    def __init__(self, filename, server, channel_id):
-        self.__keep_running = True
-        self.__filename = filename
-        self.__server = server
-        self.__channel_id = channel_id
-        self.__progress = (0, os.stat(filename).st_size)
-        threading.Thread.__init__(self)
+    def listeners(self):
+        return self.provider.listener_ips()
 
     def position(self):
-        """
-        Returns a percentage of how far we are in the song
-        """
-        # TODO: do some real calculations with bitrate (CBR & VBR) to return
-        #       the position in seconds!
+        Player.LOG.debug('Interpreting position {0!r}'.format(
+            self.filereader.position))
         try:
-            return (float(self.__progress[0]) /
-                    float(self.__progress[1]) *
-                    100.0)
+            a, b = self.filereader.position
+            return float(a) / float(b) * 100
         except ZeroDivisionError:
-            return 0
+            return 0.0
+
+    def current_song(self):
+        return self.filereader.current_file
+
+    def pause(self):
+        self.source_command.put((SCMD_PAUSE, None))
+
+    def queue(self, filename):
+        self.source_command.put((SCMD_QUEUE, filename))
+
+    def skip(self):
+        self.source_command.put((SCMD_SKIP, None))
+
+    def start(self):
+        self.source_command.put((SCMD_START, None))
 
     def status(self):
-        if self.isAlive():
-            return "playing"
-        else:
-            return "stop"
+        return self.filereader.status
 
     def stop(self):
-        self.__keep_running = False
+        self.source_command.put((SCMD_STOP, None))
+
+
+class FileReader(Thread):
+
+    LOG = logging.getLogger('{0}.FileReader'.format(__name__))
+
+    def __init__(self, qcmds, qdata, *args, **kwargs):
+        FileReader.LOG.debug('Initialising with {0!r}, {1!r}, {2!r}, '
+            '{3!r}'.format(qcmds, qdata, args, kwargs))
+        super(FileReader, self).__init__(*args, **kwargs)
+        self.qcmds = qcmds
+        self.qdata = qdata
+        self.daemon = True
+        self.current_file = None
+        self._stat = None
+        self.chunk_size = 1024
 
     def run(self):
-        from wickedjukebox.demon.dbmodel import State
-        LOG.debug("Starting to stream %r..." % self.__filename)
-        fp = open(self.__filename, "rb")
-        chunk = fp.read(1024)
-        count = 0
+        FileReader.LOG.debug('Starting')
+        do_skip = False
+        song_queue = []
+        while True:
+            try:
+                cmd, args = self.qcmds.get(False)
+                FileReader.LOG.debug('Recieved command {0!r} '
+                        'with args {1!r}'.format(cmd, args))
+                if cmd == SCMD_QUEUE:
+                    song_queue.append(args)
+                elif cmd == SCMD_PAUSE:
+                    self.status = STATUS_PAUSED
+                elif cmd == SCMD_SKIP:
+                    do_skip = True
+                elif cmd == SCMD_START:
+                    self.status = STATUS_STARTED
+                elif cmd == SCMD_STOP:
+                    self.status = STATUS_STOPPED
+            except Empty:
+                pass
+
+            if do_skip and song_queue:
+                FileReader.LOG.debug('Skip requested on queue {0!r}'.format(
+                    song_queue))
+                new_file = song_queue.pop(0)
+                self.closefile()
+                self.openfile(new_file)
+                FileReader.LOG.debug('Previous file closed and reopened '
+                        'with {0!r}. Queue is now: {1!r}'.format(
+                            new_file, song_queue))
+
+            if not self.current_file and song_queue:
+                FileReader.LOG.debug('No file currently open, but we have '
+                        'a queue: {0!r}. Opening...'.format(song_queue))
+                self.openfile(song_queue.pop(0))
+
+            chunk = ''
+            if self.current_file:
+                chunk = self.current_file.read(self.chunk_size)
+                FileReader.LOG.debug('Chunk of length {0} read from '
+                        '{1!r}'.format(len(chunk), self.current_file))
+                if not chunk:
+                    self.closefile()
+
+            if chunk:
+                self.qdata.put(chunk)
+            else:
+                FileReader.LOG.debug('No chunk available. '
+                    'Sending random data.')
+                self.qdata.put(urandom(self.chunk_size))
+
+    def closefile(self):
+        FileReader.LOG.debug('Closing {0!r}'.format(self.current_file))
+        self.current_file.close()
+        self.current_file = None
+        self._stat = None
+
+    def openfile(self, fname):
+        FileReader.LOG.debug('Opening {0!r}'.format(fname))
+        self.current_file = open(fname, 'rb')
+        self._stat = os.stat(fname)
+
+    def position(self):
+        if self.current_file and self._stat:
+            return (self.current_file.tell(), self._stat.st_size)
+        else:
+            return (0, 0)
+
+    def crop_queue(self, max_items):
+        # TODO: implement
+        pass
+
+
+class IceProvider(Thread):
+
+    def __init__(self, qin, params, *args, **kwargs):
+        super(IceProvider, self).__init__(*args, **kwargs)
+        self.qin = qin
+        self.daemon = True
+        LOG.info("connection to icecast server (params = %s)" % params)
+        self.port = int(params['port'])
+        self.mount = str(params['mount'])
+        self.password = str(params['pwd'])
+        self.admin_url = None
+        self.admin_username = None
+        self.admin_password = None
+
+        if "admin_url" in params:
+            self.admin_url = "{0}/listclients.xsl?mount={1}".format(
+                    params['admin_url'],
+                    self.mount)
+
+        if "admin_username" in params:
+            self.admin_user = params["admin_username"]
+
+        if "admin_password" in params:
+            self.admin_password = params["admin_password"]
+
+    def _connect(self, name="The wicked jukebox",
+            url="http://jukebox.wicked.lu", bufsize=1024, bitrate=128,
+            samplerate=44100, channels=1):
+
+        self._icy_handle = shout.Shout()
+        self._icy_handle.format = 'mp3'
+        self._icy_handle.audio_info = {
+              "bitrate": str(bitrate),
+              "samplerate": str(samplerate),
+              "channels": str(channels)}
+        self._icy_handle.user = "source"
+        self._icy_handle.name = name
+        self._icy_handle.url = url
+        self._icy_handle.password = self.password
+        self._icy_handle.mount = self.mount
+        self._icy_handle.port = self.port
+        self._icy_handle.open()
+
+    def disconnect(self):
+        # TODO: verify if this is correct!
+        self._icy_handle.close()
+
+    def listener_ips(self):
+        """
+        Scrape the Icecast admin page for current listeners and return a list
+        of MD5 hashes of their IPs
+        """
+
+        if not all((self.admin_url, self.admin_username, self.admin_password)):
+            # not all required backend parameters supplied
+            LOG.warning("Not all parameters set for screen scraping icecast "
+                    "statistics. Need admin-url, user and password")
+            return
+
+        int_octet = "25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?"
+        p = re.compile(r"(((%s)\.){3}(%s))" % (int_octet, int_octet))
+
+        # Create an URL opener with support for Basic HTTP Authentication...
+        auth_handler = urllib2.HTTPBasicAuthHandler()
+        auth_handler.add_password(realm='Icecast2 Server',
+                                  uri=self.admin_url,
+                                  user=self.admin_username,
+                                  passwd=self.admin_password)
+        opener = urllib2.build_opener(auth_handler)
+        # ...and install it globally so it can be used with urlopen.
+        urllib2.install_opener(opener)
 
         try:
-            while self.__keep_running and chunk:
-                self.__server.send(chunk)
-                self.__server.sync()
-                self.__progress = (self.__progress[0] + len(chunk),
-                        self.__progress[1])
-                chunk = fp.read(1024)
+            LOG.debug("Opening %r" % self.admin_url)
+            handler = urllib2.urlopen(self.admin_url)
+            data = handler.read()
 
-                if count % 100 == 0:  # TODO: Ticket #13
-                    State.set("progress", self.position(), self.__channel_id)
+            listeners = [x[0] for x in p.findall(data)]
+            return listeners
+        except urllib2.HTTPError, ex:
+            LOG.error("Error opening %r: Caught %s" % (
+                self.admin_url, ex))
+            return []
+        except urllib2.URLError, ex:
+            LOG.error("Error opening %r: Caught %s" % (
+                self.admin_url, ex))
+            return []
 
-                count += 1
+    def run(self):
+        while True:
+            chunk = self.qin.get()
+            print '>>>', len(chunk)
 
-        except KeyboardInterrupt:
-            LOG.warn("Keyboard interrupt caught....")
-            for thread in threading.enumerate():
-                if isinstance(thread, threading._Timer):
-                    thread.cancel()
-            self.__keep_running = False
-
-        LOG.debug("Shoutcast stream finished")
-        fp.close()
-        self.__server.sync()
-
-
-def config(params):
-    global __PORT, \
-            __MOUNT, \
-            __PASSWORD, \
-            __STREAMER, \
-            __ADMIN_URL, \
-            __ADMIN_USER, \
-            __ADMIN_PASSWORD, \
-            __CHANNEL_ID
-    LOG.info("connection to icecast server (params = %s)" % params)
-    __PORT = int(params['port'])
-    __MOUNT = str(params['mount'])
-    __PASSWORD = str(params['pwd'])
-    __CHANNEL_ID = int(params['channel_id'])
-
-    if "admin_url" in params:
-        __ADMIN_URL = (str(params["admin_url"]) +
-                "/listclients.xsl?mount=" +
-                __MOUNT)
-
-    if "admin_username" in params:
-        __ADMIN_USER = str(params["admin_username"])
-
-    if "admin_password" in params:
-        __ADMIN_PASSWORD = str(params["admin_password"])
-
-
-def cropPlaylist(length=2):
-    """
-    Removes items from the *beginning* of the playlist to ensure it has only
-    a fixed number of entries.
-
-    @type  length: int
-    @param length: The new size of the playlist
-    """
-    LOG.debug("Cropping pl to %d songs" % length)
-    global __QUEUE
-    if len(__QUEUE) <= length:
-        return True
-
-    __QUEUE = __QUEUE[-length:]
-    return True
-
-
-def getPosition():
-    # returning as a percentage value
-
-    if not __STREAMER:
-        return (0, 100)
-
-    try:
-        return (int(__STREAMER.position()), 100)
-    except TypeError:
-        import traceback
-        traceback.print_exc()
-        LOG.warning("%r was not a valid number" % __STREAMER.position())
-        return 0
-
-
-def getSong():
-    return __CURRENT_SONG
-
-
-def queue(filename):
-    from wickedjukebox.demon.dbmodel import Setting
-    global SONG_STARTED
-    LOG.debug("Received a queue (%s)" % filename)
-    if Setting.get('sys_utctime', 0) == 0:
-        SONG_STARTED = datetime.utcnow()
-    else:
-        SONG_STARTED = datetime.now()
-
-    __QUEUE.append(filename)
-
-
-def skipSong():
-    LOG.debug("Received a skip request")
-    stopPlayback()
-    startPlayback()
-
-
-def stopPlayback():
-    from wickedjukebox.demon.dbmodel import State
-    global __PROGRESS, __CURRENT_SONG, __STREAMER, __SERVER
-
-    LOG.debug("Stopping playback")
-    __CURRENT_SONG = None
-    __PROGRESS = (0, 0)
-    if __STREAMER:
-        __STREAMER.stop()
-        __STREAMER.join()
-
-    if __SERVER:
-        try:
-            __SERVER.close()
-        except shout.ShoutException as exc:
-            LOG.warning('Unable to close connection: %s' % exc)
-        __SERVER = None
-    LOG.debug("Playback stopped")
-
-    State.set("progress", 0, __CHANNEL_ID)
-
-
-def pausePlayback():
-    pass
-
-
-def startPlayback():
-    from wickedjukebox.demon.dbmodel import State
-    global __QUEUE, __CURRENT_SONG, __SERVER
-
-    LOG.info("Starting playback")
-    State.set("progress", 0, __CHANNEL_ID)
-    if not __QUEUE:
-        LOG.warn("Nothing on queue.")
-        return False
-
-    if not __SERVER:
-        LOG.warn("No icecast connection available!")
-        __SERVER = __ic_connect()
-
-    __CURRENT_SONG = __QUEUE.pop(0)
-    __stream_file(__SERVER, __CURRENT_SONG)
-
-
-def status():
-    if __STREAMER:
-        return __STREAMER.status()
-    else:
-        return "stopped"
-
-
-def current_listeners():
-    """
-    Scrape the Icecast admin page for current listeners and return a list of
-    MD5 hashes of their IPs
-    """
-
-    if (__ADMIN_URL is None or
-        __ADMIN_USER is None or
-        __ADMIN_PASSWORD is None):
-        # not all required backend parameters supplied
-        LOG.warning("Not all parameters set for screen scraping icecast "
-                "statistics. Need admin-url and admin-password")
-        return
-
-    int_octet = "25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?"
-    p = re.compile(r"(((%s)\.){3}(%s))" % (int_octet, int_octet))
-
-    # Create an OpenerDirector with support for Basic HTTP Authentication...
-    auth_handler = urllib2.HTTPBasicAuthHandler()
-    auth_handler.add_password(realm='Icecast2 Server',
-                              uri=__ADMIN_URL,
-                              user=__ADMIN_USER,
-                              passwd=__ADMIN_PASSWORD)
-    opener = urllib2.build_opener(auth_handler)
-    # ...and install it globally so it can be used with urlopen.
-    urllib2.install_opener(opener)
-
-    try:
-        LOG.debug("Opening %r" % __ADMIN_URL)
-        handler = urllib2.urlopen(__ADMIN_URL)
-        data = handler.read()
-
-        listeners = [md5(x[0]).hexdigest() for x in p.findall(data)]
-        return listeners
-    except urllib2.HTTPError, ex:
-        LOG.error("Error opening %r: Caught %r" % (__ADMIN_URL, str(ex)))
-        return None
-    except urllib2.URLError, ex:
-        LOG.error("Error opening %r: Caught %r" % (__ADMIN_URL, str(ex)))
-        return None
-
-
-def __ic_connect(name="The wicked jukebox", url="http://jukebox.wicked.lu",
-        bufsize=1024, bitrate=128, samplerate=44100, channels=1):
-    """
-    Return a conenction to an icecast server
-
-    TODO: This method's parameter should all be removed and set with the
-          "config" method above (see Task #12)
-    """
-    server = shout.Shout()
-    server.format = 'mp3'
-    server.audio_info = {
-            "bitrate": str(bitrate),
-            "samplerate": str(samplerate),
-            "channels": str(channels)}
-    server.user = "source"
-    server.name = name
-    server.url = url
-    server.password = __PASSWORD
-    server.mount = __MOUNT
-    server.port = __PORT
-    server.open()
-    return server
-
-
-def __stream_file(server, filename):
-    """
-    Stream a file to a icecast backend
-
-    @raises IOError: When unable to open the file
-    """
-    global __STREAMER
-    __STREAMER = Streamer(filename, server, __CHANNEL_ID)
-    __STREAMER.start()
+# ----------------------------------------------------------------------------
 
 
 if __name__ == "__main__":
@@ -318,18 +274,16 @@ if __name__ == "__main__":
         """ % sys.argv[0]
         sys.exit(1)
 
-    if len(sys.argv) > 2:
-        threading.Timer(float(sys.argv[2]), stopPlayback).start()
+    # TODO: Implement
+    icy_conf = {
+        'port': 8001,
+        'mount': "/wicked.mp3",
+        'pwd': "mussdulauschtren"}
 
-    config(dict(
-          port=8001,
-          mount="/wicked.mp3",
-          pwd="mussdulauschtren",
-          channel_id=1
-       ))
+    channel_id = 1
+    player = Player(channel_id, icy_conf)
+    player.queue(sys.argv[1])
+    player.start()
 
-    LOG.debug("Connecting to icecast...")
-    __SERVER = __ic_connect()
-    LOG.debug("Connected on %r" % __SERVER)
-    queue(sys.argv[1])
-    startPlayback()
+    while True:
+        time.sleep(1)
