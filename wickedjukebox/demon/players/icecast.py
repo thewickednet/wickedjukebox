@@ -259,14 +259,18 @@ class IceProvider(Thread):
     def run(self):
         while True:
             chunk = self.qin.get()
-            print '>>>', len(chunk)
 
 # ----------------------------------------------------------------------------
 
 
 if __name__ == "__main__":
     import sys
+
     logging.basicConfig(level=logging.DEBUG)
+    logging.getLogger('__main__.FileReader').setLevel(logging.INFO)
+    logging.getLogger('__main__.Player').setLevel(logging.INFO)
+    logging.getLogger('__main__.IceProvider').setLevel(logging.INFO)
+
     sys.path.insert(0, os.getcwd())
     if len(sys.argv) < 2:
         print """
