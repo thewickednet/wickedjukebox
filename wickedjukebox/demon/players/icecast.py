@@ -276,8 +276,8 @@ class IceProvider(Thread):
     def run(self):
         while True:
             chunk = self.qin.get()
-
-# ----------------------------------------------------------------------------
+            self._icy_handle.send(chunk)
+            self._icy_handle.sync()
 
 
 if __name__ == "__main__":
