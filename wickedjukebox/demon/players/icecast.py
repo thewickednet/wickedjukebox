@@ -96,6 +96,7 @@ class FileReader(Thread):
         self.current_file = None
         self._stat = None
         self.chunk_size = 1024
+        self.status = STATUS_STOPPED
 
     def run(self):
         FileReader.LOG.debug('Starting')
@@ -109,7 +110,9 @@ class FileReader(Thread):
                 if cmd == SCMD_QUEUE:
                     song_queue.append(args)
                 elif cmd == SCMD_PAUSE:
-                    self.status = STATUS_PAUSED
+                    self.status = (self.status == STATUS_PAUSED and
+                                    STATUS_STARTED or
+                                    STATUS_PAUSED)
                 elif cmd == SCMD_SKIP:
                     do_skip = True
                 elif cmd == SCMD_START:
@@ -138,15 +141,15 @@ class FileReader(Thread):
             if self.current_file:
                 chunk = self.current_file.read(self.chunk_size)
                 FileReader.LOG.debug('Chunk of length {0} read from '
-                        '{1!r}'.format(len(chunk), self.current_file))
+                        '{1!r}'.format(len(chunk), self.current_file.name))
                 if not chunk:
                     self.closefile()
 
-            if chunk:
+            if chunk and self.status not in (STATUS_STOPPED, STATUS_PAUSED):
                 self.qdata.put(chunk)
             else:
-                FileReader.LOG.debug('No chunk available. '
-                    'Sending random data.')
+                FileReader.LOG.debug('No chunk available. (status={0}) '
+                    'Sending random data.'.format(self.status))
                 self.qdata.put(urandom(self.chunk_size))
 
     def closefile(self):
