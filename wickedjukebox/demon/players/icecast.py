@@ -303,10 +303,8 @@ if __name__ == "__main__":
     player.queue(sys.argv[1])
     player.start()
 
-    time.sleep(0.1)
+    time.sleep(1)
     player.pause()
-    time.sleep(0.1)
+    time.sleep(20)
     player.pause()
-    time.sleep(0.1)
-    player.stop()
-    time.sleep(0.1)
+    time.sleep(30)
