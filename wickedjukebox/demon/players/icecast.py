@@ -1,19 +1,17 @@
 # TODO: Maybe it would be better to have a "global" atexit function properly
 # TODO:    supervising stopping the threads.
-import time
-import os
-from threading import Thread
-from Queue import Empty, Queue
-from datetime import datetime
+from Queue import Queue, Empty
 from os import urandom
-import shout
-import urllib2
-import re
-from hashlib import md5
-from wickedjukebox.demon.dbmodel import State
+from threading import Thread
 import atexit
-
 import logging
+import os
+import re
+import time
+import urllib2
+
+import shout
+
 LOG = logging.getLogger(__name__)
 
 SCMD_QUEUE = 'queue'
