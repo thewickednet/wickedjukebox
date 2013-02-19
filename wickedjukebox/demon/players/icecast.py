@@ -1,3 +1,5 @@
+# TODO: Maybe it would be better to have a "global" atexit function properly
+# TODO:    supervising stopping the threads.
 import time
 import os
 from threading import Thread
@@ -9,6 +11,7 @@ import urllib2
 import re
 from hashlib import md5
 from wickedjukebox.demon.dbmodel import State
+import atexit
 
 import logging
 LOG = logging.getLogger(__name__)
@@ -170,6 +173,8 @@ class FileReader(Thread):
 
 class IceProvider(Thread):
 
+    LOG = logging.getLogger('{0}.IceProvider'.format(__name__))
+
     def __init__(self, qin, params, *args, **kwargs):
         super(IceProvider, self).__init__(*args, **kwargs)
         self.qin = qin
@@ -194,6 +199,7 @@ class IceProvider(Thread):
             self.admin_password = params["admin_password"]
 
         self._connect()
+        atexit.register(self.disconnect)
 
     def _connect(self, name="The wicked jukebox",
             url="http://jukebox.wicked.lu", bufsize=1024, bitrate=128,
@@ -214,8 +220,14 @@ class IceProvider(Thread):
         self._icy_handle.open()
 
     def disconnect(self):
-        # TODO: verify if this is correct!
-        self._icy_handle.close()
+        IceProvider.LOG.info('disconnecting from icecast server.')
+        try:
+            self._icy_handle.sync()
+            self._icy_handle.close()
+        except Exception:
+            IceProvider.LOG.log(logging.WARNING,
+                    'Error disconnecting from icecast.',
+                    exc_info=True)
 
     def listener_ips(self):
         """
