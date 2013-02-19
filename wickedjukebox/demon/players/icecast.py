@@ -193,6 +193,8 @@ class IceProvider(Thread):
         if "admin_password" in params:
             self.admin_password = params["admin_password"]
 
+        self._connect()
+
     def _connect(self, name="The wicked jukebox",
             url="http://jukebox.wicked.lu", bufsize=1024, bitrate=128,
             samplerate=44100, channels=1):
