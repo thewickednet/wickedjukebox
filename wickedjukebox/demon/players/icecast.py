@@ -295,7 +295,6 @@ if __name__ == "__main__":
         """ % sys.argv[0]
         sys.exit(1)
 
-    # TODO: Implement
     icy_conf = {
         'port': 8001,
         'mount': "/wicked.mp3",
@@ -306,5 +305,10 @@ if __name__ == "__main__":
     player.queue(sys.argv[1])
     player.start()
 
-    while True:
-        time.sleep(1)
+    time.sleep(0.1)
+    player.pause()
+    time.sleep(0.1)
+    player.pause()
+    time.sleep(0.1)
+    player.stop()
+    time.sleep(0.1)
