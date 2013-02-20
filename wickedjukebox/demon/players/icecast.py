@@ -53,7 +53,7 @@ class Player(object):
         Player.LOG.debug('Interpreting position {0!r}'.format(
             self.filereader.position))
         try:
-            a, b = self.filereader.position
+            a, b = self.filereader.position()
             return float(a) / float(b) * 100
         except ZeroDivisionError:
             return 0.0

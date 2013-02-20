@@ -5,7 +5,8 @@ from random import choice, random
 
 from sqlalchemy.sql import select, func, update, or_
 
-from wickedjukebox.demon import playmodes, players
+from wickedjukebox.demon import playmodes
+from wickedjukebox.demon.players import icecast
 from wickedjukebox.demon.dbmodel import (
     channelTable,
     Setting,
@@ -69,16 +70,15 @@ class Channel(object):
         self.name = self.__channel_data["name"]
         LOG.debug("Loaded channel %s" % self.name)
 
-        self.__player = None
-        self.id = self.__channel_data["id"]
+        player_params = {}
+        if self.__channel_data['backend_params']:
+            for param in self.__channel_data['backend_params'].split(','):
+                key, value = param.split('=')
+                player_params[key.strip()] = value.strip()
 
-    def __init_player(self):
-        if not self.__player:
-            self.__player = players.create(
-                    self.__channel_data["backend"],
-                    "%s, channel_id=%d" % (
-                        self.__channel_data['backend_params'],
-                        self.id))
+        self.__player = icecast.Player(self.__channel_data['id'],
+                player_params)
+        self.id = self.__channel_data["id"]
 
     def currentSong(self):
         if not self.__currentSong:
@@ -117,10 +117,6 @@ class Channel(object):
 
         LOG.info("Queueing %r" % fsencode(song))
 
-        if not self.__player:
-            LOG.warning("No player active. Won't queue %r" % song)
-            return False
-
         if isinstance(song, unicode):
             # we were passed a unicode string string. Most likely a file
             # system path
@@ -157,8 +153,6 @@ class Channel(object):
 
     def startPlayback(self):
 
-        self.__init_player()
-
         self.__playStatus = 'playing'
 
         # TODO: This block is found as well in "skipSong! --> refactor"
@@ -186,19 +180,19 @@ class Channel(object):
 
             self.queueSong(nextSong)
 
-            self.__player.startPlayback()
+            self.__player.start()
             return 'OK'
         else:
             return 'ER: No song queued'
 
     def pausePlayback(self):
         self.__playStatus = 'paused'
-        self.__player.pausePlayback()
+        self.__player.pause()
         return 'OK'
 
     def stopPlayback(self):
         self.__playStatus = 'stopped'
-        self.__player.stopPlayback()
+        self.__player.stop()
         return 'OK'
 
     def enqueue(self, songID, userID=None):
@@ -267,8 +261,8 @@ class Channel(object):
         session.close()
         if nextSong:
             self.enqueue(nextSong.id)
-            self.__player.cropPlaylist(2)
-            self.__player.skipSong()
+            self.__player.crop_playlist(2)
+            self.__player.skip()
             return 'OK'
         else:
             return 'ER: Unable to skip song, no followup song returned'
@@ -336,7 +330,7 @@ class Channel(object):
         Scrape the Icecast admin page for current listeners and update theit
         state in the DB
         """
-        listeners = self.__player.current_listeners()
+        listeners = self.__player.listeners()
         if listeners is None:
             # feature not supported by backedd player, or list of listeners
             # unknown
@@ -385,8 +379,6 @@ class Channel(object):
             self.process_upcoming_song()
             session = Session()
 
-            self.__init_player()
-
             # ping the database every 2 minutes (unless another value was
             # specified in the settings)
             if (datetime.now() - lastPing).seconds > proofoflife_timeout:
@@ -402,14 +394,14 @@ class Channel(object):
                     120))
 
             # check if the player accidentally went into the "stop" state
-            if (self.__player.status() == 'stop' and
+            if (self.__player.status() == 'stopped' and
                     self.__playStatus == 'playing'):
                 # This most likely means we hit the end of the playlist:
                 #    - clear the playlist
                 #    - add the next song to the playlist and
                 #    - start playback
 
-                self.__player.cropPlaylist(0)
+                self.__player.crop_playlist(0)
 
                 self.__randomstrategy = playmodes.create(Setting.get(
                     'random_model',
@@ -442,7 +434,7 @@ class Channel(object):
                     LOG.info("Queuing song %s" % nextSong)
                     self.queueSong(nextSong)
                     LOG.info("Starting playback...")
-                    self.__player.startPlayback()
+                    self.__player.start()
                 else:
                     # handle orphaned files
                     while (not os.path.exists(fsencode(nextSong.localpath)) and
@@ -453,27 +445,27 @@ class Channel(object):
                                 values={'broken': True}).execute()
                         nextSong = self.__randomstrategy.get(self.id)
                     self.queueSong(nextSong)
-                    self.__player.startPlayback()
+                    self.__player.start()
 
             # or if it accidentally went into the play state
-            if (self.__player.status() == 'play' and
+            if (self.__player.status() == 'started' and
                     self.__playStatus == 'stopped'):
-                self.__player.stopPlayback()
+                self.__player.stop()
 
             skipState = State.get("skipping", self.id, default=False)
             if skipState and int(skipState) == 1:
                 State.set("skipping", 0, self.id)
-                self.__player.skipSong()
+                self.__player.skip()
 
             # If we are not playing stuff, we can skip the rest
             if self.__playStatus != 'playing':
                 continue
 
             # -----------------------------------------------------------------
-            if self.__currentSongFile != self.__player.getSong() \
-                    and self.__player.getSong() is not None:
+            if self.__currentSongFile != self.__player.current_song() \
+                    and self.__player.current_song() is not None:
                 song = session.query(Song).filter(
-                        songTable.c.localpath == self.__player.getSong()
+                        songTable.c.localpath == self.__player.current_song()
                         ).first()
 
                 if song:
@@ -482,7 +474,7 @@ class Channel(object):
                     self.__currentSong = None
 
                 self.__currentSongRecorded = False
-                self.__currentSongFile = self.__player.getSong()
+                self.__currentSongFile = self.__player.current_song()
 
             # update tags for the current song
             if (self.last_tagged_song != self.__currentSong and
@@ -490,9 +482,9 @@ class Channel(object):
                 pass  # TODO: currently disabled until it can be handled in a thread
 
             # if the song is soon finished, update stats and pick the next one
-            currentPosition = self.__player.getPosition()
-            LOG.debug("Current position: %r/%r" % currentPosition)
-            if (currentPosition[1] - currentPosition[0]) < 3:
+            currentPosition = self.__player.position()
+            LOG.debug("Current position: %04f" % currentPosition)
+            if currentPosition > 0.9:
                 if self.__currentSong and not self.__currentSongRecorded:
                     query = session.query(ChannelStat)
                     query = query.filter(
