@@ -51,7 +51,7 @@ class Player(object):
 
     def position(self):
         Player.LOG.debug('Interpreting position {0!r}'.format(
-            self.filereader.position))
+            self.filereader.position()))
         try:
             a, b = self.filereader.position()
             return float(a) / float(b) * 100
@@ -59,7 +59,7 @@ class Player(object):
             return 0.0
 
     def current_song(self):
-        return self.filereader.current_file
+        return self.filereader.current_file.name
 
     def pause(self):
         self.source_command.put((SCMD_PAUSE, None))
