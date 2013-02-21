@@ -191,7 +191,7 @@ class IceProvider(Thread):
                     self.mount)
 
         if "admin_username" in params:
-            self.admin_user = params["admin_username"]
+            self.admin_username = params["admin_username"]
 
         if "admin_password" in params:
             self.admin_password = params["admin_password"]
