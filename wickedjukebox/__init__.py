@@ -1,5 +1,4 @@
 import os
-import sys
 import logging
 import logging.config
 
@@ -28,7 +27,18 @@ def load_config():
 
 
 def setup_logging():
+    from pkg_resources import resource_filename
+
+    logging.config.fileConfig(
+        resource_filename('wickedjukebox', 'resources/logging.ini'))
+
     logging_conf_name = "logging.ini"
+    log = logging.getLogger(__name__)
+    log.info('Default logging loaded. You can override any log levels by '
+            'creating a file called "{0}" in the folder specified in '
+            'the {1} environment variable.'.format(
+                logging_conf_name, ENV_CONF))
+
     if ENV_CONF in os.environ:
         logging_conf_name = os.path.join(os.environ[ENV_CONF],
                                          logging_conf_name)
@@ -36,26 +46,6 @@ def setup_logging():
     try:
         logging.config.fileConfig(logging_conf_name)
     except Exception, exc:
-        print >>sys.stderr, ("""\
-------------------------------------------------------------------------------
-WARNING: There was an error loading the logging configuration! The received
-         error message was:
-
-            %s.
-
-         It may simply be the case, that the logging configuration file named:
-             %s
-         was not found. If you have it in a different folder, you can override
-         the default folder using the environment vairable:
-            %s.
-
-         If the file exists, and you get other errors, consult the
-         documentation for the python 'logging' package.
-------------------------------------------------------------------------------
-""" % (
-        exc, logging_conf_name, ENV_CONF,))
-
+        log.error(exc)
     except IOError:
-        print >>sys.stderr, ("""\
-WARNING: Unable to open logging files. Make sure there exists a folder 'logs'
-         in the project root and is writable!""")
+        print log.error(str(exc))

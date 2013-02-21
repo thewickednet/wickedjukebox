@@ -20,6 +20,6 @@ setup(
         'config_resolver==3.0',
         'elementtree==1.2.7-20070827-preview',  # required by lastfm module
     ],
-    dependency_links=['http://downloads.us.xiph.org/releases/libshout/']
-
+    dependency_links=['http://downloads.us.xiph.org/releases/libshout/'],
+    include_package_data=True,
 )
