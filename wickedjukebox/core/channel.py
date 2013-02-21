@@ -152,8 +152,6 @@ class Channel(object):
         session.close()
 
     def startPlayback(self):
-        # TODO: This block is found as well in "skipSong! --> refactor"
-        # set "current song" to the next in the queue or use random
         self.__playStatus = 'playing'
         nextSong = self.getNextSong()
         self.queueSong(nextSong)
@@ -216,31 +214,15 @@ class Channel(object):
             stat.lastPlayed = datetime.now()
         session.add(stat)
 
-        # TODO: This block is found as well in "startPlayback"! --> refactor"
-        # set "current song" to the next in the queue or use random
-        self.__randomstrategy = playmodes.create(Setting.get(
-            'random_model',
-            DEFAULT_RANDOM_MODE,
-            channel_id=self.id))
-        self.__queuestrategy = playmodes.create(Setting.get(
-            'queue_model',
-            DEFAULT_QUEUE_MODE,
-            channel_id=self.id))
-        self.__randomstrategy.bootstrap(self.id)
-
-        nextSong = self.__queuestrategy.dequeue(self.id)
-        if nextSong is None:
-            nextSong = self.__randomstrategy.get(self.id)
+        nextSong = self.getNextSong()
         LOG.info("[channel] skipping song")
 
         session.close()
-        if nextSong:
-            self.enqueue(nextSong.id)
-            self.__player.crop_playlist(2)
-            self.__player.skip()
-            return 'OK'
-        else:
-            return 'ER: Unable to skip song, no followup song returned'
+
+        self.enqueue(nextSong.id)
+        self.__player.crop_playlist(2)
+        self.__player.skip()
+        return 'OK'
 
     def moveup(self, qid, delta):
         self.__queuestrategy = playmodes.create(Setting.get(
