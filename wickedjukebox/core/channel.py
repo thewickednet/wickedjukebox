@@ -152,38 +152,13 @@ class Channel(object):
         session.close()
 
     def startPlayback(self):
-
-        self.__playStatus = 'playing'
-
         # TODO: This block is found as well in "skipSong! --> refactor"
-        # TODO: The block to retrieve the next song should be a method in itself. Encapsulating queue, random and orphaned files
         # set "current song" to the next in the queue or use random
-        self.__randomstrategy = playmodes.create(Setting.get(
-            'random_model', DEFAULT_RANDOM_MODE, channel_id=self.id))
-        self.__queuestrategy = playmodes.create(Setting.get(
-            'queue_model', DEFAULT_QUEUE_MODE, channel_id=self.id))
-        self.__randomstrategy.bootstrap(self.id)
-
-        nextSong = self.__queuestrategy.dequeue(self.id)
-        if not nextSong:
-            nextSong = self.__randomstrategy.get(self.id)
-
-        if nextSong is not None:
-            # handle orphaned files
-            while (not os.path.exists(fsencode(nextSong.localpath)) and
-                   self.__keepRunning):
-                LOG.error("%r not found!" % nextSong.localpath)
-                songTable.update(songTable.c.id == nextSong.id,
-                                 values={'broken': True}).execute()
-
-                nextSong = self.__randomstrategy.get(self.id)
-
-            self.queueSong(nextSong)
-
-            self.__player.start()
-            return 'OK'
-        else:
-            return 'ER: No song queued'
+        self.__playStatus = 'playing'
+        nextSong = self.getNextSong()
+        self.queueSong(nextSong)
+        self.__player.start()
+        return 'OK'
 
     def pausePlayback(self):
         self.__playStatus = 'paused'
@@ -363,6 +338,39 @@ class Channel(object):
         else:
             State.set("upcoming_song", None, self.id)
 
+    def getNextSong(self):
+        self.__randomstrategy = playmodes.create(Setting.get(
+            'random_model',
+            DEFAULT_RANDOM_MODE,
+            channel_id=self.id))
+        self.__queuestrategy = playmodes.create(Setting.get(
+            'queue_model',
+            DEFAULT_QUEUE_MODE,
+            channel_id=self.id))
+        self.__randomstrategy.bootstrap(self.id)
+
+        nextSong = self.get_jingle()
+
+        if not nextSong:
+            LOG.debug("No jingle selected. Trying to dequeue")
+            nextSong = self.__queuestrategy.dequeue(self.id)
+
+        if not nextSong:
+            LOG.debug("Apparently there was nothing on the queue. "
+                    "I'm going to take somethin at random then")
+            nextSong = self.__randomstrategy.get(self.id)
+
+        # handle orphaned files
+        while (not os.path.exists(fsencode(nextSong.localpath)) and
+               self.__keepRunning):
+            LOG.error("%r not found!" % nextSong.localpath)
+            songTable.update(songTable.c.id == nextSong.id,
+                             values={'broken': True}).execute()
+
+            nextSong = self.__randomstrategy.get(self.id)
+
+        return nextSong
+
     def run(self):
         cycleTime = int(Setting.get(
             'channel_cycle',
@@ -403,26 +411,7 @@ class Channel(object):
 
                 self.__player.crop_playlist(0)
 
-                self.__randomstrategy = playmodes.create(Setting.get(
-                    'random_model',
-                    DEFAULT_RANDOM_MODE,
-                    channel_id=self.id))
-                self.__queuestrategy = playmodes.create(Setting.get(
-                    'queue_model',
-                    DEFAULT_QUEUE_MODE,
-                    channel_id=self.id))
-                self.__randomstrategy.bootstrap(self.id)
-
-                nextSong = self.get_jingle()
-
-                if not nextSong:
-                    LOG.debug("No jingle selected. Trying to dequeue")
-                    nextSong = self.__queuestrategy.dequeue(self.id)
-
-                if not nextSong:
-                    LOG.debug("Apparently there was nothing on the queue. "
-                            "I'm going to take somethin at random then")
-                    nextSong = self.__randomstrategy.get(self.id)
+                nextSong = self.getNextSong()
 
                 if not nextSong:
                     LOG.debug("What? Still nothing? Either nobody is online, "
@@ -436,14 +425,6 @@ class Channel(object):
                     LOG.info("Starting playback...")
                     self.__player.start()
                 else:
-                    # handle orphaned files
-                    while (not os.path.exists(fsencode(nextSong.localpath)) and
-                           self.__keepRunning):
-                        LOG.error("%r not found!" % nextSong.localpath)
-                        songTable.update(
-                                songTable.c.id == nextSong.id,
-                                values={'broken': True}).execute()
-                        nextSong = self.__randomstrategy.get(self.id)
                     self.queueSong(nextSong)
                     self.__player.start()
 
@@ -510,6 +491,9 @@ class Channel(object):
                     self.__currentSongRecorded = True
                     session.add(stat)
                     session.commit()
+
+                    nextSong = self.getNextSong()
+                    self.queueSong(nextSong)
 
             # if we handed out credits more than 5mins ago, we give out some
             # more
