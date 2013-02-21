@@ -38,9 +38,6 @@ class Player(object):
         self.provider = IceProvider(dataq, icy_conf)
         self.filereader.start()
         self.provider.start()
-        # TODO: Set progress
-        #    State.set("progress", self.position(), self.__channel_id)
-        #    State.set("progress", 0, __CHANNEL_ID)
 
     def crop_playlist(self, max_items=2):
         Player.LOG.debug('Cropping playlist to {0} items'.format(max_items))

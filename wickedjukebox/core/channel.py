@@ -1,3 +1,7 @@
+# TODO: Set progress
+#    State.set("progress", self.position(), self.__channel_id)
+#    State.set("progress", 0, __CHANNEL_ID)
+
 from datetime import datetime
 import time
 import os
