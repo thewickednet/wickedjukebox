@@ -483,9 +483,12 @@ class Channel(object):
 
             # if the song is soon finished, update stats and pick the next one
             currentPosition = self.__player.position()
-            LOG.debug("Current position: %04f" % currentPosition)
-            if currentPosition > 0.9:
+            LOG.debug("Current position: %4.2f in %r" % (currentPosition,
+                self.__player.current_song()))
+            if currentPosition > 90:
                 if self.__currentSong and not self.__currentSongRecorded:
+                    LOG.info('Soon finished. Recording stats and queuing '
+                              'new  song...')
                     query = session.query(ChannelStat)
                     query = query.filter(
                             songTable.c.id == channelSongs.c.song_id)

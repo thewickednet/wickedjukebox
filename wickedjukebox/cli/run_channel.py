@@ -1,13 +1,15 @@
 """
 Entry points, and helpers for the command line interface.
 """
+from wickedjukebox import setup_logging
+setup_logging()
 
 import signal
 import time
 import logging
+
 from wickedjukebox.core.channel import Channel
-from wickedjukebox import setup_logging
-setup_logging()
+
 logger = logging.getLogger(__name__)
 CHANNEL = None
 KEEP_RUNNING = True
