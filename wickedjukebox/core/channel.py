@@ -422,6 +422,8 @@ class Channel(object):
             skipState = State.get("skipping", self.id, default=False)
             if skipState and int(skipState) == 1:
                 State.set("skipping", 0, self.id)
+                nextSong = self.getNextSong()
+                self.queueSong(nextSong)
                 self.__player.skip()
 
             # If we are not playing stuff, we can skip the rest
