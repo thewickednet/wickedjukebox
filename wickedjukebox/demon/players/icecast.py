@@ -97,6 +97,7 @@ class FileReader(Thread):
         FileReader.LOG.debug('Starting')
         do_skip = False
         song_queue = []
+        data_type_logged = ''
         while True:
             try:
                 cmd, args = self.qcmds.get(False)
@@ -137,16 +138,18 @@ class FileReader(Thread):
             chunk = ''
             if self.current_file:
                 chunk = self.current_file.read(self.chunk_size)
-                FileReader.LOG.debug('Chunk of length {0} read from '
-                        '{1!r}'.format(len(chunk), self.current_file.name))
                 if not chunk:
                     self.closefile()
 
             if chunk and self.status not in (STATUS_STOPPED, STATUS_PAUSED):
+                if data_type_logged != 'media':
+                    FileReader.LOG.debug('Starting/Continuing media data')
+                    data_type_logged = 'media'
                 self.qdata.put(chunk)
             else:
-                FileReader.LOG.debug('No chunk available. (status={0}) '
-                    'Sending random data.'.format(self.status))
+                if data_type_logged != 'random':
+                    FileReader.LOG.debug('Starting/Continuing random data')
+                    data_type_logged = 'random'
                 self.qdata.put(urandom(self.chunk_size))
 
     def closefile(self):
