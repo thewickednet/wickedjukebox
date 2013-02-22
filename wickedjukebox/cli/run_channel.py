@@ -1,7 +1,7 @@
 """
 Entry points, and helpers for the command line interface.
 """
-from wickedjukebox import setup_logging
+from wickedjukebox import setup_logging, __version__
 setup_logging()
 
 import signal
@@ -58,6 +58,8 @@ def main():
     """
     from optparse import OptionParser
     signal.signal(signal.SIGINT, handle_sigint)
+
+    print " Wicked Jukebox {0} ".format(__version__).center(79, '#')
 
     parser = OptionParser()
     parser.add_option("-c", "--channel", dest="channel_name",

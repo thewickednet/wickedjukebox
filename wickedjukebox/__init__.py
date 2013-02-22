@@ -2,8 +2,10 @@ import os
 import logging
 import logging.config
 
+import pkg_resources
 
-__version__ = '2.1b2'
+
+__version__ = pkg_resources.resource_string(__name__, 'version.txt').strip()
 
 
 ENV_CONF = 'WICKEDJB_CONFIG_FOLDER'

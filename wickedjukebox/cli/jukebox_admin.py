@@ -25,7 +25,7 @@ from wickedjukebox.demon.dbmodel import (Setting,
     songStandingTable,
     songStatsTable)
 from wickedjukebox.util import direxists, TerminalController
-from wickedjukebox import setup_logging
+from wickedjukebox import setup_logging, __version__
 import logging
 
 LOG = logging.getLogger(__name__)
@@ -837,5 +837,6 @@ class Console(cmd.Cmd):
 def main():
     setup_logging()
     # TODO: Catch logging messages from the scanner!
+    print " Wicked Jukebox {0} ".format(__version__).center(79, '#')
     app = Console()
     app.cmdloop()
