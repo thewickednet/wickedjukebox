@@ -44,8 +44,12 @@ def setup_logging():
                                          logging_conf_name)
 
     try:
-        logging.config.fileConfig(logging_conf_name)
+        logging.config.fileConfig(logging_conf_name,
+                disable_existing_loggers=False)
+        log.info('Additional log config read from {0}'.format(
+            logging_conf_name))
     except Exception, exc:
-        log.error(exc)
+        log.error("Error reading from %r! Error message: %r",
+                logging_conf_name, exc, exc_info=1)
     except IOError:
         print log.error(str(exc))

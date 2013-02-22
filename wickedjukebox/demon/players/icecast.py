@@ -104,6 +104,8 @@ class FileReader(Thread):
                         'with args {1!r}'.format(cmd, args))
                 if cmd == SCMD_QUEUE:
                     song_queue.append(args)
+                    FileReader.LOG.info('Queueing %r. Queue is now: %r',
+                            args, song_queue)
                 elif cmd == SCMD_PAUSE:
                     self.status = (self.status == STATUS_PAUSED and
                                     STATUS_STARTED or
