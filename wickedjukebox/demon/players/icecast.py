@@ -33,7 +33,7 @@ class Player(object):
         Player.LOG.debug('Initialising with {0!r}, {1!r}'.format(channel_id,
             icy_conf))
         self.source_command = Queue()
-        dataq = Queue(1024)
+        dataq = Queue(1)
         self.filereader = FileReader(self.source_command, dataq)
         self.provider = IceProvider(dataq, icy_conf)
         self.filereader.start()
