@@ -30,6 +30,7 @@ def load_config():
 
 def setup_logging():
     from pkg_resources import resource_filename
+    from os.path import exists
 
     logging.config.fileConfig(
         resource_filename('wickedjukebox', 'resources/logging.ini'))
@@ -45,13 +46,14 @@ def setup_logging():
         logging_conf_name = os.path.join(os.environ[ENV_CONF],
                                          logging_conf_name)
 
-    try:
-        logging.config.fileConfig(logging_conf_name,
-                disable_existing_loggers=False)
-        log.info('Additional log config read from {0}'.format(
-            logging_conf_name))
-    except Exception, exc:
-        log.error("Error reading from %r! Error message: %r",
-                logging_conf_name, exc, exc_info=1)
-    except IOError:
-        print log.error(str(exc))
+    if exists(logging_conf_name):
+        try:
+            logging.config.fileConfig(logging_conf_name,
+                    disable_existing_loggers=False)
+            log.info('Additional log config read from {0}'.format(
+                logging_conf_name))
+        except Exception, exc:
+            log.error("Error reading from %r! Error message: %r",
+                    logging_conf_name, exc, exc_info=1)
+        except IOError:
+            print log.error(str(exc))
