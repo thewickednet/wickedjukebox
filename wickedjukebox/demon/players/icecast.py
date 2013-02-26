@@ -121,6 +121,7 @@ class FileReader(Thread):
                     self.status = STATUS_STARTED
                 elif cmd == SCMD_STOP:
                     self.status = STATUS_STOPPED
+                self.qcmds.task_done()
             except Empty:
                 pass
 
@@ -308,6 +309,7 @@ class IceProvider(Thread):
                 pass
             self._icy_handle.send(chunk)
             self._icy_handle.sync()
+            self.data_queue.task_done()
 
 
 if __name__ == "__main__":
