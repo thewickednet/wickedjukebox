@@ -1,5 +1,4 @@
 # TODO: Set progress
-#    State.set("progress", self.position(), self.__channel_id)
 #    State.set("progress", 0, __CHANNEL_ID)
 
 from datetime import datetime
@@ -449,6 +448,7 @@ class Channel(object):
             currentPosition = self.__player.position()
             LOG.debug("Current position: %4.2f in %r" % (currentPosition,
                 self.__player.current_song()))
+            State.set("progress", currentPosition, self.id)
             if currentPosition > 90:
                 if self.__currentSong and not self.__currentSongRecorded:
                     LOG.info('Soon finished. Recording stats and queuing '
