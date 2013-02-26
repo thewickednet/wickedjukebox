@@ -1,6 +1,6 @@
 # TODO: Maybe it would be better to have a "global" atexit function properly
 # TODO:    supervising stopping the threads.
-from Queue import Queue, Empty
+from Queue import Queue, Empty, Full
 from os import urandom
 from threading import Thread
 import atexit
@@ -20,6 +20,8 @@ SCMD_SKIP = 'skip'
 SCMD_START = 'start'
 SCMD_STOP = 'stop'
 
+ICMD_SET_TITLE = 'set_title'
+
 STATUS_PAUSED = 'paused'
 STATUS_STARTED = 'started'
 STATUS_STOPPED = 'stopped'
@@ -34,8 +36,9 @@ class Player(object):
             icy_conf))
         self.source_command = Queue()
         dataq = Queue(1)
-        self.filereader = FileReader(self.source_command, dataq)
-        self.provider = IceProvider(dataq, icy_conf)
+        icy_commands = Queue(1)
+        self.filereader = FileReader(self.source_command, dataq, icy_commands)
+        self.provider = IceProvider(dataq, icy_commands, icy_conf)
         self.filereader.start()
         self.provider.start()
 
@@ -61,8 +64,8 @@ class Player(object):
     def pause(self):
         self.source_command.put((SCMD_PAUSE, None))
 
-    def queue(self, filename):
-        self.source_command.put((SCMD_QUEUE, filename))
+    def queue(self, song):
+        self.source_command.put((SCMD_QUEUE, song))
 
     def skip(self):
         self.source_command.put((SCMD_SKIP, None))
@@ -81,11 +84,12 @@ class FileReader(Thread):
 
     LOG = logging.getLogger('{0}.FileReader'.format(__name__))
 
-    def __init__(self, qcmds, qdata, *args, **kwargs):
+    def __init__(self, qcmds, qdata, icy_commands, *args, **kwargs):
         FileReader.LOG.debug('Initialising with {0!r}, {1!r}, {2!r}, '
             '{3!r}'.format(qcmds, qdata, args, kwargs))
         super(FileReader, self).__init__(*args, **kwargs)
         self.qcmds = qcmds
+        self._icy_commands = icy_commands
         self.qdata = qdata
         self.daemon = True
         self.current_file = None
@@ -123,17 +127,20 @@ class FileReader(Thread):
             if do_skip and song_queue:
                 FileReader.LOG.debug('Skip requested on queue {0!r}'.format(
                     song_queue))
-                new_file = song_queue.pop(0)
+                new_song = song_queue.pop(0)
                 self.closefile()
-                self.openfile(new_file)
+                self.openfile(new_song['filename'])
+                self._set_title(new_song)
                 FileReader.LOG.debug('Previous file closed and reopened '
                         'with {0!r}. Queue is now: {1!r}'.format(
-                            new_file, song_queue))
+                            new_song['filename'], song_queue))
 
             if not self.current_file and song_queue:
                 FileReader.LOG.debug('No file currently open, but we have '
                         'a queue: {0!r}. Opening...'.format(song_queue))
-                self.openfile(song_queue.pop(0))
+                new_song = song_queue.pop(0)
+                self._set_title(new_song)
+                self.openfile(new_song['filename'])
 
             chunk = ''
             if self.current_file:
@@ -151,6 +158,19 @@ class FileReader(Thread):
                     FileReader.LOG.debug('Starting/Continuing random data')
                     data_type_logged = 'random'
                 self.qdata.put(urandom(self.chunk_size))
+
+    def _set_title(self, song):
+        """
+        Sets the title on the icecast provider
+        """
+        try:
+            title = '{0[artist]} - {0[title]}'.format(song)
+            FileReader.LOG.debug('Telling IceProvider to set new title '
+                'to {0}'.format(title))
+            self._icy_commands.put_nowait((ICMD_SET_TITLE,
+                '{0}'.format(title)))
+        except Full:
+            pass
 
     def closefile(self):
         FileReader.LOG.debug('Closing {0!r}'.format(self.current_file))
@@ -178,9 +198,10 @@ class IceProvider(Thread):
 
     LOG = logging.getLogger('{0}.IceProvider'.format(__name__))
 
-    def __init__(self, qin, params, *args, **kwargs):
+    def __init__(self, data_queue, cmd_queue, params, *args, **kwargs):
         super(IceProvider, self).__init__(*args, **kwargs)
-        self.qin = qin
+        self.data_queue = data_queue
+        self.cmd_queue = cmd_queue
         self.daemon = True
         LOG.info("connection to icecast server (params = %s)" % params)
         self.port = int(params['port'])
@@ -275,7 +296,16 @@ class IceProvider(Thread):
 
     def run(self):
         while True:
-            chunk = self.qin.get()
+            chunk = self.data_queue.get()
+            try:
+                cmd, args = self.cmd_queue.get(False)
+                if cmd == ICMD_SET_TITLE:
+                    IceProvider.LOG.debug('Setting title to {0!r}'.format(
+                        args))
+                    self._icy_handle.set_metadata({'song': args})
+                self.cmd_queue.task_done()
+            except Empty:
+                pass
             self._icy_handle.send(chunk)
             self._icy_handle.sync()
 
@@ -300,9 +330,14 @@ if __name__ == "__main__":
         'mount': "/wicked.mp3",
         'pwd': "mussdulauschtren"}
 
+    testsong = {
+         'filename': sys.argv[1],
+         'artist': 'theartistname',
+         'title': 'thetitle'}
+
     channel_id = 1
     player = Player(channel_id, icy_conf)
-    player.queue(sys.argv[1])
+    player.queue(testsong)
     player.start()
 
     time.sleep(1)

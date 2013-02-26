@@ -119,26 +119,21 @@ class Channel(object):
 
     def queueSong(self, song):
 
-        LOG.info("Queueing %r" % fsencode(song))
-
-        if isinstance(song, unicode):
-            # we were passed a unicode string string. Most likely a file
-            # system path
-            self.__player.queue(song)
-            return True
-
-        if isinstance(song, basestring):
-            # we were passed a string. Most likely a file system path
-            self.__player.queue(fsdecode(song))
-            return True
+        LOG.info("Queueing %r" % song)
 
         session = Session()
+
+        # re-attach the song instance to the new session
+        song = session.merge(song)
 
         # update state in database
         State.set("current_song", song.id, self.id)
 
         # queue the song
-        self.__player.queue(song.localpath)
+        self.__player.queue({
+            'filename': song.localpath,
+            'artist': song.artist.name,
+            'title': song.title})
         if self.__scrobbler is not None:
             a = session.query(Artist).get(song.artist_id)
             b = session.query(Album).get(song.album_id)
