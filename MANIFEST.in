@@ -1,2 +1,2 @@
-include resources/logging.ini
+include wickedjukebox/resources/logging.ini
 include wickedjukebox/version.txt
