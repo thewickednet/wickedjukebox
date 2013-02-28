@@ -204,7 +204,8 @@ class IceProvider(Thread):
         self.data_queue = data_queue
         self.cmd_queue = cmd_queue
         self.daemon = True
-        IceProvider.LOG.info("connection to icecast server (params = %s)" % params)
+        IceProvider.LOG.info("connection to icecast server (params = %s)" % (
+            params))
         self.port = int(params['port'])
         self.mount = str(params['mount'])
         self.password = str(params['pwd'])
@@ -262,8 +263,9 @@ class IceProvider(Thread):
 
         if not all((self.admin_url, self.admin_username, self.admin_password)):
             # not all required backend parameters supplied
-            IceProvider.LOG.warning("Not all parameters set for screen scraping icecast "
-                    "statistics. Need admin-url, user and password")
+            IceProvider.LOG.warning("Not all parameters set for screen "
+                "scraping icecast statistics. Need admin-url, user and "
+                "password")
             return
 
         int_octet = "25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?"
