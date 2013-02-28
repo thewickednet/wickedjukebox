@@ -59,6 +59,8 @@ class Player(object):
             return 0.0
 
     def current_song(self):
+        if not self.filereader.current_file:
+            return ''
         return self.filereader.current_file.name
 
     def pause(self):
