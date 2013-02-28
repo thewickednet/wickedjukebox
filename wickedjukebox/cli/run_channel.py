@@ -59,7 +59,7 @@ def main():
     from optparse import OptionParser
     signal.signal(signal.SIGINT, handle_sigint)
 
-    print " Wicked Jukebox {0} ".format(__version__).center(79, '#')
+    logger.info(" Wicked Jukebox {0} ".format(__version__).center(79, '#'))
 
     parser = OptionParser()
     parser.add_option("-c", "--channel", dest="channel_name",
