@@ -137,6 +137,7 @@ class FileReader(Thread):
                 FileReader.LOG.debug('Previous file closed and reopened '
                         'with {0!r}. Queue is now: {1!r}'.format(
                             new_song['filename'], song_queue))
+                do_skip = False
 
             if not self.current_file and song_queue:
                 FileReader.LOG.debug('No file currently open, but we have '
