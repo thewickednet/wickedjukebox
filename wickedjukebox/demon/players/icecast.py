@@ -287,6 +287,7 @@ class IceProvider(Thread):
             data = handler.read()
 
             listeners = [x[0] for x in p.findall(data)]
+            IceProvider.LOG.debug('Current listeners: %r' % listeners)
             return listeners
         except urllib2.HTTPError, ex:
             IceProvider.LOG.error("Error opening %r: Caught %s" % (
