@@ -34,7 +34,6 @@ DEFAULT_QUEUE_MODE = 'queue_positioned'
 class Channel(object):
 
     def __init__(self, name):
-        LOG.debug("Initialising channel...")
 
         self.id = None
         self.name = None
@@ -83,6 +82,9 @@ class Channel(object):
         self.__player = icecast.Player(self.__channel_data['id'],
                 player_params)
         self.id = self.__channel_data["id"]
+        LOG.info("Initialised channel %s with ID %d" % (
+            self.name,
+            self.id))
 
     def currentSong(self):
         if not self.__currentSong:
@@ -102,10 +104,8 @@ class Channel(object):
         return self.__playStatus == 'stopped'
 
     def close(self):
-        LOG.debug("Channel closing requested.")
+        LOG.debug("Closing channel...")
         self.stopPlayback()
-
-        LOG.debug("Closing channel")
 
         if self.__scrobbler is not None:
             self.__scrobbler.stop()
@@ -214,7 +214,7 @@ class Channel(object):
         session.add(stat)
 
         nextSong = self.getNextSong()
-        LOG.info("[channel] skipping song")
+        LOG.info("skipping song")
 
         session.close()
 
@@ -274,7 +274,7 @@ class Channel(object):
                         return os.path.join(self.__jingles_folder, random_file)
                 else:
                     self.__no_jingle_count += 1
-                    LOG.debug("No jingle count increased to %d" %
+                    LOG.debug("'No jingle' count increased to %d" %
                             self.__no_jingle_count)
             except OSError, ex:
                 import traceback
@@ -287,7 +287,7 @@ class Channel(object):
         state in the DB
         """
         listeners = self.__player.listeners()
-        LOG.debug('Current listeners: %r' % listeners)
+        LOG.info('Updating current listeners: %r' % listeners)
         if listeners is None:
             # feature not supported by backedd player, or list of listeners
             # unknown
@@ -307,7 +307,7 @@ class Channel(object):
         # unwanted and a new one should be triggered if possible
         state = State.get("upcoming_song", self.id, default=None)
         if state and int(state) == -1:
-            LOG.debug("Prefetching new song as the current upcoming_song "
+            LOG.info("Prefetching new song as the current upcoming_song "
                     "was unwanted.")
             self.__randomstrategy.prefetch(self.id, async=False)
 
@@ -321,6 +321,7 @@ class Channel(object):
             State.set("upcoming_song", None, self.id)
 
     def getNextSong(self):
+        LOG.info('Determining next song to play...')
         self.__randomstrategy = playmodes.create(Setting.get(
             'random_model',
             DEFAULT_RANDOM_MODE,
@@ -345,12 +346,13 @@ class Channel(object):
         # handle orphaned files
         while (not os.path.exists(fsencode(nextSong.localpath)) and
                self.__keepRunning):
-            LOG.error("%r not found!" % nextSong.localpath)
+            LOG.warning("%r not found!" % nextSong.localpath)
             songTable.update(songTable.c.id == nextSong.id,
                              values={'broken': True}).execute()
 
             nextSong = self.__randomstrategy.get(self.id)
 
+        LOG.info('... next song is: %r' % nextSong)
         return nextSong
 
     def run(self):
@@ -466,11 +468,11 @@ class Channel(object):
                     if not stat:
                         stat = ChannelStat(song_id=self.__currentSong.id,
                                            channel_id=self.id)
-                        LOG.debug("Setting last played date")
+                        LOG.info("Setting last played date")
                         stat.lastPlayed = datetime.now()
                         stat.played = 1
                     else:
-                        LOG.debug("Updating last played date")
+                        LOG.info("Updating last played date")
                         stat.lastPlayed = datetime.now()
                         stat.played = stat.played + 1
                     self.__currentSongRecorded = True
@@ -483,6 +485,7 @@ class Channel(object):
             # if we handed out credits more than 5mins ago, we give out some
             # more
             if (datetime.now() - lastCreditGiveaway).seconds > 300:
+                LOG.info('Handing out credits to users.')
                 maxCredits = int(Setting.get(
                     'max_credits',
                     '30',
