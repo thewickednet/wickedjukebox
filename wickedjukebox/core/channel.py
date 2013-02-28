@@ -23,12 +23,13 @@ from wickedjukebox.demon.dbmodel import (
     songTable,
     queueTable,
     channelSongs)
-from wickedjukebox.util import fsencode, fsdecode
+from wickedjukebox.util import fsencode
 
 import logging
 LOG = logging.getLogger(__name__)
 DEFAULT_RANDOM_MODE = 'random_wr2'
 DEFAULT_QUEUE_MODE = 'queue_positioned'
+
 
 class Channel(object):
 
