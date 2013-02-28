@@ -168,11 +168,11 @@ class FileReader(Thread):
         Sets the title on the icecast provider
         """
         try:
-            title = '{0[artist]} - {0[title]}'.format(song)
+            title = u'{0[artist]} - {0[title]}'.format(song)
             FileReader.LOG.debug('Telling IceProvider to set new title '
                 'to {0}'.format(title))
             self._icy_commands.put_nowait((ICMD_SET_TITLE,
-                '{0}'.format(title)))
+                title.encode('utf8')))
         except Full:
             pass
 
