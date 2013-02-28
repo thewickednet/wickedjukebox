@@ -296,8 +296,8 @@ class Channel(object):
         for l in listeners:
             query = usersTable.update(
                 or_(
-                    func.md5(usersTable.c.IP) == l,
-                    func.md5(usersTable.c.pinnedIp) == l
+                    usersTable.c.IP == l,
+                    usersTable.c.pinnedIp == l
                 ),
                 values={usersTable.c.proof_of_listening: func.now()})
             query.execute()
