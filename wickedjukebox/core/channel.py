@@ -333,15 +333,15 @@ class Channel(object):
         self.__randomstrategy.bootstrap(self.id)
 
         nextSong = self.get_jingle()
+        LOG.info('Jingle: %r' % nextSong)
 
         if not nextSong:
-            LOG.debug("No jingle selected. Trying to dequeue")
             nextSong = self.__queuestrategy.dequeue(self.id)
+            LOG.info('Queue: %r' % nextSong)
 
         if not nextSong:
-            LOG.debug("Apparently there was nothing on the queue. "
-                    "I'm going to take somethin at random then")
             nextSong = self.__randomstrategy.get(self.id)
+            LOG.info('Random song: %r' % nextSong)
 
         # handle orphaned files
         while (not os.path.exists(fsencode(nextSong.localpath)) and
@@ -351,8 +351,8 @@ class Channel(object):
                              values={'broken': True}).execute()
 
             nextSong = self.__randomstrategy.get(self.id)
+            LOG.info('Random song: %r' % nextSong)
 
-        LOG.info('... next song is: %r' % nextSong)
         return nextSong
 
     def run(self):
