@@ -204,7 +204,7 @@ class IceProvider(Thread):
         self.data_queue = data_queue
         self.cmd_queue = cmd_queue
         self.daemon = True
-        LOG.info("connection to icecast server (params = %s)" % params)
+        IceProvider.LOG.info("connection to icecast server (params = %s)" % params)
         self.port = int(params['port'])
         self.mount = str(params['mount'])
         self.password = str(params['pwd'])
@@ -262,7 +262,7 @@ class IceProvider(Thread):
 
         if not all((self.admin_url, self.admin_username, self.admin_password)):
             # not all required backend parameters supplied
-            LOG.warning("Not all parameters set for screen scraping icecast "
+            IceProvider.LOG.warning("Not all parameters set for screen scraping icecast "
                     "statistics. Need admin-url, user and password")
             return
 
@@ -280,18 +280,18 @@ class IceProvider(Thread):
         urllib2.install_opener(opener)
 
         try:
-            LOG.debug("Opening %r" % self.admin_url)
+            IceProvider.LOG.debug("Opening %r" % self.admin_url)
             handler = urllib2.urlopen(self.admin_url)
             data = handler.read()
 
             listeners = [x[0] for x in p.findall(data)]
             return listeners
         except urllib2.HTTPError, ex:
-            LOG.error("Error opening %r: Caught %s" % (
+            IceProvider.LOG.error("Error opening %r: Caught %s" % (
                 self.admin_url, ex))
             return []
         except urllib2.URLError, ex:
-            LOG.error("Error opening %r: Caught %s" % (
+            IceProvider.LOG.error("Error opening %r: Caught %s" % (
                 self.admin_url, ex))
             return []
 
