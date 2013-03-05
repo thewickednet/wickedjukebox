@@ -169,8 +169,8 @@ class FileReader(Thread):
         """
         try:
             title = u'{0[artist]} - {0[title]}'.format(song)
-            FileReader.LOG.debug('Telling IceProvider to set new title '
-                'to {0}'.format(title))
+            FileReader.LOG.debug(u'Telling IceProvider to set new title '
+                u'to {0}'.format(title))
             self._icy_commands.put_nowait((ICMD_SET_TITLE,
                 title.encode('utf8')))
         except Full:
