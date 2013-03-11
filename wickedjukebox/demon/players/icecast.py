@@ -1,7 +1,7 @@
 # TODO: Maybe it would be better to have a "global" atexit function properly
 # TODO:    supervising stopping the threads.
 from Queue import Queue, Empty, Full
-from os import urandom
+from pkg_resources import resource_stream
 from threading import Thread
 import atexit
 import logging
@@ -98,6 +98,8 @@ class FileReader(Thread):
         self._stat = None
         self.chunk_size = 1024
         self.status = STATUS_STOPPED
+        self.__noisefile = resource_stream('wickedjukebox',
+                'resources/noise.mp3')
 
     def run(self):
         FileReader.LOG.debug('Starting')
@@ -158,10 +160,16 @@ class FileReader(Thread):
                     data_type_logged = 'media'
                 self.qdata.put(chunk)
             else:
-                if data_type_logged != 'random':
-                    FileReader.LOG.debug('Starting/Continuing random data')
-                    data_type_logged = 'random'
-                self.qdata.put(urandom(self.chunk_size))
+                if data_type_logged != 'noise':
+                    FileReader.LOG.debug('Starting/Continuing noise.')
+                    data_type_logged = 'noise'
+
+                chunk = self.__noisefile.read(self.chunk_size)
+                if not chunk:
+                    self.__noisefile.seek(0)
+                    chunk = self.__noisefile.read(self.chunk_size)
+
+                self.qdata.put(chunk)
 
     def _set_title(self, song):
         """
