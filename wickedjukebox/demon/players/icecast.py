@@ -81,6 +81,10 @@ class Player(object):
     def stop(self):
         self.source_command.put((SCMD_STOP, None))
 
+    @property
+    def queuesize(self):
+        return len(self.filereader.song_queue)
+
 
 class FileReader(Thread):
 
@@ -100,11 +104,11 @@ class FileReader(Thread):
         self.status = STATUS_STOPPED
         self.__noisefile = resource_stream('wickedjukebox',
                 'resources/noise.mp3')
+        self.song_queue = []
 
     def run(self):
         FileReader.LOG.debug('Starting')
         do_skip = False
-        song_queue = []
         data_type_logged = ''
         while True:
             try:
@@ -112,9 +116,9 @@ class FileReader(Thread):
                 FileReader.LOG.debug('Recieved command {0!r} '
                         'with args {1!r}'.format(cmd, args))
                 if cmd == SCMD_QUEUE:
-                    song_queue.append(args)
+                    self.song_queue.append(args)
                     FileReader.LOG.info('Queueing %r. Queue is now: %r',
-                            args, song_queue)
+                            args, self.song_queue)
                 elif cmd == SCMD_PAUSE:
                     self.status = (self.status == STATUS_PAUSED and
                                     STATUS_STARTED or
@@ -129,22 +133,22 @@ class FileReader(Thread):
             except Empty:
                 pass
 
-            if do_skip and song_queue:
+            if do_skip and self.song_queue:
                 FileReader.LOG.debug('Skip requested on queue {0!r}'.format(
-                    song_queue))
-                new_song = song_queue.pop(0)
+                    self.song_queue))
+                new_song = self.song_queue.pop(0)
                 self.closefile()
                 self.openfile(new_song['filename'])
                 self._set_title(new_song)
                 FileReader.LOG.debug('Previous file closed and reopened '
                         'with {0!r}. Queue is now: {1!r}'.format(
-                            new_song['filename'], song_queue))
+                            new_song['filename'], self.song_queue))
                 do_skip = False
 
-            if not self.current_file and song_queue:
+            if not self.current_file and self.song_queue:
                 FileReader.LOG.debug('No file currently open, but we have '
-                        'a queue: {0!r}. Opening...'.format(song_queue))
-                new_song = song_queue.pop(0)
+                        'a queue: {0!r}. Opening...'.format(self.song_queue))
+                new_song = self.song_queue.pop(0)
                 self._set_title(new_song)
                 self.openfile(new_song['filename'])
 
