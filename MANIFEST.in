@@ -1,2 +1,3 @@
 include wickedjukebox/resources/logging.ini
+include wickedjukebox/resources/noise.mp3
 include wickedjukebox/version.txt
