@@ -109,7 +109,6 @@ class FileReader(Thread):
     def run(self):
         FileReader.LOG.debug('Starting')
         do_skip = False
-        data_type_logged = ''
         while True:
             try:
                 cmd, args = self.qcmds.get(False)
@@ -152,28 +151,32 @@ class FileReader(Thread):
                 self._set_title(new_song)
                 self.openfile(new_song['filename'])
 
+            send_noise = False
             chunk = ''
-            if self.current_file:
-                chunk = self.current_file.read(self.chunk_size)
-                if not chunk:
-                    self.closefile()
-
-            if chunk and self.status not in (STATUS_STOPPED, STATUS_PAUSED):
-                if data_type_logged != 'media':
-                    FileReader.LOG.debug('Starting/Continuing media data')
-                    data_type_logged = 'media'
-                self.qdata.put(chunk)
+            if self.status in (STATUS_STOPPED, STATUS_PAUSED):
+                send_noise = True
             else:
-                if data_type_logged != 'noise':
-                    FileReader.LOG.debug('Starting/Continuing noise.')
-                    data_type_logged = 'noise'
+                if self.current_file:
+                    chunk = self.current_file.read(self.chunk_size)
+                    if chunk:
+                        send_noise = False
+                    else:
+                        self.closefile()
+                        send_noise = True
+                else:
+                    send_noise = True
 
-                chunk = self.__noisefile.read(self.chunk_size)
-                if not chunk:
-                    self.__noisefile.seek(0)
-                    chunk = self.__noisefile.read(self.chunk_size)
-
+            if send_noise:
+                self.qdata.put(self.__get_noise())
+            else:
                 self.qdata.put(chunk)
+
+    def __get_noise(self):
+        output = self.__noisefile.read(self.chunk_size)
+        if not output:
+            self.__noisefile.seek(0)
+            output = self.__noisefile.read(self.chunk_size)
+        return output
 
     def _set_title(self, song):
         """
@@ -200,6 +203,12 @@ class FileReader(Thread):
         self._stat = os.stat(fname)
 
     def position(self):
+        if not self.current_file and not self.queue:
+            # no file opened, and queue empty. Send a nearly finished progress
+            # as finished. This will cause the jukebox channel to send a new
+            # song to the queue.
+            return (99, 100)
+
         if self.current_file and self._stat:
             return (self.current_file.tell(), self._stat.st_size)
         else:
