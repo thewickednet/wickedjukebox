@@ -836,6 +836,7 @@ class Console(cmd.Cmd):
 
 def main():
     setup_logging()
+    logging.getLogger('wickedjukebox.scanner').setLevel(logging.WARNING)
     # TODO: Catch logging messages from the scanner!
     print " Wicked Jukebox {0} ".format(__version__).center(79, '#')
     app = Console()
