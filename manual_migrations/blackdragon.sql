@@ -26,3 +26,5 @@ COMMIT;
 BEGIN;
     ALTER TABLE users ADD pinnedIp varchar(32);
 COMMIT;
+
+ALTER TABLE song ADD available TINYINT(1) DEFAULT 1;

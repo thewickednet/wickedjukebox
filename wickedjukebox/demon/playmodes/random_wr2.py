@@ -111,6 +111,9 @@ def _get_rough_query(channel_id):
     sel = sel.where(dynamicPLTable.c.group_id > 0)
     sel = sel.where(dynamicPLTable.c.channel_id == channel_id)
 
+    # skip unavailable songs
+    rough_query = rough_query.where(songTable.c.available == 1)
+
     # only one query will be parsed. for now.... this is a big TODO
     # as it triggers an unexpected behaviour (bug). i.e.: Why the
     # heck does it only activate one playlist?!?
