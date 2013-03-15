@@ -86,20 +86,6 @@ class Channel(object):
             self.name,
             self.id))
 
-    def currentSong(self):
-        if not self.__currentSong:
-            return None
-        selq = select([queueTable.c.user_id])
-        selq = selq.where(queueTable.c.song_id == self.__currentSong.id)
-        selq = selq.where(queueTable.c.position == 0)
-        row = selq.execute().fetchone()
-
-        userid = None
-        if row:
-            userid = row["user_id"]
-
-        return {"id": self.__currentSong.id, "userid": userid}
-
     def isStopped(self):
         return self.__playStatus == 'stopped'
 
