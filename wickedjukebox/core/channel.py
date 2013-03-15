@@ -270,7 +270,8 @@ class Channel(object):
         state in the DB
         """
         listeners = self.__player.listeners()
-        LOG.info('Updating current listeners: %r' % listeners)
+        LOG.log(listeners and logging.INFO or logging.DEBUG,
+                'Updating current listeners: %r' % listeners)
         if listeners is None:
             # feature not supported by backedd player, or list of listeners
             # unknown
