@@ -126,9 +126,6 @@ class Channel(object):
         # re-attach the song instance to the new session
         song = session.merge(song)
 
-        # update state in database
-        State.set("current_song", song.id, self.id)
-
         # queue the song
         self.__player.queue({
             'filename': song.localpath,
@@ -437,8 +434,11 @@ class Channel(object):
 
                 if song:
                     self.__currentSong = song
+                    # update state in database
+                    State.set("current_song", song.id, self.id)
                 else:
                     self.__currentSong = None
+                    State.set("current_song", 0, self.id)
 
                 self.__currentSongRecorded = False
                 self.__currentSongFile = self.__player.current_song()
