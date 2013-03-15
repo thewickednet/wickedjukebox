@@ -203,7 +203,7 @@ class FileReader(Thread):
         self._stat = os.stat(fname)
 
     def position(self):
-        if not self.current_file and not self.queue:
+        if not self.current_file and not self.song_queue:
             # no file opened, and queue empty. Send a nearly finished progress
             # as finished. This will cause the jukebox channel to send a new
             # song to the queue.
