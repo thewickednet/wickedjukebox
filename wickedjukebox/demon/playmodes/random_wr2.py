@@ -145,6 +145,9 @@ def _get_rough_query(channel_id):
 
 
 def _get_standing_count(song_id, user_list, standing):
+    if not user_list:
+        return 0
+
     query = select([songStandingTable.c.user_id])
     query = query.where(songStandingTable.c.standing == standing)
     query = query.where(songStandingTable.c.song_id == song_id)
