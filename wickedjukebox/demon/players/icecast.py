@@ -292,7 +292,7 @@ class IceProvider(Thread):
                 "password")
             return
 
-        int_octet = "25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?"
+        int_octet = "25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9]?"
         p = re.compile(r"(((%s)\.){3}(%s))" % (int_octet, int_octet))
 
         # Create an URL opener with support for Basic HTTP Authentication...
