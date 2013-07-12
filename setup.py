@@ -15,7 +15,7 @@ setup(
             ]
         },
     install_requires=[
-        'sqlalchemy==0.7.1',
+        'sqlalchemy<0.8b1',
         'mysql-python==1.2.3',
         'mutagen==1.20',
         'ply==3.4',

@@ -15,7 +15,7 @@ Virtual Environment
 
 ::
 
-   virtualenv --no-site-packages /path/to/environment
+   virtualenv /path/to/environment
 
 Install the package
 -------------------
@@ -39,3 +39,17 @@ Available scripts:
    run_channel.py
       Script to start a specific channel
 
+
+Development
+===========
+
+For development tasks, this project uses fabric_. Once installed, you can set
+up a running development environment by running::
+
+    fab develop
+
+This will set up a virtual environment ``env`` in the current folder and link
+the source files into this environment.
+
+
+.. _fabric: http://www.fabfile.org
