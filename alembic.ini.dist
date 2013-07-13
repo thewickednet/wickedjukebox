@@ -1,6 +1,6 @@
 [alembic]
 script_location = alembic
-sqlalchemy.url = mysql://jukebox:jukebox@localhost/mysql
+sqlalchemy.url = mysql://jukebox:jukebox@localhost/dbname
 
 [loggers]
 keys = root,sqlalchemy,alembic
