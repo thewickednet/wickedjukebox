@@ -15,16 +15,15 @@ setup(
             ]
         },
     install_requires=[
-        'sqlalchemy<0.8b1',
-        'mysql-python==1.2.3',
-        'mutagen==1.20',
-        'ply==3.4',
-        'scrobbler==1.0.0a2',
-        'shout-python==0.2.1',
-        'config_resolver==3.0',
-        'elementtree==1.2.7-20070827-preview',  # required by lastfm module
+        'sqlalchemy',
+        'mysql-python',
+        'mutagen',
+        'ply',
+        'scrobbler',
+        'shout-python',
+        'config_resolver',
+        'elementtree',  # required by lastfm module
     ],
-    dependency_links=['http://downloads.us.xiph.org/releases/libshout/'],
     include_package_data=True,
     zip_safe=False
 )

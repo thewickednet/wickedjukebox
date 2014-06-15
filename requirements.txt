@@ -1,0 +1,13 @@
+--find-links http://downloads.us.xiph.org/releases/libshout/
+--allow-external shout-python
+--allow-unverified shout-python
+--allow-external elementtree
+--allow-unverified elementtree
+sqlalchemy<0.8b1
+mysql-python==1.2.3
+mutagen==1.20
+ply==3.4
+scrobbler==1.0.0a2
+shout-python==0.2.1
+config_resolver==3.0
+elementtree==1.2.7-20070827-preview

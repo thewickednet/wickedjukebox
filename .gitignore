@@ -13,3 +13,4 @@ dist
 build
 /logging.ini
 /alembic.ini
+.vagrant
