@@ -1,0 +1,15 @@
+<p><strong>Name:</strong> <?php echo $this->artist->getName() ?></p>
+
+
+<?php foreach ($this->artist->getAlbums() as $album) : ?>
+
+<p>- <?php echo $album->getName() ?> (<?php echo $album->getReleaseDate()->format('Y') ?>)
+<ol>
+        <?php foreach ($album->getSongs() as $song) : ?>
+            <li><?php echo $song->getTitle() ?></li>
+        <?php endforeach ?>
+</ol>
+
+</p>
+
+<?php endforeach ?>
