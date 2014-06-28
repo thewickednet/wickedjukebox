@@ -7,28 +7,7 @@ import sys
 from os import stat, path
 
 logger = logging.getLogger(__name__)
-
-if config['database.type'] == 'sqlite':
-   import os
-   if os.path.exists( config['database.file'] ):
-      logging.debug("SQLite database found. All good!")
-   else:
-      logging.critical("SQLite database (as specified in config.ini) does "
-            "not exist. Please create it based on the SQL script found in "
-            "data/database.sql")
-      sys.exit(0)
-   dburi = "%s:///%s" % (
-         config['database.type'],
-         config['database.file'],
-         )
-else:
-   dburi = "%s://%s:%s@%s/%s" % (
-         config['database.type'],
-         config['database.user'],
-         config['database.pass'],
-         config['database.host'],
-         config['database.base'],
-         )
+dburi = config['database.dsn']
 
 # ----------------------------------------------------------------------------
 # Table definitions

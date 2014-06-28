@@ -19,11 +19,7 @@ port            = 65222
 ; force_encoding  = utf-8
 
 [database]
-Type=mysql
-Host=localhost
-User=jukebox
-Pass=
-Base=jukebox
+dsn=mysql://jukebox@localhost/jukebox?charset=utf8
 
 ; the filename for sqlite DBs
 ; Will be ignored if a real RDBMS is in use.

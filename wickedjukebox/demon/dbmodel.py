@@ -21,13 +21,7 @@ from wickedjukebox import load_config
 
 LOG = logging.getLogger(__name__)
 CFG = load_config()
-DBURI = "%s://%s:%s@%s/%s?charset=utf8" % (
-         CFG.get('database', 'type'),
-         CFG.get('database', 'user'),
-         CFG.get('database', 'pass'),
-         CFG.get('database', 'host'),
-         CFG.get('database', 'base'),
-         )
+DBURI = CFG.get('database', 'dsn')
 
 metadata = MetaData()
 engine = create_engine(DBURI, echo=False)

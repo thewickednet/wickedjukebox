@@ -15,6 +15,7 @@ setup(
             ]
         },
     install_requires=[
+        'alembic',
         'sqlalchemy',
         'mysql-python',
         'mutagen',

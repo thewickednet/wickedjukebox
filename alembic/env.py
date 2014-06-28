@@ -3,6 +3,8 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 from logging.config import fileConfig
 
+from config_resolver import Config
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -22,6 +24,12 @@ target_metadata = None
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
+
+def get_url():
+    config = Config('wicked', 'wickedjukebox', require_load=True)
+    return config.get('database', 'dsn')
+
+
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
 
@@ -34,7 +42,7 @@ def run_migrations_offline():
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url = get_url()
     context.configure(url=url)
 
     with context.begin_transaction():
