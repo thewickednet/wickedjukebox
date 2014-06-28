@@ -187,7 +187,7 @@ class Setting(object):
                         'channel_id': channel_id or 0,
                         'user_id': user_id or 0})
                     ins_q.execute()
-                    LOG.debug("    Inserted default value into the databse!")
+                    LOG.debug("    Inserted default value into the database!")
                 except Exception:
                     LOG.error("Unable to insert default setting into the "
                               "datatabase", exc_info=True)
@@ -302,7 +302,7 @@ class State(object):
             'state': statename,
             'value': default})
         ins_q.execute()
-        LOG.debug("    Inserted default value into the databse!")
+        LOG.debug("    Inserted default value into the database!")
         return default
 
 

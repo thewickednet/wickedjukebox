@@ -40,7 +40,7 @@ albumTable     = Table( 'album', metadata,
       Column( 'name', Unicode(128) ),
       Column( 'type', Unicode(32) ),
       autoload=True )
-songTable      = Table( 'song', metadata, 
+songTable      = Table( 'song', metadata,
       Column( 'title', Unicode(128) ),
       Column( 'localpath', Unicode(255) ),
       Column( 'lyrics', Unicode() ),
@@ -197,7 +197,7 @@ class Song(object):
       @todo: instead of using the mapped object "Album" we could use the album_table for performance gains
       """
       if not self.artist_id or not self.__albumName:
-         logger.warning( "Unable to determine the album ID without a valid srtist_id and album-name!" )   
+         logger.warning( "Unable to determine the album ID without a valid srtist_id and album-name!" )
 
       artist_id = self.artist_id
       album_name = self.__albumName
