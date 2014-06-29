@@ -1,6 +1,6 @@
 from __future__ import with_statement
 from alembic import context
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import engine_from_config, pool, create_engine
 from logging.config import fileConfig
 
 from config_resolver import Config
@@ -26,7 +26,8 @@ target_metadata = None
 
 
 def get_url():
-    config = Config('wicked', 'wickedjukebox', require_load=True)
+    config = Config('wicked', 'wickedjukebox', filename='config.ini',
+                    require_load=True)
     return config.get('database', 'dsn')
 
 
@@ -55,10 +56,7 @@ def run_migrations_online():
     and associate a connection with the context.
 
     """
-    engine = engine_from_config(
-                config.get_section(config.config_ini_section),
-                prefix='sqlalchemy.',
-                poolclass=pool.NullPool)
+    engine = create_engine(get_url())
 
     connection = engine.connect()
     context.configure(
