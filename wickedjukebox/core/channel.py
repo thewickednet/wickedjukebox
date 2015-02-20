@@ -81,6 +81,7 @@ class Channel(object):
 
         self.__player = icecast.Player(self.__channel_data['id'],
                 player_params)
+
         self.id = self.__channel_data["id"]
         LOG.info("Initialised channel %s with ID %d" % (
             self.name,

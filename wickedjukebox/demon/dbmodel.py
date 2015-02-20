@@ -15,7 +15,7 @@ from sqlalchemy import (
         ForeignKey,
         String)
 from sqlalchemy.sql import select, update, insert
-from sqlalchemy.orm import mapper, sessionmaker, relation
+from sqlalchemy.orm import mapper, scoped_session, sessionmaker, relation
 
 from wickedjukebox import load_config
 
@@ -26,7 +26,8 @@ DBURI = CFG.get('database', 'dsn')
 metadata = MetaData()
 engine = create_engine(DBURI, echo=False)
 metadata.bind = engine
-Session = sessionmaker(bind=engine)
+session_factory = sessionmaker(bind=engine)
+Session = scoped_session(session_factory)
 
 stateTable = Table('state', metadata,
       autoload=True)
