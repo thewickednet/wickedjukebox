@@ -33,7 +33,7 @@ class Player(object):
 
     def __init__(self, channel_id, icy_conf):
         Player.LOG.debug('Initialising with {0!r}, {1!r}'.format(channel_id,
-            icy_conf))
+                                                                 icy_conf))
         self.source_command = Queue()
         dataq = Queue(16)
         icy_commands = Queue(1)
@@ -92,7 +92,7 @@ class FileReader(Thread):
 
     def __init__(self, qcmds, qdata, icy_commands, *args, **kwargs):
         FileReader.LOG.debug('Initialising with {0!r}, {1!r}, {2!r}, '
-            '{3!r}'.format(qcmds, qdata, args, kwargs))
+                             '{3!r}'.format(qcmds, qdata, args, kwargs))
         super(FileReader, self).__init__(*args, **kwargs)
         self.qcmds = qcmds
         self._icy_commands = icy_commands
@@ -103,7 +103,7 @@ class FileReader(Thread):
         self.chunk_size = 1024
         self.status = STATUS_STOPPED
         self.__noisefile = resource_stream('wickedjukebox',
-                'resources/noise.mp3')
+                                           'resources/noise.mp3')
         self.song_queue = []
 
     def run(self):
@@ -113,15 +113,15 @@ class FileReader(Thread):
             try:
                 cmd, args = self.qcmds.get(False)
                 FileReader.LOG.debug('Recieved command {0!r} '
-                        'with args {1!r}'.format(cmd, args))
+                                     'with args {1!r}'.format(cmd, args))
                 if cmd == SCMD_QUEUE:
                     self.song_queue.append(args)
                     FileReader.LOG.info('Queueing %r. Queue is now: %r',
-                            args, self.song_queue)
+                                        args, self.song_queue)
                 elif cmd == SCMD_PAUSE:
                     self.status = (self.status == STATUS_PAUSED and
-                                    STATUS_STARTED or
-                                    STATUS_PAUSED)
+                                   STATUS_STARTED or
+                                   STATUS_PAUSED)
                 elif cmd == SCMD_SKIP:
                     do_skip = True
                 elif cmd == SCMD_START:
@@ -140,13 +140,15 @@ class FileReader(Thread):
                 self.openfile(new_song['filename'])
                 self._set_title(new_song)
                 FileReader.LOG.debug('Previous file closed and reopened '
-                        'with {0!r}. Queue is now: {1!r}'.format(
-                            new_song['filename'], self.song_queue))
+                                     'with {0!r}. Queue is now: {1!r}'.format(
+                                         new_song['filename'],
+                                         self.song_queue))
                 do_skip = False
 
             if not self.current_file and self.song_queue:
                 FileReader.LOG.debug('No file currently open, but we have '
-                        'a queue: {0!r}. Opening...'.format(self.song_queue))
+                                     'a queue: {0!r}. Opening...'.format(
+                                         self.song_queue))
                 new_song = self.song_queue.pop(0)
                 self._set_title(new_song)
                 self.openfile(new_song['filename'])
@@ -185,9 +187,9 @@ class FileReader(Thread):
         try:
             title = u'{0[artist]} - {0[title]}'.format(song)
             FileReader.LOG.debug(u'Telling IceProvider to set new title '
-                u'to {0}'.format(title))
+                                 u'to {0}'.format(title))
             self._icy_commands.put_nowait((ICMD_SET_TITLE,
-                title.encode('utf8')))
+                                           title.encode('utf8')))
         except Full:
             pass
 
@@ -239,8 +241,8 @@ class IceProvider(Thread):
 
         if "admin_url" in params:
             self.admin_url = "{0}/listclients.xsl?mount={1}".format(
-                    params['admin_url'],
-                    self.mount)
+                params['admin_url'],
+                self.mount)
 
         if "admin_username" in params:
             self.admin_username = params["admin_username"]
@@ -252,15 +254,15 @@ class IceProvider(Thread):
         atexit.register(self.disconnect)
 
     def _connect(self, name="The wicked jukebox",
-            url="http://jukebox.wicked.lu", bufsize=1024, bitrate=128,
-            samplerate=44100, channels=1):
+                 url="http://jukebox.wicked.lu", bufsize=1024, bitrate=128,
+                 samplerate=44100, channels=1):
 
         self._icy_handle = shout.Shout()
         self._icy_handle.format = 'mp3'
         self._icy_handle.audio_info = {
-              "bitrate": str(bitrate),
-              "samplerate": str(samplerate),
-              "channels": str(channels)}
+            "bitrate": str(bitrate),
+            "samplerate": str(samplerate),
+            "channels": str(channels)}
         self._icy_handle.user = "source"
         self._icy_handle.name = name
         self._icy_handle.url = url
@@ -276,8 +278,8 @@ class IceProvider(Thread):
             self._icy_handle.close()
         except Exception:
             IceProvider.LOG.log(logging.WARNING,
-                    'Error disconnecting from icecast.',
-                    exc_info=True)
+                                'Error disconnecting from icecast.',
+                                exc_info=True)
 
     def listener_ips(self):
         """
@@ -288,8 +290,8 @@ class IceProvider(Thread):
         if not all((self.admin_url, self.admin_username, self.admin_password)):
             # not all required backend parameters supplied
             IceProvider.LOG.warning("Not all parameters set for screen "
-                "scraping icecast statistics. Need admin-url, user and "
-                "password")
+                                    "scraping icecast statistics. Need "
+                                    "admin-url, user and password")
             return []
 
         int_octet = "25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9]?"
@@ -345,9 +347,9 @@ if __name__ == "__main__":
         'pwd': "mussdulauschtren"}
 
     testsong = {
-         'filename': sys.argv[1],
-         'artist': 'theartistname',
-         'title': 'thetitle'}
+        'filename': sys.argv[1],
+        'artist': 'theartistname',
+        'title': 'thetitle'}
 
     channel_id = 1
     player = Player(channel_id, icy_conf)
