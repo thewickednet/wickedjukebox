@@ -8,8 +8,8 @@ import logging
 import os
 import re
 import time
-import urllib2
 
+import requests
 import shout
 
 LOG = logging.getLogger(__name__)
@@ -290,36 +290,21 @@ class IceProvider(Thread):
             IceProvider.LOG.warning("Not all parameters set for screen "
                 "scraping icecast statistics. Need admin-url, user and "
                 "password")
-            return
+            return []
 
         int_octet = "25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9]?"
         p = re.compile(r"(((%s)\.){3}(%s))" % (int_octet, int_octet))
 
-        # Create an URL opener with support for Basic HTTP Authentication...
-        auth_handler = urllib2.HTTPBasicAuthHandler()
-        auth_handler.add_password(realm='Icecast2 Server',
-                                  uri=self.admin_url,
-                                  user=self.admin_username,
-                                  passwd=self.admin_password)
-        opener = urllib2.build_opener(auth_handler)
-        # ...and install it globally so it can be used with urlopen.
-        urllib2.install_opener(opener)
-
-        try:
-            IceProvider.LOG.debug("Opening %r" % self.admin_url)
-            handler = urllib2.urlopen(self.admin_url)
-            data = handler.read()
-
-            listeners = [x[0] for x in p.findall(data)]
+        IceProvider.LOG.debug("Opening %r" % self.admin_url)
+        response = requests.get(self.admin_url, auth=(self.admin_username,
+                                                      self.admin_password))
+        if response.status_code == 200:
+            listeners = [x[0] for x in p.findall(response.text)]
             IceProvider.LOG.debug('Current listeners: %r' % listeners)
             return listeners
-        except urllib2.HTTPError, ex:
-            IceProvider.LOG.error("Error opening %r: Caught %s" % (
-                self.admin_url, ex))
-            return []
-        except urllib2.URLError, ex:
-            IceProvider.LOG.error("Error opening %r: Caught %s" % (
-                self.admin_url, ex))
+        else:
+            IceProvider.LOG.error("Error opening %r: Status: %s: %s" % (
+                self.admin_url, response.status_code, response.text))
             return []
 
     def run(self):

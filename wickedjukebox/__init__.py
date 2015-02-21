@@ -37,6 +37,7 @@ def setup_logging():
 
     logging_conf_name = "logging.ini"
     log = logging.getLogger(__name__)
+    logging.getLogger('requests').setLevel(logging.WARNING)
     log.info('Default logging loaded. You can override any log levels by '
             'creating a file called "{0}" in the folder specified in '
             'the {1} environment variable.'.format(
