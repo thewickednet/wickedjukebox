@@ -16,14 +16,15 @@ setup(
         },
     install_requires=[
         'alembic',
-        'sqlalchemy',
-        'mysql-python',
-        'mutagen',
-        'ply',
-        'scrobbler',
-        'shout-python',
         'config_resolver',
         'elementtree',  # required by lastfm module
+        'mutagen',
+        'mysql-python',
+        'ply',
+        'requests',
+        'scrobbler',
+        'shout-python',
+        'sqlalchemy',
     ],
     include_package_data=True,
     zip_safe=False
