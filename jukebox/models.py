@@ -53,3 +53,38 @@ class Album(AlbumJsonSerializer, db.Model):
     type = db.Column(db.String(32))
     added = db.Column(db.DateTime())
     artist_id = db.Column(db.Integer(), db.ForeignKey('artist.id'))
+
+
+class User(db.Model):
+    __tablename__ = 'user'
+
+    id = db.Column(db.Integer(), primary_key=True)
+    username = db.Column(db.String(32))
+    password = db.Column(db.String(32))
+    fullname = db.Column(db.String(64))
+    email = db.Column(db.String(128))
+    credits = db.Column(db.Integer())
+    group_id = db.Column(db.Integer())
+    downloads = db.Column(db.Integer())
+    votes = db.Column(db.Integer())
+    skips = db.Column(db.Integer())
+    selects = db.Column(db.Integer())
+    added = db.Column(db.DateTime())
+    proof_of_life = db.Column(db.DateTime())
+    proof_of_listening = db.Column(db.DateTime())
+    picture = db.Column(db.String(255))
+    lifetime = db.Column(db.Integer())
+    channel_id = db.Column(db.Integer())
+    pinnedIp = db.Column(db.String(32))
+
+
+class Group(db.Model):
+    __tablename__ = 'groups'
+
+    id = db.Column(db.Integer(), primary_key=True)
+    title = db.Column(db.String(32))
+    admin = db.Column(db.Integer())
+    nocredits = db.Column(db.Integer())
+    queue_skip = db.Column(db.Integer())
+    queue_remove = db.Column(db.Integer())
+    queue_add = db.Column(db.Integer())

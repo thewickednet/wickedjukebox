@@ -3,6 +3,7 @@
 from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
 from flask_security import Security
+from flask_jwt import JWT
 
 #: Flask-SQLAlchemy extension instance
 db = SQLAlchemy()
@@ -12,6 +13,9 @@ mail = Mail()
 
 #: Flask-Security extension instance
 security = Security()
+
+#: Flask-JWT JSON  Token Handler
+jwt = JWT()
 
 
 class JukeboxError(Exception):

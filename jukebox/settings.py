@@ -13,3 +13,6 @@ SECURITY_RESET_SALT = 'reset_salt'
 SECURITY_RESET_WITHIN = '5 days'
 SECURITY_CONFIRM_WITHIN = '5 days'
 SECURITY_SEND_REGISTER_EMAIL = False
+
+JWT_AUTH_URL_RULE = '/authenticate'
+JWT_SECRET_KEY = 'jwt-secret-key'

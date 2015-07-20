@@ -7,7 +7,6 @@ from . import route
 
 bp = Blueprint('album', __name__, url_prefix='/album')
 
-
 @route(bp, '/<album_id>')
 def show(album_id):
     """Returns an album instance."""

@@ -3,7 +3,7 @@
 from functools import wraps
 
 from flask import jsonify
-from flask_security import login_required
+from flask_jwt import jwt_required
 
 from ..core import JukeboxError, JukeboxFormError
 from ..helpers import JSONEncoder
@@ -27,12 +27,16 @@ def create_app(settings_override=None, register_security_blueprint=False):
     return app
 
 
+def noop_dec(func):
+    return func
+
+
 def route(bp, *args, **kwargs):
     kwargs.setdefault('strict_slashes', False)
 
     def decorator(f):
         @bp.route(*args, **kwargs)
-        # @login_required
+        @jwt_required()
         @wraps(f)
         def wrapper(*args, **kwargs):
             sc = 200
