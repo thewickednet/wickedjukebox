@@ -31,6 +31,7 @@ class JSONEncoder(BaseJSONEncoder):
     :class:`JsonSerializer` mixin.
     """
     def default(self, obj):
+        print(obj)
         if isinstance(obj, JsonSerializer):
             return obj.to_json()
         return super(JSONEncoder, self).default(obj)

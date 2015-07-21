@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from datetime import timedelta
+
 DEBUG = True
 SECRET_KEY = 'super-secret-key'
 
@@ -16,3 +18,4 @@ SECURITY_SEND_REGISTER_EMAIL = False
 
 JWT_AUTH_URL_RULE = '/authenticate'
 JWT_SECRET_KEY = 'jwt-secret-key'
+JWT_EXPIRATION_DELTA = timedelta(days=1)

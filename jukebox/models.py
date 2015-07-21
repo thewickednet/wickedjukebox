@@ -17,8 +17,9 @@ class Artist(ArtistJsonSerializer, db.Model):
     summary = db.Column(db.Text())
     bio = db.Column(db.Text())
     added = db.Column(db.DateTime())
-    albums = db.relationship('Album')
 
+    def __str__(self):
+        return "%s (%s)" % (self.name, self.id)
 
 class SongJsonSerializer(JsonSerializer):
     __json_hidden__ = ['localpath', 'checksum']
@@ -30,6 +31,7 @@ class Song(SongJsonSerializer, db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     title = db.Column(db.String(128))
     duration = db.Column(db.Float())
+    track_no = db.Column(db.Integer())
     year = db.Column(db.Integer())
     bitrate = db.Column(db.Integer())
     localpath = db.Column(db.String(255))
@@ -38,7 +40,11 @@ class Song(SongJsonSerializer, db.Model):
     checksum = db.Column(db.String(14))
     lyrics = db.Column(db.Text())
     added = db.Column(db.DateTime())
+    artist_id = db.Column(db.Integer(), db.ForeignKey('artist.id'))
+    album_id = db.Column(db.Integer(), db.ForeignKey('album.id'))
 
+    def __str__(self):
+        return "%s (%s)" % (self.title, self.id)
 
 class AlbumJsonSerializer(JsonSerializer):
     __json_hidden__ = ['localpath', 'checksum']
@@ -54,9 +60,15 @@ class Album(AlbumJsonSerializer, db.Model):
     added = db.Column(db.DateTime())
     artist_id = db.Column(db.Integer(), db.ForeignKey('artist.id'))
 
+    def __str__(self):
+        return "%s (%s)" % (self.name, self.id)
 
-class User(db.Model):
-    __tablename__ = 'user'
+class UserJsonSerializer(JsonSerializer):
+    __json_hidden__ = ['password']
+
+
+class User(UserJsonSerializer, db.Model):
+    __tablename__ = 'users'
 
     id = db.Column(db.Integer(), primary_key=True)
     username = db.Column(db.String(32))
@@ -77,8 +89,15 @@ class User(db.Model):
     channel_id = db.Column(db.Integer())
     pinnedIp = db.Column(db.String(32))
 
+    def __str__(self):
+        return "%s (%s)" % (self.fullname, self.id)
 
-class Group(db.Model):
+
+class GroupJsonSerializer(JsonSerializer):
+    __json_hidden__ = ['']
+
+
+class Group(GroupJsonSerializer, db.Model):
     __tablename__ = 'groups'
 
     id = db.Column(db.Integer(), primary_key=True)
@@ -88,3 +107,38 @@ class Group(db.Model):
     queue_skip = db.Column(db.Integer())
     queue_remove = db.Column(db.Integer())
     queue_add = db.Column(db.Integer())
+
+
+class QueueJsonSerializer(JsonSerializer):
+    __json_hidden__ = ['']
+
+
+class Queue(QueueJsonSerializer, db.Model):
+    __tablename__ = 'queue'
+
+    id = db.Column(db.Integer(), primary_key=True)
+    song_id = db.Column(db.Integer(), db.ForeignKey('song.id'))
+    user_id = db.Column(db.Integer(), db.ForeignKey('user.id'))
+    channel_id = db.Column(db.Integer(), db.ForeignKey('channel.id'))
+    position = db.Column(db.Integer())
+    added = db.Column(db.DateTime())
+
+class ChannelJsonSerializer(JsonSerializer):
+    __json_hidden__ = ['']
+
+
+class Channel(ChannelJsonSerializer, db.Model):
+    __tablename__ = 'channel'
+
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(32))
+    public = db.Column(db.Integer())
+    backend = db.Column(db.String(64))
+    backend_params = db.Column(db.Text())
+    ping = db.Column(db.DateTime())
+    active = db.Column(db.Integer())
+    status = db.Column(db.Integer())
+
+    def __str__(self):
+        return "%s (%s)" % (self.name, self.id)
+
