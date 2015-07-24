@@ -3,9 +3,9 @@
 from werkzeug.serving import run_simple
 from werkzeug.wsgi import DispatcherMiddleware
 
-from jukebox import api
+from jukebox import api, frontend
 
-application = DispatcherMiddleware(api.create_app(), {
+application = DispatcherMiddleware(frontend.create_app(), {
     '/api': api.create_app()
 })
 

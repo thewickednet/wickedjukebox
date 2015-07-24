@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from flask import Blueprint
-from flask_jwt import current_user
 
 from ..services import album, song
 from . import route
@@ -14,6 +13,7 @@ def show(album_id):
     print("show_albums")
     """Returns an album instance."""
     return album.get_or_404(album_id)
+
 
 @route(bp, '/<album_id>/songs')
 def songs(album_id):

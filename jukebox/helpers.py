@@ -5,7 +5,7 @@ import importlib
 
 from flask import Blueprint
 from flask.json import JSONEncoder as BaseJSONEncoder
-
+from werkzeug.local import LocalProxy
 
 def register_blueprints(app, package_name, package_path):
     """Register all Blueprint instances on the specified Flask application found
@@ -31,8 +31,10 @@ class JSONEncoder(BaseJSONEncoder):
     :class:`JsonSerializer` mixin.
     """
     def default(self, obj):
-        print(obj)
+        print("%s -> %s" % (obj, type(obj)))
         if isinstance(obj, JsonSerializer):
+            return obj.to_json()
+        if isinstance(obj, LocalProxy) and isinstance(obj._get_current_object(), JsonSerializer):
             return obj.to_json()
         return super(JSONEncoder, self).default(obj)
 

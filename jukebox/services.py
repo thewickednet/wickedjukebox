@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from .core import Service
-from .models import Artist, Album, Song, Queue, Channel
+from .models import Artist, Album, Song, Queue, Channel, User, State
 
 
 class ArtistService(Service):
@@ -24,8 +24,18 @@ class QueueService(Service):
     __model__ = Queue
 
 
+class UserService(Service):
+    __model__ = User
+
+
+class StateService(Service):
+    __model__ = State
+
+
 artist = ArtistService()
 song = SongService()
 album = AlbumService()
 channel = ChannelService()
 queue = QueueService()
+user = UserService()
+state = StateService()
