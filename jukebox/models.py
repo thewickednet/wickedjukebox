@@ -2,7 +2,7 @@
 
 from .core import db
 from .helpers import JsonSerializer
-
+import hashlib
 
 class ArtistJsonSerializer(JsonSerializer):
     __json_hidden__ = []
@@ -96,6 +96,23 @@ class User(UserJsonSerializer, db.Model):
     def __str__(self):
         return "%s (%s)" % (self.fullname, self.id)
 
+    def check_password(self, data):
+        password_hash = hashlib.md5(data.encode('utf8')).hexdigest()
+        if password_hash == self.password:
+            return True
+        return False
+
+    def is_authenticated(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def is_active(self):
+        return True
+
+    def get_id(self):
+        return self.id
 
 class GroupJsonSerializer(JsonSerializer):
     __json_hidden__ = ['']

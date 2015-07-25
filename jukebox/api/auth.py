@@ -3,14 +3,13 @@
 from ..core import jwt
 from ..models import User
 import datetime
-import hashlib
+
 
 
 @jwt.authentication_handler
 def login(username, password):
     user = User.query.filter_by(username=username).one()
-    password_hash = hashlib.md5(password.encode('utf8')).hexdigest()
-    if user.password == password_hash:
+    if user.check_password(password):
         return user
 
 

@@ -3,24 +3,19 @@
 import os
 
 from flask import Flask
-from flask_security import SQLAlchemyUserDatastore
 
-from .core import db, mail, security, jwt
+from .core import db, mail, login_manager, jwt
 from .helpers import register_blueprints
 from .middleware import HTTPMethodOverrideMiddleware
-from .models import User, Group
+from .services import user
 
-def create_app(package_name, package_path, settings_override=None,
-               register_security_blueprint=True):
+def create_app(package_name, package_path, settings_override=None):
     """Returns a :class:`Flask` application instance configured with common
     functionality for the Jukebox platform.
 
     :param package_name: application package name
     :param package_path: application package path
     :param settings_override: a dictionary of settings to override
-    :param register_security_blueprint: flag to specify if the Flask-Security
-                                        Blueprint should be registered. Defaults
-                                        to `True`.
     """
     app = Flask(package_name, instance_path=os.getcwd(), instance_relative_config=True)
     app.config.from_object('jukebox.settings')
@@ -30,11 +25,14 @@ def create_app(package_name, package_path, settings_override=None,
     db.init_app(app)
     mail.init_app(app)
     jwt.init_app(app)
-    #security.init_app(app, SQLAlchemyUserDatastore(db, User, Group),
-    #                  register_blueprint=register_security_blueprint)
+    login_manager.init_app(app)
 
     register_blueprints(app, package_name, package_path)
 
     app.wsgi_app = HTTPMethodOverrideMiddleware(app.wsgi_app)
+
+    @login_manager.user_loader
+    def load_user(userid):
+        return user.get(userid)
 
     return app
