@@ -8,7 +8,7 @@ from ..forms import LoginForm
 bp = Blueprint('auth', __name__)
 
 
-@route(bp, '/login', methods=['GET', 'POST'])
+@route(bp, '/login', need_auth=False, methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():

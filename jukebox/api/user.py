@@ -6,7 +6,7 @@ from flask_jwt import current_user
 from ..services import user
 from . import route
 
-bp = Blueprint('user', __name__, url_prefix='/user')
+bp = Blueprint('api_user', __name__, url_prefix='/user')
 
 
 @route(bp, '/<user_id>')

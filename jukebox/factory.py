@@ -9,6 +9,8 @@ from .helpers import register_blueprints
 from .middleware import HTTPMethodOverrideMiddleware
 from .services import user
 
+from .models import Album
+
 def create_app(package_name, package_path, settings_override=None):
     """Returns a :class:`Flask` application instance configured with common
     functionality for the Jukebox platform.
@@ -26,6 +28,7 @@ def create_app(package_name, package_path, settings_override=None):
     mail.init_app(app)
     jwt.init_app(app)
     login_manager.init_app(app)
+    login_manager.login_view = '/login'
 
     register_blueprints(app, package_name, package_path)
 
