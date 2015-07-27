@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from flask_login import UserMixin
+
 from .core import db
 from .helpers import JsonSerializer
 import hashlib
@@ -71,7 +73,7 @@ class UserJsonSerializer(JsonSerializer):
     __json_hidden__ = ['password']
 
 
-class User(UserJsonSerializer, db.Model):
+class User(UserMixin, UserJsonSerializer, db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer(), primary_key=True)
@@ -102,17 +104,6 @@ class User(UserJsonSerializer, db.Model):
             return True
         return False
 
-    def is_authenticated(self):
-        return True
-
-    def is_anonymous(self):
-        return False
-
-    def is_active(self):
-        return True
-
-    def get_id(self):
-        return self.id
 
 class GroupJsonSerializer(JsonSerializer):
     __json_hidden__ = ['']
