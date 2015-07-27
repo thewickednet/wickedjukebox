@@ -9,6 +9,7 @@
 from functools import wraps
 
 from flask import render_template
+from flask_login import login_required
 
 from .. import factory
 from . import assets
@@ -33,9 +34,17 @@ def handle_error(e):
     return render_template('errors/%s.html' % e.code), e.code
 
 
-def route(bp, *args, **kwargs):
+def noop_dec(func):
+    return func
+
+
+def route(bp, *args, need_auth=True, **kwargs):
+
+    login_dec = login_required if need_auth else noop_dec
+
     def decorator(f):
         @bp.route(*args, **kwargs)
+        @login_dec
         @wraps(f)
         def wrapper(*args, **kwargs):
             return f(*args, **kwargs)
