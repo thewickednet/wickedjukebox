@@ -1,0 +1,3 @@
+recursive-include jukebox/frontend/templates *.html
+recursive-include jukebox/frontend/static *.css *.jpg *js *.less
+include jukebox/version.txt

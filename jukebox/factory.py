@@ -2,6 +2,7 @@
 
 import os
 
+from config_resolver import Config
 from flask import Flask
 
 from .core import db, mail, login_manager, jwt
@@ -10,6 +11,7 @@ from .middleware import HTTPMethodOverrideMiddleware
 from .services import user
 
 from .models import Album
+
 
 def create_app(package_name, package_path, settings_override=None):
     """Returns a :class:`Flask` application instance configured with common
@@ -20,9 +22,11 @@ def create_app(package_name, package_path, settings_override=None):
     :param settings_override: a dictionary of settings to override
     """
     app = Flask(package_name, instance_path=os.getcwd(), instance_relative_config=True)
+    app.localconfig = Config('wicked', 'jukebox', version='1.0', require_load=True)
     app.config.from_object('jukebox.settings')
-    app.config.from_pyfile('settings.cfg', silent=True)
-    app.config.from_object(settings_override)
+
+    for option in app.localconfig.options('flask'):
+        app.config[option.upper()] = app.localconfig.get('flask', option)
 
     db.init_app(app)
     mail.init_app(app)

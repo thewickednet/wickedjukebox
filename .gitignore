@@ -1,7 +1,10 @@
-*~
-.*.swp
 *.egg-info
 *.pyc
 *.pyo
+*~
+.*.swp
 .idea
+.wicked
+/dist
+/env
 settings.cfg
