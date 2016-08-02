@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt import JWT
 from flask_login import LoginManager
+from flask_cors import CORS
 
 #: Flask-SQLAlchemy extension instance
 db = SQLAlchemy()
 
-#: Flask-Mail extension instance
-mail = Mail()
-
 #: Flask-JWT JSON  Token Handler
 jwt = JWT()
+
+cors = CORS()
 
 #: Flask-Login
 login_manager = LoginManager()

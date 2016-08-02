@@ -4,6 +4,7 @@ from functools import wraps
 
 from flask import jsonify
 from flask_jwt import jwt_required
+from flask_cors import cross_origin
 
 from ..core import JukeboxError, JukeboxFormError
 from ..helpers import JSONEncoder
@@ -32,6 +33,7 @@ def route(bp, *args, **kwargs):
     def decorator(f):
         @bp.route(*args, **kwargs)
         @jwt_required()
+        @cross_origin()
         @wraps(f)
         def wrapper(*args, **kwargs):
             sc = 200

@@ -12,6 +12,7 @@ setup(
         'flask-jwt',
         'flask-login',
         'flask-mail',
+        'flask-cors',
         'flask-sqlalchemy',
         'flask-wtf',
         'passlib',

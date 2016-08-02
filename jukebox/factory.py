@@ -5,12 +5,10 @@ import os
 from config_resolver import Config
 from flask import Flask
 
-from .core import db, mail, login_manager, jwt
+from .core import db, login_manager, jwt, cors
 from .helpers import register_blueprints
 from .middleware import HTTPMethodOverrideMiddleware
 from .services import user
-
-from .models import Album
 
 
 def create_app(package_name, package_path, settings_override=None):
@@ -29,9 +27,9 @@ def create_app(package_name, package_path, settings_override=None):
         app.config[option.upper()] = app.localconfig.get('flask', option)
 
     db.init_app(app)
-    mail.init_app(app)
     jwt.init_app(app)
     login_manager.init_app(app)
+    cors.init_app(app)
     login_manager.login_view = '/login'
 
     register_blueprints(app, package_name, package_path)
