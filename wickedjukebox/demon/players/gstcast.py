@@ -1,21 +1,18 @@
-import time
-import os
 import re
 from datetime import datetime
 from threading import Thread
 import logging
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 from hashlib import md5
 
-import pygst
-pygst.require("0.10")
-import gst
-import gobject
+import gi
+from gi.repository import Gst, GObject
+
 from wickedjukebox.demon.dbmodel import State
 
+
+gi.require_version('Gst', '1.0')
 LOG = logging.getLogger(__name__)
-GLOOP = None
-GCONTEXT = None
 
 
 class PlayerState(object):
@@ -34,10 +31,20 @@ class PlayerState(object):
 
 class GStreamer(Thread):
 
+    def decodebin_pad_added(self, src, pad):
+        target = self.audioconvert.sinkpads[0]
+        pad_name = '%s:%s' % (pad.get_parent_element().name, pad.name)
+        tgt_name = '%s:%s' % (target.get_parent_element().name, target.name)
+        LOG.debug('Pad %s added to %s', pad_name, src.name)
+        LOG.debug('   Linking %s to %s', pad_name, tgt_name)
+        pad.link(target)
+
     def __init__(self, *args, **kwargs):
         Thread.__init__(self, *args, **kwargs)
+        self.daemon = True
+
         self.keep_running = True
-        self.player = None
+        self.pipeline = None
         self.filename = None
         self.is_playing = False
         self.method = "module_method"
@@ -46,146 +53,121 @@ class GStreamer(Thread):
 
     def init_player(self):
         LOG.debug("Initialising the player thread")
-        self.player = gst.Pipeline("player")
-        source = gst.element_factory_make("filesrc", "file-source")
-        decoder = gst.element_factory_make("mad", "mp3-decoder")
-        conv = gst.element_factory_make("audioconvert", "converter")
-        encoder = gst.element_factory_make("lamemp3enc", "encoder")
-        resampler = gst.element_factory_make("audioresample", "resampler")
-        tagger = gst.element_factory_make("taginject", "tagger")
-        icysource = gst.element_factory_make("shout2send", "icysource")
-        self.player.add(
-            source, decoder, conv, resampler, encoder, tagger, icysource)
-        gst.element_link_many(source, decoder, conv, encoder, icysource)
-        bus = self.player.get_bus()
+        self.pipeline = gst.Pipeline("player")
+
+        self.filesrc = Gst.ElementFactory.make('filesrc')
+        self.filesrc.set_property('location', filename)
+        self.audioconvert = Gst.ElementFactory.make('audioconvert')
+        decodebin = Gst.ElementFactory.make('decodebin')
+        decodebin.connect('pad-added', self.decodebin_pad_added)
+        audioresample = Gst.ElementFactory.make('audioresample')
+        shout2send = Gst.ElementFactory.make('shout2send')
+
+        bus = self.pipeline.get_bus()
         bus.add_signal_watch()
         bus.connect("message", self.on_message)
 
+        self.pipeline.add(
+            self.filesrc,
+            decodebin,
+            self.audioconvert,
+            audioresample,
+            shout2send,
+        )
+
+        self.filesrc.link(decodebin)
+        self.audioconvert.link(audioresample)
+        audioresample.link(shout2send)
+
     def current_position(self):
         try:
-            return (int(self.player.query_position(
-                        gst.FORMAT_TIME, None)[0] * 1E-9),
-                    int(self.player.query_duration(
-                        gst.FORMAT_TIME, None)[0] * 1E-9))
-        except Exception, exc:
+            return (int(self.pipeline.query_position(
+                        Gst.Format.Time, None)[0] * 1E-9),
+                    int(self.pipeline.query_duration(
+                        Gst.Format.Time, None)[0] * 1E-9))
+        except Exception as exc:
             LOG.error(exc)
             return (0, 100)
 
-    def on_message(self, bus, message):
+    def on_message(self, bus, message, loop):
         """
         gstramer callback.
 
         gstreamer calls this method from time to time sending additional
         payload along the "message" parameter
         """
-        if message.type == gst.MESSAGE_EOS:
-            LOG.debug("End of stream reached")
-            self.player.set_state(gst.STATE_NULL)
+        if message.type == Gst.MessageType.EOS:
+            LOG.debug('End of Stream')
+            loop.quit()
+            self.pipeline.set_state(Gst.State.READY)
             self.is_playing = False
-        elif message.type == gst.MESSAGE_ERROR:
-            self.player.set_state(gst.STATE_NULL)
+        elif message.type == Gst.MessageType.ERROR:
             err, debug = message.parse_error()
-            LOG.error("Error: %s" % err)
-            LOG.debug("Debug info: %s" % debug)
+            LOG.error('!! Error %s: %s', err, debug)
+            loop.quit()
+            self.pipeline.set_state(Gst.State.READY)
             self.is_playing = False
-        else:
-            LOG.debug("Unhandled gst message: %s" % message)
+        return True
 
     def stop(self):
         LOG.info("Stopping stream")
         self.filename = None
-        self.player.set_state(gst.STATE_NULL)
+        self.pipeline.set_state(Gst.State.READY)
         self.is_playing = False
         self.keep_running = False
 
     def status(self):
         return self.is_playing and "playing" or "stop"
 
-    #def start_stop(self, filename):
-    #    if self.is_playing:
-    #        self.stop()
-    #    else:
-    #        LOG.info("Stream startin for %s" % filename)
-    #        self.filename = filename
-    #        if not os.path.isfile( filename ):
-    #            LOG.error( "%r is not a file!" % filename )
-    #            return
-
-    #        self.player.get_by_name("file-source").set_property( "location", filename)
-    #        thread.start_new_thread( self.play, () )
     def play(self, filename):
         if not self.keep_running:
             LOG.warning("Thread has been stopped! Will not play this file!")
             return
         self.filename = filename
 
+    def set_file(self, new_filename):
+        """
+        Start playing a different file
+        """
+        self.pipeline.set_state(Gst.State.READY)
+        self.filesrc.set_property('location', new_filename)
+        self.pipeline.set_state(Gst.State.PLAYING)
+
     def run(self):
         LOG.debug("GStreamer player thread started")
-        self.player.get_by_name("encoder").set_property("bitrate", 128)
-        self.player.get_by_name("tagger").set_property(
-            "tags", "album=testalbum,title=testtitle,artist=testartist")
-        self.player.get_by_name("icysource").set_property("ip", "127.0.0.1")
-        self.player.get_by_name("icysource").set_property("port", STATE.port)
-        self.player.get_by_name("icysource").set_property(
+        # XXX self.pipeline.get_by_name("encoder").set_property("bitrate", 128)
+        # XXX self.pipeline.get_by_name("tagger").set_property(
+        # XXX     "tags", "album=testalbum,title=testtitle,artist=testartist")
+        self.pipeline.get_by_name("shout2send").set_property("ip", "127.0.0.1")
+        self.pipeline.get_by_name("shout2send").set_property("port", STATE.port)
+        self.pipeline.get_by_name("shout2send").set_property(
             "password", STATE.password)
-        self.player.get_by_name("icysource").set_property(
+        self.pipeline.get_by_name("shout2send").set_property(
             "mount", STATE.mount)
-        self.player.get_by_name("icysource").set_property(
+        self.pipeline.get_by_name("shout2send").set_property(
             "streamname", "The Wicked Jukebox - test.mp3")
-        while self.keep_running:
-            if not self.filename or not os.path.isfile(self.filename):
-                LOG.error("%r is not a file!" % self.filename)
-                time.sleep(1)
-                continue
 
-            if self.player.get_state()[1] == gst.STATE_NULL:
-                LOG.debug("Player is in STATE_NULL. Setting file and starting "
-                        "playback")
-                self.player.get_by_name("file-source").set_property(
-                        "location",
-                        self.filename)
-                self.is_playing = True
-                self.player.set_state(gst.STATE_PLAYING)
-            else:
-                LOG.debug("Player is in STATE_PLAYING. Waiting for playback "
-                        "to finish")
-                while self.is_playing:
-                    try:
-                        self.position = (
-                            int(self.player.query_position(
-                                gst.FORMAT_TIME, None)[0] * 1E-9),
-                            int(self.player.query_duration(
-                                gst.FORMAT_TIME, None)[0] * 1E-9),
-                        )
-                        LOG.debug("Current position: %r/%r " % self.position)
-                    except Exception, exc:
-                        self.position = (0, 0)
-                        LOG.error(exc)
-                    time.sleep(1)
-                    GCONTEXT.iteration(True)
+        loop = GObject.MainLoop()
+
+        self.pipeline.get_by_name("filesrc").set_property(
+            "location",
+            self.filename)
+        self.is_playing = True
+        self.pipeline.set_state(Gst.State.PLAYING)
+        try:
+            loop.run()
+        except Exception:
+            LOG.exception('Exception raised during main loop')
+
         LOG.debug("GStreamer player thread stopped")
-
-        #while self.is_playing:
-        #    try:
-        #        self.position = (
-        #            int(self.player.query_position(gst.FORMAT_TIME, None)[0] * 1E-9),
-        #            int(self.player.query_duration(gst.FORMAT_TIME, None)[0] * 1E-9),
-        #        )
-        #        LOG.debug("Current position: %r/%r " % self.position)
-        #    except Exception, exc:
-        #        self.position = (0, 0)
-        #        LOG.error(exc)
-        #    time.sleep(1)
 
 
 def init():
-    global GLOOP, GCONTEXT
     LOG.info("Initialising gstreamer player")
 
 
 def release():
     LOG.info("Releasing gstreamer player resources")
-    GLOOP.quit()
 
 
 def config(params):
@@ -311,51 +293,28 @@ def current_listeners():
     p = re.compile(r"(((%s)\.){3}(%s))" % (part, part))
 
     # Create an OpenerDirector with support for Basic HTTP Authentication...
-    auth_handler = urllib2.HTTPBasicAuthHandler()
+    auth_handler = urllib.request.HTTPBasicAuthHandler()
     auth_handler.add_password(realm='Icecast2 Server',
                               uri=STATE.admin_url,
                               user=STATE.admin_username,
                               passwd=STATE.admin_password)
-    opener = urllib2.build_opener(auth_handler)
+    opener = urllib.request.build_opener(auth_handler)
     # ...and install it globally so it can be used with urlopen.
-    urllib2.install_opener(opener)
+    urllib.request.install_opener(opener)
 
     try:
         LOG.debug("Opening %r" % STATE.admin_url)
-        handler = urllib2.urlopen(STATE.admin_url)
+        handler = urllib.request.urlopen(STATE.admin_url)
         data = handler.read()
 
         listeners = [md5(x[0]).hexdigest() for x in p.findall(data)]
         return listeners
-    except urllib2.HTTPError, ex:
+    except urllib.error.HTTPError as ex:
         LOG.error("Error opening %r: Caught %r" % (STATE.admin_url, str(ex)))
         return None
-    except urllib2.URLError, ex:
+    except urllib.error.URLError as ex:
         LOG.error("Error opening %r: Caught %r" % (STATE.admin_url, str(ex)))
         return None
 
 
 STATE = PlayerState()
-
-
-if __name__ == "__main__":
-    import sys
-    from getpass import getpass
-    logging.basicConfig(level=logging.DEBUG)
-    LOG.info("Streaming %r to icecast..." % sys.argv[1])
-
-    params = {}
-    params['port'] = int(raw_input("ICY port [8001]: ") or 8001)
-    params['mount'] = raw_input("ICY Mount [/test.mp3]: ") or "/test.mp3"
-    params['channel_id'] = int(raw_input("Channel ID [0]: ") or 0)
-    params['pwd'] = getpass("ICY Passwd: ")
-    config(params)
-    init()
-    obj = GStreamer()
-    obj.start()
-    obj.play(sys.argv[1])
-
-    LOG.debug('main loop')
-    gobject.threads_init()
-    GLOOP = gobject.MainLoop()
-    GCONTEXT = GLOOP.get_context()
