@@ -1,8 +1,7 @@
 --find-links http://downloads.us.xiph.org/releases/libshout/
---allow-external shout-python
---allow-unverified shout-python
---allow-external elementtree
---allow-unverified elementtree
+--trusted-host downloads.us.xiph.org
+# --allow-external elementtree
+# --allow-unverified elementtree
 sqlalchemy<0.8b1
 mysql-python==1.2.3
 mutagen==1.20
