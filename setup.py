@@ -17,7 +17,6 @@ setup(
     install_requires=[
         'alembic',
         'config_resolver',
-        'elementtree',  # required by lastfm module
         'mutagen',
         'mysql-python',
         'ply',

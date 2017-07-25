@@ -9,6 +9,5 @@ ply==3.4
 scrobbler==1.0.0a2
 shout-python==0.2.1
 config_resolver==3.3.0
-elementtree==1.2.7-20070827-preview
 alembic==0.6.5
 requests==2.5.1
