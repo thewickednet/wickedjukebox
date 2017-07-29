@@ -1,32 +1,19 @@
-import re
+# XXX import re
 from datetime import datetime
 from threading import Thread
 import logging
-import urllib.request, urllib.error, urllib.parse
-from hashlib import md5
+# XXX import urllib.request, urllib.error, urllib.parse
+# XXX from hashlib import md5
 
 import gi
+gi.require_version('Gst', '1.0')  # This must come before importing Gst
+
 from gi.repository import Gst, GObject
 
 from wickedjukebox.demon.dbmodel import State
 
 
-gi.require_version('Gst', '1.0')
 LOG = logging.getLogger(__name__)
-
-
-class PlayerState(object):
-    def __init__(self):
-        self.song_started = None
-        self.admin_password = None
-        self.admin_url = None
-        self.admin_user = None
-        self.channel_id = 0
-        self.mount = None
-        self.password = None
-        self.port = None
-        self.queue = []
-        self.server = None
 
 
 class GStreamer(Thread):
@@ -53,7 +40,7 @@ class GStreamer(Thread):
 
     def init_player(self):
         LOG.debug("Initialising the player thread")
-        self.pipeline = gst.Pipeline("player")
+        self.pipeline = Gst.Pipeline("player")
 
         self.filesrc = Gst.ElementFactory.make('filesrc')
         self.filesrc.set_property('location', filename)
@@ -162,57 +149,59 @@ class GStreamer(Thread):
         LOG.debug("GStreamer player thread stopped")
 
 
+
+STREAMER = GStreamer()
+
 def init():
     LOG.info("Initialising gstreamer player")
+    STREAMER.start()
 
 
 def release():
     LOG.info("Releasing gstreamer player resources")
+    STREAMER.stop()
+    STREAMER.join()
 
 
 def config(params):
     LOG.info("GStreamer client initialised with params %s" % params)
-    STATE.port = int(params['port'])
-    STATE.mount = str(params['mount'])
-    STATE.password = str(params['pwd'])
-    STATE.channel_id = int(params['channel_id'])
+    STREAMER.port = int(params['port'])
+    STREAMER.mount = str(params['mount'])
+    STREAMER.password = str(params['pwd'])
+    STREAMER.channel_id = int(params['channel_id'])
 
     if "admin_url" in params:
-        STATE.admin_url = (str(params["admin_url"]) +
+        STREAMER.admin_url = (str(params["admin_url"]) +
                "/listclients.xsl?mount=" +
-               STATE.mount)
+               STREAMER.mount)
 
     if "admin_username" in params:
-        STATE.admin_username = str(params["admin_username"])
+        STREAMER.admin_username = str(params["admin_username"])
 
     if "admin_password" in params:
-        STATE.admin_password = str(params["admin_password"])
+        STREAMER.admin_password = str(params["admin_password"])
 
 
 def getPosition():
-    if not STATE.server:
-        output = (0, 100)
-    else:
-        output = STATE.server.current_position()
-    State.set("progress", output[0], STATE.channel_id)
+    # TODO
+    output (0, 100)
+    State.set("progress", output[0], STREAMER.channel_id)
     return output
 
 
 def getSong():
-    if STATE.server:
-        return STATE.server.filename
-    return None
+    return STREAMER.current_filename
 
 
 def queue(filename):
     from wickedjukebox.demon.dbmodel import Setting
     LOG.debug("Received a queue (%s)" % filename)
     if Setting.get('sys_utctime', 0) == 0:
-        STATE.song_started = datetime.utcnow()
+        STREAMER.song_started = datetime.utcnow()
     else:
-        STATE.song_started = datetime.now()
+        STREAMER.song_started = datetime.now()
 
-    STATE.queue.append(filename)
+    STREAMER.queue(filename)
 
 
 def cropPlaylist(length=2):
@@ -224,10 +213,7 @@ def cropPlaylist(length=2):
     @param length: The new size of the playlist
     """
     LOG.debug("Cropping pl to %d songs" % length)
-    if len(STATE.queue) <= length:
-        return True
-
-    STATE.queue = STATE.queue[-length:]
+    STREAMER.crop_playlist(length)
     return True
 
 
@@ -241,38 +227,28 @@ def stopPlayback():
     from wickedjukebox.demon.dbmodel import State
 
     LOG.debug("Stopping playback")
-    if STATE.server:
-        STATE.server.stop()
+    STREAMER.stop()
 
-    State.set("progress", 0, STATE.channel_id)
+    State.set("progress", 0, STREAMER.channel_id)
     LOG.debug("Playback stopped")
 
 
 def pausePlayback():
-    pass
+    LOG.debug("Pausing playback")
+    STREAMER.pause()
+    LOG.debug("Playback paused")
 
 
 def startPlayback():
     from wickedjukebox.demon.dbmodel import State
 
     LOG.info("Starting playback")
-    State.set("progress", 0, STATE.channel_id)
-    if not STATE.queue:
-        LOG.warn("Nothing on queue.")
-        return False
-
-    if not STATE.server:
-        LOG.warn("No icecast connection available!")
-        STATE.server = GStreamer()
-
-    STATE.server.start_stop(STATE.queue.pop(0))
+    State.set("progress", 0, STREAMER.channel_id)
+    STREAMER.play()
 
 
 def status():
-    if STATE.server:
-        return STATE.server.status()
-    else:
-        return "stopped"
+    return STREAMER.status()
 
 
 def current_listeners():
@@ -280,41 +256,39 @@ def current_listeners():
     Scrape the Icecast admin page for current listeners and return a list of
     MD5 hashes of their IPs
     """
+    return []  # TODO
 
-    if STATE.admin_url is None or \
-        STATE.admin_username is None or \
-        STATE.admin_password is None:
-        # not all required backend parameters supplied
-        LOG.warning("Not all parameters set for screen scraping icecast "
-                "statistics. Need admin-url and admin-password")
-        return
+    # XXX if STATE.admin_url is None or \
+    # XXX     STATE.admin_username is None or \
+    # XXX     STATE.admin_password is None:
+    # XXX     # not all required backend parameters supplied
+    # XXX     LOG.warning("Not all parameters set for screen scraping icecast "
+    # XXX             "statistics. Need admin-url and admin-password")
+    # XXX     return
 
-    part = "25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?"
-    p = re.compile(r"(((%s)\.){3}(%s))" % (part, part))
+    # XXX part = "25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?"
+    # XXX p = re.compile(r"(((%s)\.){3}(%s))" % (part, part))
 
-    # Create an OpenerDirector with support for Basic HTTP Authentication...
-    auth_handler = urllib.request.HTTPBasicAuthHandler()
-    auth_handler.add_password(realm='Icecast2 Server',
-                              uri=STATE.admin_url,
-                              user=STATE.admin_username,
-                              passwd=STATE.admin_password)
-    opener = urllib.request.build_opener(auth_handler)
-    # ...and install it globally so it can be used with urlopen.
-    urllib.request.install_opener(opener)
+    # XXX # Create an OpenerDirector with support for Basic HTTP Authentication...
+    # XXX auth_handler = urllib.request.HTTPBasicAuthHandler()
+    # XXX auth_handler.add_password(realm='Icecast2 Server',
+    # XXX                           uri=STATE.admin_url,
+    # XXX                           user=STATE.admin_username,
+    # XXX                           passwd=STATE.admin_password)
+    # XXX opener = urllib.request.build_opener(auth_handler)
+    # XXX # ...and install it globally so it can be used with urlopen.
+    # XXX urllib.request.install_opener(opener)
 
-    try:
-        LOG.debug("Opening %r" % STATE.admin_url)
-        handler = urllib.request.urlopen(STATE.admin_url)
-        data = handler.read()
+    # XXX try:
+    # XXX     LOG.debug("Opening %r" % STATE.admin_url)
+    # XXX     handler = urllib.request.urlopen(STATE.admin_url)
+    # XXX     data = handler.read()
 
-        listeners = [md5(x[0]).hexdigest() for x in p.findall(data)]
-        return listeners
-    except urllib.error.HTTPError as ex:
-        LOG.error("Error opening %r: Caught %r" % (STATE.admin_url, str(ex)))
-        return None
-    except urllib.error.URLError as ex:
-        LOG.error("Error opening %r: Caught %r" % (STATE.admin_url, str(ex)))
-        return None
-
-
-STATE = PlayerState()
+    # XXX     listeners = [md5(x[0]).hexdigest() for x in p.findall(data)]
+    # XXX     return listeners
+    # XXX except urllib.error.HTTPError as ex:
+    # XXX     LOG.error("Error opening %r: Caught %r" % (STATE.admin_url, str(ex)))
+    # XXX     return None
+    # XXX except urllib.error.URLError as ex:
+    # XXX     LOG.error("Error opening %r: Caught %r" % (STATE.admin_url, str(ex)))
+    # XXX     return None

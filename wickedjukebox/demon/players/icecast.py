@@ -34,56 +34,66 @@ class Player(object):
     def __init__(self, channel_id, icy_conf):
         Player.LOG.debug('Initialising with {0!r}, {1!r}'.format(channel_id,
                                                                  icy_conf))
-        self.source_command = Queue()
-        dataq = Queue(16)
-        icy_commands = Queue(1)
-        self.filereader = FileReader(self.source_command, dataq, icy_commands)
-        self.provider = IceProvider(dataq, icy_commands, icy_conf)
-        self.filereader.start()
-        self.provider.start()
+        # XXX self.source_command = Queue()
+        # XXX dataq = Queue(16)
+        # XXX icy_commands = Queue(1)
+        # XXX self.filereader = FileReader(self.source_command, dataq, icy_commands)
+        # XXX self.provider = IceProvider(dataq, icy_commands, icy_conf)
+        # XXX self.filereader.start()
+        # XXX self.provider.start()
 
     def crop_playlist(self, max_items=2):
         Player.LOG.debug('Cropping playlist to {0} items'.format(max_items))
-        self.filereader.crop_queue(max_items)
+        # XXX self.filereader.crop_queue(max_items)
 
     def listeners(self):
-        return self.provider.listener_ips()
+        # XXX return self.provider.listener_ips()
+        return []
 
     def position(self):
-        Player.LOG.debug('Interpreting position {0!r}'.format(
-            self.filereader.position()))
-        try:
-            a, b = self.filereader.position()
-            return float(a) / float(b) * 100
-        except ZeroDivisionError:
-            return 0.0
+        # XXX Player.LOG.debug('Interpreting position {0!r}'.format(
+        # XXX     self.filereader.position()))
+        # XXX try:
+        # XXX     a, b = self.filereader.position()
+        # XXX     return float(a) / float(b) * 100
+        # XXX except ZeroDivisionError:
+        # XXX     return 0.0
+        return 0.0
 
     def current_song(self):
-        if not self.filereader.current_file:
-            return ''
-        return self.filereader.current_file.name
+        # XXX if not self.filereader.current_file:
+        # XXX     return ''
+        # XXX return self.filereader.current_file.name
+        return 'null-song'
 
     def pause(self):
-        self.source_command.put((SCMD_PAUSE, None))
+        pass
+        # XXX self.source_command.put((SCMD_PAUSE, None))
 
     def queue(self, song):
-        self.source_command.put((SCMD_QUEUE, song))
+        pass
+        # XXX self.source_command.put((SCMD_QUEUE, song))
 
     def skip(self):
-        self.source_command.put((SCMD_SKIP, None))
+        pass
+        # XXX self.source_command.put((SCMD_SKIP, None))
 
     def start(self):
-        self.source_command.put((SCMD_START, None))
+        pass
+        # XXX self.source_command.put((SCMD_START, None))
 
     def status(self):
-        return self.filereader.status
+        return STATUS_STOPPED
+        # XXX return self.filereader.status
 
     def stop(self):
-        self.source_command.put((SCMD_STOP, None))
+        # XXX self.source_command.put((SCMD_STOP, None))
+        pass
 
     @property
     def queuesize(self):
-        return len(self.filereader.song_queue)
+        return 0
+        # XXX return len(self.filereader.song_queue)
 
 
 class FileReader(Thread):

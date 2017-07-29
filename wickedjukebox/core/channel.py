@@ -9,7 +9,7 @@ from random import choice, random
 from sqlalchemy.sql import select, func, update, or_
 
 from wickedjukebox.demon import playmodes
-from wickedjukebox.demon.players import icecast
+from wickedjukebox.demon.players import gstcast
 from wickedjukebox.demon.dbmodel import (
     channelTable,
     Setting,
@@ -79,8 +79,11 @@ class Channel(object):
                 key, value = param.split('=')
                 player_params[key.strip()] = value.strip()
 
-        self.__player = icecast.Player(self.__channel_data['id'],
-                player_params)
+        self.__player = gstcast
+        self.__player.config()
+        self.__player.init()
+        # XXX .Player(self.__channel_data['id'],
+        # XXX         player_params)
 
         self.id = self.__channel_data["id"]
         LOG.info("Initialised channel %s with ID %d" % (

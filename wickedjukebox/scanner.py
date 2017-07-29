@@ -141,4 +141,6 @@ def scan(top, subfolder=u""):
         for subfolder in candidates:
             scan_folder(path.join(top, subfolder))
     else:
+        print(repr(top))  # XXX debug statement
+        print(repr(subfolder))  # XXX debug statement
         scan_folder(path.join(top, subfolder))
