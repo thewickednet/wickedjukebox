@@ -26,10 +26,6 @@ def bus_call(bus, message, loop):
     return True
 
 
-filename = sys.argv[1]
-filename2 = sys.argv[2]
-
-
 class Player(Thread):
 
     def pad_added(self, src, pad):
@@ -40,29 +36,33 @@ class Player(Thread):
         LOG.debug('   Linking %s to %s', pad_name, tgt_name)
         pad.link(target)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, filename, *args, **kwargs):
         super(Player, self).__init__(*args, **kwargs)
         self.daemon = True
 
-        self.pipeline = Gst.Pipeline('mypipeline')
+        self.pipeline = Gst.Pipeline()
 
         self.filesrc = Gst.ElementFactory.make('filesrc')
+        print('>>>', filename)
         self.filesrc.set_property('location', filename)
         self.audioconvert = Gst.ElementFactory.make('audioconvert')
         decodebin = Gst.ElementFactory.make('decodebin')
         decodebin.connect('pad-added', self.pad_added)
         audioresample = Gst.ElementFactory.make('audioresample')
         # alsasink = Gst.ElementFactory.make('alsasink')
+        shout = Gst.ElementFactory.make('shout2send')
 
         self.pipeline.add(self.filesrc)
         self.pipeline.add(decodebin)
         self.pipeline.add(self.audioconvert)
         self.pipeline.add(audioresample)
         # self.pipeline.add(alsasink)
+        self.pipeline.add(shout)
 
         self.filesrc.link(decodebin)
         self.audioconvert.link(audioresample)
         # audioresample.link(alsasink)
+        audioresample.link(shout)
 
     def set_file(self, new_filename):
         self.pipeline.set_state(Gst.State.READY)
@@ -93,9 +93,10 @@ if __name__ == '__main__':
 
     GObject.threads_init()
     Gst.init(None)
-    player = Player()
+    filename = '/var/mp3/Tagged/Carpenter Brut/Trilogy/Carpenter Brut - TRILOGY - 01 Escape From Midwich Valley.mp3'
+    player = Player(filename)
     player.start()
 
-    sleep(5)
-    player.set_file(filename2)
-    sleep(5)
+    # XXX sleep(5)
+    # XXX player.set_file(filename2)
+    # XXX sleep(5)
