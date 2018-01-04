@@ -212,26 +212,24 @@ class Channel(object):
         if self.__currentSong is None:
             return
 
+        LOG.info("skipping song")
+        
         session = Session()
-
-        query = session.query(ChannelStat).select()
+        query = session.query(ChannelStat)
         query = query.filter(songTable.c.id == channelSongs.c.song_id)
         query = query.filter(songTable.c.id == self.__currentSong.id)
         query = query.filter(channelSongs.c.channel_id == self.id)
         stat = query.first()
         if not stat:
-            stat = ChannelStat(songid=self.__currentSong.id,
-                               channelid=self.id)
+            stat = ChannelStat(song_id=self.__currentSong.id,
+                               channel_id=self.id)
             stat.skipped = 1
             stat.lastPlayed = datetime.now()
+            session.add(stat)
         else:
             stat.skipped = stat.skipped + 1
             stat.lastPlayed = datetime.now()
-        session.add(stat)
-
-        nextSong = self.getNextSong()
-        LOG.info("skipping song")
-
+        session.commit()
         session.close()
         self.queue_songs()
         self.__player.skip()
@@ -429,13 +427,8 @@ class Channel(object):
 
             skipState = State.get("skipping", self.id, default=False)
             if skipState and int(skipState) == 1:
+                self.skipSong()
                 State.set("skipping", 0, self.id)
-                nextSong = self.getNextSong()
-                was_successful = self.queueSong(nextSong)
-                while not was_successful:
-                    nextSong = self.getNextSong()
-                    was_successful = self.queueSong(nextSong)
-                self.__player.skip()
 
             # If we are not playing stuff, we can skip the rest
             if self.__playStatus != 'playing':
