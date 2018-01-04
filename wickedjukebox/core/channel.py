@@ -8,6 +8,8 @@ from random import choice, random
 
 from sqlalchemy.sql import select, func, update, or_
 
+import pusher
+
 from wickedjukebox.demon import playmodes
 from wickedjukebox.demon.players import common
 from wickedjukebox.demon.dbmodel import (
@@ -375,6 +377,14 @@ class Channel(object):
         lastPing = datetime.now()
         proofoflife_timeout = int(Setting.get("proofoflife_timeout", 120))
 
+        pusher_client = pusher.Pusher(
+            app_id='<app_id>',
+            key='<app_key>',
+            secret='<app_secret>',
+            cluster='eu',
+            ssl=True
+        )
+
         # while we are alive, do the loop
         while self.__keepRunning:
 
@@ -471,6 +481,8 @@ class Channel(object):
                 else:
                     self.__currentSong = None
                     State.set("current_song", 0, self.id)
+
+                pusher_client.trigger('wicked', 'current', {'action': 'update'})
 
                 self.__currentSongRecorded = False
                 self.__currentSongFile = self.__player.current_song()
