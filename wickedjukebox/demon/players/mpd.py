@@ -11,226 +11,225 @@ import logging
 logger = logging.getLogger(__name__)
 
 from wickedjukebox.demon.lib import mpdclient
-from wickedjukebox.demon.model import getSetting
+from wickedjukebox.demon.players import common
+from wickedjukebox.demon.dbmodel import Setting
 
-connection = None  # The interface to mpd
-host       = None
-port       = None
-rootFolder = None
-songStarted = None
 
-def config(params):
-   """
-   Constructor
-   Connects to the mpd-daemon.
-   """
-   global host, port, rootFolder
+class Player(object):
 
-   # set up the connection to the daemon
-   host       = params['host']
-   port       = int(params['port'])
-   rootFolder = params['rootFolder'].decode(sys.getfilesystemencoding())
-   __connect()
+    def __init__(self, id_, params):
+       """
+       Constructor
+       Connects to the mpd-daemon.
+       """
+       from pprint import pprint
+       pprint(params)
+       # set up the connection to the daemon
+       self.host = params['host']
+       self.port = int(params['port'])
+       self.root_folder = params['root_folder']
+       self.song_started = None
+       self.__connection = None
 
-def __disconnect():
-   "Disconnect from mpd-player"
-   global connection
-   connection = None
-
-def __connect():
-   """
-   Connect to the mpd-player.
-   """
-   global connection
-
-   while True:
-      try:
-         logging.info( "Connecting to MPD backend..." )
-         connection = mpdclient.MpdController( host, port )
-      except mpdclient.MpdConnectionPortError, ex:
-         import traceback; traceback.print_exc()
-         logging.warning("Error connecting to the player.")
-         time.sleep(1)
-         continue
-      break
-   logging.info( "... MPD connected" )
-
-def getPosition():
-   """
-   Returns the current position in the song. (currentSec, totalSec)
-   """
-   out = (0,0)
-   try:
-      pos = connection.getSongPosition()
-      if pos:
-         out = (pos[0], pos[1])
-      else:
-         out = (0,0)
-   except mpdclient.MpdError, ex:
-      if str(ex).find('not done processing current command') > 0:
-         pass
-      else:
-         raise
-
-   return out
-
-def getSong():
-   """
-   Returns the currently running song
-   """
-   while True:
-      try:
-         if connection.getCurrentSong() is False:
-            return None
-
-         return os.path.join(
-               rootFolder,
-               connection.getCurrentSong().path.decode(sys.getfilesystemencoding()))
-      except mpdclient.MpdError, ex:
-         if str(ex).find('not done processing current command') > 0:
-            logging.warning('"not done processing current command" received. Retrying')
-            connection.clearError()
-            time.sleep(1)
-            continue
-         elif str(ex).find('playlistLength not found') > 0:
-            logging.warning('"playlistLength not found" received. Reconnecting to backend...')
-            __disconnect()
-            time.sleep(1)
-            __connect()
-            continue
-         elif str(ex).find('problem parsing song info') > 0:
-            logging.warning('"problem parsing song info" received. Retrying')
-            connection.clearError()
-            time.sleep(1)
-            continue
-         else:
-            raise
-      break
-
-   return None
-
-def playlistPosition():
-   """
-   Returns the position in the playlist as integer
-   """
-   return connection.status().song
-
-def queue(filename):
-   """
-   Appends a new song to the playlist, and removes the first entry in the
-   playlist if it's becoming too large. This prevents having huge playlists
-   after a while playing.
-
-   @type  filename: str
-   @param filename: The full path of the file
-   """
-   global songStarted
-   # with MPD, filenames are relative to the path specified in the mpd
-   # config!! This is handled here.
-   if filename[0:len(rootFolder)] == rootFolder:
-      filename = filename[len(rootFolder)+1:]
-   logging.info("queuing %s" % filename)
-   try:
-      connection.add([filename])
-      if getSetting('sys_utctime', 0) == 0:
-         songStarted = datetime.utcnow()
-      else:
-         songStarted = datetime.now()
-      return True
-   except Exception, ex:
-      logging.error( "error queuing (%s)." % ex )
-      return False
-
-   # keep the playlist clean
-   try:
-      if connection.getStatus().playlistLength > 2:
-         connection.delete([0])
-   except mpdclient.MpdError, ex:
-      logging.error("Internal Error", exc_info=True)
-
-def playlistSize():
-   """
-   Returns the complete size of the playlist
-   """
-   return connection.getStatus().playlistLength
-
-def cropPlaylist(length=2):
-   """
-   Removes items from the *beginning* of the playlist to ensure it has only
-   a fixed number of entries.
-
-   @type  length: int
-   @param length: The new size of the playlist
-   """
-   try:
-      if connection.getStatus().playlistLength > length:
-         connection.delete(range(0,
-            connection.getStatus().playlistLength - length))
-   except mpdclient.MpdError, ex:
-      print str(ex)
-
-def clearPlaylist():
-   """
-   Clears the player's playlist
-   """
-   cropPlaylist(0)
-
-def skipSong():
-   """
-   Skips the current song
-   """
-   connection.next()
-
-def stopPlayback():
-   """
-   Stops playback
-   """
-   connection.stop()
-
-def pausePlayback():
-   """
-   Pauses playback
-   """
-   connection.pause()
-
-def startPlayback():
-   """
-   Starts playback
-   """
-   connection.play()
-
-def status():
-   """
-   Returns the status of the player (play, stop, pause)
-   """
-   while True:
-      try:
-         if connection.getStatus().state == 1:
-            return 'stop'
-         elif connection.getStatus().state == 2:
-            return 'play'
-         elif connection.getStatus().state == 3:
-            return 'pause'
-         else:
-            return 'unknown (%s)' % connection.getStatus().state
-      except mpdclient.MpdError, ex:
-         if str(ex).find('not done processing current command') > 0:
-            logging.debug("'Not done proc. command' error skipped")
-            time.sleep(1)
-            continue
-         elif str(ex).find("playlistLength not found") > 0:
-            logging.debug("'playlistLength not found' error skipped")
-            time.sleep(1)
-            continue
-         else:
+    def connect(self):
+        """
+        Connect to the mpd-player.
+        """
+        while True:
             try:
-               raise
-            except mpdclient.MpdStoredError:
-               return 'stop'
-      break;
+               logging.info( "Connecting to MPD backend..." )
+               self.__connection = mpdclient.MpdController(self.host, self.port)
+            except mpdclient.MpdConnectionPortError, ex:
+               import traceback; traceback.print_exc()
+               logging.warning("Error connecting to the player.")
+               time.sleep(1)
+               continue
+            break
+        logging.info( "... MPD connected" )
 
-   return 'unknown'
+    def disconnect(self):
+        "Disconnect from mpd-player"
+        self.__connection = None
 
-def updatePlaylist():
-   connection.sendUpdateCommand()
+    def queue(self, args):
+        """
+        Appends a new song to the playlist, and removes the first entry in the
+        playlist if it's becoming too large. This prevents having huge playlists
+        after a while playing.
 
+        @type  args: dict
+        """
+        filename = args['filename']
+        # with MPD, filenames are relative to the path specified in the mpd
+        # config!! This is handled here.
+        if filename[0:len(self.root_folder)] == self.root_folder:
+           filename = filename[len(self.root_folder)+1:]
+        logging.info("queuing %r" % filename)
+        added_files = []
+
+        output = True
+        try:
+           added_files.extend(self.__connection.add([filename.encode('utf-8')]))
+           if Setting.get('sys_utctime', 0) == 0:
+              self.song_started = datetime.utcnow()
+           else:
+              self.song_started = datetime.now()
+           if not added_files:
+               logging.error( "error queuing (Probably not found in mpd).")
+               output = False
+           else:
+               output = True
+        except Exception, ex:
+           logging.error( "error queuing (%s)." % ex )
+           output = False
+
+        return output
+
+    def start(self):
+        """
+        Starts playback
+        """
+        self.__connection.play()
+
+    def stop(self):
+        """
+        Stops playback
+        """
+        self.__connection.stop()
+
+    def crop_playlist(self, length=2):
+        """
+        Removes items from the *beginning* of the playlist to ensure it has only
+        a fixed number of entries.
+
+        @type  length: int
+        @param length: The new size of the playlist
+        """
+        try:
+           if self.__connection.getStatus().playlistLength > length:
+              self.__connection.delete(range(0,
+                 self.__connection.getStatus().playlistLength - length))
+        except mpdclient.MpdError, ex:
+           print str(ex)
+
+    def listeners(self):
+        return []  # TODO
+
+    def current_song(self):
+        """
+        Returns the currently running song
+        """
+        while True:
+           try:
+              if self.__connection.getCurrentSong() is False:
+                 return None
+
+              return os.path.join(
+                    self.root_folder,
+                    self.__connection.getCurrentSong().path.decode(sys.getfilesystemencoding()))
+           except mpdclient.MpdError, ex:
+              if str(ex).find('not done processing current command') > 0:
+                 logging.warning('"not done processing current command" received. Retrying')
+                 self.__connection.clearError()
+                 time.sleep(1)
+                 continue
+              elif str(ex).find('playlistLength not found') > 0:
+                 logging.warning('"playlistLength not found" received. Reconnecting to backend...')
+                 __disconnect()
+                 time.sleep(1)
+                 __connect()
+                 continue
+              elif str(ex).find('problem parsing song info') > 0:
+                 logging.warning('"problem parsing song info" received. Retrying')
+                 self.__connection.clearError()
+                 time.sleep(1)
+                 continue
+              else:
+                 raise
+           break
+
+        return None
+
+    def pause(self):
+        """
+        Pauses playback
+        """
+        self.__connection.pause()
+
+    def position(self):
+        """
+        Returns the current position in the song. (currentSec, totalSec)
+        """
+        out = (0,0)
+        try:
+           pos = self.__connection.getSongPosition()
+           if pos:
+              out = (pos[0], pos[1])
+           else:
+              out = (0,0)
+        except mpdclient.MpdError, ex:
+           if str(ex).find('not done processing current command') > 0:
+              pass
+           else:
+              raise
+
+        return (out[0] / float(out[1])) * 100
+
+    def skip(self):
+        """
+        Skips the current song
+        """
+        self.__connection.next()
+
+    def status(self):
+        """
+        Returns the status of the player (play, stop, pause)
+        """
+        while True:
+           try:
+              if self.__connection.getStatus().state == 1:
+                 return common.STATUS_STOPPED
+              elif self.__connection.getStatus().state == 2:
+                 return common.STATUS_STARTED
+              elif self.__connection.getStatus().state == 3:
+                 return common.STATUS_PAUSED
+              else:
+                 return 'unknown (%s)' % self.__connection.getStatus().state
+           except mpdclient.MpdError, ex:
+              if str(ex).find('not done processing current command') > 0:
+                 logging.debug("'Not done proc. command' error skipped")
+                 time.sleep(1)
+                 continue
+              elif str(ex).find("playlistLength not found") > 0:
+                 logging.debug("'playlistLength not found' error skipped")
+                 time.sleep(1)
+                 continue
+              else:
+                 try:
+                    raise
+                 except mpdclient.MpdStoredError:
+                    return 'stop'
+           break;
+
+        return 'unknown'
+
+    def playlistPosition(self):
+       """
+       Returns the position in the playlist as integer
+       """
+       return self.self.__connection.status().song
+
+    def playlistSize(self):
+       """
+       Returns the complete size of the playlist
+       """
+       return self.self.__connection.getStatus().playlistLength
+
+    def clearPlaylist():
+       """
+       Clears the player's playlist
+       """
+       self.crop_playlist(0)
+
+    def updatePlaylist(self):
+       self.self.__connection.sendUpdateCommand()

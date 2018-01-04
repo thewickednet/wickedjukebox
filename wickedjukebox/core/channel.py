@@ -9,7 +9,7 @@ from random import choice, random
 from sqlalchemy.sql import select, func, update, or_
 
 from wickedjukebox.demon import playmodes
-from wickedjukebox.demon.players import icecast
+from wickedjukebox.demon.players import common
 from wickedjukebox.demon.dbmodel import (
     channelTable,
     Setting,
@@ -79,8 +79,10 @@ class Channel(object):
                 key, value = param.split('=')
                 player_params[key.strip()] = value.strip()
 
-        self.__player = icecast.Player(self.__channel_data['id'],
-                player_params)
+        self.__player = common.make_player(self.__channel_data['backend'],
+                                           self.__channel_data['id'],
+                                           player_params)
+        self.__player.connect()
 
         self.id = self.__channel_data["id"]
         LOG.info("Initialised channel %s with ID %d" % (
@@ -114,7 +116,7 @@ class Channel(object):
         song = session.merge(song)
 
         # queue the song
-        self.__player.queue({
+        was_successful = self.__player.queue({
             'filename': song.localpath,
             'artist': song.artist.name,
             'title': song.title})
@@ -133,11 +135,15 @@ class Channel(object):
                     traceback.print_exc()
                     LOG.error(ex)
         session.close()
+        return was_successful
 
     def startPlayback(self):
         self.__playStatus = 'playing'
         nextSong = self.getNextSong()
-        self.queueSong(nextSong)
+        was_successful = self.queueSong(nextSong)
+        while not was_successful:
+            nextSong = self.getNextSong()
+            was_successful = self.queueSong(nextSong)
         self.__player.start()
         return 'OK'
 
@@ -203,7 +209,6 @@ class Channel(object):
         session.close()
 
         self.enqueue(nextSong.id)
-        self.__player.crop_playlist(2)
         self.__player.skip()
         return 'OK'
 
@@ -388,7 +393,6 @@ class Channel(object):
                 #    - add the next song to the playlist and
                 #    - start playback
 
-                self.__player.crop_playlist(0)
 
                 nextSong = self.getNextSong()
 
@@ -400,11 +404,17 @@ class Channel(object):
                 if isinstance(nextSong, basestring):
                     # we got a simple file. Not a tracked library song!
                     LOG.info("Queuing song %s" % nextSong)
-                    self.queueSong(nextSong)
+                    was_successful = self.queueSong(nextSong)
+                    while not was_successful:
+                        nextSong = self.getNextSong()
+                        was_successful = self.queueSong(nextSong)
                     LOG.info("Starting playback...")
                     self.__player.start()
                 else:
-                    self.queueSong(nextSong)
+                    was_successful = self.queueSong(nextSong)
+                    while not was_successful:
+                        nextSong = self.getNextSong()
+                        was_successful = self.queueSong(nextSong)
                     self.__player.start()
 
             # or if it accidentally went into the play state
@@ -416,7 +426,10 @@ class Channel(object):
             if skipState and int(skipState) == 1:
                 State.set("skipping", 0, self.id)
                 nextSong = self.getNextSong()
-                self.queueSong(nextSong)
+                was_successful = self.queueSong(nextSong)
+                while not was_successful:
+                    nextSong = self.getNextSong()
+                    was_successful = self.queueSong(nextSong)
                 self.__player.skip()
 
             # If we are not playing stuff, we can skip the rest
@@ -478,7 +491,10 @@ class Channel(object):
                     session.commit()
 
                     nextSong = self.getNextSong()
-                    self.queueSong(nextSong)
+                    was_successful = self.queueSong(nextSong)
+                    while not was_successful:
+                        nextSong = self.getNextSong()
+                        was_successful = self.queueSong(nextSong)
 
             # if we handed out credits more than 5mins ago, we give out some
             # more
