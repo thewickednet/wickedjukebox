@@ -31,6 +31,22 @@ DEFAULT_RANDOM_MODE = 'random_wr2'
 DEFAULT_QUEUE_MODE = 'queue_positioned'
 
 
+class JingleArtist(object):
+    name = '<none>'
+
+
+class Jingle(object):
+
+    def __init__(self, id, localpath):
+        self.id = id
+        self.localpath = localpath
+        self.title = 'jingle'
+        self.artist = JingleArtist()
+
+    def __repr__(self):
+        return '<Jingle %r %r>' % (self.id, self.localpath)
+
+
 class Channel(object):
 
     def __init__(self, name):
@@ -113,14 +129,16 @@ class Channel(object):
         session = Session()
 
         # re-attach the song instance to the new session
-        song = session.merge(song)
+        if isinstance(song, Song):
+            song = session.merge(song)
 
         # queue the song
         was_successful = self.__player.queue({
             'filename': song.localpath,
             'artist': song.artist.name,
             'title': song.title})
-        if self.__scrobbler is not None:
+
+        if isinstance(song, Song) and self.__scrobbler is not None:
             a = session.query(Artist).get(song.artist_id)
             b = session.query(Album).get(song.album_id)
             if a and b:
@@ -260,7 +278,10 @@ class Channel(object):
                     if available_jingles != []:
                         random_file = choice(available_jingles)
                         self.__no_jingle_count = 0
-                        return os.path.join(self.__jingles_folder, random_file)
+                        return Jingle(
+                            None,
+                            os.path.join(self.__jingles_folder, random_file)
+                        )
                 else:
                     self.__no_jingle_count += 1
                     LOG.debug("'No jingle' count increased to %d" %
