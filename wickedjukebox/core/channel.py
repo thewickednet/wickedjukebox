@@ -26,6 +26,7 @@ from wickedjukebox.demon.dbmodel import (
     queueTable,
     channelSongs)
 from wickedjukebox.util import fsencode
+from wickedjukebox import load_config
 
 import logging
 LOG = logging.getLogger(__name__)
@@ -68,6 +69,7 @@ class Channel(object):
         self.__no_jingle_count = 0
         self.__lastfm_api = None
         self.last_tagged_song = None
+        self.__config = load_config()
 
         lastfm_api_key = Setting.get("lastfm_api_key", None)
         if lastfm_api_key:
@@ -378,10 +380,10 @@ class Channel(object):
         proofoflife_timeout = int(Setting.get("proofoflife_timeout", 120))
 
         pusher_client = pusher.Pusher(
-            app_id='<app_id>',
-            key='<app_key>',
-            secret='<app_secret>',
-            cluster='eu',
+            app_id=self.__config.get('pusher', 'app_id'),
+            key=self.__config.get('pusher', 'key'),
+            secret=self.__config.get('pusher', 'secret'),
+            cluster=self.__config.get('pusher', 'cluster'),
             ssl=True
         )
 
