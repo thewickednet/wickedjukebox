@@ -159,13 +159,17 @@ class Channel(object):
         session.close()
         return was_successful
 
+    def queue_songs(self):
+        next_songs = self.getNextSongs()
+        for song in next_songs:
+            was_successful = self.queueSong(song)
+            while not was_successful:
+                song = self.getNextSongs()
+                was_successful = self.queueSong(song)
+
     def startPlayback(self):
         self.__playStatus = 'playing'
-        nextSong = self.getNextSong()
-        was_successful = self.queueSong(nextSong)
-        while not was_successful:
-            nextSong = self.getNextSong()
-            was_successful = self.queueSong(nextSong)
+        self.queue_songs()
         self.__player.start()
         return 'OK'
 
@@ -229,8 +233,7 @@ class Channel(object):
         LOG.info("skipping song")
 
         session.close()
-
-        self.enqueue(nextSong.id)
+        self.queue_songs()
         self.__player.skip()
         return 'OK'
 
@@ -335,7 +338,7 @@ class Channel(object):
         else:
             State.set("upcoming_song", None, self.id)
 
-    def getNextSong(self):
+    def getNextSongs(self):
         LOG.info('Determining next song to play...')
         self.__randomstrategy = playmodes.create(Setting.get(
             'random_model',
@@ -347,28 +350,34 @@ class Channel(object):
             channel_id=self.id))
         self.__randomstrategy.bootstrap(self.id)
 
-        nextSong = self.get_jingle()
-        LOG.info('Jingle: %r' % nextSong)
+        next_songs = []
+        jingle = self.get_jingle()
+        LOG.info('Jingle: %r' % jingle)
+        if jingle:
+            next_songs.append(jingle)
 
-        if not nextSong:
-            nextSong = self.__queuestrategy.dequeue(self.id)
-            LOG.info('Queue: %r' % nextSong)
+        song_from_queue = self.__queuestrategy.dequeue(self.id)
+        if song_from_queue:
+            next_songs.append(song_from_queue)
+        else:
+            song_from_random = self.__randomstrategy.get(self.id)
+            LOG.debug('Appending random song %r', song_from_random)
+            if song_from_random:
+                next_songs.append(song_from_random)
 
-        if not nextSong:
-            nextSong = self.__randomstrategy.get(self.id)
-            LOG.info('Random song: %r' % nextSong)
+        LOG.info('Queueing: %r' % next_songs)
 
         # handle orphaned files
-        while (not os.path.exists(fsencode(nextSong.localpath)) and
-               self.__keepRunning):
-            LOG.warning("%r not found!" % nextSong.localpath)
-            songTable.update(songTable.c.id == nextSong.id,
-                             values={'broken': True}).execute()
-
-            nextSong = self.__randomstrategy.get(self.id)
-            LOG.info('Random song: %r' % nextSong)
-
-        return nextSong
+        def fix_orphaned_song(song):
+            if not os.path.exists(fsencode(song.localpath)):
+                LOG.warning("%r not found!" % song.localpath)
+                songTable.update(songTable.c.id == song.id,
+                                 values={'broken': True}).execute()
+                fixed_song = self.__randomstrategy.get(self.id)
+                return fixed_song
+            return song
+        next_songs = map(fix_orphaned_song, next_songs)
+        return next_songs
 
     def run(self):
         cycleTime = int(Setting.get(
@@ -417,43 +426,6 @@ class Channel(object):
                 proofoflife_timeout = int(Setting.get(
                     "proofoflife_timeout",
                     120))
-
-            # check if the player accidentally went into the "stop" state
-            if (self.__player.status() == 'stopped' and
-                    self.__playStatus == 'playing'):
-                # This most likely means we hit the end of the playlist:
-                #    - clear the playlist
-                #    - add the next song to the playlist and
-                #    - start playback
-
-
-                nextSong = self.getNextSong()
-
-                if not nextSong:
-                    LOG.debug("What? Still nothing? Either nobody is online, "
-                              "or the database is empty")
-                    continue
-
-                if isinstance(nextSong, basestring):
-                    # we got a simple file. Not a tracked library song!
-                    LOG.info("Queuing song %s" % nextSong)
-                    was_successful = self.queueSong(nextSong)
-                    while not was_successful:
-                        nextSong = self.getNextSong()
-                        was_successful = self.queueSong(nextSong)
-                    LOG.info("Starting playback...")
-                    self.__player.start()
-                else:
-                    was_successful = self.queueSong(nextSong)
-                    while not was_successful:
-                        nextSong = self.getNextSong()
-                        was_successful = self.queueSong(nextSong)
-                    self.__player.start()
-
-            # or if it accidentally went into the play state
-            if (self.__player.status() == 'started' and
-                    self.__playStatus == 'stopped'):
-                self.__player.stop()
 
             skipState = State.get("skipping", self.id, default=False)
             if skipState and int(skipState) == 1:
@@ -524,12 +496,7 @@ class Channel(object):
                     self.__currentSongRecorded = True
                     session.add(stat)
                     session.commit()
-
-                    nextSong = self.getNextSong()
-                    was_successful = self.queueSong(nextSong)
-                    while not was_successful:
-                        nextSong = self.getNextSong()
-                        was_successful = self.queueSong(nextSong)
+                    self.queue_songs()
 
             # if we handed out credits more than 5mins ago, we give out some
             # more
