@@ -378,7 +378,7 @@ mapper(Album, albumTable, properties=dict(
    songs=relation(Song, backref='album')))
 
 mapper(Artist, artistTable, properties=dict(
-   albums= relation(Album, backref='artist'),
+   albums= relation(Album, backref='artist', primaryjoin="album.artist_id=artist.id"),
    songs = relation(Song,  backref='artist')
    ))
 mapper(Song, songTable, properties=dict(
