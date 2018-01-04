@@ -11,6 +11,7 @@ import time
 
 import requests
 import shout
+from common import STATUS_STOPPED, STATUS_STOPPED, STATUS_PAUSED
 
 LOG = logging.getLogger(__name__)
 
@@ -21,11 +22,6 @@ SCMD_START = 'start'
 SCMD_STOP = 'stop'
 
 ICMD_SET_TITLE = 'set_title'
-
-STATUS_PAUSED = 'paused'
-STATUS_STARTED = 'started'
-STATUS_STOPPED = 'stopped'
-
 
 class Player(object):
 
