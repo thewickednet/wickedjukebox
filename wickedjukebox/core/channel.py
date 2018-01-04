@@ -8,8 +8,10 @@ from random import choice, random
 
 from sqlalchemy.sql import select, func, update, or_
 
+import pusher
+
 from wickedjukebox.demon import playmodes
-from wickedjukebox.demon.players import icecast
+from wickedjukebox.demon.players import common
 from wickedjukebox.demon.dbmodel import (
     channelTable,
     Setting,
@@ -24,11 +26,28 @@ from wickedjukebox.demon.dbmodel import (
     queueTable,
     channelSongs)
 from wickedjukebox.util import fsencode
+from wickedjukebox import load_config
 
 import logging
 LOG = logging.getLogger(__name__)
 DEFAULT_RANDOM_MODE = 'random_wr2'
 DEFAULT_QUEUE_MODE = 'queue_positioned'
+
+
+class JingleArtist(object):
+    name = '<none>'
+
+
+class Jingle(object):
+
+    def __init__(self, id, localpath):
+        self.id = id
+        self.localpath = localpath
+        self.title = 'jingle'
+        self.artist = JingleArtist()
+
+    def __repr__(self):
+        return '<Jingle %r %r>' % (self.id, self.localpath)
 
 
 class Channel(object):
@@ -50,6 +69,7 @@ class Channel(object):
         self.__no_jingle_count = 0
         self.__lastfm_api = None
         self.last_tagged_song = None
+        self.__config = load_config()
 
         lastfm_api_key = Setting.get("lastfm_api_key", None)
         if lastfm_api_key:
@@ -79,8 +99,10 @@ class Channel(object):
                 key, value = param.split('=')
                 player_params[key.strip()] = value.strip()
 
-        self.__player = icecast.Player(self.__channel_data['id'],
-                player_params)
+        self.__player = common.make_player(self.__channel_data['backend'],
+                                           self.__channel_data['id'],
+                                           player_params)
+        self.__player.connect()
 
         self.id = self.__channel_data["id"]
         LOG.info("Initialised channel %s with ID %d" % (
@@ -111,14 +133,16 @@ class Channel(object):
         session = Session()
 
         # re-attach the song instance to the new session
-        song = session.merge(song)
+        if isinstance(song, Song):
+            song = session.merge(song)
 
         # queue the song
-        self.__player.queue({
+        was_successful = self.__player.queue({
             'filename': song.localpath,
             'artist': song.artist.name,
             'title': song.title})
-        if self.__scrobbler is not None:
+
+        if isinstance(song, Song) and self.__scrobbler is not None:
             a = session.query(Artist).get(song.artist_id)
             b = session.query(Album).get(song.album_id)
             if a and b:
@@ -133,11 +157,15 @@ class Channel(object):
                     traceback.print_exc()
                     LOG.error(ex)
         session.close()
+        return was_successful
 
     def startPlayback(self):
         self.__playStatus = 'playing'
         nextSong = self.getNextSong()
-        self.queueSong(nextSong)
+        was_successful = self.queueSong(nextSong)
+        while not was_successful:
+            nextSong = self.getNextSong()
+            was_successful = self.queueSong(nextSong)
         self.__player.start()
         return 'OK'
 
@@ -203,7 +231,6 @@ class Channel(object):
         session.close()
 
         self.enqueue(nextSong.id)
-        self.__player.crop_playlist(2)
         self.__player.skip()
         return 'OK'
 
@@ -255,7 +282,10 @@ class Channel(object):
                     if available_jingles != []:
                         random_file = choice(available_jingles)
                         self.__no_jingle_count = 0
-                        return os.path.join(self.__jingles_folder, random_file)
+                        return Jingle(
+                            None,
+                            os.path.join(self.__jingles_folder, random_file)
+                        )
                 else:
                     self.__no_jingle_count += 1
                     LOG.debug("'No jingle' count increased to %d" %
@@ -349,6 +379,14 @@ class Channel(object):
         lastPing = datetime.now()
         proofoflife_timeout = int(Setting.get("proofoflife_timeout", 120))
 
+        pusher_client = pusher.Pusher(
+            app_id=self.__config.get('pusher', 'app_id'),
+            key=self.__config.get('pusher', 'key'),
+            secret=self.__config.get('pusher', 'secret'),
+            cluster=self.__config.get('pusher', 'cluster'),
+            ssl=True
+        )
+
         # while we are alive, do the loop
         while self.__keepRunning:
 
@@ -388,7 +426,6 @@ class Channel(object):
                 #    - add the next song to the playlist and
                 #    - start playback
 
-                self.__player.crop_playlist(0)
 
                 nextSong = self.getNextSong()
 
@@ -400,11 +437,17 @@ class Channel(object):
                 if isinstance(nextSong, basestring):
                     # we got a simple file. Not a tracked library song!
                     LOG.info("Queuing song %s" % nextSong)
-                    self.queueSong(nextSong)
+                    was_successful = self.queueSong(nextSong)
+                    while not was_successful:
+                        nextSong = self.getNextSong()
+                        was_successful = self.queueSong(nextSong)
                     LOG.info("Starting playback...")
                     self.__player.start()
                 else:
-                    self.queueSong(nextSong)
+                    was_successful = self.queueSong(nextSong)
+                    while not was_successful:
+                        nextSong = self.getNextSong()
+                        was_successful = self.queueSong(nextSong)
                     self.__player.start()
 
             # or if it accidentally went into the play state
@@ -416,7 +459,10 @@ class Channel(object):
             if skipState and int(skipState) == 1:
                 State.set("skipping", 0, self.id)
                 nextSong = self.getNextSong()
-                self.queueSong(nextSong)
+                was_successful = self.queueSong(nextSong)
+                while not was_successful:
+                    nextSong = self.getNextSong()
+                    was_successful = self.queueSong(nextSong)
                 self.__player.skip()
 
             # If we are not playing stuff, we can skip the rest
@@ -437,6 +483,8 @@ class Channel(object):
                 else:
                     self.__currentSong = None
                     State.set("current_song", 0, self.id)
+
+                pusher_client.trigger('wicked', 'current', {'action': 'update'})
 
                 self.__currentSongRecorded = False
                 self.__currentSongFile = self.__player.current_song()
@@ -478,7 +526,10 @@ class Channel(object):
                     session.commit()
 
                     nextSong = self.getNextSong()
-                    self.queueSong(nextSong)
+                    was_successful = self.queueSong(nextSong)
+                    while not was_successful:
+                        nextSong = self.getNextSong()
+                        was_successful = self.queueSong(nextSong)
 
             # if we handed out credits more than 5mins ago, we give out some
             # more
