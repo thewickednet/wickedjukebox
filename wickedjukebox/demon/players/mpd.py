@@ -173,6 +173,8 @@ class Player(object):
            else:
               raise
 
+        if float(out[1]) == 0.0:
+            return 0
         return (out[0] / float(out[1])) * 100
 
     def skip(self):
