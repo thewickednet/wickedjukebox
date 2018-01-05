@@ -83,6 +83,9 @@ class Player(object):
            logging.error( "error queuing (%s)." % ex )
            output = False
 
+        # Crop Playlist
+        self.crop_playlist(3)
+
         return output
 
     def start(self):
@@ -105,12 +108,20 @@ class Player(object):
         @type  length: int
         @param length: The new size of the playlist
         """
-        try:
-           if self.__connection.getStatus().playlistLength > length:
-              self.__connection.delete(range(0,
-                 self.__connection.getStatus().playlistLength - length))
-        except mpdclient.MpdError, ex:
-           print str(ex)
+        status = self.__connection.getStatus()
+        if status.playlistLength <= length:
+            # No cropping necessary
+            return
+
+        current_song = status.song
+        if current_song < length-1:
+            # We should not crop if we are playing inside the range we want to
+            # crop
+            return
+
+        self.__connection.delete([
+            (0, status.playlistLength-length)
+        ])
 
     def listeners(self):
         return []  # TODO
