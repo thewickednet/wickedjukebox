@@ -160,12 +160,14 @@ class Channel(object):
         return was_successful
 
     def queue_songs(self):
-        next_songs = self.getNextSongs()
-        for song in next_songs:
-            was_successful = self.queueSong(song)
-            while not was_successful:
-                song = self.getNextSongs()
-                was_successful = self.queueSong(song)
+        while True:
+            next_songs = self.getNextSongs()
+            successes = []
+            for song in next_songs:
+                successes.append(self.queueSong(song))
+            if any(successes):
+                break
+            logging.warning('Something went wrong appending songs. Retrying...')
 
     def startPlayback(self):
         self.__playStatus = 'playing'
