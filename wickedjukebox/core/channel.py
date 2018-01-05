@@ -403,11 +403,11 @@ class Channel(object):
 
             # If no one is listening, pause the station. Otherwise, resume.
             if (self.__player.listeners() and
-                    self.__player.status() != icecast.STATUS_STARTED):
+                    self.__player.status() != common.STATUS_STARTED):
                 self.__player.start()
                 LOG.info("Somone has come online! Resuming playback...")
             elif (not self.__player.listeners() and
-                    self.__player.status() == icecast.STATUS_STARTED):
+                    self.__player.status() == common.STATUS_STARTED):
                 self.__player.pause()
                 LOG.info("No-one here... pausing playback...")
 
