@@ -247,13 +247,13 @@ class Player(object):
        """
        Returns the position in the playlist as integer
        """
-       return self.self.__connection.status().song
+       return self.__connection.status().song
 
     def playlistSize(self):
        """
        Returns the complete size of the playlist
        """
-       return self.self.__connection.getStatus().playlistLength
+       return self.__connection.getStatus().playlistLength
 
     def clearPlaylist():
        """
@@ -262,4 +262,4 @@ class Player(object):
        self.crop_playlist(0)
 
     def updatePlaylist(self):
-       self.self.__connection.sendUpdateCommand()
+       self.__connection.sendUpdateCommand()
