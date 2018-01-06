@@ -187,7 +187,7 @@ class Channel(object):
                 successes.append(self.queueSong(song))
             if any(successes):
                 break
-            logging.warning('Something went wrong appending songs. Retrying...')
+            LOG.warning('Something went wrong appending songs. Retrying...')
         self.emit_internal_playlist()
 
     def startPlayback(self):
