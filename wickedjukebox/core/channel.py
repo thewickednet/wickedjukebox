@@ -119,6 +119,11 @@ class Channel(object):
             self.name,
             self.id))
 
+    def emit_internal_playlist(self):
+        LOG.info('emitting internal queue to pusher')
+        payload = list(self.__player.upcoming_songs())
+        self.__pusher_client.trigger('wicked', 'internal_queue', payload)
+
     def isStopped(self):
         return self.__playStatus == 'stopped'
 
@@ -183,6 +188,7 @@ class Channel(object):
             if any(successes):
                 break
             logging.warning('Something went wrong appending songs. Retrying...')
+        self.emit_internal_playlist()
 
     def startPlayback(self):
         self.__playStatus = 'playing'
@@ -402,6 +408,7 @@ class Channel(object):
         lastCreditGiveaway = datetime.now()
         lastPing = datetime.now()
         proofoflife_timeout = int(Setting.get("proofoflife_timeout", 120))
+        current_song = self.__player.current_song()
 
         # while we are alive, do the loop
         while self.__keepRunning:
@@ -409,6 +416,11 @@ class Channel(object):
             time.sleep(cycleTime)
             self.process_upcoming_song()
             session = Session()
+
+            if self.__player.current_song() != current_song:
+                LOG.debug('Current song changed!')
+                self.emit_internal_playlist()
+                current_song = self.__player.current_song()
 
             # If no one is listening, pause the station. Otherwise, resume.
             if (self.__player.listeners() and
