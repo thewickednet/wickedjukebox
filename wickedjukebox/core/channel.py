@@ -32,6 +32,7 @@ import logging
 LOG = logging.getLogger(__name__)
 DEFAULT_RANDOM_MODE = 'random_wr2'
 DEFAULT_QUEUE_MODE = 'queue_positioned'
+MAX_INTERNAL_PLAYLIST_SIZE = 3
 
 
 class JingleArtist(object):
@@ -169,6 +170,11 @@ class Channel(object):
         return was_successful
 
     def queue_songs(self):
+        if self.__player.playlistSize() > MAX_INTERNAL_PLAYLIST_SIZE:
+            LOG.debug('Internal playlist size exceeds maximal length. '
+                      'Not appending songs!')
+            self.__player.crop_playlist(MAX_INTERNAL_PLAYLIST_SIZE)
+            return
         while True:
             next_songs = self.getNextSongs()
             successes = []
