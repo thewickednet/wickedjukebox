@@ -22,8 +22,6 @@ class Player(object):
        Constructor
        Connects to the mpd-daemon.
        """
-       from pprint import pprint
-       pprint(params)
        # set up the connection to the daemon
        self.host = params['host']
        self.port = int(params['port'])
