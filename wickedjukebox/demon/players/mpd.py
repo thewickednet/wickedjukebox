@@ -229,6 +229,20 @@ class Player(object):
 
         return 'unknown'
 
+    def upcoming_songs(self):
+       """
+       Returns songs which are queued after the current song
+       """
+       for i, entry in enumerate(self.__connection.playlist()):
+           if i <= self.playlistPosition():
+               continue
+           yield {
+               'album': entry.album,
+               'artist': entry.artist,
+               'path': entry.path,
+               'title': entry.title,
+           }
+
     def playlistPosition(self):
        """
        Returns the position in the playlist as integer

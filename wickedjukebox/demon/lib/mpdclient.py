@@ -1070,9 +1070,13 @@ class MpdController(MpdConnection):
 
     self.sendPlaylistInfoCommand(-1)
 
+    listing = []
     try:
-      listing = filter(lambda e: isinstance(e, Song), self.iterInfoEntities())
-
+        for entry in self.iterInfoEntities():
+            if isinstance(entry, Song):
+                listing.append(entry)
+            else:
+                print('E %r' % entry)
     finally:
       self.finishCommand()
 
