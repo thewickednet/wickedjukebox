@@ -105,6 +105,15 @@ class Channel(object):
         self.__player.connect()
 
         self.id = self.__channel_data["id"]
+
+        self.__pusher_client = pusher.Pusher(
+            app_id=self.__config.get('pusher', 'app_id'),
+            key=self.__config.get('pusher', 'key'),
+            secret=self.__config.get('pusher', 'secret'),
+            cluster=self.__config.get('pusher', 'cluster'),
+            ssl=True
+        )
+
         LOG.info("Initialised channel %s with ID %d" % (
             self.name,
             self.id))
@@ -388,14 +397,6 @@ class Channel(object):
         lastPing = datetime.now()
         proofoflife_timeout = int(Setting.get("proofoflife_timeout", 120))
 
-        pusher_client = pusher.Pusher(
-            app_id=self.__config.get('pusher', 'app_id'),
-            key=self.__config.get('pusher', 'key'),
-            secret=self.__config.get('pusher', 'secret'),
-            cluster=self.__config.get('pusher', 'cluster'),
-            ssl=True
-        )
-
         # while we are alive, do the loop
         while self.__keepRunning:
 
@@ -451,7 +452,8 @@ class Channel(object):
                     self.__currentSong = None
                     State.set("current_song", 0, self.id)
 
-                pusher_client.trigger('wicked', 'current', {'action': 'update'})
+                self.__pusher_client.trigger(
+                    'wicked', 'current', {'action': 'update'})
 
                 self.__currentSongRecorded = False
                 self.__currentSongFile = self.__player.current_song()
