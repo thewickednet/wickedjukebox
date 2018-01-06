@@ -120,7 +120,7 @@ class Player(object):
             return
 
         self.__connection.delete([
-            (0, status.playlistLength-length)
+            (0, current_song-1)
         ])
 
     def listeners(self):
