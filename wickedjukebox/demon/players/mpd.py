@@ -37,15 +37,15 @@ class Player(object):
         """
         while True:
             try:
-               logging.info( "Connecting to MPD backend..." )
+               logger.info( "Connecting to MPD backend..." )
                self.__connection = mpdclient.MpdController(self.host, self.port)
             except mpdclient.MpdConnectionPortError, ex:
                import traceback; traceback.print_exc()
-               logging.warning("Error connecting to the player.")
+               logger.warning("Error connecting to the player.")
                time.sleep(1)
                continue
             break
-        logging.info( "... MPD connected" )
+        logger.info( "... MPD connected" )
 
     def disconnect(self):
         "Disconnect from mpd-player"
@@ -64,7 +64,7 @@ class Player(object):
         # config!! This is handled here.
         if filename[0:len(self.root_folder)] == self.root_folder:
            filename = filename[len(self.root_folder)+1:]
-        logging.info("queuing %r" % filename)
+        logger.info("queuing %r" % filename)
         added_files = []
 
         output = True
@@ -75,12 +75,12 @@ class Player(object):
            else:
               self.song_started = datetime.now()
            if not added_files:
-               logging.error( "error queuing (Probably not found in mpd).")
+               logger.error( "error queuing (Probably not found in mpd).")
                output = False
            else:
                output = True
         except Exception, ex:
-           logging.error( "error queuing (%s)." % ex )
+           logger.error( "error queuing (%s)." % ex )
            output = False
 
         # Crop Playlist
@@ -119,6 +119,9 @@ class Player(object):
             # crop
             return
 
+        logger.debug('Cropping playlist from 0 to %s',
+                     (current_song-1))
+
         self.__connection.delete([
             (0, current_song-1)
         ])
@@ -140,18 +143,18 @@ class Player(object):
                     self.__connection.getCurrentSong().path.decode(sys.getfilesystemencoding()))
            except mpdclient.MpdError, ex:
               if str(ex).find('not done processing current command') > 0:
-                 logging.warning('"not done processing current command" received. Retrying')
+                 logger.warning('"not done processing current command" received. Retrying')
                  self.__connection.clearError()
                  time.sleep(1)
                  continue
               elif str(ex).find('playlistLength not found') > 0:
-                 logging.warning('"playlistLength not found" received. Reconnecting to backend...')
+                 logger.warning('"playlistLength not found" received. Reconnecting to backend...')
                  __disconnect()
                  time.sleep(1)
                  __connect()
                  continue
               elif str(ex).find('problem parsing song info') > 0:
-                 logging.warning('"problem parsing song info" received. Retrying')
+                 logger.warning('"problem parsing song info" received. Retrying')
                  self.__connection.clearError()
                  time.sleep(1)
                  continue
@@ -210,11 +213,11 @@ class Player(object):
                  return 'unknown (%s)' % self.__connection.getStatus().state
            except mpdclient.MpdError, ex:
               if str(ex).find('not done processing current command') > 0:
-                 logging.debug("'Not done proc. command' error skipped")
+                 logger.debug("'Not done proc. command' error skipped")
                  time.sleep(1)
                  continue
               elif str(ex).find("playlistLength not found") > 0:
-                 logging.debug("'playlistLength not found' error skipped")
+                 logger.debug("'playlistLength not found' error skipped")
                  time.sleep(1)
                  continue
               else:
