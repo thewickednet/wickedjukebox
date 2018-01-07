@@ -486,7 +486,7 @@ class Channel(object):
                 current_song))
             State.set("progress", currentPosition, self.id)
 
-            if currentPosition > 90:
+            if current_song_entity and currentPosition > 90:
                 LOG.info('Soon finished. Recording stats')
                 query = session.query(ChannelStat)
                 query = query.filter(
