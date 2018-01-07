@@ -339,22 +339,28 @@ class Channel(object):
             query.execute()
 
     def process_upcoming_song(self):
-        # A state "upcoming_song" with value -1 means that the upcoming song is
-        # unwanted and a new one should be triggered if possible
-        state = State.get("upcoming_song", self.id, default=None)
-        if state and int(state) == -1:
-            LOG.info("Prefetching new song as the current upcoming_song "
-                    "was unwanted.")
-            self.__randomstrategy.prefetch(self.id, async=False)
-
-        if self.__randomstrategy:
-            upcoming = self.__randomstrategy.peek(self.id)
-            if upcoming:
-                State.set("upcoming_song", upcoming.id, self.id)
-            else:
-                State.set("upcoming_song", None, self.id)
+        session = Session()
+        songs = list(self.__player.upcoming_songs())
+        upcoming_id = None
+        if not songs:
+            LOG.debug('No upcoming song in internal queue')
         else:
-            State.set("upcoming_song", None, self.id)
+            path = songs[0]['path']
+            # The following "LIKE" operator is used to hack around a small MPD
+            # detail: Song paths are always relative to its library path, but
+            # our DB contains the absolute path.
+            song_entity = session.query(Song).filter(
+                Song.localpath.like('%%%s' % path)
+            ).first()
+            if not song_entity:
+                LOG.debug('Upcoming song not found in DB')
+            else:
+                LOG.debug('Upcoming song found with ID %d', song_entity.id)
+                upcoming_id = song_entity.id
+
+        State.set("upcoming_song", upcoming_id, self.id)
+        session.commit()
+        Session.close()
 
     def getNextSongs(self):
         LOG.info('Determining next song to play...')
