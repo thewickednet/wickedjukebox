@@ -60,9 +60,6 @@ class Channel(object):
         self.__scrobbler = None
         self.__keepRunning = True
         self.__playStatus = 'stopped'
-        self.__currentSong = None
-        self.__currentSongRecorded = False
-        self.__currentSongFile = ''
         self.__randomstrategy = None
         self.__queuestrategy = None
         self.__jingles_folder = None
@@ -226,25 +223,25 @@ class Channel(object):
             channel_id=self.id))
         return self.__queuestrategy.list(self.id)
 
-    def skipSong(self):
+    def skipSong(self, current_song_entity):
         """
         Updates play statistics and sends a "next" command to the player
         backend
         """
 
-        if self.__currentSong is None:
+        if current_song_entity is None:
             return
 
         LOG.info("skipping song")
-        
+
         session = Session()
         query = session.query(ChannelStat)
         query = query.filter(songTable.c.id == channelSongs.c.song_id)
-        query = query.filter(songTable.c.id == self.__currentSong.id)
+        query = query.filter(songTable.c.id == current_song_entity.id)
         query = query.filter(channelSongs.c.channel_id == self.id)
         stat = query.first()
         if not stat:
-            stat = ChannelStat(song_id=self.__currentSong.id,
+            stat = ChannelStat(song_id=current_song_entity.id,
                                channel_id=self.id)
             stat.skipped = 1
             stat.lastPlayed = datetime.now()
@@ -400,6 +397,22 @@ class Channel(object):
         next_songs = map(fix_orphaned_song, next_songs)
         return next_songs
 
+    def handle_song_change(self, session, last_known_song, current_song_entity):
+        if current_song_entity is None:
+            return True
+
+        if last_known_song == current_song_entity.localpath:
+            return False
+
+        LOG.debug('Current song changed from %s to %s!',
+            last_known_song, current_song_entity.localpath)
+
+        song_id = current_song_entity.id if current_song_entity else 0
+        State.set("current_song", song_id, self.id)
+
+        self.__pusher_client.trigger('wicked', 'current', {'action': 'update'})
+        return True
+
     def run(self):
         cycleTime = int(Setting.get(
             'channel_cycle',
@@ -409,6 +422,7 @@ class Channel(object):
         lastPing = datetime.now()
         proofoflife_timeout = int(Setting.get("proofoflife_timeout", 120))
         current_song = self.__player.current_song()
+        last_known_song = current_song
 
         # while we are alive, do the loop
         while self.__keepRunning:
@@ -416,11 +430,10 @@ class Channel(object):
             time.sleep(cycleTime)
             self.process_upcoming_song()
             session = Session()
-
-            if self.__player.current_song() != current_song:
-                LOG.debug('Current song changed!')
-                self.emit_internal_playlist()
-                current_song = self.__player.current_song()
+            current_song = self.__player.current_song()
+            current_song_entity = session.query(Song).filter(
+                songTable.c.localpath == current_song
+            ).first()
 
             # If no one is listening, pause the station. Otherwise, resume.
             if (self.__player.listeners() and
@@ -448,7 +461,7 @@ class Channel(object):
 
             skipState = State.get("skipping", self.id, default=False)
             if skipState and int(skipState) == 1:
-                self.skipSong()
+                self.skipSong(current_song_entity)
                 State.set("skipping", 0, self.id)
 
             # If we are not playing stuff, we can skip the rest
@@ -456,62 +469,46 @@ class Channel(object):
                 continue
 
             # -----------------------------------------------------------------
-            if self.__currentSongFile != self.__player.current_song() \
-                    and self.__player.current_song() is not None:
-                song = session.query(Song).filter(
-                        songTable.c.localpath == self.__player.current_song()
-                        ).first()
-
-                if song:
-                    self.__currentSong = song
-                    # update state in database
-                    State.set("current_song", song.id, self.id)
-                else:
-                    self.__currentSong = None
-                    State.set("current_song", 0, self.id)
-
-                self.__pusher_client.trigger(
-                    'wicked', 'current', {'action': 'update'})
-
-                self.__currentSongRecorded = False
-                self.__currentSongFile = self.__player.current_song()
+            change_detected = self.handle_song_change(
+                session, last_known_song, current_song_entity)
+            if change_detected:
+                last_known_song = current_song
+                self.emit_internal_playlist()
 
             # update tags for the current song
-            if (self.last_tagged_song != self.__currentSong and
+            if (self.last_tagged_song != current_song and
                     self.__lastfm_api):
                 pass  # TODO: currently disabled until it can be handled in a thread
 
             # if the song is soon finished, update stats and pick the next one
             currentPosition = self.__player.position()
             LOG.debug("Current position: %4.2f in %r" % (currentPosition,
-                self.__player.current_song()))
+                current_song))
             State.set("progress", currentPosition, self.id)
+
             if currentPosition > 90:
-                if self.__currentSong and not self.__currentSongRecorded:
-                    LOG.info('Soon finished. Recording stats and queuing '
-                              'new  song...')
-                    query = session.query(ChannelStat)
-                    query = query.filter(
-                            songTable.c.id == channelSongs.c.song_id)
-                    query = query.filter(
-                            songTable.c.id == self.__currentSong.id)
-                    query = query.filter(
-                            channelSongs.c.channel_id == self.id)
-                    stat = query.first()
-                    if not stat:
-                        stat = ChannelStat(song_id=self.__currentSong.id,
-                                           channel_id=self.id)
-                        LOG.info("Setting last played date")
-                        stat.lastPlayed = datetime.now()
-                        stat.played = 1
-                    else:
-                        LOG.info("Updating last played date")
-                        stat.lastPlayed = datetime.now()
-                        stat.played = stat.played + 1
-                    self.__currentSongRecorded = True
-                    session.add(stat)
-                    session.commit()
-                    self.queue_songs()
+                LOG.info('Soon finished. Recording stats')
+                query = session.query(ChannelStat)
+                query = query.filter(
+                        songTable.c.id == channelSongs.c.song_id)
+                query = query.filter(
+                        songTable.c.id == current_song_entity.id)
+                query = query.filter(
+                        channelSongs.c.channel_id == self.id)
+                stat = query.first()
+                if not stat:
+                    stat = ChannelStat(song_id=current_song_entity.id,
+                                       channel_id=self.id)
+                    LOG.info("Setting last played date")
+                    stat.lastPlayed = datetime.now()
+                    stat.played = 1
+                else:
+                    LOG.info("Updating last played date")
+                    stat.lastPlayed = datetime.now()
+                    stat.played = stat.played + 1
+                session.add(stat)
+                session.commit()
+                self.queue_songs()
 
             # if we handed out credits more than 5mins ago, we give out some
             # more
