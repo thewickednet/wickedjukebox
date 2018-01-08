@@ -20,3 +20,9 @@ port            = 65222
 
 [database]
 dsn=mysql://jukebox@localhost/jukebox?charset=utf8
+
+[pusher]
+app_id = 12345
+key = 1234567890abcdef
+secret = 1234567890abcdef
+cluster = eu
