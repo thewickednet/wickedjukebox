@@ -119,7 +119,11 @@ class Channel(object):
     def emit_internal_playlist(self):
         LOG.info('emitting internal queue to pusher')
         payload = list(self.__player.upcoming_songs())
-        self.__pusher_client.trigger('wicked', 'internal_queue', payload)
+        try:
+            self.__pusher_client.trigger('wicked', 'internal_queue', payload)
+        except Exception as exc:
+            LOG.warning('Unandled exception in pusher submission',
+                        exc_info=True)
 
     def isStopped(self):
         return self.__playStatus == 'stopped'
@@ -416,7 +420,13 @@ class Channel(object):
         song_id = current_song_entity.id if current_song_entity else 0
         State.set("current_song", song_id, self.id)
 
-        self.__pusher_client.trigger('wicked', 'current', {'action': 'update'})
+        try:
+            self.__pusher_client.trigger('wicked', 'current', {
+                'action': 'update'})
+        except Exception as exc:
+            LOG.warning('Unandled exception in pusher submission',
+                        exc_info=True)
+
         return True
 
     def run(self):
