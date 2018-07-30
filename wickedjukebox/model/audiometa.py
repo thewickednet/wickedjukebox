@@ -150,7 +150,7 @@ class MP3Meta( AudioMeta ):
             return date(int(elements[0]), int(elements[1]), 1)
          elif len(elements) == 3:
             return date(int(elements[0]), int(elements[1]), int(elements[2]))
-      except ValueError, e:
+      except ValueError as e:
          LOG.warning("%s (datestring was %s)" % (e, raw_string))
          return None
 
@@ -195,7 +195,7 @@ class MetaFactory(object):
       from mutagen import File
       try:
          mutagen_meta = File( filename )
-      except IOError, e:
+      except IOError as e:
          LOG.error( e )
          return None
 
@@ -211,20 +211,19 @@ def display_file( filename ):
    if metadata is None:
       return
 
-   print 79*"-"
-   print filename
-   print 79*"-"
+   print(79*"-")
+   print(filename)
+   print(79*"-")
    for key in metadata.keys():
-      print "%-15s | %s" % ( key, metadata[key] )
-   print 79*"-"
+      print("%-15s | %s" % ( key, metadata[key] ))
+   print(79*"-")
 
 if __name__ == "__main__":
    import sys
    logging.basicConfig()
    if len( sys.argv ) != 2:
-      print """Usage:
+      print("""Usage:
          %s <filename>
-      """ % sys.argv[0]
+      """ % sys.argv[0])
       sys.exit(9)
    display_file( sys.argv[1] )
-

@@ -318,7 +318,7 @@ class Channel(object):
         if jingle_boundary[0] <= rnd:
             try:
                 available_jingles = os.listdir(jingles_folder)
-            except OSError, ex:
+            except OSError as ex:
                 LOG.warning("Unable to open jingles: %s",
                             str(ex), exc_info=True)
                 available_jingles = []

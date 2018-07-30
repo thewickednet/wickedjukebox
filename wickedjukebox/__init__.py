@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import logging
 import logging.config
@@ -53,8 +54,8 @@ def setup_logging():
                     disable_existing_loggers=False)
             log.info('Additional log config read from {0}'.format(
                 logging_conf_name))
-        except Exception, exc:
+        except Exception as exc:
             log.error("Error reading from %r! Error message: %r",
                     logging_conf_name, exc, exc_info=1)
         except IOError:
-            print log.error(str(exc))
+            print(log.error(str(exc)))

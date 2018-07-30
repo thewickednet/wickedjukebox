@@ -39,7 +39,7 @@ class Player(object):
             try:
                logger.info( "Connecting to MPD backend..." )
                self.__connection = mpdclient.MpdController(self.host, self.port)
-            except mpdclient.MpdConnectionPortError, ex:
+            except mpdclient.MpdConnectionPortError as ex:
                import traceback; traceback.print_exc()
                logger.warning("Error connecting to the player.")
                time.sleep(1)
@@ -81,7 +81,7 @@ class Player(object):
                output = False
            else:
                output = True
-        except Exception, ex:
+        except Exception as ex:
            logger.error( "error queuing (%s)." % ex )
            output = False
 
@@ -147,7 +147,7 @@ class Player(object):
               return os.path.join(
                     self.root_folder,
                     self.__connection.getCurrentSong().path.decode(sys.getfilesystemencoding()))
-           except mpdclient.MpdError, ex:
+           except mpdclient.MpdError as ex:
               if str(ex).find('not done processing current command') > 0:
                  logger.warning('"not done processing current command" received. Retrying')
                  self.__connection.clearError()
@@ -189,7 +189,7 @@ class Player(object):
               out = (pos[0], pos[1])
            else:
               out = (0,0)
-        except mpdclient.MpdError, ex:
+        except mpdclient.MpdError as ex:
            if str(ex).find('not done processing current command') > 0:
               pass
            else:
@@ -221,7 +221,7 @@ class Player(object):
                  return common.STATUS_PAUSED
               else:
                  return 'unknown (%s)' % self.__connection.getStatus().state
-           except mpdclient.MpdError, ex:
+           except mpdclient.MpdError as ex:
               if str(ex).find('not done processing current command') > 0:
                  logger.debug("'Not done proc. command' error skipped")
                  time.sleep(1)

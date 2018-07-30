@@ -1,3 +1,4 @@
+from __future__ import print_function
 from datetime import datetime, date
 import sys
 import logging
@@ -199,7 +200,7 @@ class Setting(object):
             LOG.debug("    ... returning %r" % output)
             return output
 
-        except Exception, ex:
+        except Exception as ex:
             if str(ex).lower().find('connect') > 0:
                 LOG.critical('Unable to connect to the database. Error was: '
                         '\n%s' % ex)
@@ -353,7 +354,7 @@ class Song(object):
 
         try:
             audiometa = MetaFactory.create(localpath.encode(encoding))
-        except Exception, ex:
+        except Exception as ex:
             LOG.warning("%r contained invalid metadata. Error message: %r" %
                     (localpath, str(ex)))
 
@@ -376,7 +377,7 @@ class Song(object):
 
         try:
             self.filesize = stat(localpath.encode(encoding)).st_size
-        except Exception, ex:
+        except Exception as ex:
             LOG.warning(ex)
             self.filesize = None
 
@@ -606,4 +607,4 @@ mapper(Song, songTable, properties=dict(
    ))
 
 if __name__ == "__main__":
-    print getSetting("test")
+    print(getSetting("test"))
