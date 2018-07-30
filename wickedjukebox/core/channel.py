@@ -31,18 +31,21 @@ class JingleArtist(object):
 class Jingle(object):
 
     def __init__(self, id, localpath):
+        # type: (int, str) -> None
         self.id = id
         self.localpath = localpath
         self.title = 'jingle'
         self.artist = JingleArtist()
 
     def __repr__(self):
+        # type: () -> str
         return '<Jingle %r %r>' % (self.id, self.localpath)
 
 
 class Channel(object):
 
     def __init__(self, name):
+        # type: (str) -> None
 
         self.id = None
         self.name = None
@@ -104,6 +107,7 @@ class Channel(object):
             self.id))
 
     def emit_internal_playlist(self):
+        # type: () -> None
         LOG.info('emitting internal queue to pusher')
         payload = list(self.__player.upcoming_songs())
         try:
@@ -113,9 +117,11 @@ class Channel(object):
                         exc_info=True)
 
     def isStopped(self):
+        # type: () -> bool
         return self.__playStatus == 'stopped'
 
     def close(self):
+        # type: () -> None
         LOG.debug("Closing channel...")
         self.stopPlayback()
 
@@ -130,6 +136,7 @@ class Channel(object):
         raise NotImplementedError
 
     def queueSong(self, song):
+        # type: (Song) -> bool
 
         LOG.info("Queueing %r" % song)
 
@@ -163,6 +170,7 @@ class Channel(object):
         return was_successful
 
     def queue_songs(self):
+        # type: () -> None
         if self.__player.playlistSize() > MAX_INTERNAL_PLAYLIST_SIZE:
             LOG.debug('Internal playlist size exceeds maximal length. '
                       'Not appending songs!')
@@ -179,22 +187,26 @@ class Channel(object):
         self.emit_internal_playlist()
 
     def startPlayback(self):
+        # type: () -> str
         self.__playStatus = 'playing'
         self.queue_songs()
         self.__player.start()
         return 'OK'
 
     def pausePlayback(self):
+        # type: () -> str
         self.__playStatus = 'paused'
         self.__player.pause()
         return 'OK'
 
     def stopPlayback(self):
+        # type: () -> str
         self.__playStatus = 'stopped'
         self.__player.stop()
         return 'OK'
 
     def enqueue(self, songID, userID=None):
+        # type: (int, Optional[int]) -> str
 
         self.__queuestrategy = playmodes.create(Setting.get(
             'queue_model',
@@ -208,6 +220,7 @@ class Channel(object):
                 )
 
     def current_queue(self):
+        # type: () -> List[dict]
         self.__queuestrategy = playmodes.create(Setting.get(
             'queue_model',
             DEFAULT_QUEUE_MODE,
@@ -215,6 +228,7 @@ class Channel(object):
         return self.__queuestrategy.list(self.id)
 
     def skipSong(self, current_song_entity):
+        # type: (Song) -> str
         """
         Updates play statistics and sends a "next" command to the player
         backend
@@ -247,6 +261,7 @@ class Channel(object):
         return 'OK'
 
     def moveup(self, qid, delta):
+        # type: (int) -> None
         self.__queuestrategy = playmodes.create(Setting.get(
             'queue_model',
             DEFAULT_QUEUE_MODE,
@@ -254,6 +269,7 @@ class Channel(object):
         self.__queuestrategy.moveup(self.id, qid, delta)
 
     def movedown(self, qid, delta):
+        # type: (int, int) -> None
         self.__queuestrategy = playmodes.create(Setting.get(
             'queue_model',
             DEFAULT_QUEUE_MODE,
@@ -261,6 +277,7 @@ class Channel(object):
         self.__queuestrategy.movedown(self.id, qid, delta)
 
     def get_jingle(self):
+        # type: () -> Optional[Song]
         jingles_folder = Setting.get(
                 'jingles_folder',
                 default='',
@@ -324,6 +341,7 @@ class Channel(object):
                       self.__no_jingle_count)
 
     def update_current_listeners(self):
+        # type: () -> None
         """
         Scrape the Icecast admin page for current listeners and update theit
         state in the DB
@@ -346,6 +364,7 @@ class Channel(object):
             query.execute()
 
     def process_upcoming_song(self):
+        # type: () -> None
         session = Session()
         songs = list(self.__player.upcoming_songs())
         upcoming_id = None
@@ -370,6 +389,7 @@ class Channel(object):
         Session.close()
 
     def getNextSongs(self):
+        # type: () -> List[Song]
         LOG.info('Determining next song to play...')
         self.__randomstrategy = playmodes.create(Setting.get(
             'random_model',
@@ -411,6 +431,7 @@ class Channel(object):
         return next_songs
 
     def handle_song_change(self, session, last_known_song, current_song_entity):
+        # type: (Session, str, Song) -> bool
         if current_song_entity is None:
             return True
 
@@ -433,6 +454,7 @@ class Channel(object):
         return True
 
     def run(self):
+        # type: () -> None
         cycleTime = int(Setting.get(
             'channel_cycle',
             default='3',
