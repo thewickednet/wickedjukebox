@@ -180,7 +180,7 @@ class Player(object):
     def position(self):
         # type: () -> float
         """
-        Returns the current position in the song. (currentSec, totalSec)
+        Returns the current position in the song.
         """
         out = (0,0)
         try:
@@ -196,7 +196,7 @@ class Player(object):
               raise
 
         if float(out[1]) == 0.0:
-            return 0
+            return 0.0
         return (out[0] / float(out[1])) * 100
 
     def skip(self):
