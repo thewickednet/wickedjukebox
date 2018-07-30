@@ -1,34 +1,23 @@
 # TODO: Set progress
 #    State.set("progress", 0, __CHANNEL_ID)
 
-from datetime import datetime
-import time
+import logging
 import os
+import time
+from datetime import datetime
 from random import choice, random
 
-from sqlalchemy.sql import select, func, update, or_
-
 import pusher
-
-from wickedjukebox.demon import playmodes
-from wickedjukebox.demon.players import common
-from wickedjukebox.demon.dbmodel import (
-    channelTable,
-    Setting,
-    Session,
-    State,
-    ChannelStat,
-    Artist,
-    Album,
-    Song,
-    usersTable,
-    songTable,
-    queueTable,
-    channelSongs)
-from wickedjukebox.util import fsencode
+from sqlalchemy.sql import func, or_, select, update
 from wickedjukebox import load_config
+from wickedjukebox.demon import playmodes
+from wickedjukebox.demon.dbmodel import (Album, Artist, ChannelStat, Session,
+                                         Setting, Song, State, channelSongs,
+                                         channelTable, queueTable, songTable,
+                                         usersTable)
+from wickedjukebox.demon.players import common
+from wickedjukebox.util import fsencode
 
-import logging
 LOG = logging.getLogger(__name__)
 DEFAULT_RANDOM_MODE = 'random_wr2'
 DEFAULT_QUEUE_MODE = 'queue_positioned'
