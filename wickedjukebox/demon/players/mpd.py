@@ -18,6 +18,7 @@ from wickedjukebox.demon.dbmodel import Setting
 class Player(object):
 
     def __init__(self, id_, params):
+        # type: (int, Dict[str, str]) -> None
        """
        Constructor
        Connects to the mpd-daemon.
@@ -30,6 +31,7 @@ class Player(object):
        self.__connection = None
 
     def connect(self):
+        # type: () -> None
         """
         Connect to the mpd-player.
         """
@@ -46,10 +48,12 @@ class Player(object):
         logger.info( "... MPD connected" )
 
     def disconnect(self):
+        # type: () -> None
         "Disconnect from mpd-player"
         self.__connection = None
 
     def queue(self, args):
+        # type: (Dict[str, str]) -> bool
         """
         Appends a new song to the playlist, and removes the first entry in the
         playlist if it's becoming too large. This prevents having huge playlists
@@ -87,18 +91,21 @@ class Player(object):
         return output
 
     def start(self):
+        # type: () -> None
         """
         Starts playback
         """
         self.__connection.play()
 
     def stop(self):
+        # type: () -> None
         """
         Stops playback
         """
         self.__connection.stop()
 
     def crop_playlist(self, length=2):
+        # type: (int) -> None
         """
         Removes items from the *beginning* of the playlist to ensure it has only
         a fixed number of entries.
@@ -128,6 +135,7 @@ class Player(object):
         return []  # TODO
 
     def current_song(self):
+        # type: () -> Optional[str]
         """
         Returns the currently running song
         """
@@ -163,12 +171,14 @@ class Player(object):
         return None
 
     def pause(self):
+        # type: () -> None
         """
         Pauses playback
         """
         self.__connection.pause()
 
     def position(self):
+        # type: () -> float
         """
         Returns the current position in the song. (currentSec, totalSec)
         """
@@ -190,6 +200,7 @@ class Player(object):
         return (out[0] / float(out[1])) * 100
 
     def skip(self):
+        # type: () -> None
         """
         Skips the current song
         """
@@ -199,6 +210,7 @@ class Player(object):
         """
         Returns the status of the player (play, stop, pause)
         """
+        # type: () -> str
         while True:
            try:
               if self.__connection.getStatus().state == 1:
@@ -228,6 +240,7 @@ class Player(object):
         return 'unknown'
 
     def upcoming_songs(self):
+       # type: () -> Generator[Song, None, None]
        """
        Returns songs which are queued after the current song
        """
@@ -242,22 +255,26 @@ class Player(object):
            }
 
     def playlistPosition(self):
+       # type: () -> int
        """
        Returns the position in the playlist as integer
        """
        return self.__connection.status().song
 
     def playlistSize(self):
+       # type: () -> int
        """
        Returns the complete size of the playlist
        """
        return self.__connection.getStatus().playlistLength
 
     def clearPlaylist():
+       # type: () -> None
        """
        Clears the player's playlist
        """
        self.crop_playlist(0)
 
     def updatePlaylist(self):
+       # type: () -> None
        self.__connection.sendUpdateCommand()
