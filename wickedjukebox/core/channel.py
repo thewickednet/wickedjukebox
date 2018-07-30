@@ -405,7 +405,24 @@ class Channel(object):
         if jingle:
             next_songs.append(jingle)
 
-        song_from_queue = self.__queuestrategy.dequeue(self.id)
+        while True:
+            # Some songs contain Unicode errors, and we need to handle this.
+            # If we do detect this, we retry up to 3 times to fetch stuff from
+            # the queue.
+            retries = 0
+            try:
+                song_from_queue = self.__queuestrategy.dequeue(self.id)
+                # If we have not run into an exception here, we will break out
+                # of the loop
+                break
+            except UnicodeDecodeError as exc:
+                LOG.warning('Unhandled error when getting song from queue: %s',
+                            exc, exc_info=True)
+                retries += 1
+                if retries >= 3:
+                    # Preventing endless loop
+                    raise
+
         if song_from_queue:
             next_songs.append(song_from_queue)
         else:
