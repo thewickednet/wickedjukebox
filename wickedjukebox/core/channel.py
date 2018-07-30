@@ -62,8 +62,6 @@ class Channel(object):
         self.__playStatus = 'stopped'
         self.__randomstrategy = None
         self.__queuestrategy = None
-        self.__jingles_folder = None
-        self.__jingles_interval = 0
         self.__no_jingle_count = 0
         self.__lastfm_api = None
         self.last_tagged_song = None
@@ -274,51 +272,67 @@ class Channel(object):
         self.__queuestrategy.movedown(self.id, qid, delta)
 
     def get_jingle(self):
-        self.__jingles_folder = Setting.get(
+        jingles_folder = Setting.get(
                 'jingles_folder',
-                default=None,
-                channel_id=self.id)
-        self.__jingles_interval = Setting.get(
+                default='',
+                channel_id=self.id).strip()
+        if not jingles_folder:
+            LOG.info('No jingles folder set in the DB. No jingle will be '
+                     'played')
+            return None
+
+
+        interval_raw = Setting.get(
                 'jingles_interval',
-                default=None,
+                default='0',
                 channel_id=self.id)
-        if self.__jingles_interval == '' or self.__jingles_interval is None:
-            self.__jingles_interval = None
-        elif self.__jingles_interval.find("-") > -1:
-            jingle_boundary = [int(x) for x in
-                    self.__jingles_interval.split("-")]
+
+        # This should clean up any whitespace and ensure the value is properly
+        # initialised if the DB contained an all-whitespace string.
+        interval = interval_raw.strip() or '0'
+
+        # We allow setting boundaries using <min>-<max> to allow a bit of
+        # random. The jingles will be played after at least <min> songs and
+        # before at most <max> songs.
+        if '-' in interval:
+            min_, _, max_ = interval.partition('-')
+            min_ = int(min_.strip())
+            max_ = int(max_.strip())
+            jingle_boundary = (min_, max_)
         else:
-            jingle_boundary = [
-                    int(self.__jingles_interval),
-                    int(self.__jingles_interval)]
+            # If there was no "-" in the value, we will play jingles after
+            # exactly that many songs (<min> === <max>)
+            jingle_boundary = (int(interval), int(interval))
 
-        if self.__jingles_folder == '':
-            self.__jingles_folder = None
+        if 0 in jingle_boundary:
+            LOG.warning('The jingle interval contained a "0" value. This '
+                        'would cause the jukebox to play only jingles and is '
+                        'not allowed. Review the setting value (%r)',
+                        interval_raw)
+            return None
 
-        if (self.__jingles_interval is not None and
-                self.__jingles_folder is not None):
-
+        random_range = (jingle_boundary[1] - jingle_boundary[0])
+        rnd = (int(random() * random_range) + self.__no_jingle_count)
+        LOG.debug('Current rnadom jingle value: %r | Boundary: %r',
+                  rnd, jingle_boundary)
+        if jingle_boundary[0] <= rnd:
             try:
-                rnd = (int(random() *
-                       (jingle_boundary[1] - jingle_boundary[0])) +
-                       self.__no_jingle_count)
-                if jingle_boundary[0] <= rnd:
-                    available_jingles = os.listdir(self.__jingles_folder)
-                    if available_jingles != []:
-                        random_file = choice(available_jingles)
-                        self.__no_jingle_count = 0
-                        return Jingle(
-                            None,
-                            os.path.join(self.__jingles_folder, random_file)
-                        )
-                else:
-                    self.__no_jingle_count += 1
-                    LOG.debug("'No jingle' count increased to %d" %
-                            self.__no_jingle_count)
+                available_jingles = os.listdir(jingles_folder)
             except OSError, ex:
-                import traceback
-                traceback.print_exc()
-                LOG.warning("Unable to open jingles: %s" % str(ex))
+                LOG.warning("Unable to open jingles: %s",
+                            str(ex), exc_info=True)
+                available_jingles = []
+            if available_jingles:
+                random_file = choice(available_jingles)
+                self.__no_jingle_count = 0
+                return Jingle(
+                    None,
+                    os.path.join(jingles_folder, random_file)
+                )
+        else:
+            self.__no_jingle_count += 1
+            LOG.debug("'No jingle' count increased to %d" %
+                      self.__no_jingle_count)
 
     def update_current_listeners(self):
         """
