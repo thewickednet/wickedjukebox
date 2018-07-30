@@ -339,6 +339,7 @@ class Channel(object):
             self.__no_jingle_count += 1
             LOG.debug("'No jingle' count increased to %d" %
                       self.__no_jingle_count)
+        return None
 
     def update_current_listeners(self):
         # type: () -> None
@@ -350,9 +351,9 @@ class Channel(object):
         LOG.log(listeners and logging.INFO or logging.DEBUG,
                 'Updating current listeners: %r' % listeners)
         if listeners is None:
-            # feature not supported by backedd player, or list of listeners
+            # feature not supported by backend player, or list of listeners
             # unknown
-            return []
+            return
 
         for l in listeners:
             query = usersTable.update(
@@ -425,8 +426,8 @@ class Channel(object):
                 songTable.update(songTable.c.id == song.id,
                                  values={'broken': True}).execute()
                 fixed_song = self.__randomstrategy.get(self.id)
-                return fixed_song
-            return song
+                return [fixed_song]
+            return [song]
         next_songs = map(fix_orphaned_song, next_songs)
         return next_songs
 
