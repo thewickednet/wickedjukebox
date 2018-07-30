@@ -12,6 +12,7 @@ import sys
 import time
 from datetime import datetime
 
+from wickedjukebox.adt import Song
 from wickedjukebox.demon.dbmodel import Setting
 from wickedjukebox.demon.lib import mpdclient
 from wickedjukebox.demon.players import common
@@ -251,12 +252,12 @@ class Player(object):
        for i, entry in enumerate(self.__connection.playlist()):
            if i <= self.playlistPosition():
                continue
-           yield {
-               'album': entry.album,
-               'artist': entry.artist,
-               'path': entry.path,
-               'title': entry.title,
-           }
+           yield Song(
+               album=entry.album,
+               artist=entry.artist,
+               filename=entry.path,
+               title=entry.title,
+           )
 
     def playlistPosition(self):
        # type: () -> int

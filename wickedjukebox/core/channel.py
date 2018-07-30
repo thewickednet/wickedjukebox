@@ -108,7 +108,7 @@ class Channel(object):
     def emit_internal_playlist(self):
         # type: () -> None
         LOG.info('emitting internal queue to pusher')
-        payload = list(self.__player.upcoming_songs())
+        payload = [song._asdict() for song in self.__player.upcoming_songs()]
         try:
             self.__pusher_client.trigger('wicked', 'internal_queue', payload)
         except Exception as exc:
@@ -369,7 +369,7 @@ class Channel(object):
         if not songs:
             LOG.debug('No upcoming song in internal queue')
         else:
-            path = songs[0]['path']
+            path = songs[0].filename
             # The following "LIKE" operator is used to hack around a small MPD
             # detail: Song paths are always relative to its library path, but
             # our DB contains the absolute path.
