@@ -5,14 +5,18 @@ and hence it's a simple implementation
 http://www.musicpd.org
 """
 
-from datetime import datetime
-import os, sys, time
 import logging
-logger = logging.getLogger(__name__)
+import os
+import sys
+import time
+from datetime import datetime
 
+from wickedjukebox.demon.dbmodel import Setting
 from wickedjukebox.demon.lib import mpdclient
 from wickedjukebox.demon.players import common
-from wickedjukebox.demon.dbmodel import Setting
+
+logger = logging.getLogger(__name__)
+
 
 
 class Player(object):
