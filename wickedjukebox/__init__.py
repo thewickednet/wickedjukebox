@@ -1,3 +1,4 @@
+# pylint: disable=missing-docstring
 from __future__ import print_function
 import os
 import logging
@@ -40,9 +41,8 @@ def setup_logging():
     log = logging.getLogger(__name__)
     logging.getLogger('requests').setLevel(logging.WARNING)
     log.info('Default logging loaded. You can override any log levels by '
-            'creating a file called "{0}" in the folder specified in '
-            'the {1} environment variable.'.format(
-                logging_conf_name, ENV_CONF))
+             'creating a file called "%s" in the folder specified in '
+             'the %s environment variable.', logging_conf_name, ENV_CONF)
 
     if ENV_CONF in os.environ:
         logging_conf_name = os.path.join(os.environ[ENV_CONF],
@@ -51,11 +51,10 @@ def setup_logging():
     if exists(logging_conf_name):
         try:
             logging.config.fileConfig(logging_conf_name,
-                    disable_existing_loggers=False)
-            log.info('Additional log config read from {0}'.format(
-                logging_conf_name))
-        except Exception as exc:
-            log.error("Error reading from %r! Error message: %r",
-                    logging_conf_name, exc, exc_info=1)
+                                      disable_existing_loggers=False)
+            log.info('Additional log config read from %s', logging_conf_name)
         except IOError:
             print(log.error(str(exc)))
+        except Exception as exc:
+            log.error("Error reading from %r! Error message: %r",
+                      logging_conf_name, exc, exc_info=1)
