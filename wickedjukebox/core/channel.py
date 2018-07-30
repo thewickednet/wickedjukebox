@@ -416,15 +416,27 @@ class Channel(object):
 
         LOG.info('Queueing: %r', next_songs)
 
-        # handle orphaned files
         def fix_orphaned_song(song):
+            # type: (Song) -> Song
+            '''
+            If a song no longer has a local file, it should be marked as broken
+            and we'll get a new random song.
+            '''
+            if not song.localpath:
+                # If the *localpath* argument is empty it's probably a special
+                # song (jingle), and we'll assume it's not broken.
+                LOG.wraning('Song %r has no localpath, which should not '
+                            'happen', song)
+                return song
+
             if not os.path.exists(fsencode(song.localpath)):
                 LOG.warning("%r not found!", song.localpath)
                 songTable.update(songTable.c.id == song.id,
                                  values={'broken': True}).execute()
                 fixed_song = self.__randomstrategy.get(self.id)
-                return [fixed_song]
-            return [song]
+                return fixed_song
+            return song
+
         next_songs = map(fix_orphaned_song, next_songs)
         return next_songs
 
