@@ -1,3 +1,4 @@
+# pylint: disable=missing-docstring, invalid-name, import-error, useless-object-inheritance
 # TODO: Set progress
 #    State.set("progress", 0, __CHANNEL_ID)
 
@@ -24,15 +25,15 @@ DEFAULT_QUEUE_MODE = 'queue_positioned'
 MAX_INTERNAL_PLAYLIST_SIZE = 3
 
 
-class JingleArtist(object):
+class JingleArtist(object):  # pylint: disable=too-few-public-methods
     name = '<none>'
 
 
-class Jingle(object):
+class Jingle(object):  # pylint: disable=too-few-public-methods
 
-    def __init__(self, id, localpath):
+    def __init__(self, id_, localpath):
         # type: (int, str) -> None
-        self.id = id
+        self.id = id_
         self.localpath = localpath
         self.title = 'jingle'
         self.artist = JingleArtist()
@@ -79,7 +80,7 @@ class Channel(object):
                              "in the database table called 'channel'" % name)
 
         self.name = self.__channel_data["name"]
-        LOG.debug("Loaded channel %s" % self.name)
+        LOG.debug("Loaded channel %s", self.name)
 
         player_params = {}
         if self.__channel_data['backend_params']:
@@ -102,9 +103,7 @@ class Channel(object):
             ssl=True
         )
 
-        LOG.info("Initialised channel %s with ID %d" % (
-            self.name,
-            self.id))
+        LOG.info("Initialised channel %s with ID %d", self.name, self.id)
 
     def emit_internal_playlist(self):
         # type: () -> None
@@ -138,7 +137,7 @@ class Channel(object):
     def queueSong(self, song):
         # type: (Song) -> bool
 
-        LOG.info("Queueing %r" % song)
+        LOG.info("Queueing %r", song)
 
         session = Session()
 
@@ -157,15 +156,14 @@ class Channel(object):
             b = session.query(Album).get(song.album_id)
             if a and b:
                 try:
-                    self.__scrobbler.now_playing(artist=a.name,
+                    self.__scrobbler.now_playing(
+                        artist=a.name,
                         track=song.title,
                         album=b.name,
                         length=int(song.duration),
                         trackno=int(song.track_no))
-                except TypeError, ex:
-                    import traceback
-                    traceback.print_exc()
-                    LOG.error(ex)
+                except TypeError as ex:
+                    LOG.error(ex, exc_info=True)
         session.close()
         return was_successful
 
@@ -212,12 +210,11 @@ class Channel(object):
             'queue_model',
             DEFAULT_QUEUE_MODE, channel_id=self.id))
         self.__queuestrategy.enqueue(
-                songID,
-                userID,
-                self.id)
+            songID,
+            userID,
+            self.id)
         return 'OK: queued song <%d> for user <%d> on channel <%d>' % (
-                songID, userID, self.id
-                )
+            songID, userID, self.id)
 
     def current_queue(self):
         # type: () -> List[dict]
@@ -235,7 +232,7 @@ class Channel(object):
         """
 
         if current_song_entity is None:
-            return
+            return ''
 
         LOG.info("skipping song")
 
@@ -261,7 +258,7 @@ class Channel(object):
         return 'OK'
 
     def moveup(self, qid, delta):
-        # type: (int) -> None
+        # type: (int, int) -> None
         self.__queuestrategy = playmodes.create(Setting.get(
             'queue_model',
             DEFAULT_QUEUE_MODE,
@@ -279,9 +276,9 @@ class Channel(object):
     def get_jingle(self):
         # type: () -> Optional[Song]
         jingles_folder = Setting.get(
-                'jingles_folder',
-                default='',
-                channel_id=self.id).strip()
+            'jingles_folder',
+            default='',
+            channel_id=self.id).strip()
         if not jingles_folder:
             LOG.info('No jingles folder set in the DB. No jingle will be '
                      'played')
@@ -289,9 +286,9 @@ class Channel(object):
 
 
         interval_raw = Setting.get(
-                'jingles_interval',
-                default='0',
-                channel_id=self.id)
+            'jingles_interval',
+            default='0',
+            channel_id=self.id)
 
         # This should clean up any whitespace and ensure the value is properly
         # initialised if the DB contained an all-whitespace string.
@@ -337,7 +334,7 @@ class Channel(object):
                 )
         else:
             self.__no_jingle_count += 1
-            LOG.debug("'No jingle' count increased to %d" %
+            LOG.debug("'No jingle' count increased to %d",
                       self.__no_jingle_count)
         return None
 
@@ -349,7 +346,7 @@ class Channel(object):
         """
         listeners = self.__player.listeners()
         LOG.log(listeners and logging.INFO or logging.DEBUG,
-                'Updating current listeners: %r' % listeners)
+                'Updating current listeners: %r', listeners)
         if listeners is None:
             # feature not supported by backend player, or list of listeners
             # unknown
@@ -404,7 +401,7 @@ class Channel(object):
 
         next_songs = []
         jingle = self.get_jingle()
-        LOG.info('Jingle: %r' % jingle)
+        LOG.info('Jingle: %r', jingle)
         if jingle:
             next_songs.append(jingle)
 
@@ -417,12 +414,12 @@ class Channel(object):
             if song_from_random:
                 next_songs.append(song_from_random)
 
-        LOG.info('Queueing: %r' % next_songs)
+        LOG.info('Queueing: %r', next_songs)
 
         # handle orphaned files
         def fix_orphaned_song(song):
             if not os.path.exists(fsencode(song.localpath)):
-                LOG.warning("%r not found!" % song.localpath)
+                LOG.warning("%r not found!", song.localpath)
                 songTable.update(songTable.c.id == song.id,
                                  values={'broken': True}).execute()
                 fixed_song = self.__randomstrategy.get(self.id)
@@ -431,7 +428,8 @@ class Channel(object):
         next_songs = map(fix_orphaned_song, next_songs)
         return next_songs
 
-    def handle_song_change(self, session, last_known_song, current_song_entity):
+    def handle_song_change(self, session, last_known_song,
+                           current_song_entity):
         # type: (Session, str, Song) -> bool
         if current_song_entity is None:
             return True
@@ -440,7 +438,7 @@ class Channel(object):
             return False
 
         LOG.debug('Current song changed from %s to %s!',
-            last_known_song, current_song_entity.localpath)
+                  last_known_song, current_song_entity.localpath)
 
         song_id = current_song_entity.id if current_song_entity else 0
         State.set("current_song", song_id, self.id)
@@ -483,7 +481,7 @@ class Channel(object):
                 self.__player.start()
                 LOG.info("Somone has come online! Resuming playback...")
             elif (not self.__player.listeners() and
-                    self.__player.status() == common.STATUS_STARTED):
+                  self.__player.status() == common.STATUS_STARTED):
                 self.__player.pause()
                 LOG.info("No-one here... pausing playback...")
 
@@ -494,8 +492,8 @@ class Channel(object):
                 lastPing = datetime.now()
 
                 update(channelTable).where(
-                        channelTable.c.id == self.id).values(
-                                {'ping': datetime.now()}).execute()
+                    channelTable.c.id == self.id).values(
+                        {'ping': datetime.now()}).execute()
 
                 proofoflife_timeout = int(Setting.get(
                     "proofoflife_timeout",
@@ -524,19 +522,19 @@ class Channel(object):
 
             # if the song is soon finished, update stats and pick the next one
             currentPosition = self.__player.position()
-            LOG.debug("Current position: %4.2f in %r" % (currentPosition,
-                current_song))
+            LOG.debug("Current position: %4.2f in %r",
+                      currentPosition, current_song)
             State.set("progress", currentPosition, self.id)
 
             if current_song_entity and currentPosition > 90:
                 LOG.info('Soon finished. Recording stats')
                 query = session.query(ChannelStat)
                 query = query.filter(
-                        songTable.c.id == channelSongs.c.song_id)
+                    songTable.c.id == channelSongs.c.song_id)
                 query = query.filter(
-                        songTable.c.id == current_song_entity.id)
+                    songTable.c.id == current_song_entity.id)
                 query = query.filter(
-                        channelSongs.c.channel_id == self.id)
+                    channelSongs.c.channel_id == self.id)
                 stat = query.first()
                 if not stat:
                     stat = ChannelStat(song_id=current_song_entity.id,
@@ -561,14 +559,14 @@ class Channel(object):
                     '30',
                     channel_id=self.id))
                 usersTable.update(
-                        usersTable.c.credits < maxCredits,
-                        values={usersTable.c.credits: usersTable.c.credits + 5}
-                        ).execute()
+                    usersTable.c.credits < maxCredits,
+                    values={usersTable.c.credits: usersTable.c.credits + 5}
+                    ).execute()
                 # we may have overshot our target slightly. This fixes it
                 usersTable.update(
-                        usersTable.c.credits > maxCredits,
-                        values={usersTable.c.credits: maxCredits}
-                        ).execute()
+                    usersTable.c.credits > maxCredits,
+                    values={usersTable.c.credits: maxCredits}
+                    ).execute()
                 lastCreditGiveaway = datetime.now()
 
             session.close()
