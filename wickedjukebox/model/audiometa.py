@@ -13,8 +13,9 @@ specific file.
 
 import logging
 from datetime import date
-from mutagen.mp3 import MP3
+
 from mutagen.id3 import ID3TimeStamp
+from mutagen.mp3 import MP3
 
 # The class logger
 LOG = logging.getLogger( __name__ )
