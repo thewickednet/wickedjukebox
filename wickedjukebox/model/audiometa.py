@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring, no-self-use
+# pylint: disable=missing-docstring, no-self-use, useless-object-inheritance
 """
 Abstraction Layer for mutagen
 
@@ -129,16 +129,15 @@ class MP3Meta(AudioMeta):
         elif data.encoding == 1 or data.encoding == 2:
             # utf16 or utf16be
             encoded = text.encode("utf_16_le")
-            if encoded.startswith(codecs.BOM_UTF16_BE) or encoded.startswith(codecs.BOM_UTF16_LE):
+            if (encoded.startswith(codecs.BOM_UTF16_BE) or
+                    encoded.startswith(codecs.BOM_UTF16_LE)):
                 return encoded[2:].replace("\x00", "").decode("utf8")
-            else:
-                return text
+            return text
         elif data.encoding == 3:
             # utf8
             return text
-        else:
-            raise NotImplementedError(
-                "Unknown character encoding (enoding=%s)" % data.encoding)
+        raise NotImplementedError(
+            "Unknown character encoding (enoding=%s)" % data.encoding)
 
     def get_release_date(self):
         if "TDRC" not in self.meta:
@@ -155,8 +154,8 @@ class MP3Meta(AudioMeta):
                 return date(int(elements[0]), int(elements[1]), 1)
             elif len(elements) == 3:
                 return date(int(elements[0]), int(elements[1]), int(elements[2]))
-        except ValueError as e:
-            LOG.warning("%s (datestring was %s)" % (e, raw_string))
+        except ValueError as exc:
+            LOG.warning("%s (datestring was %s)" % (exc, raw_string))
             return None
 
     def get_title(self):
@@ -174,6 +173,7 @@ class MP3Meta(AudioMeta):
         tmp = self.decode_text(self.meta["TRCK"]).split("/")
         if len(tmp) > 1:
             return int(tmp[1])
+        return 0
 
     def get_album(self):
         return self.decode_text(self.meta["TALB"])
@@ -192,25 +192,25 @@ class MP3Meta(AudioMeta):
 
 
 class MetaFactory(object):
+    # pylint: disable=too-few-public-methods
     """
     Factory to create the proper AudioMeta instance depending on filetype
     """
 
-    @classmethod
-    def create(self, filename):
+    @staticmethod
+    def create(filename):
         from mutagen import File
         try:
             mutagen_meta = File(filename)
-        except IOError as e:
-            LOG.error(e)
+        except IOError as exc:
+            LOG.error(exc)
             return None
 
         if isinstance(mutagen_meta, MP3):
             abstract_meta = MP3Meta(mutagen_meta)
             return abstract_meta
-        else:
-            raise NotImplementedError(
-                "This filetype (%s) is not yet implemented" % type(mutagen_meta))
+        raise NotImplementedError(
+            "This filetype (%s) is not yet implemented" % type(mutagen_meta))
 
 
 def display_file(filename):
