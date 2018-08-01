@@ -52,66 +52,6 @@ def fsdecode(filename):
     return decoded
 
 
-def fsencode_old(filename):
-    """
-    Encodes a unicode object into the file system encoding
-    """
-
-    revencodings = REVENCODINGS[:]  # keep a copy
-
-    if type(filename) == type(u""):
-        encoded = None
-        while True:
-            try:
-                if not revencodings:
-                    break
-                encoding = revencodings.pop()
-                encoded = filename.encode(encoding)
-                working_charset = encoding
-                LOG.debug("encoded %r with %r" % (filename, encoding))
-                break
-            except UnicodeEncodeError as exc:
-                LOG.warning("File %r uses an unexpected encoding. %r did not work to encode it. Will try another encoding" % (
-                    filename, encoding))
-                return filename.encode(sys.getfilesystemencoding())
-        if len(filename) > 0 and not encoded:
-            raise UnicodeEncodeError("Unable to encode %r" % filename)
-        return encoded
-    else:
-        return filename
-
-
-def fsdecode_old(filename):
-    """
-    Decodes a filename, returning it's decoded name with the used charset
-    Raises an UnicodeDecodeError if decoding did not work
-    """
-
-    decoded = None
-    working_charset = None
-
-    # make a copy of the global encodings list so we can pop items off
-    encodings = ENCODINGS[:]
-
-    while True:
-        try:
-            if not encodings:
-                break
-            encoding = encodings.pop()
-            decoded = filename.decode(encoding)
-            working_charset = encoding
-            LOG.debug("decoded %r with %r" % (filename, encoding))
-            break
-        except UnicodeDecodeError:
-            LOG.warning("File %r uses an unexpected encoding. %r did not work to decode it. Will try another encoding" % (
-                filename, encoding))
-
-    if not decoded:
-        raise UnicodeDecodeError("Unable to decode %r" % filename)
-
-    return decoded, working_charset
-
-
 def direxists(dir):
     import os.path
     if not os.path.exists(dir):
