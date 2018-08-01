@@ -66,19 +66,6 @@ def do_housekeeping():
             LOG.error("Unable to decode %r (%s)" % (row[0], exc))
 
 
-def processor_todatabase(root, localpath):
-    session = Session()
-    song = session.query(Song).filter_by(localpath=localpath).first()
-    if not song:
-        song = Song(localpath, None, None)
-    localpath, encoding = fsdecode(localpath)
-    song.scan_from_file(localpath, encoding)
-    session.add(song)
-    LOG.debug("%r at %r" % (song, localpath))
-    session.commit()
-    session.close()
-
-
 def scan(top, subfolder=u""):
     """
     Scans a folder rootet at <top> for audio files. It will scan the supfolder
