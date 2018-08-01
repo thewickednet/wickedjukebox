@@ -4,6 +4,7 @@ Audio file scanner module
 This module contains everything needed to scan a directory of audio files an
 store the metadata in the jukebox database
 """
+from __future__ import print_function
 from os import walk, path, sep, listdir
 import sys
 import logging
@@ -42,8 +43,8 @@ def process(localpath):
             song.scan_from_file(localpath, sys.getfilesystemencoding())
             session.add(song)
             LOG.info( "%r" % (song) )
-        except UnicodeDecodeError, ex:
-            LOG.error( "Unable to decode %r (%s)" % (localpath, ex) )
+        except UnicodeDecodeError as exc:
+            LOG.error( "Unable to decode %r (%s)" % (localpath, exc) )
         except KeyError as exc:
             LOG.error("Key Error: %s" % exc)
     else:
@@ -64,9 +65,9 @@ def do_housekeeping():
     for row in songs:
         try:
             if not path.exists( fsencode(row[0]) ):
-                print `row[0]`, "removed from disk"
-        except UnicodeEncodeError, e:
-            LOG.error( "Unable to decode %r (%s)" % ( row[0], e) )
+                print("%r removed from disk" % row[0])
+        except UnicodeEncodeError as exc:
+            LOG.error( "Unable to decode %r (%s)" % ( row[0], exc) )
 
 def processor_todatabase(root, localpath):
     session = Session()
@@ -96,7 +97,7 @@ def scan(top, subfolder=u""):
     spinner_chars = r"/-\|"
     def scan_folder(folder):
         LOG.info("Scanning %r" % (folder))
-        print u"Scanning %r" % (folder)
+        print(u"Scanning %r" % folder)
         spinner_position = 0
         stdout.write("Counting... /")
         count_total = 0
