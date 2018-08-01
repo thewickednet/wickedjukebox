@@ -5,18 +5,14 @@ This module contains everything needed to scan a directory of audio files an
 store the metadata in the jukebox database
 """
 from __future__ import print_function
-from os import walk, path, sep, listdir
-import sys
+
 import logging
+import sys
+from os import listdir, path, sep, walk
 
 from sqlalchemy.sql import select
-
+from wickedjukebox.demon.dbmodel import Session, Setting, Song, songTable
 from wickedjukebox.util import fsdecode, fsencode
-from wickedjukebox.demon.dbmodel import (
-     Song,
-     songTable,
-     Session,
-     Setting)
 
 LOG = logging.getLogger(__name__)
 
@@ -30,21 +26,21 @@ def is_valid_audio_file(path):
 def process(localpath):
 
     if not localpath:
-        LOG.warning( "Skipping undefined filename!" )
+        LOG.warning("Skipping undefined filename!")
         return
 
     session = Session()
 
     if is_valid_audio_file(localpath):
         try:
-            song = session.query(Song).filter_by( localpath=localpath ).first()
+            song = session.query(Song).filter_by(localpath=localpath).first()
             if not song:
                 song = Song(localpath, None, None)
             song.scan_from_file(localpath, sys.getfilesystemencoding())
             session.add(song)
-            LOG.info( "%r" % (song) )
+            LOG.info("%r" % (song))
         except UnicodeDecodeError as exc:
-            LOG.error( "Unable to decode %r (%s)" % (localpath, exc) )
+            LOG.error("Unable to decode %r (%s)" % (localpath, exc))
         except KeyError as exc:
             LOG.error("Key Error: %s" % exc)
     else:
@@ -60,26 +56,28 @@ def do_housekeeping():
     Database cleanup, and set other values that are difficult to read during
     scanning.
     """
-    LOG.info( "Performing housekeeping. This may take a while!" )
+    LOG.info("Performing housekeeping. This may take a while!")
     songs = select([songTable.c.localpath]).execute()
     for row in songs:
         try:
-            if not path.exists( fsencode(row[0]) ):
+            if not path.exists(fsencode(row[0])):
                 print("%r removed from disk" % row[0])
         except UnicodeEncodeError as exc:
-            LOG.error( "Unable to decode %r (%s)" % ( row[0], exc) )
+            LOG.error("Unable to decode %r (%s)" % (row[0], exc))
+
 
 def processor_todatabase(root, localpath):
     session = Session()
-    song = session.query(Song).filter_by( localpath=localpath ).first()
+    song = session.query(Song).filter_by(localpath=localpath).first()
     if not song:
         song = Song(localpath, None, None)
-    localpath, encoding = fsdecode( localpath )
-    song.scan_from_file( localpath, encoding )
+    localpath, encoding = fsdecode(localpath)
+    song.scan_from_file(localpath, encoding)
     session.add(song)
-    LOG.debug( "%r at %r" % (song, localpath) )
+    LOG.debug("%r at %r" % (song, localpath))
     session.commit()
     session.close()
+
 
 def scan(top, subfolder=u""):
     """
@@ -95,6 +93,7 @@ def scan(top, subfolder=u""):
     tc = TerminalController()
 
     spinner_chars = r"/-\|"
+
     def scan_folder(folder):
         LOG.info("Scanning %r" % (folder))
         print(u"Scanning %r" % folder)
@@ -106,12 +105,12 @@ def scan(top, subfolder=u""):
                 if not any([file.endswith(_) for _ in EXTS]):
                     continue
                 spinner_position = (spinner_position + 1) % len(spinner_chars)
-                stdout.write( "\b%s" % spinner_chars[spinner_position] )
+                stdout.write("\b%s" % spinner_chars[spinner_position])
                 stdout.flush()
             count_total += len(files)
         stdout.write("\b ")
         stdout.flush()
-        stdout.write( "\n%d files to examine\n" % count_total )
+        stdout.write("\n%d files to examine\n" % count_total)
 
         pb = ProgressBar(tc, "Scanning...")
 
@@ -126,13 +125,14 @@ def scan(top, subfolder=u""):
                     process(path.join(root, file))
                     count_scanned += 1
                     count_processed += 1
-                    completed_ratio = float(count_processed) / float(count_total)
+                    completed_ratio = float(
+                        count_processed) / float(count_total)
                 except TypeError as exc:
                     LOG.error('Unable to scan %s (%s)' % (
-                            path.join(root, file), exc))
+                        path.join(root, file), exc))
                 pb.update(completed_ratio, path.join(root, file))
         pb.update(1.0, "done")
-        stdout.write( "\n" )
+        stdout.write("\n")
 
     glob = subfolder.endswith('*')
 
