@@ -2,16 +2,18 @@
 Utility methods
 """
 
-import sys, os
-import re
 import ConfigParser
 import logging
+import os
+import re
+import sys
+
 LOG = logging.getLogger(__name__)
 
 ENCODINGS = [
-   'latin-1',
-   'utf-8',
-   sys.getfilesystemencoding(),
+    'latin-1',
+    'utf-8',
+    sys.getfilesystemencoding(),
 ]
 
 FS_CODING = sys.getfilesystemencoding()
@@ -20,102 +22,113 @@ FS_CODING = sys.getfilesystemencoding()
 REVENCODINGS = ENCODINGS
 REVENCODINGS.reverse()
 
-def fsencode(filename):
-   if not isinstance( filename, unicode ):
-      # no need to re-encode
-      return filename
 
-   try:
-      return filename.encode( FS_CODING )
-   except UnicodeEncodeError, e:
-      LOG.error( "Filename %r is not encoded using the registered filesystem encoding!" % filename )
-      return None
+def fsencode(filename):
+    if not isinstance(filename, unicode):
+        # no need to re-encode
+        return filename
+
+    try:
+        return filename.encode(FS_CODING)
+    except UnicodeEncodeError as exc:
+        LOG.error(
+            "Filename %r is not encoded using the registered filesystem encoding!" % filename)
+        return None
+
 
 def fsdecode(filename):
-   LOG.debug("Trying to decode %r using %r." % (filename, FS_CODING))
-   if isinstance( filename, unicode ):
-      # no need to redecode
-      return filename
+    LOG.debug("Trying to decode %r using %r." % (filename, FS_CODING))
+    if isinstance(filename, unicode):
+        # no need to redecode
+        return filename
 
-   try:
-      decoded = (filename.decode( FS_CODING ), FS_CODING)
-      LOG.debug( "Encoded as %r - %r" % decoded )
-   except UnicodeDecodeError, e:
-      LOG.error("Filename %r is not encoded using the registered filesystem encoding!" % filename)
-      return (None, None)
-   return decoded
+    try:
+        decoded = (filename.decode(FS_CODING), FS_CODING)
+        LOG.debug("Encoded as %r - %r" % decoded)
+    except UnicodeDecodeError as exc:
+        LOG.error(
+            "Filename %r is not encoded using the registered filesystem encoding!" % filename)
+        return (None, None)
+    return decoded
+
 
 def fsencode_old(filename):
-   """
-   Encodes a unicode object into the file system encoding
-   """
+    """
+    Encodes a unicode object into the file system encoding
+    """
 
-   global REVENCODINGS
-   revencodings = REVENCODINGS[:] # keep a copy
+    global REVENCODINGS
+    revencodings = REVENCODINGS[:]  # keep a copy
 
-   if type(filename) == type(u""):
-      encoded = None
-      while True:
-         try:
-            if not revencodings: break
-            encoding = revencodings.pop()
-            encoded = filename.encode(encoding)
-            working_charset = encoding
-            LOG.debug( "encoded %r with %r" % ( filename, encoding ) )
-            break
-         except UnicodeEncodeError, e:
-            LOG.warning("File %r uses an unexpected encoding. %r did not work to encode it. Will try another encoding" % (filename, encoding))
-            return filename.encode(sys.getfilesystemencoding())
-      if len(filename) > 0 and not encoded:
-         raise UnicodeEncodeError("Unable to encode %r" % filename)
-      return encoded
-   else:
-      return filename
+    if type(filename) == type(u""):
+        encoded = None
+        while True:
+            try:
+                if not revencodings:
+                    break
+                encoding = revencodings.pop()
+                encoded = filename.encode(encoding)
+                working_charset = encoding
+                LOG.debug("encoded %r with %r" % (filename, encoding))
+                break
+            except UnicodeEncodeError as exc:
+                LOG.warning("File %r uses an unexpected encoding. %r did not work to encode it. Will try another encoding" % (
+                    filename, encoding))
+                return filename.encode(sys.getfilesystemencoding())
+        if len(filename) > 0 and not encoded:
+            raise UnicodeEncodeError("Unable to encode %r" % filename)
+        return encoded
+    else:
+        return filename
+
 
 def fsdecode_old(filename):
-   """
-   Decodes a filename, returning it's decoded name with the used charset
-   Raises an UnicodeDecodeError if decoding did not work
-   """
-   global ENCODINGS
+    """
+    Decodes a filename, returning it's decoded name with the used charset
+    Raises an UnicodeDecodeError if decoding did not work
+    """
+    global ENCODINGS
 
-   decoded = None
+    decoded = None
 
-   working_charset = None
+    working_charset = None
 
-   # make a copy of the global encodings list so we can pop items off
-   encodings = ENCODINGS[:]
+    # make a copy of the global encodings list so we can pop items off
+    encodings = ENCODINGS[:]
 
-   while True:
-      try:
-         if not encodings: break
-         encoding = encodings.pop()
-         decoded = filename.decode(encoding)
-         working_charset = encoding
-         LOG.debug( "decoded %r with %r" % ( filename, encoding ) )
-         break
-      except UnicodeDecodeError:
-         LOG.warning("File %r uses an unexpected encoding. %r did not work to decode it. Will try another encoding" % (filename, encoding))
+    while True:
+        try:
+            if not encodings:
+                break
+            encoding = encodings.pop()
+            decoded = filename.decode(encoding)
+            working_charset = encoding
+            LOG.debug("decoded %r with %r" % (filename, encoding))
+            break
+        except UnicodeDecodeError:
+            LOG.warning("File %r uses an unexpected encoding. %r did not work to decode it. Will try another encoding" % (
+                filename, encoding))
 
-   if not decoded:
-      raise UnicodeDecodeError("Unable to decode %r" % filename)
+    if not decoded:
+        raise UnicodeDecodeError("Unable to decode %r" % filename)
 
-   return decoded, working_charset
+    return decoded, working_charset
+
 
 def direxists(dir):
-   import os.path
-   if not os.path.exists( dir ):
-      LOG.warning( "'%s' does not exist!" % dir )
-      return False
-   else:
-      return True
+    import os.path
+    if not os.path.exists(dir):
+        LOG.warning("'%s' does not exist!" % dir)
+        return False
+    else:
+        return True
 
 
 class TerminalController:
     """
     A class that can be used to portably generate formatted output to
     a terminal.  
-    
+
     `TerminalController` defines a set of instance variables whose
     values are initialized to the control sequence necessary to
     perform a given action.  These can be simply included in normal
@@ -175,11 +188,11 @@ class TerminalController:
 
     # Foreground colors:
     BLACK = BLUE = GREEN = CYAN = RED = MAGENTA = YELLOW = WHITE = ''
-    
+
     # Background colors:
     BG_BLACK = BG_BLUE = BG_GREEN = BG_CYAN = ''
     BG_RED = BG_MAGENTA = BG_YELLOW = BG_WHITE = ''
-    
+
     _STRING_CAPABILITIES = """
     BOL=cr UP=cuu1 DOWN=cud1 LEFT=cub1 RIGHT=cuf1
     CLEAR_SCREEN=clear CLEAR_EOL=el CLEAR_BOL=el1 CLEAR_EOS=ed BOLD=bold
@@ -197,21 +210,26 @@ class TerminalController:
         assumed to be a dumb terminal (i.e., have no capabilities).
         """
         # Curses isn't available on all platforms
-        try: import curses
-        except: return
+        try:
+            import curses
+        except:
+            return
 
         # If the stream isn't a tty, then assume it has no capabilities.
-        if not term_stream.isatty(): return
+        if not term_stream.isatty():
+            return
 
         # Check the terminal type.  If we fail, then assume that the
         # terminal has no capabilities.
-        try: curses.setupterm()
-        except: return
+        try:
+            curses.setupterm()
+        except:
+            return
 
         # Look up numeric capabilities.
         self.COLS = curses.tigetnum('cols')
         self.LINES = curses.tigetnum('lines')
-        
+
         # Look up string capabilities.
         for capability in self._STRING_CAPABILITIES:
             (attrib, cap_name) = capability.split('=')
@@ -220,19 +238,19 @@ class TerminalController:
         # Colors
         set_fg = self._tigetstr('setf')
         if set_fg:
-            for i,color in zip(range(len(self._COLORS)), self._COLORS):
+            for i, color in zip(range(len(self._COLORS)), self._COLORS):
                 setattr(self, color, curses.tparm(set_fg, i) or '')
         set_fg_ansi = self._tigetstr('setaf')
         if set_fg_ansi:
-            for i,color in zip(range(len(self._ANSICOLORS)), self._ANSICOLORS):
+            for i, color in zip(range(len(self._ANSICOLORS)), self._ANSICOLORS):
                 setattr(self, color, curses.tparm(set_fg_ansi, i) or '')
         set_bg = self._tigetstr('setb')
         if set_bg:
-            for i,color in zip(range(len(self._COLORS)), self._COLORS):
+            for i, color in zip(range(len(self._COLORS)), self._COLORS):
                 setattr(self, 'BG_'+color, curses.tparm(set_bg, i) or '')
         set_bg_ansi = self._tigetstr('setab')
         if set_bg_ansi:
-            for i,color in zip(range(len(self._ANSICOLORS)), self._ANSICOLORS):
+            for i, color in zip(range(len(self._ANSICOLORS)), self._ANSICOLORS):
                 setattr(self, 'BG_'+color, curses.tparm(set_bg_ansi, i) or '')
 
     def _tigetstr(self, cap_name):
@@ -253,8 +271,10 @@ class TerminalController:
 
     def _render_sub(self, match):
         s = match.group()
-        if s == '$$': return s
-        else: return getattr(self, s[2:-1])
+        if s == '$$':
+            return s
+        else:
+            return getattr(self, s[2:-1])
 
 
 class ProgressBar:
@@ -279,7 +299,7 @@ class ProgressBar:
         self.width = self.term.COLS or 75
         self.bar = term.render(self.BAR)
         self.header = self.term.render(self.HEADER % header.center(self.width))
-        self.cleared = 1 #: true if we haven't drawn the bar yet.
+        self.cleared = 1  # : true if we haven't drawn the bar yet.
         self.update(0, '')
 
     def update(self, percent, message):
