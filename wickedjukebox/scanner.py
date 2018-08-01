@@ -1,3 +1,4 @@
+# pylint: disable=missing-docstring
 """
 Audio file scanner module
 
@@ -8,7 +9,7 @@ from __future__ import print_function
 
 import logging
 import sys
-from os import listdir, path, sep, walk
+from os import listdir, path, walk
 
 from sqlalchemy.sql import select
 from wickedjukebox.demon.dbmodel import Session, Setting, Song, songTable
@@ -19,8 +20,8 @@ LOG = logging.getLogger(__name__)
 EXTS = Setting.get("recognizedTypes", "").split(" ")
 
 
-def is_valid_audio_file(path):
-    return path.endswith(EXTS[0])
+def is_valid_audio_file(filename):
+    return filename.endswith(EXTS[0])
 
 
 def process(localpath):
@@ -38,14 +39,14 @@ def process(localpath):
                 song = Song(localpath, None, None)
             song.scan_from_file(localpath, sys.getfilesystemencoding())
             session.add(song)
-            LOG.info("%r" % (song))
+            LOG.info(repr(song))
         except UnicodeDecodeError as exc:
-            LOG.error("Unable to decode %r (%s)" % (localpath, exc))
+            LOG.error("Unable to decode %r (%s)", localpath, exc)
         except KeyError as exc:
-            LOG.error("Key Error: %s" % exc)
+            LOG.error("Key Error: %s", exc)
     else:
         LOG.debug("%r is not a valid audio-file "
-                  "(only scanning extensions %r)" % (localpath, EXTS))
+                  "(only scanning extensions %r)", localpath, EXTS)
 
     session.commit()
     session.close()
@@ -63,7 +64,7 @@ def do_housekeeping():
             if not path.exists(fsencode(row[0])):
                 print("%r removed from disk" % row[0])
         except UnicodeEncodeError as exc:
-            LOG.error("Unable to decode %r (%s)" % (row[0], exc))
+            LOG.error("Unable to decode %r (%s)", row[0], exc)
 
 
 def scan(top, subfolder=u""):
@@ -77,17 +78,17 @@ def scan(top, subfolder=u""):
     from sys import stdout
     from wickedjukebox.util import TerminalController, ProgressBar
 
-    tc = TerminalController()
+    term = TerminalController()
 
     spinner_chars = r"/-\|"
 
     def scan_folder(folder):
-        LOG.info("Scanning %r" % (folder))
+        LOG.info("Scanning %r", folder)
         print(u"Scanning %r" % folder)
         spinner_position = 0
         stdout.write("Counting... /")
         count_total = 0
-        for root, dirs, files in walk(folder):
+        for root, _, files in walk(folder):
             for file in files:
                 if not any([file.endswith(_) for _ in EXTS]):
                     continue
@@ -99,12 +100,12 @@ def scan(top, subfolder=u""):
         stdout.flush()
         stdout.write("\n%d files to examine\n" % count_total)
 
-        pb = ProgressBar(tc, "Scanning...")
+        pbar = ProgressBar(term, "Scanning...")
 
         count_scanned = 0
         count_processed = 0
         completed_ratio = 0.0
-        for root, dirs, files in walk(folder):
+        for root, _, files in walk(folder):
             for file in files:
                 if not any([file.endswith(_) for _ in EXTS]):
                     continue
@@ -115,10 +116,10 @@ def scan(top, subfolder=u""):
                     completed_ratio = float(
                         count_processed) / float(count_total)
                 except TypeError as exc:
-                    LOG.error('Unable to scan %s (%s)' % (
-                        path.join(root, file), exc))
-                pb.update(completed_ratio, path.join(root, file))
-        pb.update(1.0, "done")
+                    LOG.error('Unable to scan %s (%s)',
+                              path.join(root, file), exc)
+                pbar.update(completed_ratio, path.join(root, file))
+        pbar.update(1.0, "done")
         stdout.write("\n")
 
     glob = subfolder.endswith('*')
@@ -126,7 +127,7 @@ def scan(top, subfolder=u""):
     if glob:
         subfolder = subfolder[0:-1]
         candidates = [_ for _ in listdir(top) if _.startswith(subfolder)]
-        for subfolder in candidates:
-            scan_folder(path.join(top, subfolder))
+        for candidate in candidates:
+            scan_folder(path.join(top, candidate))
     else:
         scan_folder(path.join(top, subfolder))
