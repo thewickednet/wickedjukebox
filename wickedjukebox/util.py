@@ -57,7 +57,6 @@ def fsencode_old(filename):
     Encodes a unicode object into the file system encoding
     """
 
-    global REVENCODINGS
     revencodings = REVENCODINGS[:]  # keep a copy
 
     if type(filename) == type(u""):
@@ -87,10 +86,8 @@ def fsdecode_old(filename):
     Decodes a filename, returning it's decoded name with the used charset
     Raises an UnicodeDecodeError if decoding did not work
     """
-    global ENCODINGS
 
     decoded = None
-
     working_charset = None
 
     # make a copy of the global encodings list so we can pop items off
