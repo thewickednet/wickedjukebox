@@ -1,11 +1,10 @@
+# pylint: disable=missing-docstring
 """
 Utility methods
 """
 
 import ConfigParser
 import logging
-import os
-import re
 import sys
 
 from wickedjukebox.tc import TerminalController, ProgressBar
@@ -32,32 +31,31 @@ def fsencode(filename):
 
     try:
         return filename.encode(FS_CODING)
-    except UnicodeEncodeError as exc:
-        LOG.error(
-            "Filename %r is not encoded using the registered filesystem encoding!" % filename)
+    except UnicodeEncodeError:
+        LOG.error("Filename %r is not encoded using the registered "
+                  "filesystem encoding!", filename)
         return None
 
 
 def fsdecode(filename):
-    LOG.debug("Trying to decode %r using %r." % (filename, FS_CODING))
+    LOG.debug("Trying to decode %r using %r.", filename, FS_CODING)
     if isinstance(filename, unicode):
         # no need to redecode
         return filename
 
     try:
         decoded = (filename.decode(FS_CODING), FS_CODING)
-        LOG.debug("Encoded as %r - %r" % decoded)
-    except UnicodeDecodeError as exc:
-        LOG.error(
-            "Filename %r is not encoded using the registered filesystem encoding!" % filename)
+        LOG.debug("Encoded as %r", decoded)
+    except UnicodeDecodeError:
+        LOG.error("Filename %r is not encoded using the registered filesystem "
+                  "encoding!", filename)
         return (None, None)
     return decoded
 
 
-def direxists(dir):
+def direxists(name):
     import os.path
-    if not os.path.exists(dir):
-        LOG.warning("'%s' does not exist!" % dir)
+    if not os.path.exists(name):
+        LOG.warning("'%s' does not exist!", name)
         return False
-    else:
-        return True
+    return True
