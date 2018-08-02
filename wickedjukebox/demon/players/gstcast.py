@@ -1,3 +1,8 @@
+# pylint: disable=invalid-name
+#
+# This module mus conform to the names dictated by the "player" API which is
+# currently not PEP8 compliant and causes many invalid-name messages due to
+# usage of camel-case names.
 import logging
 import os
 import re
@@ -66,7 +71,7 @@ class GStreamer(Thread):
     def current_position(self):
         try:
             return (int(self.player.query_position(
-                        gst.FORMAT_TIME, None)[0] * 1E-9),
+                gst.FORMAT_TIME, None)[0] * 1E-9),
                     int(self.player.query_duration(
                         gst.FORMAT_TIME, None)[0] * 1E-9))
         except Exception as exc:
@@ -257,8 +262,6 @@ def skipSong():
 
 
 def stopPlayback():
-    from wickedjukebox.demon.dbmodel import State
-
     LOG.debug("Stopping playback")
     if STATE.server:
         STATE.server.stop()
@@ -272,8 +275,6 @@ def pausePlayback():
 
 
 def startPlayback():
-    from wickedjukebox.demon.dbmodel import State
-
     LOG.info("Starting playback")
     State.set("progress", 0, STATE.channel_id)
     if not STATE.queue:
@@ -309,7 +310,7 @@ def current_listeners():
         return
 
     part = "25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?"
-    p = re.compile(r"(((%s)\.){3}(%s))" % (part, part))
+    pattern = re.compile(r"(((%s)\.){3}(%s))" % (part, part))
 
     # Create an OpenerDirector with support for Basic HTTP Authentication...
     auth_handler = urllib2.HTTPBasicAuthHandler()
