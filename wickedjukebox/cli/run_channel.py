@@ -21,7 +21,7 @@ class Application(object):
         """
         Try to exit cleanly on SIGINT.
         """
-        logging.info("SIGINT caught")
+        LOG.info("SIGINT caught")
         self.channel.close()
         self.keep_running = False
 
@@ -33,19 +33,18 @@ class Application(object):
         while self.keep_running:
             self.channel = Channel(channel_name)
             try:
-                logging.info("Starting channel %s" % channel_name)
+                LOG.info("Starting channel %s", channel_name)
                 self.channel.startPlayback()
                 self.channel.run()
-            except Exception:
-                import traceback
-                logging.critical(traceback.format_exc())
-                logging.info("Restarting channel %s" % channel_name)
+            except Exception: 
+                LOG.exception('Unhandled exception, trying to restart channel')
+                LOG.info("Restarting channel %s", channel_name)
                 self.channel.close()
                 self.channel = None
                 self.channel = Channel(channel_name)
 
             if self.channel:
-                logging.info("Closing channel")
+                LOG.info("Closing channel")
                 self.channel.close()
 
             time.sleep(1)
@@ -58,7 +57,7 @@ def main():
     from optparse import OptionParser
     setup_logging()
 
-    LOG.info(" Wicked Jukebox {0} ".format(__version__).center(79, '#'))
+    LOG.info(" Wicked Jukebox %s", __version__.center(79, '#'))
 
     parser = OptionParser()
     parser.add_option("-c", "--channel", dest="channel_name",
