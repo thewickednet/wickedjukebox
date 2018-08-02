@@ -32,8 +32,7 @@ class Player(object):
     LOG = logging.getLogger('{0}.Player'.format(__name__))
 
     def __init__(self, channel_id, icy_conf):
-        Player.LOG.debug('Initialising with {0!r}, {1!r}'.format(channel_id,
-                                                                 icy_conf))
+        Player.LOG.debug('Initialising with %r, %r', channel_id, icy_conf)
         self.source_command = Queue()
         dataq = Queue(16)
         icy_commands = Queue(1)
@@ -43,15 +42,15 @@ class Player(object):
         self.provider.start()
 
     def crop_playlist(self, max_items=2):
-        Player.LOG.debug('Cropping playlist to {0} items'.format(max_items))
+        Player.LOG.debug('Cropping playlist to %s items', max_items)
         self.filereader.crop_queue(max_items)
 
     def listeners(self):
         return self.provider.listener_ips()
 
     def position(self):
-        Player.LOG.debug('Interpreting position {0!r}'.format(
-            self.filereader.position()))
+        Player.LOG.debug('Interpreting position %r',
+                         self.filereader.position())
         try:
             a, b = self.filereader.position()
             return float(a) / float(b) * 100
@@ -91,8 +90,8 @@ class FileReader(Thread):
     LOG = logging.getLogger('{0}.FileReader'.format(__name__))
 
     def __init__(self, qcmds, qdata, icy_commands, *args, **kwargs):
-        FileReader.LOG.debug('Initialising with {0!r}, {1!r}, {2!r}, '
-                             '{3!r}'.format(qcmds, qdata, args, kwargs))
+        FileReader.LOG.debug('Initialising with %r, %r, %r, %r',
+                             qcmds, qdata, args, kwargs)
         super(FileReader, self).__init__(*args, **kwargs)
         self.qcmds = qcmds
         self._icy_commands = icy_commands
@@ -112,8 +111,8 @@ class FileReader(Thread):
         while True:
             try:
                 cmd, args = self.qcmds.get(False)
-                FileReader.LOG.debug('Recieved command {0!r} '
-                                     'with args {1!r}'.format(cmd, args))
+                FileReader.LOG.debug('Recieved command %r with args %r',
+                                     cmd, args)
                 if cmd == SCMD_QUEUE:
                     self.song_queue.append(args)
                     FileReader.LOG.info('Queueing %r. Queue is now: %r',
@@ -133,22 +132,22 @@ class FileReader(Thread):
                 pass
 
             if do_skip and self.song_queue:
-                FileReader.LOG.debug('Skip requested on queue {0!r}'.format(
-                    self.song_queue))
+                FileReader.LOG.debug('Skip requested on queue %r',
+                                     self.song_queue)
                 new_song = self.song_queue.pop(0)
                 self.closefile()
                 self.openfile(new_song['filename'])
                 self._set_title(new_song)
                 FileReader.LOG.debug('Previous file closed and reopened '
-                                     'with {0!r}. Queue is now: {1!r}'.format(
-                                         new_song['filename'],
-                                         self.song_queue))
+                                     'with %r. Queue is now: %r',
+                                     new_song['filename'],
+                                     self.song_queue)
                 do_skip = False
 
             if not self.current_file and self.song_queue:
                 FileReader.LOG.debug('No file currently open, but we have '
-                                     'a queue: {0!r}. Opening...'.format(
-                                         self.song_queue))
+                                     'a queue: %r. Opening...',
+                                     self.song_queue)
                 new_song = self.song_queue.pop(0)
                 self._set_title(new_song)
                 self.openfile(new_song['filename'])
@@ -187,20 +186,20 @@ class FileReader(Thread):
         try:
             title = u'{0[artist]} - {0[title]}'.format(song)
             FileReader.LOG.debug(u'Telling IceProvider to set new title '
-                                 u'to {0}'.format(title))
+                                 u'to %s', title)
             self._icy_commands.put_nowait((ICMD_SET_TITLE,
                                            title.encode('utf8')))
         except Full:
             pass
 
     def closefile(self):
-        FileReader.LOG.debug('Closing {0!r}'.format(self.current_file))
+        FileReader.LOG.debug('Closing %r', self.current_file)
         self.current_file.close()
         self.current_file = None
         self._stat = None
 
     def openfile(self, fname):
-        FileReader.LOG.debug('Opening {0!r}'.format(fname))
+        FileReader.LOG.debug('Opening %r', fname)
         self.current_file = open(fname, 'rb')
         self._stat = os.stat(fname)
 
@@ -230,8 +229,8 @@ class IceProvider(Thread):
         self.data_queue = data_queue
         self.cmd_queue = cmd_queue
         self.daemon = True
-        IceProvider.LOG.info("connection to icecast server (params = %s)" % (
-            params))
+        IceProvider.LOG.info("connection to icecast server (params = %s)",
+                             params)
         self.port = int(params['port'])
         self.mount = str(params['mount'])
         self.password = str(params['pwd'])
@@ -277,9 +276,9 @@ class IceProvider(Thread):
             self._icy_handle.sync()
             self._icy_handle.close()
         except Exception:
-            IceProvider.LOG.log(logging.WARNING,
-                                'Error disconnecting from icecast.',
-                                exc_info=True)
+            IceProvider.LOG.warning(
+                'Error disconnecting from icecast.',
+                exc_info=True)
 
     def listener_ips(self):
         """
@@ -297,16 +296,17 @@ class IceProvider(Thread):
         int_octet = "25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9]?"
         p = re.compile(r"(((%s)\.){3}(%s))" % (int_octet, int_octet))
 
-        IceProvider.LOG.debug("Opening %r" % self.admin_url)
+        IceProvider.LOG.debug("Opening %r", self.admin_url)
         response = requests.get(self.admin_url, auth=(self.admin_username,
                                                       self.admin_password))
         if response.status_code == 200:
             listeners = [x[0] for x in p.findall(response.text)]
-            IceProvider.LOG.debug('Current listeners: %r' % listeners)
+            IceProvider.LOG.debug('Current listeners: %r', listeners)
             return listeners
         else:
-            IceProvider.LOG.error("Error opening %r: Status: %s: %s" % (
-                self.admin_url, response.status_code, response.text))
+            IceProvider.LOG.error(
+                "Error opening %r: Status: %s: %s",
+                self.admin_url, response.status_code, response.text)
             return []
 
     def run(self):
@@ -315,8 +315,7 @@ class IceProvider(Thread):
             try:
                 cmd, args = self.cmd_queue.get(False)
                 if cmd == ICMD_SET_TITLE:
-                    IceProvider.LOG.debug('Setting title to {0!r}'.format(
-                        args))
+                    IceProvider.LOG.debug('Setting title to %r', args)
                     self._icy_handle.set_metadata({'song': args})
                 self.cmd_queue.task_done()
             except Empty:
