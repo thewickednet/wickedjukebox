@@ -79,6 +79,10 @@ class Console(cmd.Cmd):
     # wrappers and syntactic sugar for command-line interfaces. There is a good
     # chance that the functions don't need to use "self".
 
+    # pylint: disable=too-many-public-methods
+    #
+    # Having many public methods is normal in Cmd subclasses
+
     __ctx_artist = "unset"
     __ctx_album = "unset"
     __path = []  # type: List[str]
@@ -410,7 +414,7 @@ class Console(cmd.Cmd):
 
         try:
             old_genre, new_genre = line.split(" ")
-        except Exception as ex:
+        except Exception as ex:  # pylint: disable=broad-except
             print(str(ex))
             return
 
@@ -464,7 +468,7 @@ class Console(cmd.Cmd):
             gid = int(args[0])
             name = " ".join(args[1:])
             name = self.get_string(name)
-        except Exception as ex:
+        except Exception as ex:  # pylint: disable=broad-except
             print(str(ex))
             return
 
@@ -542,10 +546,8 @@ class Console(cmd.Cmd):
         arg = self.get_string(line)
 
         if arg.strip() == "..":
-            try:
+            if self.__path:
                 self.__path.pop()
-            except:
-                pass
             self.set_promt()
             return
 
@@ -652,7 +654,7 @@ class Console(cmd.Cmd):
                 "value": value
             })
             insq.execute()
-        LOG.debug("New setting stored: %r" % params)
+        LOG.debug("New setting stored: %r", params)
 
     def do_channel_settings(self, line):
         # type: (str) -> None
