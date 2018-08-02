@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf8 -*-
+
 from __future__ import print_function
 
 import cmd
@@ -64,6 +65,16 @@ def get_songs(bname, glob):
 
 
 class Console(cmd.Cmd):
+    # pylint: disable=unused-argument
+    #
+    # Cmd subclasses require an argument "line", which is not always useful. So
+    # we disable "unused-argument" messages in this class.
+
+    # pylint: disable=no-self-use
+    #
+    # We disable "no-self-use" here because "Cmd" subclassed are mainly
+    # wrappers and syntactic sugar for command-line interfaces. There is a good
+    # chance that the functions don't need to use "self".
 
     __ctx_artist = "unset"
     __ctx_album = "unset"
@@ -748,7 +759,6 @@ class Console(cmd.Cmd):
         Creates a user-session.
         """
         from getpass import getpass
-        from hashlib import md5
         username = raw_input(self.tc.render(
             '${YELLOW}%20s:${NORMAL} ' % 'Login'))
         passwd = getpass(self.tc.render(
