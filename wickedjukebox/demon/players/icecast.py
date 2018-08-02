@@ -14,7 +14,7 @@ import requests
 from pkg_resources import resource_stream
 
 import shout
-from common import STATUS_PAUSED, STATUS_STOPPED
+from common import STATUS_PAUSED, STATUS_STARTED, STATUS_STOPPED
 
 LOG = logging.getLogger(__name__)
 
@@ -52,8 +52,8 @@ class Player(object):
         Player.LOG.debug('Interpreting position %r',
                          self.filereader.position())
         try:
-            a, b = self.filereader.position()
-            return float(a) / float(b) * 100
+            start, end = self.filereader.position()
+            return float(start) / float(end) * 100
         except ZeroDivisionError:
             return 0.0
 
@@ -86,6 +86,10 @@ class Player(object):
 
 
 class FileReader(Thread):
+    # pylint: disable=too-many-instance-attributes
+    #
+    # The attributes are caused by configuration values. They would be better
+    # stashed away in a dictionary or data-class.
 
     LOG = logging.getLogger('{0}.FileReader'.format(__name__))
 
@@ -118,9 +122,9 @@ class FileReader(Thread):
                     FileReader.LOG.info('Queueing %r. Queue is now: %r',
                                         args, self.song_queue)
                 elif cmd == SCMD_PAUSE:
-                    self.status = (self.status == STATUS_PAUSED and
-                                   STATUS_STARTED or
-                                   STATUS_PAUSED)
+                    self.status = (STATUS_STARTED
+                                   if self.status == STATUS_PAUSED
+                                   else STATUS_PAUSED)
                 elif cmd == SCMD_SKIP:
                     do_skip = True
                 elif cmd == SCMD_START:
@@ -212,8 +216,7 @@ class FileReader(Thread):
 
         if self.current_file and self._stat:
             return (self.current_file.tell(), self._stat.st_size)
-        else:
-            return (0, 0)
+        return (0, 0)
 
     def crop_queue(self, max_items):
         # TODO: implement
@@ -221,6 +224,10 @@ class FileReader(Thread):
 
 
 class IceProvider(Thread):
+    # pylint: disable=too-many-instance-attributes
+    #
+    # The attributes are caused by configuration values. They would be better
+    # stashed away in a dictionary or data-class.
 
     LOG = logging.getLogger('{0}.IceProvider'.format(__name__))
 
@@ -255,6 +262,12 @@ class IceProvider(Thread):
     def _connect(self, name="The wicked jukebox",
                  url="http://jukebox.wicked.lu", bufsize=1024, bitrate=128,
                  samplerate=44100, channels=1):
+        # pylint: disable=too-many-arguments
+        # pylint: disable=unused-argument
+        #
+        # Passing connection arguments as kwargs is a bit messy. A dictionary
+        # would be better but the whole player/playmode API design needs to be
+        # reworked anyway for cleanliness. We'll ignore it until then.
 
         self._icy_handle = shout.Shout()
         self._icy_handle.format = 'mp3'
@@ -275,7 +288,9 @@ class IceProvider(Thread):
         try:
             self._icy_handle.sync()
             self._icy_handle.close()
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
+            # Having an error here turned out to be happening if we are already
+            # disconnected. So we just log and ignore it.
             IceProvider.LOG.warning(
                 'Error disconnecting from icecast.',
                 exc_info=True)
@@ -294,20 +309,19 @@ class IceProvider(Thread):
             return []
 
         int_octet = "25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9]?"
-        p = re.compile(r"(((%s)\.){3}(%s))" % (int_octet, int_octet))
+        pattern = re.compile(r"(((%s)\.){3}(%s))" % (int_octet, int_octet))
 
         IceProvider.LOG.debug("Opening %r", self.admin_url)
         response = requests.get(self.admin_url, auth=(self.admin_username,
                                                       self.admin_password))
         if response.status_code == 200:
-            listeners = [x[0] for x in p.findall(response.text)]
+            listeners = [x[0] for x in pattern.findall(response.text)]
             IceProvider.LOG.debug('Current listeners: %r', listeners)
             return listeners
-        else:
-            IceProvider.LOG.error(
-                "Error opening %r: Status: %s: %s",
-                self.admin_url, response.status_code, response.text)
-            return []
+        IceProvider.LOG.error(
+            "Error opening %r: Status: %s: %s",
+            self.admin_url, response.status_code, response.text)
+        return []
 
     def run(self):
         while True:
