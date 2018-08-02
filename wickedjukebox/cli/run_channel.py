@@ -1,13 +1,11 @@
 """
 Entry points, and helpers for the command line interface.
 """
-from wickedjukebox import setup_logging, __version__
-setup_logging()
-
+import logging
 import signal
 import time
-import logging
 
+from wickedjukebox import __version__, setup_logging
 from wickedjukebox.core.channel import Channel
 
 logger = logging.getLogger(__name__)
@@ -57,6 +55,7 @@ def main():
     Parse command line options, bootstrap the app and run the channel
     """
     from optparse import OptionParser
+    setup_logging()
     signal.signal(signal.SIGINT, handle_sigint)
 
     logger.info(" Wicked Jukebox {0} ".format(__version__).center(79, '#'))
