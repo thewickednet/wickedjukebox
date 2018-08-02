@@ -19,7 +19,7 @@ LOG = logging.getLogger(__name__)
 
 ALREADY_INITIALISED = False
 
-prefetch_state = {}
+PREFETCH_STATE = {}
 
 
 def bootstrap(channel_id):
@@ -36,7 +36,7 @@ def bootstrap(channel_id):
     row = s.execute().fetchone()
     pref = Prefetcher(row[0])
     pref.run()
-    LOG.debug('  Channel %r prefetched %r' % (row[1], prefetch_state[row[0]]))
+    LOG.debug('  Channel %r prefetched %r', row[1], PREFETCH_STATE[row[0]])
     ALREADY_INITIALISED = True
 
 
@@ -44,7 +44,7 @@ def findSong(channel_id):
     """
     determine a song that would be best to play next and return it
     """
-    global prefetch_state
+    global PREFETCH_STATE
     session = Session()
 
     # setup song scoring coefficients
@@ -69,10 +69,11 @@ def findSong(channel_id):
     proofoflife_timeout = int(Setting.get('proofoflife_timeout', 120))
 
     whereClauses = ["NOT broken"]
-    if prefetch_state and prefetch_state[channel_id]:
-        LOG.info("Ignoring song %r from random selection as it was already prefetched!" %
-                 prefetch_state[channel_id])
-        whereClauses.append("s.id != %d" % prefetch_state[channel_id].id)
+    if PREFETCH_STATE and PREFETCH_STATE[channel_id]:
+        LOG.info("Ignoring song %r from random selection as it was already "
+                 "prefetched!",
+                 PREFETCH_STATE[channel_id])
+        whereClauses.append("s.id != %d" % PREFETCH_STATE[channel_id].id)
 
     # Retrieve dynamic playlists
     sel = select([dynamicPLTable.c.query])
@@ -90,7 +91,7 @@ def findSong(channel_id):
             import traceback
             traceback.print_exc()
             LOG.error(str(ex))
-            LOG.error('Query was: %s' % dpl.query)
+            LOG.error('Query was: %s', dpl.query)
         except:
             import traceback
             traceback.print_exc()
@@ -187,7 +188,8 @@ def findSong(channel_id):
             session.close()
             return None
         out = (res[0][0], res[0][1], float(res[0][2]))
-        LOG.info("Selected song (%d, %s) via smartget. Score was %4.3f" % out)
+        LOG.info("Selected song (%d, %s) via smartget. Score was %4.3f",
+                 *out)
         selectedSong = session.query(Song).filter(
             songTable.c.id == out[0]).first()
         session.close()
@@ -209,11 +211,11 @@ class Prefetcher(threading.Thread):
         self._channel_id = channel_id
 
     def run(self):
-        global prefetch_state
+        global PREFETCH_STATE
         LOG.debug("Background prefetching... ")
         song = findSong(self._channel_id)
-        LOG.debug("  ... prefetched %r" % song)
-        prefetch_state[self._channel_id] = song
+        LOG.debug("  ... prefetched %r", song)
+        PREFETCH_STATE[self._channel_id] = song
 
 
 def get(channel_id):
@@ -222,24 +224,23 @@ def get(channel_id):
 
     # wait until a song is prefetched (in case two 'gets' are called quickly
     # after another)
-    while not prefetch_state and not prefetch_state[channel_id]:
+    while not PREFETCH_STATE and not PREFETCH_STATE[channel_id]:
         pass
 
-    return prefetch_state[channel_id]
+    return PREFETCH_STATE[channel_id]
 
 
 def peek(channel_id):
-    global prefetch_state
-    output = prefetch_state.get(channel_id, None)
+    global PREFETCH_STATE
+    output = PREFETCH_STATE.get(channel_id, None)
     if not output:
         return None
-    else:
-        return output, None
+    return output, None
 
 
 def prefetch(channel_id, async=True):
-    global prefetch_state
-    prefetch_state[channel_id] = None
+    global PREFETCH_STATE
+    PREFETCH_STATE[channel_id] = None
     pref = Prefetcher(channel_id)
     if async:
         pref.start()
