@@ -18,7 +18,7 @@ class Application(object):
         self.channel = None
         self.keep_running = True
 
-    def handle_sigint(self, signal, frame):
+    def handle_sigint(self, signal_num, frame):  # pylint: disable=unused-argument
         """
         Try to exit cleanly on SIGINT.
         """
