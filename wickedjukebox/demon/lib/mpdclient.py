@@ -1,3 +1,6 @@
+# pylint: skip-file
+#
+# This is a module obtained from an external source. We'll skip linting for it
 """
 mpdclient.py / py-libmpdclient:  Python implementation of libmpdclient, much of
 mpc functionality, and probably more to come.
@@ -17,7 +20,7 @@ To use:
 .. And of course much more.
 """
 
-from __future__ import generators
+from __future__ import generators, print_function
 import os, socket, select, re
 
 __release__ = "0.10.0"
@@ -150,7 +153,7 @@ class Status(object):
   repeat         = -1
   random         = -1
   playlistLength = -1
-  playlist       = -1L
+  playlist       = long(-1)
   state          = -1
   song           = 0
   elapsedTime    = 0
@@ -201,7 +204,7 @@ class InfoEntity(object):
     passed to this constructor.
     """
     if not isinstance(path, str):
-      raise ValueError, "path must be string"
+      raise ValueError("path must be string")
 
     self.path = path
 
@@ -246,9 +249,9 @@ def playerStateSwapType(state):
     if state in _playerStates:
       return _playerStates[state]
     else:
-      raise ValueError, "state `%s' does not exist" % state
+      raise ValueError("state `%s' does not exist" % state)
   else:
-    raise ValueError, "state must be int or str"
+    raise ValueError("state must be int or str")
 
 def searchTableSwapType(state):
   """
@@ -259,7 +262,7 @@ def searchTableSwapType(state):
   if isinstance(state, int) or isinstance(state, str):
     return _searchTables[state]
   else:
-    raise ValueError, "state must be int or str"
+    raise ValueError("state must be int or str")
 
 ##### some convenient mappings, formerly C #defines
 
@@ -392,7 +395,7 @@ class MpdConnection(object):
   def sendPrevCommand(self):    self.executeCommand("previous")
 
   def sendSeekCommand(self, songNum, absSecs):
-    if self.DEBUG: print "songNum is %d, moving to %d" % (songNum, absSecs)
+    if self.DEBUG: print("songNum is %d, moving to %d" % (songNum, absSecs))
     self.executeCommand('seek "%d" "%d"' % (songNum, absSecs))
 
   def sendVolumeCommand(self, newVolume):
@@ -656,12 +659,12 @@ class MpdConnection(object):
     return stats
 
   def finishCommand(self):
-    if self.DEBUG: print "running finishCommand()"
+    if self.DEBUG: print("running finishCommand()")
     try:
       while not self.doneProcessing:
         self.getNextReturnElement()
 
-    except MpdError, err:
+    except MpdError as err:
       self.returnElement = None
       self.doneProcessing = True
       raise err
@@ -678,8 +681,8 @@ class MpdConnection(object):
     self._doSelect("w")
 
     try:
-      if self.DEBUG: print "SENDING:", command,
-      self.sock.send(command)
+      if self.DEBUG: print("SENDING:", command,
+      self.sock.send(command))
     except socket.error:
       raise MpdSendingError(command)
 
@@ -816,7 +819,7 @@ class MpdController(MpdConnection):
     finally:
       try:
         self.finishCommand()
-      except MpdError, err:
+      except MpdError as err:
         if err._msg == "playlist is empty":
           pass
         else:
@@ -848,9 +851,9 @@ class MpdController(MpdConnection):
     "Check if *args are all non-negative integers, raise ValueError otherwise."
     for num in nums:
       if not isinstance(num, int):
-        raise ValueError, "`%s' not an int" % num
+        raise ValueError("`%s' not an int" % num)
       elif num < 0:
-        raise ValueError, "`%s' not a positive integer" % num
+        raise ValueError("`%s' not a positive integer" % num)
 
   def seek(self, percent=None, seconds=None):
     """
@@ -927,7 +930,7 @@ class MpdController(MpdConnection):
 
     for name in filenames:
       if not isinstance(name, str):
-        raise ValueError, "all names must be strings"
+        raise ValueError("all names must be strings")
 
     # get files in music dir
     try:
@@ -969,7 +972,7 @@ class MpdController(MpdConnection):
     try:
       for name in names:
         if not isinstance(name, str):
-          raise ValueError, "all names must be strings"
+          raise ValueError("all names must be strings")
 
       map(self.sendLoadCommand, names)
 
@@ -985,7 +988,7 @@ class MpdController(MpdConnection):
     """
 
     if not isinstance(name, str):
-      raise ValueError, "name must be string"
+      raise ValueError("name must be string")
 
     try:
       self.sendRmCommand(name)
@@ -1000,7 +1003,7 @@ class MpdController(MpdConnection):
     """
 
     if not isinstance(name, str):
-      raise ValueError, "name must be string"
+      raise ValueError("name must be string")
 
     try:
       self.sendSaveCommand(name)
@@ -1041,12 +1044,12 @@ class MpdController(MpdConnection):
 
       elif isinstance(thing, list) or isinstance(thing, tuple):
         if len(thing) != 2:
-          raise ValueError, "ranges must be pairs"
+          raise ValueError("ranges must be pairs")
 
         self._checkInts(*thing)
         todelete.extend(range(thing[0], thing[1]+1))
       else:
-        raise ValueError, "nums must be ints or pairs in lists/tuples"
+        raise ValueError("nums must be ints or pairs in lists/tuples")
 
     # send all of the delete commands
 
@@ -1101,7 +1104,7 @@ class MpdController(MpdConnection):
     for adir in dirs:
 
       if not isinstance(adir, str):
-        raise ValueError, "all arguments must be strings"
+        raise ValueError("all arguments must be strings")
 
       self.sendListallCommand(adir)
 
@@ -1130,10 +1133,10 @@ class MpdController(MpdConnection):
     """
 
     if not isinstance(table, str) or table not in _searchTables:
-      raise ValueError, "table must be album|artist|title|filename"
+      raise ValueError("table must be album|artist|title|filename")
 
     if not words:
-      raise ValueError, "no search terms given"
+      raise ValueError("no search terms given")
 
     table = searchTableSwapType(table)
 
@@ -1142,7 +1145,7 @@ class MpdController(MpdConnection):
     for word in words:
 
       if not isinstance(word, str):
-        raise ValueError, "all words must be strings"
+        raise ValueError("all words must be strings")
 
       try:
         self.sendSearchCommand(table, word)
@@ -1177,7 +1180,7 @@ class MpdController(MpdConnection):
     for adir in dirs:
 
       if not isinstance(adir, str):
-        raise ValueError, "all arguments must be strings"
+        raise ValueError("all arguments must be strings")
 
       try:
         self.sendLsInfoCommand(adir)
@@ -1206,7 +1209,7 @@ class MpdController(MpdConnection):
     """
 
     if not isinstance(attr, str):
-      raise ValueError, "attr must be string"
+      raise ValueError("attr must be string")
 
     all = []
 
