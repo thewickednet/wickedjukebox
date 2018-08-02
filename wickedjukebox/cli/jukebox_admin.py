@@ -83,7 +83,7 @@ class Console(cmd.Cmd):
     def __init__(self):
         "Bootstrap the command line interpreter"
         cmd.Cmd.__init__(self)
-        self.tc = TerminalController()
+        self.term = TerminalController()
         self.set_promt()
         self.user_id = None
 
@@ -135,7 +135,7 @@ class Console(cmd.Cmd):
             if not path.exists(row[1]):
                 yield row
 
-    def listSettings(self, channel_id=None, user_id=None):
+    def list_settings(self, channel_id=None, user_id=None):
         """
         List settings
 
@@ -183,10 +183,10 @@ class Console(cmd.Cmd):
         """
         Sets the default prompt
         """
-        if len(self.__path) == 0:
-            self.prompt = self.tc.render("${GREEN}jukebox>${NORMAL} ")
+        if not self.__path:
+            self.prompt = self.term.render("${GREEN}jukebox>${NORMAL} ")
         else:
-            self.prompt = self.tc.render(
+            self.prompt = self.term.render(
                 "${GREEN}jukebox:${BLUE}%s${GREEN}>${NORMAL} " % "/".join(self.__path))
 
     def get_string(self, string):
@@ -224,7 +224,7 @@ class Console(cmd.Cmd):
         """
         line = line.decode(sys.stdin.encoding)
 
-        print(self.tc.HIDE_CURSOR)
+        print(self.term.HIDE_CURSOR)
         mediadirs = [x for x in Setting.get('mediadir', '').split(' ')
                      if direxists(x)]
         import wickedjukebox.scanner
@@ -234,7 +234,7 @@ class Console(cmd.Cmd):
             print("done")
         except KeyboardInterrupt:
             print("\naborted!")
-        print(self.tc.SHOW_CURSOR)
+        print(self.term.SHOW_CURSOR)
 
     def do_update_tags(self, line):
         """
@@ -358,7 +358,7 @@ class Console(cmd.Cmd):
         """
         line = line.decode(sys.stdin.encoding)
 
-        if line == "count" or line == "":
+        if line in ("count", ""):
             order_by = "song_count"
         elif line == "name":
             order_by = "name"
@@ -416,18 +416,17 @@ class Console(cmd.Cmd):
             artistTable.c.name.label("aname"),
             albumTable.c.name.label("bname"),
             songTable.c.title
-        ],
-            and_(
+        ], and_(
             songTable.c.id == song_has_genre.c.song_id,
             song_has_genre.c.genre_id == genre_id,
             songTable.c.artist_id == artistTable.c.id,
-            songTable.c.album_id == albumTable.c.id),
-            order_by=["aname", "bname", "title"])
+            songTable.c.album_id == albumTable.c.id
+        ), order_by=["aname", "bname", "title"])
         result = query.execute()
         for song in result.fetchall():
-            aname = song.aname is not None and song.aname or "None"
-            bname = song.bname is not None and song.bname or "None"
-            title = song.title is not None and song.title or "None"
+            aname = song.aname if song.aname is not None else "None"
+            bname = song.bname if song.bname is not None else "None"
+            title = song.title if song.title is not None else "None"
             print("%5d | %-30s | %-30s | %-30s" %
                   (song.id, aname, bname, title))
 
@@ -486,9 +485,7 @@ class Console(cmd.Cmd):
             songTable.c.localpath,
             songTable.c.title,
             artistTable.c.name
-        ],
-            songTable.c.artist_id == artistTable.c.id
-        )
+        ], songTable.c.artist_id == artistTable.c.id)
 
         result = query.execute().fetchall()
 
@@ -543,7 +540,7 @@ class Console(cmd.Cmd):
         line = line.decode(sys.stdin.encoding)
 
         glob = self.get_string(line)
-        if len(self.__path) == 0:
+        if not self.__path:
             artists = get_artists(glob)
             for artist in artists:
                 if artist.name is None:
@@ -566,8 +563,7 @@ class Console(cmd.Cmd):
         """
         Lists users currently online in the web interface
         """
-        query = select([usersTable],
-                       func.addtime(
+        query = select([usersTable], func.addtime(
             usersTable.c.proof_of_life, '0:03:00') > func.now())
         result = query.execute()
         for row in result.fetchall():
@@ -591,7 +587,7 @@ class Console(cmd.Cmd):
         params = line.split()
 
         if len(params) <= 2:
-            self.listSettings(*params)
+            self.list_settings(*params)
             return
 
         if len(params) == 3:
@@ -604,7 +600,7 @@ class Console(cmd.Cmd):
             upq = upq.values({"value": None})
             upq.execute()
             print('Setting %s-%s-%s reverted to "NULL"' % (
-                  channel_id, user_id, var))
+                channel_id, user_id, var))
             return
 
         channel_id, user_id, var, value = params
@@ -759,9 +755,9 @@ class Console(cmd.Cmd):
         Creates a user-session.
         """
         from getpass import getpass
-        username = raw_input(self.tc.render(
+        username = raw_input(self.term.render(
             '${YELLOW}%20s:${NORMAL} ' % 'Login'))
-        passwd = getpass(self.tc.render(
+        passwd = getpass(self.term.render(
             '${YELLOW}%20s:${NORMAL} ' % 'Password'))
         username = username.decode(sys.stdin.encoding)
         passwd = passwd.decode(sys.stdin.encoding)
@@ -769,7 +765,7 @@ class Console(cmd.Cmd):
         query = query.where(usersTable.c.username == username)
         identity = query.execute().fetchone()
         if not identity:
-            print(self.tc.render('${RED}Acceess denied!${NORMAL}'))
+            print(self.term.render('${RED}Acceess denied!${NORMAL}'))
             return
 
         self.user_id = identity[0]
@@ -782,19 +778,19 @@ class Console(cmd.Cmd):
         from hashlib import md5
         from os import urandom
         try:
-            username = raw_input(self.tc.render(
+            username = raw_input(self.term.render(
                 '${YELLOW}%20s:${NORMAL} ' % 'Login'))
-            passwd = getpass(self.tc.render(
+            passwd = getpass(self.term.render(
                 '${YELLOW}%20s:${NORMAL} ' % 'Password'))
-            passwd2 = getpass(self.tc.render(
+            passwd2 = getpass(self.term.render(
                 '${YELLOW}%20s:${NORMAL} ' % 'Verify password'))
             username = username.decode(sys.stdin.encoding)
         except KeyboardInterrupt:
-            print(self.tc.render('${YELLOW}Aborted!${NORMAL}'))
+            print(self.term.render('${YELLOW}Aborted!${NORMAL}'))
             return
 
         if passwd != passwd2:
-            print(self.tc.render('${RED}Passwords do not match!${NORMAL}'))
+            print(self.term.render('${RED}Passwords do not match!${NORMAL}'))
             return
 
         passwd = md5(passwd.decode(sys.stdin.encoding)).hexdigest()
@@ -818,10 +814,10 @@ class Console(cmd.Cmd):
 
         try:
             insq.execute()
-            print(self.tc.render('${GREEN}User created!${NORMAL}\n'
-                                 'You may now login.'))
+            print(self.term.render('${GREEN}User created!${NORMAL}\n'
+                                   'You may now login.'))
         except IntegrityError as exc:
-            print(self.tc.render('${RED}ERROR:${NORMAL}%s' % exc))
+            print(self.term.render('${RED}ERROR:${NORMAL}%s' % exc))
 
     def do_add_group(self, line):
         """
