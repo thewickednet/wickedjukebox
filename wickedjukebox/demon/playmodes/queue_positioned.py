@@ -31,21 +31,21 @@ def enqueue(songID, userID, channel_id):
     # determine the next position
     old = session.query(QueueItem)
     old = old.filter(queueTable.c.position > 0)
-    old = old.order_by = ('-position')
+    old = old.order_by('-position')
     old = old.first()
     if old:
         nextPos = old.position + 1
     else:
         nextPos = 1
 
-    qi = QueueItem()
-    qi.position = nextPos
-    qi.added = datetime.now()
-    qi.song_id = songID
-    qi.user_id = userID
-    qi.channel_id = channel_id
+    queue_item = QueueItem()
+    queue_item.position = nextPos
+    queue_item.added = datetime.now()
+    queue_item.song_id = songID
+    queue_item.user_id = userID
+    queue_item.channel_id = channel_id
 
-    session.add(qi)
+    session.add(queue_item)
     session.close()
 
 
@@ -53,12 +53,12 @@ def list(channel_id):
     """
     Returns an ordered list of the items on the queue including position.
     """
-    q = queueTable.join(songTable) \
-        .join(artistTable)         \
+    query = queueTable.join(songTable) \
+        .join(artistTable) \
         .join(albumTable, onclause=songTable.c.album_id == albumTable.c.id) \
         .select(order_by=queueTable.c.position, use_labels=True) \
         .where(queueTable.c.channel_id == channel_id)
-    items = q.execute()
+    items = query.execute()
     out = []
     for item in items:
         data = {
@@ -139,11 +139,11 @@ def moveup(channel_id, qid, delta):
         old_position = qitem.position
         min = old_position - delta
         max = old_position
-        queueTable.update(and_(queueTable.c.position <= max,
-                               queueTable.c.position >= min,
-                               queueTable.c.channel_id == channel_id
-                               ),
-                          values={
+        queueTable.update(and_(
+            queueTable.c.position <= max,
+            queueTable.c.position >= min,
+            queueTable.c.channel_id == channel_id
+        ), values={
             queueTable.c.position: queueTable.c.position+1
         }).execute()
         queueTable.update(queueTable.c.id == qitem.id,
@@ -151,11 +151,11 @@ def moveup(channel_id, qid, delta):
                               queueTable.c.position: min
                           }).execute()
     elif qitem.position > 1 and (qitem.position - delta) < 1:
-        queueTable.update(and_(queueTable.c.position >= 1,
-                               queueTable.c.position < qitem.position,
-                               queueTable.c.channel_id == channel_id
-                               ),
-                          values={
+        queueTable.update(and_(
+            queueTable.c.position >= 1,
+            queueTable.c.position < qitem.position,
+            queueTable.c.channel_id == channel_id
+        ), values={
             queueTable.c.position: queueTable.c.position+1
         }).execute()
         queueTable.update(queueTable.c.id == qitem.id,
@@ -190,28 +190,29 @@ def movedown(channel_id, qid, delta):
     else:
         bottom = 1
 
-    # we only need to do this for songs that are not already at the end of the queue
+    # we only need to do this for songs that are not already at the end of the
+    # queue
     if qitem.position < bottom and (qitem.position + delta) < bottom:
         old_position = qitem.position
         min = old_position
         max = old_position + delta
-        queueTable.update(and_(queueTable.c.position <= max,
-                               queueTable.c.position >= min,
-                               queueTable.c.channel_id == channel_id
-                               ),
-                          values={
+        queueTable.update(and_(
+            queueTable.c.position <= max,
+            queueTable.c.position >= min,
+            queueTable.c.channel_id == channel_id
+        ), values={
             queueTable.c.position: queueTable.c.position-1
         }).execute()
         queueTable.update(queueTable.c.id == qitem.id,
                           values={
                               queueTable.c.position: max
                           }).execute()
-    elif qitem.position < bottom and (qitem.position + delta) > bottom:
-        queueTable.update(and_(queueTable.c.position <= bottom,
-                               queueTable.c.position > qitem.position,
-                               queueTable.c.channel_id == channel_id
-                               ),
-                          values={
+    elif qitem.position < bottom < (qitem.position + delta):
+        queueTable.update(and_(
+            queueTable.c.position <= bottom,
+            queueTable.c.position > qitem.position,
+            queueTable.c.channel_id == channel_id
+        ), values={
             queueTable.c.position: queueTable.c.position-1
         }).execute()
         queueTable.update(queueTable.c.id == qitem.id,
