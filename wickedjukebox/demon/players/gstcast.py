@@ -87,11 +87,11 @@ class GStreamer(Thread):
         elif message.type == gst.MESSAGE_ERROR:
             self.player.set_state(gst.STATE_NULL)
             err, debug = message.parse_error()
-            LOG.error("Error: %s" % err)
-            LOG.debug("Debug info: %s" % debug)
+            LOG.error("Error: %s", err)
+            LOG.debug("Debug info: %s", debug)
             self.is_playing = False
         else:
-            LOG.debug("Unhandled gst message: %s" % message)
+            LOG.debug("Unhandled gst message: %s", message)
 
     def stop(self):
         LOG.info("Stopping stream")
@@ -107,10 +107,10 @@ class GStreamer(Thread):
     #    if self.is_playing:
     #        self.stop()
     #    else:
-    #        LOG.info("Stream startin for %s" % filename)
+    #        LOG.info("Stream startin for %s", filename)
     #        self.filename = filename
     #        if not os.path.isfile( filename ):
-    #            LOG.error( "%r is not a file!" % filename )
+    #            LOG.error( "%r is not a file!", filename )
     #            return
 
     #        self.player.get_by_name("file-source").set_property( "location", filename)
@@ -136,7 +136,7 @@ class GStreamer(Thread):
             "streamname", "The Wicked Jukebox - test.mp3")
         while self.keep_running:
             if not self.filename or not os.path.isfile(self.filename):
-                LOG.error("%r is not a file!" % self.filename)
+                LOG.error("%r is not a file!", self.filename)
                 time.sleep(1)
                 continue
 
@@ -159,7 +159,7 @@ class GStreamer(Thread):
                             int(self.player.query_duration(
                                 gst.FORMAT_TIME, None)[0] * 1E-9),
                         )
-                        LOG.debug("Current position: %r/%r " % self.position)
+                        LOG.debug("Current position: %r/%r ", *self.position)
                     except Exception as exc:
                         self.position = (0, 0)
                         LOG.error(exc)
@@ -173,7 +173,7 @@ class GStreamer(Thread):
         #            int(self.player.query_position(gst.FORMAT_TIME, None)[0] * 1E-9),
         #            int(self.player.query_duration(gst.FORMAT_TIME, None)[0] * 1E-9),
         #        )
-        #        LOG.debug("Current position: %r/%r " % self.position)
+        #        LOG.debug("Current position: %r/%r ", *self.position)
         #    except Exception as exc:
         #        self.position = (0, 0)
         #        LOG.error(exc)
@@ -190,7 +190,7 @@ def release():
 
 
 def config(params):
-    LOG.info("GStreamer client initialised with params %s" % params)
+    LOG.info("GStreamer client initialised with params %s", params)
     STATE.port = int(params['port'])
     STATE.mount = str(params['mount'])
     STATE.password = str(params['pwd'])
@@ -225,7 +225,7 @@ def getSong():
 
 def queue(filename):
     from wickedjukebox.demon.dbmodel import Setting
-    LOG.debug("Received a queue (%s)" % filename)
+    LOG.debug("Received a queue (%s)", filename)
     if Setting.get('sys_utctime', 0) == 0:
         STATE.song_started = datetime.utcnow()
     else:
@@ -242,7 +242,7 @@ def cropPlaylist(length=2):
     @type  length: int
     @param length: The new size of the playlist
     """
-    LOG.debug("Cropping pl to %d songs" % length)
+    LOG.debug("Cropping pl to %d songs", length)
     if len(STATE.queue) <= length:
         return True
 
@@ -277,11 +277,11 @@ def startPlayback():
     LOG.info("Starting playback")
     State.set("progress", 0, STATE.channel_id)
     if not STATE.queue:
-        LOG.warn("Nothing on queue.")
+        LOG.warning("Nothing on queue.")
         return False
 
     if not STATE.server:
-        LOG.warn("No icecast connection available!")
+        LOG.warning("No icecast connection available!")
         STATE.server = GStreamer()
 
     STATE.server.start_stop(STATE.queue.pop(0))
@@ -322,17 +322,17 @@ def current_listeners():
     urllib2.install_opener(opener)
 
     try:
-        LOG.debug("Opening %r" % STATE.admin_url)
+        LOG.debug("Opening %r", STATE.admin_url)
         handler = urllib2.urlopen(STATE.admin_url)
         data = handler.read()
 
-        listeners = [md5(x[0]).hexdigest() for x in p.findall(data)]
+        listeners = [md5(x[0]).hexdigest() for x in pattern.findall(data)]
         return listeners
     except urllib2.HTTPError as ex:
-        LOG.error("Error opening %r: Caught %r" % (STATE.admin_url, str(ex)))
+        LOG.error("Error opening %r: Caught %r", STATE.admin_url, str(ex))
         return None
     except urllib2.URLError as ex:
-        LOG.error("Error opening %r: Caught %r" % (STATE.admin_url, str(ex)))
+        LOG.error("Error opening %r: Caught %r", STATE.admin_url, str(ex))
         return None
 
 
@@ -341,7 +341,7 @@ def main():
     from getpass import getpass
     global GLOOP, GCONTEXT
     logging.basicConfig(level=logging.DEBUG)
-    LOG.info("Streaming %r to icecast..." % sys.argv[1])
+    LOG.info("Streaming %r to icecast...", sys.argv[1])
 
     params = {}
     params['port'] = int(raw_input("ICY port [8001]: ") or 8001)
