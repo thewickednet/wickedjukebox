@@ -1,3 +1,12 @@
+# pylint: disable=invalid-name
+#
+# TODO This requires some names to be camel-case. This should be removed in the
+# future, but then the "player" API must change as well.
+
+# pylint: disable=unused-argument
+#
+# This is a "skeleton" file with empty implementations. Arguments are always
+# unused.
 """
 A no-op player interface. Use this as blueprint for new player interfaces.
 """

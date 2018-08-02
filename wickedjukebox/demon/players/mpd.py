@@ -36,7 +36,7 @@ LOG = logging.getLogger(__name__)
 
 class Player(object):
 
-    def __init__(self, id_, params):
+    def __init__(self, id_, params):  # pylint: disable=unused-argument
         # type: (int, Dict[str, str]) -> None
         """
         Constructor
