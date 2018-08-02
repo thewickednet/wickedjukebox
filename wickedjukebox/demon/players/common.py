@@ -7,8 +7,7 @@ def make_player(backend, id_, params):
     if backend == 'icecast':
         from wickedjukebox.demon.players.icecast import Player
         return Player(id_, params)
-    elif backend == 'mpd':
+    if backend == 'mpd':
         from wickedjukebox.demon.players.mpd import Player
         return Player(id_, params)
-    else:
-        raise ValueError('Unsupported backend: %r' % backend)
+    raise ValueError('Unsupported backend: %r' % backend)
