@@ -1,17 +1,18 @@
-import time
+import logging
 import os
 import re
-from datetime import datetime
-from threading import Thread
-import logging
+import time
 import urllib2
+from datetime import datetime
 from hashlib import md5
+from threading import Thread
 
-import pygst
-pygst.require("0.10")
-import gst
 import gobject
+import gst
+import pygst
 from wickedjukebox.demon.dbmodel import State
+
+pygst.require("0.10")
 
 LOG = logging.getLogger(__name__)
 GLOOP = None
@@ -101,7 +102,7 @@ class GStreamer(Thread):
     def status(self):
         return self.is_playing and "playing" or "stop"
 
-    #def start_stop(self, filename):
+    # def start_stop(self, filename):
     #    if self.is_playing:
     #        self.stop()
     #    else:
@@ -140,15 +141,15 @@ class GStreamer(Thread):
 
             if self.player.get_state()[1] == gst.STATE_NULL:
                 LOG.debug("Player is in STATE_NULL. Setting file and starting "
-                        "playback")
+                          "playback")
                 self.player.get_by_name("file-source").set_property(
-                        "location",
-                        self.filename)
+                    "location",
+                    self.filename)
                 self.is_playing = True
                 self.player.set_state(gst.STATE_PLAYING)
             else:
                 LOG.debug("Player is in STATE_PLAYING. Waiting for playback "
-                        "to finish")
+                          "to finish")
                 while self.is_playing:
                     try:
                         self.position = (
@@ -165,7 +166,7 @@ class GStreamer(Thread):
                     GCONTEXT.iteration(True)
         LOG.debug("GStreamer player thread stopped")
 
-        #while self.is_playing:
+        # while self.is_playing:
         #    try:
         #        self.position = (
         #            int(self.player.query_position(gst.FORMAT_TIME, None)[0] * 1E-9),
@@ -197,8 +198,8 @@ def config(params):
 
     if "admin_url" in params:
         STATE.admin_url = (str(params["admin_url"]) +
-               "/listclients.xsl?mount=" +
-               STATE.mount)
+                           "/listclients.xsl?mount=" +
+                           STATE.mount)
 
     if "admin_username" in params:
         STATE.admin_username = str(params["admin_username"])
@@ -300,11 +301,11 @@ def current_listeners():
     """
 
     if STATE.admin_url is None or \
-        STATE.admin_username is None or \
-        STATE.admin_password is None:
+            STATE.admin_username is None or \
+            STATE.admin_password is None:
         # not all required backend parameters supplied
         LOG.warning("Not all parameters set for screen scraping icecast "
-                "statistics. Need admin-url and admin-password")
+                    "statistics. Need admin-url and admin-password")
         return
 
     part = "25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?"
