@@ -326,7 +326,7 @@ class IceProvider(Thread):
             self.data_queue.task_done()
 
 
-if __name__ == "__main__":
+def main():
     import sys
 
     logging.basicConfig(level=logging.DEBUG)
@@ -361,3 +361,7 @@ if __name__ == "__main__":
     time.sleep(20)
     player.pause()
     time.sleep(30)
+
+
+if __name__ == "__main__":
+    main()
