@@ -31,6 +31,7 @@ class PlayerState(object):
         self.port = None
         self.queue = []
         self.server = None
+STATE = PlayerState()
 
 
 class GStreamer(Thread):
@@ -180,7 +181,6 @@ class GStreamer(Thread):
 
 
 def init():
-    global GLOOP, GCONTEXT
     LOG.info("Initialising gstreamer player")
 
 
@@ -336,12 +336,10 @@ def current_listeners():
         return None
 
 
-STATE = PlayerState()
-
-
-if __name__ == "__main__":
+def main():
     import sys
     from getpass import getpass
+    global GLOOP, GCONTEXT
     logging.basicConfig(level=logging.DEBUG)
     LOG.info("Streaming %r to icecast..." % sys.argv[1])
 
@@ -360,3 +358,7 @@ if __name__ == "__main__":
     gobject.threads_init()
     GLOOP = gobject.MainLoop()
     GCONTEXT = GLOOP.get_context()
+
+
+if __name__ == "__main__":
+    main()
