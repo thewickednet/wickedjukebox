@@ -27,12 +27,12 @@ def get_artists(glob=u"*"):
         glob = u"*"
 
     glob = glob.replace(u"*", u"%")
-    s = select([artistTable],
-               artistTable.c.name.like(glob),
-               order_by=["name"]
-               )
-    r = s.execute()
-    return r.fetchall()
+    query = select([artistTable],
+                   artistTable.c.name.like(glob),
+                   order_by=["name"]
+                   )
+    result = query.execute()
+    return result.fetchall()
 
 
 def get_albums(aname, glob=u"*"):
@@ -40,13 +40,13 @@ def get_albums(aname, glob=u"*"):
         glob = u"*"
 
     glob = glob.replace(u"*", u"%")
-    s = select([albumTable])
-    s = s.where(artistTable.c.name == aname)
-    s = s.where(albumTable.c.artist_id == artistTable.c.id)
-    s = s.where(albumTable.c.name.like(glob))
-    s = s.order_by("name")
-    r = s.execute()
-    return r.fetchall()
+    query = select([albumTable])
+    query = query.where(artistTable.c.name == aname)
+    query = query.where(albumTable.c.artist_id == artistTable.c.id)
+    query = query.where(albumTable.c.name.like(glob))
+    query = query.order_by("name")
+    result = query.execute()
+    return result.fetchall()
 
 
 def get_songs(bname, glob):
@@ -54,13 +54,13 @@ def get_songs(bname, glob):
         glob = u"*"
 
     glob = glob.replace(u"*", u"%")
-    s = select([songTable])
-    s = s.where(albumTable.c.name == bname)
-    s = s.where(songTable.c.album_id == albumTable.c.id)
-    s = s.where(songTable.c.title.like(glob))
-    s = s.order_by("title")
-    r = s.execute()
-    return r.fetchall()
+    query = select([songTable])
+    query = query.where(albumTable.c.name == bname)
+    query = query.where(songTable.c.album_id == albumTable.c.id)
+    query = query.where(songTable.c.title.like(glob))
+    query = query.order_by("title")
+    result = query.execute()
+    return result.fetchall()
 
 
 class Console(cmd.Cmd):
@@ -74,13 +74,14 @@ class Console(cmd.Cmd):
         cmd.Cmd.__init__(self)
         self.tc = TerminalController()
         self.set_promt()
+        self.user_id = None
 
     def _orphaned_artists(self):
         """
         Return rows of (artist_id, name, song_count) of artists without
         attached songs
         """
-        s = select([
+        query = select([
             artistTable.c.id,
             artistTable.c.name,
             func.count(songTable.c.id)
@@ -88,9 +89,9 @@ class Console(cmd.Cmd):
             artistTable.outerjoin(songTable,
                                   artistTable.c.id == songTable.c.artist_id)
         ])
-        s = s.group_by("artist.id, artist.name")
-        s = s.order_by("name")
-        for row in s.execute():
+        query = query.group_by("artist.id, artist.name")
+        query = query.order_by("name")
+        for row in query.execute():
             if row[2] == 0:
                 yield row
 
@@ -99,7 +100,7 @@ class Console(cmd.Cmd):
         Return rows of (album_id, name, song_count) of albums without attached
         songs.
         """
-        s = select([
+        query = select([
             albumTable.c.id,
             albumTable.c.name,
             func.count(songTable.c.id)
@@ -107,9 +108,9 @@ class Console(cmd.Cmd):
             albumTable.outerjoin(songTable,
                                  albumTable.c.id == songTable.c.album_id)
         ])
-        s = s.group_by("album.id, album.name")
-        s = s.order_by("name")
-        for row in s.execute():
+        query = query.group_by("album.id, album.name")
+        query = query.order_by("name")
+        for row in query.execute():
             if row[2] == 0:
                 yield row
 
@@ -117,9 +118,9 @@ class Console(cmd.Cmd):
         """
         Return rows of (song_id, path) of songs that are no longer on disk.
         """
-        s = select([songTable.c.id, songTable.c.localpath])
-        s = s.order_by("localpath")
-        for row in s.execute():
+        query = select([songTable.c.id, songTable.c.localpath])
+        query = query.order_by("localpath")
+        for row in query.execute():
             if not path.exists(row[1]):
                 yield row
 
@@ -351,17 +352,17 @@ class Console(cmd.Cmd):
         elif line == "name":
             order_by = "name"
 
-        s = select([genreTable.c.id, genreTable.c.name,
-                    func.count(song_has_genre.c.song_id).label('song_count')],
-                   genreTable.c.id == song_has_genre.c.genre_id,
-                   group_by=genreTable.c.id,
-                   order_by=order_by)
-        r = s.execute()
+        query = select([genreTable.c.id, genreTable.c.name,
+                        func.count(song_has_genre.c.song_id).label('song_count')],
+                       genreTable.c.id == song_has_genre.c.genre_id,
+                       group_by=genreTable.c.id,
+                       order_by=order_by)
+        result = query.execute()
 
         print(" id    | Genre                                  | count ")
         print("------+--------------------------------+-------")
-        for g in r.fetchall():
-            print("%5d | %-30s | %d" % (g.id, g.name, g.song_count))
+        for genre in result.fetchall():
+            print("%5d | %-30s | %d" % (genre.id, genre.name, genre.song_count))
         print("------+--------------------------------+-------")
         print(" id    | Genre                                  | count ")
 
@@ -386,10 +387,10 @@ class Console(cmd.Cmd):
 
         old_genre = int(old_genre)
         new_genre = int(new_genre)
-        u = song_has_genre.update(
+        query = song_has_genre.update(
             song_has_genre.c.genre_id == bindparam("a"),
             values={'genre_id': bindparam("b")})
-        u.execute(a=old_genre, b=new_genre)
+        query.execute(a=old_genre, b=new_genre)
 
     def do_genre_songs(self, line):
         """
@@ -399,7 +400,7 @@ class Console(cmd.Cmd):
             genre_songs <genre_id>
         """
         genre_id = int(line)
-        s = select([
+        query = select([
             songTable.c.id,
             artistTable.c.name.label("aname"),
             albumTable.c.name.label("bname"),
@@ -411,12 +412,13 @@ class Console(cmd.Cmd):
             songTable.c.artist_id == artistTable.c.id,
             songTable.c.album_id == albumTable.c.id),
             order_by=["aname", "bname", "title"])
-        r = s.execute()
-        for s in r.fetchall():
-            aname = s.aname is not None and s.aname or "None"
-            bname = s.bname is not None and s.bname or "None"
-            title = s.title is not None and s.title or "None"
-            print("%5d | %-30s | %-30s | %-30s" % (s.id, aname, bname, title))
+        result = query.execute()
+        for song in result.fetchall():
+            aname = song.aname is not None and song.aname or "None"
+            bname = song.bname is not None and song.bname or "None"
+            title = song.title is not None and song.title or "None"
+            print("%5d | %-30s | %-30s | %-30s" %
+                  (song.id, aname, bname, title))
 
     def do_rename_genre(self, line):
         """
@@ -436,11 +438,11 @@ class Console(cmd.Cmd):
             print(str(ex))
             return
 
-        u = genreTable.update(
+        query = genreTable.update(
             genreTable.c.id == bindparam("gid"),
             values={'name': bindparam("name")}
         )
-        u.execute(gid=gid, name=name)
+        query.execute(gid=gid, name=name)
 
     def do_find_duplicates(self, line):
         """
@@ -468,7 +470,7 @@ class Console(cmd.Cmd):
                 print("Unable to open %r" % line)
                 return
 
-        s = select([
+        query = select([
             songTable.c.id,
             songTable.c.localpath,
             songTable.c.title,
@@ -477,7 +479,7 @@ class Console(cmd.Cmd):
             songTable.c.artist_id == artistTable.c.id
         )
 
-        result = s.execute().fetchall()
+        result = query.execute().fetchall()
 
         for row in result:
             key = "%s - %s" % (row[3], row[2])
@@ -532,32 +534,32 @@ class Console(cmd.Cmd):
         glob = self.get_string(line)
         if len(self.__path) == 0:
             artists = get_artists(glob)
-            for a in artists:
-                if a.name is None:
+            for artist in artists:
+                if artist.name is None:
                     continue
-                print(a.name)
+                print(artist.name)
         elif len(self.__path) == 1:
             albums = get_albums(self.__path[-1], glob)
-            for b in albums:
-                if b.name is None:
+            for album in albums:
+                if album.name is None:
                     continue
-                print(b.name)
+                print(album.name)
         elif len(self.__path) == 2:
             songs = get_songs(self.__path[-1], glob)
-            for s in songs:
-                if s.title is None:
+            for song in songs:
+                if song.title is None:
                     continue
-                print(s.title)
+                print(song.title)
 
     def do_online_users(self, line):
         """
         Lists users currently online in the web interface
         """
-        s = select([usersTable],
-                   func.addtime(
+        query = select([usersTable],
+                       func.addtime(
             usersTable.c.proof_of_life, '0:03:00') > func.now())
-        r = s.execute()
-        for row in r.fetchall():
+        result = query.execute()
+        for row in result.fetchall():
             print(row)
 
     def do_settings(self, line):
@@ -639,9 +641,9 @@ class Console(cmd.Cmd):
 
         name, params = params
 
-        u = channelTable.update(channelTable.c.name == name,
-                                values={'backend_params': params})
-        u.execute()
+        query = channelTable.update(channelTable.c.name == name,
+                                    values={'backend_params': params})
+        query.execute()
 
     def do_channels(self, line):
         """
@@ -753,9 +755,9 @@ class Console(cmd.Cmd):
             '${YELLOW}%20s:${NORMAL} ' % 'Password'))
         username = username.decode(sys.stdin.encoding)
         passwd = passwd.decode(sys.stdin.encoding)
-        s = select([usersTable.c.id])
-        s = s.where(usersTable.c.username == username)
-        identity = s.execute().fetchone()
+        query = select([usersTable.c.id])
+        query = query.where(usersTable.c.username == username)
+        identity = query.execute().fetchone()
         if not identity:
             print(self.tc.render('${RED}Acceess denied!${NORMAL}'))
             return
@@ -822,9 +824,9 @@ class Console(cmd.Cmd):
             'title': line.strip()
         })
         insq.execute()
-        s = select([groupsTable.c.id, groupsTable.c.title])
-        for id, title in s.execute():
-            print(id, title)
+        query = select([groupsTable.c.id, groupsTable.c.title])
+        for group_id, title in query.execute():
+            print(group_id, title)
 
     do_exit = do_quit
     do_q = do_quit
