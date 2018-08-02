@@ -1,17 +1,20 @@
 # TODO: Maybe it would be better to have a "global" atexit function properly
 # TODO:    supervising stopping the threads.
-from Queue import Queue, Empty, Full
-from pkg_resources import resource_stream
-from threading import Thread
+from __future__ import print_function
+
 import atexit
 import logging
 import os
 import re
 import time
+from Queue import Empty, Full, Queue
+from threading import Thread
 
 import requests
+from pkg_resources import resource_stream
+
 import shout
-from common import STATUS_STOPPED, STATUS_STOPPED, STATUS_PAUSED
+from common import STATUS_PAUSED, STATUS_STOPPED
 
 LOG = logging.getLogger(__name__)
 
@@ -22,6 +25,7 @@ SCMD_START = 'start'
 SCMD_STOP = 'stop'
 
 ICMD_SET_TITLE = 'set_title'
+
 
 class Player(object):
 
