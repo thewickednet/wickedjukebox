@@ -25,8 +25,13 @@ GCONTEXT = None
 
 
 class PlayerState(object):
+    # pylint: disable=too-few-public-methods, too-many-instance-attributes
+    #
+    # This is a data-object. It has no methods. It has many attributes. It's by
+    # design.
     def __init__(self):
         self.song_started = None
+        self.admin_username = None
         self.admin_password = None
         self.admin_url = None
         self.admin_user = None
@@ -50,6 +55,7 @@ class GStreamer(Thread):
         self.method = "module_method"
         LOG.info("GStreamer class initialised")
         self.init_player()
+        self.position = (0, 0)
 
     def init_player(self):
         LOG.debug("Initialising the player thread")
@@ -70,11 +76,11 @@ class GStreamer(Thread):
 
     def current_position(self):
         try:
-            return (int(self.player.query_position(
-                gst.FORMAT_TIME, None)[0] * 1E-9),
-                    int(self.player.query_duration(
-                        gst.FORMAT_TIME, None)[0] * 1E-9))
-        except Exception as exc:
+            position = self.player.query_position(gst.FORMAT_TIME, None)[0]
+            duration = self.player.query_duration(gst.FORMAT_TIME, None)[0]
+            return (int(position * 1E-9), int(duration * 1E-9))
+        except Exception as exc:  # pylint: disable=broad-except
+            # this is a catch-all error to gracefully degrade.
             LOG.error(exc)
             return (0, 100)
 
@@ -106,7 +112,7 @@ class GStreamer(Thread):
         self.keep_running = False
 
     def status(self):
-        return self.is_playing and "playing" or "stop"
+        return "playing" if self.is_playing else "stop"
 
     # def start_stop(self, filename):
     #    if self.is_playing:
@@ -158,14 +164,17 @@ class GStreamer(Thread):
                           "to finish")
                 while self.is_playing:
                     try:
+                        position = self.player.query_position(
+                            gst.FORMAT_TIME, None)[0]
+                        duration = self.player.query_duration(
+                            gst.FORMAT_TIME, None)[0]
                         self.position = (
-                            int(self.player.query_position(
-                                gst.FORMAT_TIME, None)[0] * 1E-9),
-                            int(self.player.query_duration(
-                                gst.FORMAT_TIME, None)[0] * 1E-9),
+                            int(position * 1E-9),
+                            int(duration * 1E-9),
                         )
                         LOG.debug("Current position: %r/%r ", *self.position)
-                    except Exception as exc:
+                    except Exception as exc:  # pylint: disable=broad-except
+                        # catch-all fallback for graceful degradation
                         self.position = (0, 0)
                         LOG.error(exc)
                     time.sleep(1)
@@ -286,13 +295,13 @@ def startPlayback():
         STATE.server = GStreamer()
 
     STATE.server.start_stop(STATE.queue.pop(0))
+    return True
 
 
 def status():
     if STATE.server:
         return STATE.server.status()
-    else:
-        return "stopped"
+    return "stopped"
 
 
 def current_listeners():
@@ -307,7 +316,7 @@ def current_listeners():
         # not all required backend parameters supplied
         LOG.warning("Not all parameters set for screen scraping icecast "
                     "statistics. Need admin-url and admin-password")
-        return
+        return []
 
     part = "25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?"
     pattern = re.compile(r"(((%s)\.){3}(%s))" % (part, part))
@@ -331,10 +340,10 @@ def current_listeners():
         return listeners
     except urllib2.HTTPError as ex:
         LOG.error("Error opening %r: Caught %r", STATE.admin_url, str(ex))
-        return None
+        return []
     except urllib2.URLError as ex:
         LOG.error("Error opening %r: Caught %r", STATE.admin_url, str(ex))
-        return None
+        return []
 
 
 def main():
