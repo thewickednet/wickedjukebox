@@ -77,7 +77,7 @@ def findSong(channel_id):
          break # only one query will be parsed. for now.... this is a big TODO
                # as it triggers an unexpected behaviour (bug). i.e.: Why the
                # heck does it only activate one playlist?!?
-      except ParserSyntaxError, ex:
+      except ParserSyntaxError as ex:
          import traceback
          traceback.print_exc()
          LOG.error( str(ex) )
