@@ -37,7 +37,10 @@ class Application(object):
                 LOG.info("Starting channel %s", channel_name)
                 self.channel.startPlayback()
                 self.channel.run()
-            except Exception:
+            except Exception:  # pylint: disable=broad-except
+                # We allow "broad-except" here. This is a
+                # "shit-has-hit-the-fan" code. Trying to restart the channel
+                # might resolve the issue.
                 LOG.exception('Unhandled exception, trying to restart channel')
                 LOG.info("Restarting channel %s", channel_name)
                 self.channel.close()
