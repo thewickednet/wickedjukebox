@@ -332,9 +332,9 @@ if __name__ == "__main__":
 
     sys.path.insert(0, os.getcwd())
     if len(sys.argv) < 2:
-        print """
+        print("""
         USAGE: %s <filename>
-        """ % sys.argv[0]
+        """ % sys.argv[0])
         sys.exit(1)
 
     icy_conf = {
