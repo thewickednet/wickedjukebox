@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf8 -*-
+from __future__ import print_function
 
 import cmd
 from os import path
@@ -148,18 +149,18 @@ class Console(cmd.Cmd):
             sel = sel.where(settingTable.c.user_id == int(user_id))
 
         sel = sel.order_by("user_id", "channel_id", "var")
-        print " Channel ID | User ID | Setting                         | Value"
+        print(" Channel ID | User ID | Setting                         | Value")
         previous_channel = None
         for row in sel.execute().fetchall():
             if row["channel_id"] != previous_channel:
-                print "---------+------------+---------------------------+----------------"
+                print("---------+------------+---------------------------+----------------")
                 previous_channel = row['channel_id']
-            print " %10d | %7d | %-25s | %s" % (
+            print(" %10d | %7d | %-25s | %s" % (
                     row["channel_id"],
                     row["user_id"],
                     row["var"],
                     row["value"],
-                   )
+                   ))
 
     def complete_rescan(self, line, *args):
         mediadirs = [x for x in Setting.get('mediadir', '').split(' ')
@@ -198,7 +199,7 @@ class Console(cmd.Cmd):
 
     def do_quit(self, line):
         """Quits you out of Quitter."""
-        print "bye"
+        print("bye")
         return 1
 
     def do_rescan(self, line, force=0):
@@ -219,17 +220,17 @@ class Console(cmd.Cmd):
         """
         line = line.decode(sys.stdin.encoding)
 
-        print self.tc.HIDE_CURSOR
+        print(self.tc.HIDE_CURSOR)
         mediadirs = [x for x in Setting.get('mediadir', '').split(' ')
                      if direxists(x)]
         import wickedjukebox.scanner
-        print "Scanning inside %s" % ", ".join(mediadirs)
+        print("Scanning inside %s" % ", ".join(mediadirs))
         try:
             wickedjukebox.scanner.scan(mediadirs[0], line)
-            print "done"
+            print("done")
         except KeyboardInterrupt:
-            print "\naborted!"
-        print self.tc.SHOW_CURSOR
+            print("\naborted!")
+        print(self.tc.SHOW_CURSOR)
 
     def do_update_tags(self, line):
         """
@@ -249,22 +250,22 @@ class Console(cmd.Cmd):
         sess = Session()
         api_key = Setting.get("lastfm_api_key", None)
         if not api_key:
-            print ("ERROR: No API key specified. You can do this it in the "
-                   "settings")
+            print("ERROR: No API key specified. You can do this it in the "
+                  "settings")
             return
         api = lastfm.Api(api_key)
         artist = sess.query(Artist).filter_by(name=line).first()
         if not artist:
             sess.close()
-            print "Artist %r not found" % line
+            print("Artist %r not found" % line)
             return
         songs = artist.songs
-        print "%5d songs to update" % len(songs)
+        print("%5d songs to update" % len(songs))
         from time import sleep
         for song in songs:
             song.update_tags(api)
             sleep(1)
-            print "%-40s has now %4d tags" % (song.title, len(song.tags))
+            print("%-40s has now %4d tags" % (song.title, len(song.tags)))
 
         sess.close()
 
@@ -295,7 +296,7 @@ class Console(cmd.Cmd):
         count = 0
         for row in self._orphaned_songs():
             if not quiet:
-                print "%10d %s" % (row[0], row[1])
+                print("%10d %s" % (row[0], row[1]))
             count += 1
             if delete:
                 del_query = songStandingTable.delete().where(
@@ -316,29 +317,29 @@ class Console(cmd.Cmd):
                 del_query = songTable.delete().where(
                         songTable.c.id == row[0])
                 del_query.execute()
-        print "%d orphaned songs found" % count
+        print("%d orphaned songs found" % count)
 
         count = 0
         for row in self._orphaned_albums():
             if not quiet:
-                print row
+                print(row)
             if delete:
                 del_query = albumTable.delete().where(
                         albumTable.c.id == row[0])
                 del_query.execute()
             count += 1
-        print "%d orphaned albums found" % count
+        print("%d orphaned albums found" % count)
 
         count = 0
         for row in self._orphaned_artists():
             if not quiet:
-                print row
+                print(row)
             if delete:
                 del_query = artistTable.delete().where(
                         artistTable.c.id == row[0])
                 del_query.execute()
             count += 1
-        print "%d orphaned artists found" % count
+        print("%d orphaned artists found" % count)
 
     def do_genres(self, line):
         """
@@ -365,12 +366,12 @@ class Console(cmd.Cmd):
             order_by=order_by)
         r = s.execute()
 
-        print " id    | Genre                                  | count "
-        print "------+--------------------------------+-------"
+        print(" id    | Genre                                  | count ")
+        print("------+--------------------------------+-------")
         for g in r.fetchall():
-            print "%5d | %-30s | %d" % (g.id, g.name, g.song_count)
-        print "------+--------------------------------+-------"
-        print " id    | Genre                                  | count "
+            print("%5d | %-30s | %d" % (g.id, g.name, g.song_count))
+        print("------+--------------------------------+-------")
+        print(" id    | Genre                                  | count ")
 
     def do_merge_genre(self, line):
         """
@@ -387,8 +388,8 @@ class Console(cmd.Cmd):
 
         try:
             old_genre, new_genre = line.split(" ")
-        except Exception, ex:
-            print str(ex)
+        except Exception as ex:
+            print(str(ex))
             return
 
         old_genre = int(old_genre)
@@ -423,7 +424,7 @@ class Console(cmd.Cmd):
             aname = s.aname is not None and s.aname or "None"
             bname = s.bname is not None and s.bname or "None"
             title = s.title is not None and s.title or "None"
-            print "%5d | %-30s | %-30s | %-30s" % (s.id, aname, bname, title)
+            print("%5d | %-30s | %-30s | %-30s" % (s.id, aname, bname, title))
 
     def do_rename_genre(self, line):
         """
@@ -439,8 +440,8 @@ class Console(cmd.Cmd):
             gid = int(args[0])
             name = " ".join(args[1:])
             name = self.get_string(name)
-        except Exception, ex:
-            print str(ex)
+        except Exception as ex:
+            print(str(ex))
             return
 
         u = genreTable.update(
@@ -467,12 +468,12 @@ class Console(cmd.Cmd):
         if line != '':
             try:
                 if path.exists(line):
-                    print "File %s exists" % line
+                    print("File %s exists" % line)
                     return
                 logfile = open(line, 'w')
                 sys.stdout = logfile
             except IOError:
-                print "Unable to open %r" % line
+                print("Unable to open %r" % line)
                 return
 
         s = select([
@@ -497,10 +498,10 @@ class Console(cmd.Cmd):
             if len(hashtable[key]) == 1:
                 continue
 
-            print "key: %r" % key
+            print("key: %r" % key)
             for localpath in hashtable[key]:
-                print "    %r" % localpath
-            print 80 * "-"
+                print("    %r" % localpath)
+            print(80 * "-")
         sys.stdout = default_out
 
     def do_cd(self, line):
@@ -542,19 +543,19 @@ class Console(cmd.Cmd):
             for a in artists:
                 if a.name is None:
                     continue
-                print a.name
+                print(a.name)
         elif len(self.__path) == 1:
             albums = get_albums(self.__path[-1], glob)
             for b in albums:
                 if b.name is None:
                     continue
-                print b.name
+                print(b.name)
         elif len(self.__path) == 2:
             songs = get_songs(self.__path[-1], glob)
             for s in songs:
                 if s.title is None:
                     continue
-                print s.title
+                print(s.title)
 
     def do_online_users(self, line):
         """
@@ -565,7 +566,7 @@ class Console(cmd.Cmd):
                     usersTable.c.proof_of_life, '0:03:00') > func.now())
         r = s.execute()
         for row in r.fetchall():
-            print row
+            print(row)
 
     def do_settings(self, line):
         """
@@ -597,8 +598,8 @@ class Console(cmd.Cmd):
             upq = upq.where(settingTable.c.var == var)
             upq = upq.values({"value": None})
             upq.execute()
-            print 'Setting %s-%s-%s reverted to "NULL"' % (
-                    channel_id, user_id, var)
+            print('Setting %s-%s-%s reverted to "NULL"' % (
+                  channel_id, user_id, var))
             return
 
         channel_id, user_id, var, value = params
@@ -641,7 +642,7 @@ class Console(cmd.Cmd):
         params = line.split(' ', 1)
 
         if len(params) != 2:
-            print "Error. See `help channel_settings`"
+            print("Error. See `help channel_settings`")
             return
 
         name, params = params
@@ -662,7 +663,7 @@ class Console(cmd.Cmd):
             channelTable.c.backend_params])
         res = sel.execute()
         for row in res.fetchall():
-            print "%-15s | %-10s | %s" % tuple(row)
+            print("%-15s | %-10s | %s" % tuple(row))
 
     def do_add_channel(self, line):
         """
@@ -681,7 +682,7 @@ class Console(cmd.Cmd):
         params = line.split(' ', 2)
 
         if len(params) != 3:
-            print "Error. See `help add_channel`"
+            print("Error. See `help add_channel`")
             return
 
         name, back, be_parms = params
@@ -709,15 +710,15 @@ class Console(cmd.Cmd):
         params = line.split()
 
         if not params:
-            print "You need to specify a random mode!"
+            print("You need to specify a random mode!")
             return
 
         if len(params) > 2:
-            print ("You did not pass the right number of params. Expected 1 "
-                   "but got %d" % len(params))
+            print("You did not pass the right number of params. Expected 1 "
+                  "but got %d" % len(params))
 
         if len(params) == 2 and not params[1].isdigit():
-            print "The second parameter must be numeric!"
+            print("The second parameter must be numeric!")
 
         if len(params) == 1:
             # set the default value for the channel
@@ -731,12 +732,12 @@ class Console(cmd.Cmd):
             strategy = wickedjukebox.demon.playmodes.create(strat_name)
             strategy.bootstrap(channel_id)
         except ImportError:
-            print "Unknown random mode!"
+            print("Unknown random mode!")
             return
 
         result = strategy.test(channel_id)
         if not result:
-            print "No results returned!"
+            print("No results returned!")
             return
 
         from pprint import pprint
@@ -745,7 +746,7 @@ class Console(cmd.Cmd):
             if not row:
                 continue
             data, stat = row
-            print data
+            print(data)
             pprint(stat)
 
     def do_login(self, line):
@@ -762,7 +763,7 @@ class Console(cmd.Cmd):
         s = s.where(usersTable.c.username == username)
         identity = s.execute().fetchone()
         if not identity:
-            print self.tc.render('${RED}Acceess denied!${NORMAL}')
+            print(self.tc.render('${RED}Acceess denied!${NORMAL}'))
             return
 
         self.user_id = identity[0]
@@ -780,11 +781,11 @@ class Console(cmd.Cmd):
             passwd2 = getpass(self.tc.render('${YELLOW}%20s:${NORMAL} ' % 'Verify password'))
             username = username.decode(sys.stdin.encoding)
         except KeyboardInterrupt:
-            print self.tc.render('${YELLOW}Aborted!${NORMAL}')
+            print(self.tc.render('${YELLOW}Aborted!${NORMAL}'))
             return
 
         if passwd != passwd2:
-            print self.tc.render('${RED}Passwords do not match!${NORMAL}')
+            print(self.tc.render('${RED}Passwords do not match!${NORMAL}'))
             return
 
         passwd = md5(passwd.decode(sys.stdin.encoding)).hexdigest()
@@ -808,10 +809,10 @@ class Console(cmd.Cmd):
 
         try:
             insq.execute()
-            print self.tc.render('${GREEN}User created!${NORMAL}\n'
-                                 'You may now login.')
+            print(self.tc.render('${GREEN}User created!${NORMAL}\n'
+                                 'You may now login.'))
         except IntegrityError as exc:
-            print self.tc.render('${RED}ERROR:${NORMAL}%s' % exc)
+            print(self.tc.render('${RED}ERROR:${NORMAL}%s' % exc))
 
 
     def do_add_group(self, line):
@@ -827,7 +828,7 @@ class Console(cmd.Cmd):
         insq.execute()
         s = select([groupsTable.c.id, groupsTable.c.title])
         for id, title in s.execute():
-            print id, title
+            print(id, title)
 
     do_exit = do_quit
     do_q = do_quit
@@ -838,6 +839,6 @@ def main():
     setup_logging()
     logging.getLogger('wickedjukebox.scanner').setLevel(logging.WARNING)
     # TODO: Catch logging messages from the scanner!
-    print " Wicked Jukebox {0} ".format(__version__).center(79, '#')
+    print(" Wicked Jukebox {0} ".format(__version__).center(79, '#'))
     app = Console()
     app.cmdloop()
