@@ -4,21 +4,15 @@
 Weighed random. Different factors are considered when selecting a song at
 random. Like the time it was last played, how often it was skipped, and so on.
 """
-import threading
 import logging
+import threading
 
-from sqlalchemy.sql import text as dbText, func, select
-
-from wickedjukebox.demon.plparser import parseQuery, ParserSyntaxError
-from wickedjukebox.demon.dbmodel import (
-    Session,
-    dynamicPLTable,
-    Setting,
-    Song,
-    usersTable,
-    channelTable,
-    engine,
-    songTable)
+from sqlalchemy.sql import func, select
+from sqlalchemy.sql import text as dbText
+from wickedjukebox.demon.dbmodel import (Session, Setting, Song, channelTable,
+                                         dynamicPLTable, engine, songTable,
+                                         usersTable)
+from wickedjukebox.demon.plparser import ParserSyntaxError, parseQuery
 from wickedjukebox.demon.util import config
 
 LOG = logging.getLogger(__name__)
@@ -27,73 +21,89 @@ ALREADY_INITIALISED = False
 
 prefetch_state = {}
 
-def bootstrap( channel_id ):
-   global ALREADY_INITIALISED
 
-   if ALREADY_INITIALISED:
-      return
+def bootstrap(channel_id):
+    global ALREADY_INITIALISED
 
-   # as the query can take fscking long, we prefetch one song as soon as this
-   # module is loaded!
-   LOG.info( 'prefetching initial random song for each channel ...' )
-   s = select([channelTable.c.id, channelTable.c.name])
-   s = s.where( channelTable.c.id == channel_id )
-   row = s.execute().fetchone()
-   pref = Prefetcher( row[0] )
-   pref.run()
-   LOG.debug( '  Channel %r prefetched %r' % (row[1], prefetch_state[row[0]]) )
-   ALREADY_INITIALISED = True
+    if ALREADY_INITIALISED:
+        return
+
+    # as the query can take fscking long, we prefetch one song as soon as this
+    # module is loaded!
+    LOG.info('prefetching initial random song for each channel ...')
+    s = select([channelTable.c.id, channelTable.c.name])
+    s = s.where(channelTable.c.id == channel_id)
+    row = s.execute().fetchone()
+    pref = Prefetcher(row[0])
+    pref.run()
+    LOG.debug('  Channel %r prefetched %r' % (row[1], prefetch_state[row[0]]))
+    ALREADY_INITIALISED = True
+
 
 def findSong(channel_id):
-   """
-   determine a song that would be best to play next and return it
-   """
-   global prefetch_state
-   session = Session()
+    """
+    determine a song that would be best to play next and return it
+    """
+    global prefetch_state
+    session = Session()
 
-   # setup song scoring coefficients
-   userRating  = int(Setting.get('scoring_userRating',   4,  channel_id=channel_id))
-   lastPlayed  = int(Setting.get('scoring_lastPlayed',   10, channel_id=channel_id))
-   songAge     = int(Setting.get('scoring_songAge',      1,  channel_id=channel_id))
-   neverPlayed = int(Setting.get('scoring_neverPlayed',  4,  channel_id=channel_id))
-   randomness  = int(Setting.get('scoring_randomness',   1,  channel_id=channel_id))
-   max_random_duration = int(Setting.get('max_random_duration', 600,  channel_id=channel_id))
-   proofoflife_timeout = int(Setting.get('proofoflife_timeout', 120))
+    # setup song scoring coefficients
+    userRating = int(Setting.get(
+        'scoring_userRating', 4,
+        channel_id=channel_id))
+    lastPlayed = int(Setting.get(
+        'scoring_lastPlayed', 10,
+        channel_id=channel_id))
+    songAge = int(Setting.get(
+        'scoring_songAge', 1,
+        channel_id=channel_id))
+    neverPlayed = int(Setting.get(
+        'scoring_neverPlayed', 4,
+        channel_id=channel_id))
+    randomness = int(Setting.get(
+        'scoring_randomness', 1,
+        channel_id=channel_id))
+    max_random_duration = int(Setting.get(
+        'max_random_duration', 600,
+        channel_id=channel_id))
+    proofoflife_timeout = int(Setting.get('proofoflife_timeout', 120))
 
-   whereClauses = [ "NOT broken" ]
-   if prefetch_state and prefetch_state[channel_id]:
-      LOG.info( "Ignoring song %r from random selection as it was already prefetched!" % prefetch_state[channel_id] )
-      whereClauses.append( "s.id != %d" % prefetch_state[channel_id].id )
+    whereClauses = ["NOT broken"]
+    if prefetch_state and prefetch_state[channel_id]:
+        LOG.info("Ignoring song %r from random selection as it was already prefetched!" %
+                 prefetch_state[channel_id])
+        whereClauses.append("s.id != %d" % prefetch_state[channel_id].id)
 
-   # Retrieve dynamic playlists
-   sel = select( [dynamicPLTable.c.query] )
-   sel = sel.where(dynamicPLTable.c.group_id > 0)
-   sel = sel.order_by('group_id')
-   res = sel.execute().fetchall()
-   for dpl in res:
-      try:
-         if parseQuery( dpl["query"] ):
-            whereClauses.append("(" + parseQuery( dpl["query"] ) + ")")
-         break # only one query will be parsed. for now.... this is a big TODO
-               # as it triggers an unexpected behaviour (bug). i.e.: Why the
-               # heck does it only activate one playlist?!?
-      except ParserSyntaxError as ex:
-         import traceback
-         traceback.print_exc()
-         LOG.error( str(ex) )
-         LOG.error( 'Query was: %s' % dpl.query )
-      except:
-         import traceback
-         traceback.print_exc()
-         LOG.error()
+    # Retrieve dynamic playlists
+    sel = select([dynamicPLTable.c.query])
+    sel = sel.where(dynamicPLTable.c.group_id > 0)
+    sel = sel.order_by('group_id')
+    res = sel.execute().fetchall()
+    for dpl in res:
+        try:
+            if parseQuery(dpl["query"]):
+                whereClauses.append("(" + parseQuery(dpl["query"]) + ")")
+            break  # only one query will be parsed. for now.... this is a big TODO
+            # as it triggers an unexpected behaviour (bug). i.e.: Why the
+            # heck does it only activate one playlist?!?
+        except ParserSyntaxError as ex:
+            import traceback
+            traceback.print_exc()
+            LOG.error(str(ex))
+            LOG.error('Query was: %s' % dpl.query)
+        except:
+            import traceback
+            traceback.print_exc()
+            LOG.error()
 
-   if config['database.type'] == 'mysql':
+    if config['database.type'] == 'mysql':
 
-      s = select([usersTable], func.unix_timestamp(usersTable.c.proof_of_listening) + proofoflife_timeout > func.unix_timestamp(func.now()))
-      r = s.execute()
-      if len(r.fetchall()) == 0:
-         # no users online
-         query = """
+        s = select([usersTable], func.unix_timestamp(
+            usersTable.c.proof_of_listening) + proofoflife_timeout > func.unix_timestamp(func.now()))
+        r = s.execute()
+        if len(r.fetchall()) == 0:
+            # no users online
+            query = """
             SELECT s.id, s.localpath,
                ((IFNULL( least(604800, (NOW()-lastPlayed)), 604800)-604800)/604800*%(lastPlayed)d)
                   + IF( lastPlayed IS NULL, %(neverPlayed)d, 0)
@@ -108,16 +118,16 @@ def findSong(channel_id):
             ORDER BY score DESC
             LIMIT 10 OFFSET 0
          """ % {
-            'neverPlayed': neverPlayed,
-            'userRating':  userRating,
-            'lastPlayed':  lastPlayed,
-            'songAge':     songAge,
-            'randomness':  randomness,
-            'max_random_duration': max_random_duration,
-            'where':       ") AND (".join(whereClauses).replace("%", "%%"),
-         }
-      else:
-         query = """
+                'neverPlayed': neverPlayed,
+                'userRating':  userRating,
+                'lastPlayed':  lastPlayed,
+                'songAge':     songAge,
+                'randomness':  randomness,
+                'max_random_duration': max_random_duration,
+                'where':       ") AND (".join(whereClauses).replace("%", "%%"),
+            }
+        else:
+            query = """
             SELECT s.id, s.localpath,
                ((IFNULL( least(604800, (NOW()-lastPlayed)), 604800)-604800)/604800*%(lastPlayed)d)
                   + ((IFNULL(ls.loves,0)) / (SELECT COUNT(*) FROM users WHERE UNIX_TIMESTAMP(proof_of_listening)+%(proofoflife)d > UNIX_TIMESTAMP(NOW())) * %(userRating)d)
@@ -151,82 +161,87 @@ def findSong(channel_id):
             ORDER BY score DESC
             LIMIT 10 OFFSET 0
          """ % {
-            'neverPlayed': neverPlayed,
-            'userRating':  userRating,
-            'lastPlayed':  lastPlayed,
-            'proofoflife': proofoflife_timeout,
-            'randomness':  randomness,
-            'songAge':     songAge,
-            'max_random_duration': max_random_duration,
-            'where':       ") AND (".join(whereClauses).replace("%", "%%"),
-         }
-   else:
-      raise Exception("SQLite support discontinued since revision 346. It may reappear in the future!")
+                'neverPlayed': neverPlayed,
+                'userRating':  userRating,
+                'lastPlayed':  lastPlayed,
+                'proofoflife': proofoflife_timeout,
+                'randomness':  randomness,
+                'songAge':     songAge,
+                'max_random_duration': max_random_duration,
+                'where':       ") AND (".join(whereClauses).replace("%", "%%"),
+            }
+    else:
+        raise Exception(
+            "SQLite support discontinued since revision 346. It may reappear in the future!")
 
-   LOG.debug( query )
-   resultProxy = dbText(query, bind=engine).execute()
-   res = resultProxy.fetchall()
+    LOG.debug(query)
+    resultProxy = dbText(query, bind=engine).execute()
+    res = resultProxy.fetchall()
 
-   if not res:
-      return None
+    if not res:
+        return None
 
-   try:
-      if not res[0][2]:
-         # no users are online!
-         session.close()
-         return None
-      out = (res[0][0], res[0][1], float(res[0][2]))
-      LOG.info("Selected song (%d, %s) via smartget. Score was %4.3f" % out)
-      selectedSong = session.query(Song).filter(songTable.c.id == out[0] ).first()
-      session.close()
-      return selectedSong
-   except IndexError:
-      import traceback
-      traceback.print_exc()
-      LOG.warning('No song returned from query. Is the database empty?')
-      session.close()
-      return None
+    try:
+        if not res[0][2]:
+            # no users are online!
+            session.close()
+            return None
+        out = (res[0][0], res[0][1], float(res[0][2]))
+        LOG.info("Selected song (%d, %s) via smartget. Score was %4.3f" % out)
+        selectedSong = session.query(Song).filter(
+            songTable.c.id == out[0]).first()
+        session.close()
+        return selectedSong
+    except IndexError:
+        import traceback
+        traceback.print_exc()
+        LOG.warning('No song returned from query. Is the database empty?')
+        session.close()
+        return None
 
-class Prefetcher( threading.Thread ):
 
-   _channel_id = None
+class Prefetcher(threading.Thread):
 
-   def __init__(self, channel_id):
-      threading.Thread.__init__(self)
-      self._channel_id = channel_id
+    _channel_id = None
 
-   def run(self):
-      global prefetch_state
-      LOG.debug( "Background prefetching... " )
-      song = findSong(self._channel_id)
-      LOG.debug( "  ... prefetched %r" % song )
-      prefetch_state[self._channel_id] = song
+    def __init__(self, channel_id):
+        threading.Thread.__init__(self)
+        self._channel_id = channel_id
+
+    def run(self):
+        global prefetch_state
+        LOG.debug("Background prefetching... ")
+        song = findSong(self._channel_id)
+        LOG.debug("  ... prefetched %r" % song)
+        prefetch_state[self._channel_id] = song
+
 
 def get(channel_id):
-   pref = Prefetcher(channel_id)
-   pref.start()
+    pref = Prefetcher(channel_id)
+    pref.start()
 
-   # wait until a song is prefetched (in case two 'gets' are called quickly
-   # after another)
-   while not prefetch_state and not prefetch_state[channel_id]:
-      pass
+    # wait until a song is prefetched (in case two 'gets' are called quickly
+    # after another)
+    while not prefetch_state and not prefetch_state[channel_id]:
+        pass
 
-   return prefetch_state[channel_id]
+    return prefetch_state[channel_id]
+
 
 def peek(channel_id):
-   global prefetch_state
-   output = prefetch_state.get( channel_id, None )
-   if not output:
-      return None
-   else:
-      return output, None
+    global prefetch_state
+    output = prefetch_state.get(channel_id, None)
+    if not output:
+        return None
+    else:
+        return output, None
+
 
 def prefetch(channel_id, async=True):
-   global prefetch_state
-   prefetch_state[channel_id] = None
-   pref = Prefetcher(channel_id)
-   if async:
-      pref.start()
-   else:
-      pref.run()
-
+    global prefetch_state
+    prefetch_state[channel_id] = None
+    pref = Prefetcher(channel_id)
+    if async:
+        pref.start()
+    else:
+        pref.run()
