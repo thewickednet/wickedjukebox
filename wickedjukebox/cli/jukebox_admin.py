@@ -3,31 +3,21 @@
 from __future__ import print_function
 
 import cmd
-from os import path
-import sys
-
-from sqlalchemy.sql import func, select, update, insert, bindparam, and_
-from sqlalchemy.exc import IntegrityError
-
-from wickedjukebox.remotes import lastfm
-from wickedjukebox.demon.dbmodel import (Setting,
-    Session,
-    Artist,
-    genreTable,
-    groupsTable,
-    songTable,
-    song_has_tag,
-    channelTable,
-    albumTable,
-    artistTable,
-    usersTable,
-    song_has_genre,
-    settingTable,
-    songStandingTable,
-    songStatsTable)
-from wickedjukebox.util import direxists, TerminalController
-from wickedjukebox import setup_logging, __version__
 import logging
+import sys
+from os import path
+
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.sql import and_, bindparam, func, insert, select, update
+from wickedjukebox import __version__, setup_logging
+from wickedjukebox.demon.dbmodel import (Artist, Session, Setting, albumTable,
+                                         artistTable, channelTable, genreTable,
+                                         groupsTable, settingTable,
+                                         song_has_genre, song_has_tag,
+                                         songStandingTable, songStatsTable,
+                                         songTable, usersTable)
+from wickedjukebox.remotes import lastfm
+from wickedjukebox.util import TerminalController, direxists
 
 LOG = logging.getLogger(__name__)
 
@@ -38,9 +28,9 @@ def get_artists(glob=u"*"):
 
     glob = glob.replace(u"*", u"%")
     s = select([artistTable],
-            artistTable.c.name.like(glob),
-        order_by=["name"]
-       )
+               artistTable.c.name.like(glob),
+               order_by=["name"]
+               )
     r = s.execute()
     return r.fetchall()
 
@@ -153,14 +143,15 @@ class Console(cmd.Cmd):
         previous_channel = None
         for row in sel.execute().fetchall():
             if row["channel_id"] != previous_channel:
-                print("---------+------------+---------------------------+----------------")
+                print(
+                    "---------+------------+---------------------------+----------------")
                 previous_channel = row['channel_id']
             print(" %10d | %7d | %-25s | %s" % (
-                    row["channel_id"],
-                    row["user_id"],
-                    row["var"],
-                    row["value"],
-                   ))
+                row["channel_id"],
+                row["user_id"],
+                row["var"],
+                row["value"],
+            ))
 
     def complete_rescan(self, line, *args):
         mediadirs = [x for x in Setting.get('mediadir', '').split(' ')
@@ -183,7 +174,8 @@ class Console(cmd.Cmd):
         if len(self.__path) == 0:
             self.prompt = self.tc.render("${GREEN}jukebox>${NORMAL} ")
         else:
-            self.prompt = self.tc.render("${GREEN}jukebox:${BLUE}%s${GREEN}>${NORMAL} " % "/".join(self.__path))
+            self.prompt = self.tc.render(
+                "${GREEN}jukebox:${BLUE}%s${GREEN}>${NORMAL} " % "/".join(self.__path))
 
     def get_string(self, string):
         """
@@ -300,22 +292,22 @@ class Console(cmd.Cmd):
             count += 1
             if delete:
                 del_query = songStandingTable.delete().where(
-                        songStandingTable.c.song_id == row[0])
+                    songStandingTable.c.song_id == row[0])
                 del_query.execute()
                 del_query = song_has_genre.delete().where(
-                        song_has_genre.c.song_id == row[0])
+                    song_has_genre.c.song_id == row[0])
                 del_query.execute()
                 del_query = song_has_tag.delete().where(
-                        song_has_tag.c.song_id == row[0])
+                    song_has_tag.c.song_id == row[0])
                 del_query.execute()
                 del_query = songStandingTable.delete().where(
-                        songStandingTable.c.song_id == row[0])
+                    songStandingTable.c.song_id == row[0])
                 del_query.execute()
                 del_query = songStatsTable.delete().where(
-                        songStatsTable.c.song_id == row[0])
+                    songStatsTable.c.song_id == row[0])
                 del_query.execute()
                 del_query = songTable.delete().where(
-                        songTable.c.id == row[0])
+                    songTable.c.id == row[0])
                 del_query.execute()
         print("%d orphaned songs found" % count)
 
@@ -325,7 +317,7 @@ class Console(cmd.Cmd):
                 print(row)
             if delete:
                 del_query = albumTable.delete().where(
-                        albumTable.c.id == row[0])
+                    albumTable.c.id == row[0])
                 del_query.execute()
             count += 1
         print("%d orphaned albums found" % count)
@@ -336,7 +328,7 @@ class Console(cmd.Cmd):
                 print(row)
             if delete:
                 del_query = artistTable.delete().where(
-                        artistTable.c.id == row[0])
+                    artistTable.c.id == row[0])
                 del_query.execute()
             count += 1
         print("%d orphaned artists found" % count)
@@ -360,10 +352,10 @@ class Console(cmd.Cmd):
             order_by = "name"
 
         s = select([genreTable.c.id, genreTable.c.name,
-            func.count(song_has_genre.c.song_id).label('song_count')],
-            genreTable.c.id == song_has_genre.c.genre_id,
-            group_by=genreTable.c.id,
-            order_by=order_by)
+                    func.count(song_has_genre.c.song_id).label('song_count')],
+                   genreTable.c.id == song_has_genre.c.genre_id,
+                   group_by=genreTable.c.id,
+                   order_by=order_by)
         r = s.execute()
 
         print(" id    | Genre                                  | count ")
@@ -395,8 +387,8 @@ class Console(cmd.Cmd):
         old_genre = int(old_genre)
         new_genre = int(new_genre)
         u = song_has_genre.update(
-                    song_has_genre.c.genre_id == bindparam("a"),
-                    values={'genre_id': bindparam("b")})
+            song_has_genre.c.genre_id == bindparam("a"),
+            values={'genre_id': bindparam("b")})
         u.execute(a=old_genre, b=new_genre)
 
     def do_genre_songs(self, line):
@@ -408,17 +400,17 @@ class Console(cmd.Cmd):
         """
         genre_id = int(line)
         s = select([
-                    songTable.c.id,
-                    artistTable.c.name.label("aname"),
-                    albumTable.c.name.label("bname"),
-                    songTable.c.title
-                ],
-                and_(
-                    songTable.c.id == song_has_genre.c.song_id,
-                    song_has_genre.c.genre_id == genre_id,
-                    songTable.c.artist_id == artistTable.c.id,
-                    songTable.c.album_id == albumTable.c.id),
-                order_by=["aname", "bname", "title"])
+            songTable.c.id,
+            artistTable.c.name.label("aname"),
+            albumTable.c.name.label("bname"),
+            songTable.c.title
+        ],
+            and_(
+            songTable.c.id == song_has_genre.c.song_id,
+            song_has_genre.c.genre_id == genre_id,
+            songTable.c.artist_id == artistTable.c.id,
+            songTable.c.album_id == albumTable.c.id),
+            order_by=["aname", "bname", "title"])
         r = s.execute()
         for s in r.fetchall():
             aname = s.aname is not None and s.aname or "None"
@@ -445,9 +437,9 @@ class Console(cmd.Cmd):
             return
 
         u = genreTable.update(
-                    genreTable.c.id == bindparam("gid"),
-                    values={'name': bindparam("name")}
-               )
+            genreTable.c.id == bindparam("gid"),
+            values={'name': bindparam("name")}
+        )
         u.execute(gid=gid, name=name)
 
     def do_find_duplicates(self, line):
@@ -477,13 +469,13 @@ class Console(cmd.Cmd):
                 return
 
         s = select([
-                songTable.c.id,
-                songTable.c.localpath,
-                songTable.c.title,
-                artistTable.c.name
-            ],
+            songTable.c.id,
+            songTable.c.localpath,
+            songTable.c.title,
+            artistTable.c.name
+        ],
             songTable.c.artist_id == artistTable.c.id
-       )
+        )
 
         result = s.execute().fetchall()
 
@@ -562,8 +554,8 @@ class Console(cmd.Cmd):
         Lists users currently online in the web interface
         """
         s = select([usersTable],
-                func.addtime(
-                    usersTable.c.proof_of_life, '0:03:00') > func.now())
+                   func.addtime(
+            usersTable.c.proof_of_life, '0:03:00') > func.now())
         r = s.execute()
         for row in r.fetchall():
             print(row)
@@ -624,7 +616,7 @@ class Console(cmd.Cmd):
                 "user_id": int(user_id),
                 "var": var,
                 "value": value
-                })
+            })
             insq.execute()
         LOG.debug("New setting stored: %r" % params)
 
@@ -648,7 +640,7 @@ class Console(cmd.Cmd):
         name, params = params
 
         u = channelTable.update(channelTable.c.name == name,
-                    values={'backend_params': params})
+                                values={'backend_params': params})
         u.execute()
 
     def do_channels(self, line):
@@ -691,7 +683,7 @@ class Console(cmd.Cmd):
             "name": name,
             "backend": back,
             "backend_params": be_parms,
-            })
+        })
         insq.execute()
 
     def do_test_random(self, line):
@@ -755,8 +747,10 @@ class Console(cmd.Cmd):
         """
         from getpass import getpass
         from hashlib import md5
-        username = raw_input(self.tc.render('${YELLOW}%20s:${NORMAL} ' % 'Login'))
-        passwd = getpass(self.tc.render('${YELLOW}%20s:${NORMAL} ' % 'Password'))
+        username = raw_input(self.tc.render(
+            '${YELLOW}%20s:${NORMAL} ' % 'Login'))
+        passwd = getpass(self.tc.render(
+            '${YELLOW}%20s:${NORMAL} ' % 'Password'))
         username = username.decode(sys.stdin.encoding)
         passwd = passwd.decode(sys.stdin.encoding)
         s = select([usersTable.c.id])
@@ -776,9 +770,12 @@ class Console(cmd.Cmd):
         from hashlib import md5
         from os import urandom
         try:
-            username = raw_input(self.tc.render('${YELLOW}%20s:${NORMAL} ' % 'Login'))
-            passwd = getpass(self.tc.render('${YELLOW}%20s:${NORMAL} ' % 'Password'))
-            passwd2 = getpass(self.tc.render('${YELLOW}%20s:${NORMAL} ' % 'Verify password'))
+            username = raw_input(self.tc.render(
+                '${YELLOW}%20s:${NORMAL} ' % 'Login'))
+            passwd = getpass(self.tc.render(
+                '${YELLOW}%20s:${NORMAL} ' % 'Password'))
+            passwd2 = getpass(self.tc.render(
+                '${YELLOW}%20s:${NORMAL} ' % 'Verify password'))
             username = username.decode(sys.stdin.encoding)
         except KeyboardInterrupt:
             print(self.tc.render('${YELLOW}Aborted!${NORMAL}'))
@@ -805,7 +802,7 @@ class Console(cmd.Cmd):
             'IP': '',
             'picture': '{0}.jpg'.format(username.encode('ascii', 'replace')),
             'lifetime': 0
-            })
+        })
 
         try:
             insq.execute()
@@ -813,7 +810,6 @@ class Console(cmd.Cmd):
                                  'You may now login.'))
         except IntegrityError as exc:
             print(self.tc.render('${RED}ERROR:${NORMAL}%s' % exc))
-
 
     def do_add_group(self, line):
         """
@@ -824,7 +820,7 @@ class Console(cmd.Cmd):
         insq = insert(groupsTable)
         insq = insq.values({
             'title': line.strip()
-            })
+        })
         insq.execute()
         s = select([groupsTable.c.id, groupsTable.c.title])
         for id, title in s.execute():
