@@ -63,11 +63,13 @@ def main():
 
     parser = OptionParser()
     parser.add_option("-c", "--channel", dest="channel_name",
-        help="runs the channel named CHANNEL_NAME", metavar="CHANNEL_NAME")
+                      help="runs the channel named CHANNEL_NAME",
+                      metavar="CHANNEL_NAME")
     parser.add_option("-v", action="count", dest="verbosity",
-            help=("Application verbosity. Can be repeated up to 5 times, each "
-                  "time increasing verbosity). If not set, the logging "
-                  "configuration file will take precedence."))
+                      help=("Application verbosity. Can be repeated up to 5 "
+                            "times, each time increasing verbosity). If not "
+                            "set, the logging configuration file will take "
+                            "precedence."))
 
     (options, args) = parser.parse_args()
 
@@ -75,12 +77,12 @@ def main():
         parser.error("CHANNEL_NAME is required!")
 
     verbosity_map = {
-            5: logging.DEBUG,
-            4: logging.INFO,
-            3: logging.WARN,
-            2: logging.ERROR,
-            1: logging.CRITICAL,
-            }
+        5: logging.DEBUG,
+        4: logging.INFO,
+        3: logging.WARN,
+        2: logging.ERROR,
+        1: logging.CRITICAL,
+    }
     if options.verbosity and options.verbosity in verbosity_map:
         logger.setLevel(verbosity_map[options.verbosity])
     elif options.verbosity and options.verbosity > len(verbosity_map):
