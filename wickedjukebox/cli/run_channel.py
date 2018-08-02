@@ -8,46 +8,47 @@ import time
 from wickedjukebox import __version__, setup_logging
 from wickedjukebox.core.channel import Channel
 
-logger = logging.getLogger(__name__)
-CHANNEL = None
-KEEP_RUNNING = True
+LOG = logging.getLogger(__name__)
 
 
-def handle_sigint(signal, frame):
-    """
-    Try to exit cleanly on SIGINT.
-    """
-    global KEEP_RUNNING, CHANNEL
-    logging.info("SIGINT caught")
-    CHANNEL.close()
-    KEEP_RUNNING = False
+class Application(object):
 
+    def __init__(self):
+        self.channel = None
+        self.keep_running = True
 
-def run_channel(channel_name):
-    """
-    Starts a channel
-    """
-    global CHANNEL
+    def handle_sigint(self, signal, frame):
+        """
+        Try to exit cleanly on SIGINT.
+        """
+        logging.info("SIGINT caught")
+        self.channel.close()
+        self.keep_running = False
 
-    while KEEP_RUNNING:
-        CHANNEL = Channel(channel_name)
-        try:
-            logging.info("Starting channel %s" % channel_name)
-            CHANNEL.startPlayback()
-            CHANNEL.run()
-        except Exception:
-            import traceback
-            logging.critical(traceback.format_exc())
-            logging.info("Restarting channel %s" % channel_name)
-            CHANNEL.close()
-            CHANNEL = None
-            CHANNEL = Channel(channel_name)
+    def run_channel(self, channel_name):
+        """
+        Starts a channel
+        """
 
-        if CHANNEL:
-            logging.info("Closing channel")
-            CHANNEL.close()
+        while self.keep_running:
+            self.channel = Channel(channel_name)
+            try:
+                logging.info("Starting channel %s" % channel_name)
+                self.channel.startPlayback()
+                self.channel.run()
+            except Exception:
+                import traceback
+                logging.critical(traceback.format_exc())
+                logging.info("Restarting channel %s" % channel_name)
+                self.channel.close()
+                self.channel = None
+                self.channel = Channel(channel_name)
 
-        time.sleep(1)
+            if self.channel:
+                logging.info("Closing channel")
+                self.channel.close()
+
+            time.sleep(1)
 
 
 def main():
@@ -56,9 +57,8 @@ def main():
     """
     from optparse import OptionParser
     setup_logging()
-    signal.signal(signal.SIGINT, handle_sigint)
 
-    logger.info(" Wicked Jukebox {0} ".format(__version__).center(79, '#'))
+    LOG.info(" Wicked Jukebox {0} ".format(__version__).center(79, '#'))
 
     parser = OptionParser()
     parser.add_option("-c", "--channel", dest="channel_name",
@@ -70,7 +70,7 @@ def main():
                             "set, the logging configuration file will take "
                             "precedence."))
 
-    (options, args) = parser.parse_args()
+    options, _ = parser.parse_args()
 
     if not options.channel_name:
         parser.error("CHANNEL_NAME is required!")
@@ -83,8 +83,10 @@ def main():
         1: logging.CRITICAL,
     }
     if options.verbosity and options.verbosity in verbosity_map:
-        logger.setLevel(verbosity_map[options.verbosity])
+        LOG.setLevel(verbosity_map[options.verbosity])
     elif options.verbosity and options.verbosity > len(verbosity_map):
-        logger.setLevel(logging.DEBUG)
+        LOG.setLevel(logging.DEBUG)
 
-    run_channel(options.channel_name)
+    app = Application()
+    signal.signal(signal.SIGINT, app.handle_sigint)
+    app.run_channel(options.channel_name)
