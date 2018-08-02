@@ -24,6 +24,7 @@ LOG = logging.getLogger(__name__)
 
 
 def get_artists(glob=u"*"):
+    # type: (str, str) -> Iterable
     if not glob.strip():
         glob = u"*"
 
@@ -37,6 +38,7 @@ def get_artists(glob=u"*"):
 
 
 def get_albums(aname, glob=u"*"):
+    # type: (str, str) -> Iterable
     if not glob.strip():
         glob = u"*"
 
@@ -51,6 +53,7 @@ def get_albums(aname, glob=u"*"):
 
 
 def get_songs(bname, glob):
+    # type: (str, str) -> Iterable
     if not glob.strip():
         glob = u"*"
 
@@ -78,9 +81,10 @@ class Console(cmd.Cmd):
 
     __ctx_artist = "unset"
     __ctx_album = "unset"
-    __path = []
+    __path = []  # type: List[str]
 
     def __init__(self):
+        # type: () -> None
         "Bootstrap the command line interpreter"
         cmd.Cmd.__init__(self)
         self.term = TerminalController()
@@ -88,6 +92,7 @@ class Console(cmd.Cmd):
         self.user_id = None
 
     def _orphaned_artists(self):
+        # type: () -> Generator[Tuple[int, str, int], None, None]
         """
         Return rows of (artist_id, name, song_count) of artists without
         attached songs
@@ -107,6 +112,7 @@ class Console(cmd.Cmd):
                 yield row
 
     def _orphaned_albums(self):
+        # type: () -> Generator[Tuple[int, str, int], None, None]
         """
         Return rows of (album_id, name, song_count) of albums without attached
         songs.
@@ -126,6 +132,7 @@ class Console(cmd.Cmd):
                 yield row
 
     def _orphaned_songs(self):
+        # type: () -> Generator[Tuple[int, str], None, None]
         """
         Return rows of (song_id, path) of songs that are no longer on disk.
         """
@@ -136,6 +143,7 @@ class Console(cmd.Cmd):
                 yield row
 
     def list_settings(self, channel_id=None, user_id=None):
+        # type: (int, int) -> None
         """
         List settings
 
@@ -165,7 +173,8 @@ class Console(cmd.Cmd):
                 row["value"],
             ))
 
-    def complete_rescan(self, line, *args):
+    def complete_rescan(self, line):
+        # type: (str) -> List[str]
         mediadirs = [x for x in Setting.get('mediadir', '').split(' ')
                      if direxists(x)]
         from os import listdir
@@ -176,10 +185,12 @@ class Console(cmd.Cmd):
         return candidates
 
     def emptyline(self):
+        # type: () -> None
         """Do nothing on empty input line"""
         pass
 
     def set_promt(self):
+        # type: () -> None
         """
         Sets the default prompt
         """
@@ -190,6 +201,7 @@ class Console(cmd.Cmd):
                 "${GREEN}jukebox:${BLUE}%s${GREEN}>${NORMAL} " % "/".join(self.__path))
 
     def get_string(self, string):
+        # type: (str) -> str
         """
         If a string is enclosed with quotes, remove them and return the proper
         string
@@ -202,11 +214,13 @@ class Console(cmd.Cmd):
         return string
 
     def do_quit(self, line):
+        # type: (str) -> None
         """Quits you out of Quitter."""
         print("bye")
         return 1
 
     def do_rescan(self, line, force=0):
+        # type: (str) -> None
         """
         Scan the defined library folders for new songs.
 
@@ -237,6 +251,7 @@ class Console(cmd.Cmd):
         print(self.term.SHOW_CURSOR)
 
     def do_update_tags(self, line):
+        # type: (str) -> None
         """
         Updates song tags via Last.FM
 
@@ -274,6 +289,7 @@ class Console(cmd.Cmd):
         sess.close()
 
     def do_orphans(self, line):
+        # type: (str) -> None
         """
         Find files that are in the database but not on disk
 
@@ -346,6 +362,7 @@ class Console(cmd.Cmd):
         print("%d orphaned artists found" % count)
 
     def do_genres(self, line):
+        # type: (str) -> None
         """
         Lists genres stored in the DB
 
@@ -378,6 +395,7 @@ class Console(cmd.Cmd):
         print(" id    | Genre                                  | count ")
 
     def do_merge_genre(self, line):
+        # type: (str) -> None
         """
         Moves genre A into genre B (only B remains!)
 
@@ -404,6 +422,7 @@ class Console(cmd.Cmd):
         query.execute(a=old_genre, b=new_genre)
 
     def do_genre_songs(self, line):
+        # type: (str) -> None
         """
         Lists songs of a given genre
 
@@ -431,6 +450,7 @@ class Console(cmd.Cmd):
                   (song.id, aname, bname, title))
 
     def do_rename_genre(self, line):
+        # type: (str) -> None
         """
         Renames a genre
 
@@ -455,6 +475,7 @@ class Console(cmd.Cmd):
         query.execute(gid=gid, name=name)
 
     def do_find_duplicates(self, line):
+        # type: (str) -> None
         """
         Finds duplicates based on artist/track name.
 
@@ -507,6 +528,7 @@ class Console(cmd.Cmd):
         sys.stdout = default_out
 
     def do_cd(self, line):
+        # type: (str) -> None
         """
         Changes context. Three levels possible: Root -> Artist -> Album
 
@@ -534,6 +556,7 @@ class Console(cmd.Cmd):
         self.set_promt()
 
     def do_ls(self, line):
+        # type: (str) -> None
         """
         Lists entries in the current context
         """
@@ -560,6 +583,7 @@ class Console(cmd.Cmd):
                 print(song.title)
 
     def do_online_users(self, line):
+        # type: (str) -> None
         """
         Lists users currently online in the web interface
         """
@@ -570,6 +594,7 @@ class Console(cmd.Cmd):
             print(row)
 
     def do_settings(self, line):
+        # type: (str) -> None
         """
         Lists or set application settings
 
@@ -630,6 +655,7 @@ class Console(cmd.Cmd):
         LOG.debug("New setting stored: %r" % params)
 
     def do_channel_settings(self, line):
+        # type: (str) -> None
         """
         Modify the settings of one channel.
 
@@ -653,6 +679,7 @@ class Console(cmd.Cmd):
         query.execute()
 
     def do_channels(self, line):
+        # type: (str) -> None
         """
         List existing channels.
         """
@@ -667,6 +694,7 @@ class Console(cmd.Cmd):
             print("%-15s | %-10s | %s" % tuple(row))
 
     def do_add_channel(self, line):
+        # type: (str) -> None
         """
         Adds a new channel to the database.
 
@@ -696,6 +724,7 @@ class Console(cmd.Cmd):
         insq.execute()
 
     def do_test_random(self, line):
+        # type: (str) -> None
         """
         Peeks at the top 10 elements returned from a random query
 
@@ -751,6 +780,7 @@ class Console(cmd.Cmd):
             pprint(stat)
 
     def do_login(self, line):
+        # type: (str) -> None
         """
         Creates a user-session.
         """
@@ -771,6 +801,7 @@ class Console(cmd.Cmd):
         self.user_id = identity[0]
 
     def do_register(self, line):
+        # type: (str) -> None
         """
         Registers a new user.
         """
@@ -820,6 +851,7 @@ class Console(cmd.Cmd):
             print(self.term.render('${RED}ERROR:${NORMAL}%s' % exc))
 
     def do_add_group(self, line):
+        # type: (str) -> None
         """
         Adds a new group.
         """
@@ -840,6 +872,7 @@ class Console(cmd.Cmd):
 
 
 def main():
+    # type: () -> None
     setup_logging()
     logging.getLogger('wickedjukebox.scanner').setLevel(logging.WARNING)
     # TODO: Catch logging messages from the scanner!
