@@ -45,7 +45,7 @@ class Player(object):
                LOG.info("Connecting to MPD backend...")
                self.__connection = mpdclient.MpdController(
                    self.host, self.port)
-            except mpdclient.MpdConnectionPortError as ex:
+            except mpdclient.MpdConnectionPortError:
                LOG.warning("Error connecting to the player.", exc_info=True)
                time.sleep(1)
                continue
@@ -86,7 +86,8 @@ class Player(object):
                output = False
            else:
                output = True
-        except Exception as ex:
+        except Exception as ex: # pylint: disable=broad-except
+           # catch-all for graceful degradation
            LOG.error("error queuing (%s).", ex)
            output = False
 
@@ -136,7 +137,7 @@ class Player(object):
             (0, current_song-1)
         ])
 
-    def listeners(self):
+    def listeners(self):  # pylint: disable=no-self-use
         return []  # TODO
 
     def current_song(self):
@@ -223,9 +224,9 @@ class Player(object):
            try:
               if self.__connection.getStatus().state == 1:
                  return common.STATUS_STOPPED
-              elif self.__connection.getStatus().state == 2:
+              if self.__connection.getStatus().state == 2:
                  return common.STATUS_STARTED
-              elif self.__connection.getStatus().state == 3:
+              if self.__connection.getStatus().state == 3:
                  return common.STATUS_PAUSED
               return 'unknown (%s)' % self.__connection.getStatus().state
            except mpdclient.MpdStoredError:
