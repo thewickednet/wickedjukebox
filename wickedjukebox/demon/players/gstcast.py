@@ -163,20 +163,7 @@ class GStreamer(Thread):
                 LOG.debug("Player is in STATE_PLAYING. Waiting for playback "
                           "to finish")
                 while self.is_playing:
-                    try:
-                        position = self.player.query_position(
-                            gst.FORMAT_TIME, None)[0]
-                        duration = self.player.query_duration(
-                            gst.FORMAT_TIME, None)[0]
-                        self.position = (
-                            int(position * 1E-9),
-                            int(duration * 1E-9),
-                        )
-                        LOG.debug("Current position: %r/%r ", *self.position)
-                    except Exception as exc:  # pylint: disable=broad-except
-                        # catch-all fallback for graceful degradation
-                        self.position = (0, 0)
-                        LOG.error(exc)
+                    self.position = self.current_position()
                     time.sleep(1)
                     GCONTEXT.iteration(True)
         LOG.debug("GStreamer player thread stopped")
