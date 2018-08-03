@@ -30,24 +30,30 @@ def _get_user_settings(channel_id):
     @return: A dict of dicts
     """
     proofoflife_timeout = int(Setting.get('proofoflife_timeout', 120))
-    listeners_query = select([
-        usersTable.c.id,
-        usersTable.c.username,
-        settingTable.c.var,
-        settingTable.c.value,
-    ],
-        from_obj=[usersTable.join(settingTable, and_(
-            usersTable.c.id == settingTable.c.user_id,
-            settingTable.c.channel_id == channel_id
-        ))]
+    listeners_query = select(
+        [
+            usersTable.c.id,
+            usersTable.c.username,
+            settingTable.c.var,
+            settingTable.c.value,
+        ],
+        from_obj=[
+            usersTable.join(
+                settingTable,
+                and_(
+                    usersTable.c.id == settingTable.c.user_id,
+                    settingTable.c.channel_id == channel_id
+                )
+            )
+        ]
     )
     listeners_query = listeners_query.where(
         func.unix_timestamp(usersTable.c.proof_of_listening) +
         proofoflife_timeout > func.unix_timestamp(func.now()))
-    r = listeners_query.execute()
+    result = listeners_query.execute()
     online_users = set()
     user_settings = {}
-    for row in r:
+    for row in result:
         online_users.add(row[0])
         user_settings.setdefault(row[0], {})
         user_settings[row[0]][row[2]] = row[3]
@@ -66,26 +72,29 @@ def _get_rough_query(channel_id):
     @param channel_id: The channel ID
     @return: SQLAlchemy query object
     """
-    lastPlayed = int(Setting.get('scoring_lastPlayed', 10,
-                                 channel_id=channel_id))
     recency_threshold = int(Setting.get('recency_threshold', 120,
                                         channel_id=channel_id))
     max_random_duration = int(Setting.get('max_random_duration', 600,
                                           channel_id=channel_id))
-    rough_query = select([
-        songTable.c.id,
-        songTable.c.duration,
-        channelSongs.c.lastPlayed
-    ],
+    rough_query = select(
+        [
+            songTable.c.id,
+            songTable.c.duration,
+            channelSongs.c.lastPlayed
+        ],
         from_obj=[
-        songTable.outerjoin(
-            channelSongs,
-            songTable.c.id == channelSongs.c.song_id).outerjoin(
-            albumTable,
-            songTable.c.album_id == albumTable.c.id).outerjoin(
-            artistTable,
-            songTable.c.artist_id == artistTable.c.id)
-    ])
+            songTable.outerjoin(
+                channelSongs,
+                songTable.c.id == channelSongs.c.song_id
+            ).outerjoin(
+                albumTable,
+                songTable.c.album_id == albumTable.c.id
+            ).outerjoin(
+                artistTable,
+                songTable.c.artist_id == artistTable.c.id
+            )
+        ]
+    )
 
     # skip songs that are too long
     rough_query = rough_query.where(songTable.c.duration < max_random_duration)
@@ -94,8 +103,8 @@ def _get_rough_query(channel_id):
     delta = timedelta(minutes=recency_threshold)
     old_time = datetime.now() - delta
     rough_query = rough_query.where(or_(
-       channelSongs.c.lastPlayed < old_time,
-       channelSongs.c.lastPlayed == None))  # NOQA
+        channelSongs.c.lastPlayed < old_time,
+        channelSongs.c.lastPlayed == None))  # pylint: disable=singleton-comparison
 
     # keep only songs that satisfy the dynamic playlist query for this channel
     sel = select([dynamicPLTable.c.query, dynamicPLTable.c.probability])
@@ -117,9 +126,9 @@ def _get_rough_query(channel_id):
             if dpl and rnd <= dpl["probability"] and parseQuery(dpl["query"]):
                 rough_query = rough_query.where(
                     "(%s)" % parseQuery(dpl["query"]))
-        except ParserSyntaxError as ex:
+        except ParserSyntaxError:
             LOG.error('Query was: %s', dpl.query, exc_info=True)
-        except:  # pylint: disable=broad-except
+        except Exception:  # pylint: disable=broad-except
             # catchall for graceful degradation
             LOG.exception('Unhandled Exception')
 
@@ -139,8 +148,8 @@ def _get_standing_count(song_id, user_list, standing):
     query = query.where(songStandingTable.c.standing == standing)
     query = query.where(songStandingTable.c.song_id == song_id)
     query = query.where(songStandingTable.c.user_id.in_(user_list))
-    a = query.alias()  # MySQL bugfix
-    hate_count = a.count().execute().fetchone()[0]
+    alias = query.alias()  # MySQL bugfix
+    hate_count = alias.count().execute().fetchone()[0]
     return hate_count
 
 
@@ -174,7 +183,7 @@ def get(channel_id):
     candidates = fetch_candidates(channel_id)
     if not candidates:
         LOG.warning("No song returned!")
-        return
+        return None
     sess = Session()
     song = sess.query(Song).filter(songTable.c.id == candidates[0][0]).first()
     sess.close()
@@ -212,10 +221,10 @@ def prefetch(channel_id, async=True):
 def fetch_candidates(channel_id):
     try:
         # get settings
-        userRating = int(Setting.get('scoring_userRating', 4,
-                                     channel_id=channel_id))
-        neverPlayed = int(Setting.get('scoring_neverPlayed', 4,
+        user_rating = int(Setting.get('scoring_userRating', 4,
                                       channel_id=channel_id))
+        never_played = int(Setting.get('scoring_neverPlayed', 4,
+                                       channel_id=channel_id))
 
         # fetch the channel ssettings for online users
         user_settings = _get_user_settings(channel_id)
@@ -249,12 +258,12 @@ def fetch_candidates(channel_id):
             # okay... let's do the scoring, first, zero in:
             score = 0.0
             # now, promote loved songs
-            if len(online_users):
-                score = score + (userRating * (
+            if online_users:
+                score = score + (user_rating * (
                     float(love_count) / len(online_users)))
             # give songs that have never been played a fair chance too:
             if not row[2]:
-                score = score + neverPlayed
+                score = score + never_played
 
             # construct a string representation of the recency of the song.
             # using the number of minutes since it's last played. If it
@@ -282,8 +291,10 @@ def fetch_candidates(channel_id):
         results = sorted(results, key=lambda x: x[1]['sortkey'])
         return results
 
-    except Exception:
-        LOG.exception("Unable to fetch any candidates!")
+    except Exception:  # pylint: disable=broad-except
+        # catchall for graceful degradation
+        LOG.exception("Unable to fetch any candidates!", exc_info=True)
+        return []
 
 
 def test(channel_id):
