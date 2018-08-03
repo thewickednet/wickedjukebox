@@ -115,8 +115,8 @@ class SatelliteAPI(xmlrpc.XMLRPC):
       """
       try:
          return self.marshal(self._jukebox.getChannelByID(channelID).skipSong())
-      except Exception, ex:
-         print log.msg(ex)
+      except Exception:
+         LOG.exception('Unhandled exception')
          return False
 
    def xmlrpc_play(self, channelID):
