@@ -17,7 +17,7 @@ from sqlalchemy.sql import text as dbText
 from wickedjukebox.demon.dbmodel import (Session, Setting, Song, channelTable,
                                          dynamicPLTable, engine, songTable,
                                          usersTable)
-from wickedjukebox.demon.plparser import ParserSyntaxError, parseQuery
+from wickedjukebox.demon.plparser import ParserSyntaxError, parse_query
 from wickedjukebox.demon.util import config
 
 LOG = logging.getLogger(__name__)
@@ -92,8 +92,8 @@ def findSong(channel_id):
     res = sel.execute().fetchall()
     for dpl in res:
         try:
-            if parseQuery(dpl["query"]):
-                where_clauses.append("(" + parseQuery(dpl["query"]) + ")")
+            if parse_query(dpl["query"]):
+                where_clauses.append("(" + parse_query(dpl["query"]) + ")")
             break  # only one query will be parsed. for now.... this is a big TODO
             # as it triggers an unexpected behaviour (bug). i.e.: Why the
             # heck does it only activate one playlist?!?

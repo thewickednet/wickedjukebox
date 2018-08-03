@@ -1,10 +1,14 @@
+# pylint: disable=invalid-name
+#
+# ply has a naming convention which is not PEP8 compliant. Which is why the
+# invalid-name message is disabled.
 """
 Methods to convert a simplified filter string into an SQL query
 """
 from __future__ import print_function
 
-import ply.lex as lex
-import ply.yacc as yacc
+import ply.lex
+import ply.yacc
 
 
 class ParserSyntaxError(Exception):
@@ -67,7 +71,7 @@ def t_ID(t):
     return t
 
 
-lex.lex()
+ply.lex.lex()
 
 # ----------------------------------------------------------------------
 
@@ -111,22 +115,22 @@ def p_error(t):
     raise ParserSyntaxError("Syntax error at '%s'" % t.value)
 
 
-yacc.yacc()
+ply.yacc.yacc()
 
 # ----------------------------------------------------------------------
 
 
-def getTokens(data):
-    lex.input(data)
-    while(1):
-        tok = lex.token()
+def get_tokens(data):
+    ply.lex.input(data)
+    while True:
+        tok = ply.lex.token()
         if not tok:
             break
         print(tok)
 
 
-def parseQuery(data):
-    return yacc.parse(data)
+def parse_query(data):
+    return ply.yacc.parse(data)
 
 
 if __name__ == "__main__":
@@ -134,21 +138,26 @@ if __name__ == "__main__":
 
     if len(sys.argv) == 1:
         testinput = [
-            '(genre = rock | genre = "Heavy Metal" or genre = Industrial) & title ~ wicked',
-            'artist is "Nine Inch Nails" or artist is "Black Sabbath" or artist is Clawfinger or album contains "Nativity in Black" or artist is Incubus'
+            ('(genre = rock | genre = "Heavy Metal" or genre = Industrial) & '
+             'title ~ wicked'),
+            ('artist is "Nine Inch Nails" or '
+             'artist is "Black Sabbath" or '
+             'artist is Clawfinger or '
+             'album contains "Nativity in Black" '
+             'or artist is Incubus')
         ]
         for line in testinput:
             print(80*"=")
             print('Simplified query: "%s"' % line.strip())
             print(80*"-")
-            print("result:", parseQuery(line))
+            print("result:", parse_query(line))
             print()
     elif len(sys.argv) == 2:
         line = sys.argv[1]
         print(80*"=")
         print('Simplified query: "%s"' % line.strip())
         print(80*"-")
-        print("result:", parseQuery(line))
+        print("result:", parse_query(line))
         print()
     else:
         print("Usage: plparser.py [simplequery]")
