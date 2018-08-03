@@ -153,9 +153,9 @@ class Setting(object):
             tb = traceback.extract_stack()
             source = tb[-2]
             LOG.debug("Retriveing setting %r for user %r and "
-                      "channel %r with default: %r (source: %s:%s)..." % (
-                          param_in, user_id, channel_id, default,
-                          basename(source[0]), source[1]))
+                      "channel %r with default: %r (source: %s:%s)...",
+                      param_in, user_id, channel_id, default,
+                      basename(source[0]), source[1])
 
         output = default
 
@@ -196,7 +196,7 @@ class Setting(object):
                     output = default
                 else:
                     LOG.debug("    Required parameter %s was not found in the "
-                              "settings table!" % param_in)
+                              "settings table!", param_in)
                     output = None
 
                 try:
@@ -208,20 +208,21 @@ class Setting(object):
                         'user_id': user_id or 0})
                     ins_q.execute()
                     LOG.debug("    Inserted default value into the database!")
-                except Exception:
+                except Exception:  # pylint: disable=bare-except
+                    # catchall for graceful degradation
                     LOG.error("Unable to insert default setting into the "
                               "datatabase", exc_info=True)
 
             else:
                 output = setting["value"]
 
-            LOG.debug("    ... returning %r" % output)
+            LOG.debug("    ... returning %r", output)
             return output
 
         except Exception as ex:
             if str(ex).lower().find('connect') > 0:
                 LOG.critical('Unable to connect to the database. Error was: '
-                             '\n%s' % ex)
+                             '\n%s', ex)
                 sys.exit(0)
             if str(ex).lower().find('exist') > 0:
                 LOG.critical('Settings table not found. Did you create the '
@@ -286,8 +287,8 @@ class State(object):
             tb = traceback.extract_stack()
             source = tb[-2]
             LOG.debug("State %r stored with value %r for channel %r "
-                      "(from %s:%d)" % (statename, value, channel_id,
-                                        basename(source[0]), source[1]))
+                    "(from %s:%d)", statename, value, channel_id,
+                    basename(source[0]), source[1])
 
     @classmethod
     def get(self, statename, channel_id=0, default=None):
@@ -313,9 +314,9 @@ class State(object):
             tb = traceback.extract_stack()
             source = tb[-2]
             LOG.warn("State %r not found for channel %r. "
-                     "Returning %r (from %s:%d)" % (
-                         statename, channel_id, default,
-                         basename(source[0]), source[1]))
+                    "Returning %r (from %s:%d)",
+                    statename, channel_id, default,
+                    basename(source[0]), source[1])
         ins_q = insert(stateTable)
         ins_q = ins_q.values({
             'channel_id': channel_id,
@@ -368,13 +369,13 @@ class Song(object):
         from os import path
         from wickedjukebox.model.audiometa import MetaFactory
 
-        LOG.debug("Extracting metadata from %r" % localpath)
+        LOG.debug("Extracting metadata from %r", localpath)
 
         try:
             audiometa = MetaFactory.create(localpath.encode(encoding))
         except Exception as ex:
-            LOG.warning("%r contained invalid metadata. Error message: %r" %
-                        (localpath, str(ex)))
+            LOG.warning("%r contained invalid metadata. Error message: %r",
+                        localpath, str(ex))
 
         dirname = path.dirname(localpath.encode(encoding))
 
@@ -396,7 +397,7 @@ class Song(object):
         try:
             self.filesize = stat(localpath.encode(encoding)).st_size
         except Exception as ex:
-            LOG.warning(ex)
+            LOG.warning('Unhandled Exception', exc_info=True)
             self.filesize = None
 
         self.artist_id = self.get_artist_id(self.__artistName)
@@ -534,9 +535,9 @@ class Song(object):
 
         for add_tag in lastfm_tag_names.difference(current_tag_names):
             if len(add_tag) > 32:
-                LOG.debug("WARNING: tag %r is too long!" % (add_tag))
+                LOG.debug("WARNING: tag %r is too long!", add_tag)
                 continue
-            LOG.debug("Adding tag %r to song %d" % (add_tag, self.id))
+            LOG.debug("Adding tag %r to song %d", add_tag, self.id)
             t = Tag(add_tag)
             t = session.merge(t)
             self.tags.append(t)
@@ -577,8 +578,8 @@ def getSetting(param_in, default=None, channel_id=None, user_id=None):
     import traceback
     tb = traceback.extract_stack()
     source = tb[-2]
-    LOG.warning("DEPRECTAED: Please use Setting.get!\nSource: %s:%d --> %s" % (
-        source[0], source[1], source[3]))
+    LOG.warning("DEPRECTAED: Please use Setting.get!\nSource: %s:%d --> %s",
+                source[0], source[1], source[3])
     return Setting.get(param_in, default, channel_id, user_id)
 
 
@@ -586,8 +587,8 @@ def setState(statename, value, channel_id=0):
     import traceback
     tb = traceback.extract_stack()
     source = tb[-2]
-    LOG.warning("DEPRECTAED: Please use Setting.set!\nSource: %s:%d --> %s" % (
-        source[0], source[1], source[3]))
+    LOG.warning("DEPRECTAED: Please use Setting.set!\nSource: %s:%d --> %s",
+                source[0], source[1], source[3])
     return State.set(statename, value, channel_id)
 
 
@@ -595,8 +596,8 @@ def getState(statename, channel_id=0):
     import traceback
     tb = traceback.extract_stack()
     source = tb[-2]
-    LOG.warning("DEPRECTAED: Please use State.get!\nSource: %s:%d --> %s" % (
-        source[0], source[1], source[3]))
+    LOG.warning("DEPRECTAED: Please use State.get!\nSource: %s:%d --> %s",
+                source[0], source[1], source[3])
     return State.get(statename, channel_id)
 
 
