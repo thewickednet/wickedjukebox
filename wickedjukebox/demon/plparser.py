@@ -1,6 +1,7 @@
 """
 Methods to convert a simplified filter string into an SQL query
 """
+from __future__ import print_function
 import ply.lex as lex
 import ply.yacc as yacc
 
@@ -44,7 +45,7 @@ t_RPAREN  = r'\)|\]|\}'
 t_QUOTE   = r'"|\''
 t_ignore  =  ' \t\n\r'
 def t_error(t):
-   print "Illegal character '%s'" % t.value[0]
+   print("Illegal character '%s'" % t.value[0])
    t.lexer.skip(1)
 
 def t_value(t):
@@ -103,7 +104,7 @@ def getTokens(data):
    while(1):
       tok = lex.token()
       if not tok: break
-      print tok
+      print(tok)
 
 def parseQuery(data):
    return yacc.parse(data)
@@ -117,17 +118,17 @@ if __name__ == "__main__":
          'artist is "Nine Inch Nails" or artist is "Black Sabbath" or artist is Clawfinger or album contains "Nativity in Black" or artist is Incubus'
       ]
       for line in testinput:
-         print 80*"="
-         print 'Simplified query: "%s"' % line.strip()
-         print 80*"-"
-         print "result:", parseQuery(line)
-         print
+         print(80*"=")
+         print('Simplified query: "%s"' % line.strip())
+         print(80*"-")
+         print("result:", parseQuery(line))
+         print()
    elif len(sys.argv) == 2:
       line = sys.argv[1]
-      print 80*"="
-      print 'Simplified query: "%s"' % line.strip()
-      print 80*"-"
-      print "result:", parseQuery(line)
-      print
+      print(80*"=")
+      print('Simplified query: "%s"' % line.strip())
+      print(80*"-")
+      print("result:", parseQuery(line))
+      print()
    else:
-      print "Usage: plparser.py [simplequery]"
+      print("Usage: plparser.py [simplequery]")
