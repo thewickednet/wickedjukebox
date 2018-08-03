@@ -578,17 +578,6 @@ class ChannelStat(object):
         self.channel_id = channel_id
 
 
-class Artist(object):
-    def __init__(self, name):
-        self.name = name
-        self.added = datetime.now()
-
-
-class QueueItem(object):
-    def __init__(self):
-        self.added = datetime.now()
-
-
 def getSetting(param_in, default=None, channel_id=None, user_id=None):
     source = caller_source()
     LOG.warning("DEPRECTAED: Please use Setting.get!\nSource: %s:%d --> %s",
