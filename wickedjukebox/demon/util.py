@@ -1,3 +1,4 @@
+from __future__ import print_function
 import threading
 import time
 import sys
@@ -36,7 +37,7 @@ class Scrobbler(threading.Thread):
         except scrobbler.AuthError:
             import traceback
             traceback.print_exc()
-            print "problem authencitating with AS. Stopping service."
+            print("problem authencitating with AS. Stopping service.")
             self.__keepRunning = False
 
     def now_playing(self, artist, track, album="", length="", trackno="",
@@ -72,11 +73,11 @@ class Scrobbler(threading.Thread):
                                 autoflush=True
                                 )
                         break
-                    except Exception, ex:
+                    except Exception as ex:
                         import traceback
                         traceback.print_exc()
-                        print ("Exception caught with Audioscrobbler "
-                               "submission: %s" % str(ex))
+                        print("Exception caught with Audioscrobbler "
+                              "submission: %s" % str(ex))
                         time.sleep(1)
 
                 if res is True:
