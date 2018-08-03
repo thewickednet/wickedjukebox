@@ -1,23 +1,15 @@
 from __future__ import print_function
-from datetime import datetime, date
-import sys
+
 import logging
+import sys
+from datetime import date, datetime
 from os import stat
 from os.path import basename
 
-from sqlalchemy import (
-        create_engine,
-        Table,
-        Column,
-        MetaData,
-        Unicode,
-        DateTime,
-        Integer,
-        ForeignKey,
-        String)
-from sqlalchemy.sql import select, update, insert
-from sqlalchemy.orm import mapper, scoped_session, sessionmaker, relation
-
+from sqlalchemy import (Column, DateTime, ForeignKey, Integer, MetaData,
+                        String, Table, Unicode, create_engine)
+from sqlalchemy.orm import mapper, relation, scoped_session, sessionmaker
+from sqlalchemy.sql import insert, select, update
 from wickedjukebox import load_config
 
 LOG = logging.getLogger(__name__)
@@ -30,62 +22,88 @@ metadata.bind = engine
 session_factory = sessionmaker(bind=engine)
 Session = scoped_session(session_factory)
 
-stateTable = Table('state', metadata,
-      autoload=True)
-channelTable = Table('channel', metadata,
-      Column('name', Unicode(32)),
-      Column('backend', Unicode(64)),
-      Column('backend_params', Unicode()),
-      autoload=True)
-settingTable = Table('setting', metadata,
-      Column('value', Unicode()),
-      autoload=True)
-settingTextTable = Table('setting_text', metadata,
-      Column('comment', Unicode()),
-      autoload=True)
-artistTable = Table('artist', metadata,
-      Column('name', Unicode(128)),
-      Column('added', DateTime, nullable=False, default=datetime.now),
-      autoload=True)
-albumTable = Table('album', metadata,
-      Column('name', Unicode(128)),
-      Column('type', Unicode(32)),
-      Column('added', DateTime, nullable=False, default=datetime.now),
-      autoload=True)
-songTable = Table('song', metadata,
-      Column('title', Unicode(128)),
-      Column('localpath', Unicode(255)),
-      Column('lyrics', Unicode()),
-      Column('added', DateTime, nullable=False, default=datetime.now),
-      autoload=True)
-queueTable = Table('queue', metadata,
-      Column('added', DateTime, nullable=False, default=datetime.now),
-      autoload=True)
+stateTable = Table(
+    'state',
+    metadata,
+    autoload=True)
+channelTable = Table(
+    'channel',
+    metadata,
+    Column('name', Unicode(32)),
+    Column('backend', Unicode(64)),
+    Column('backend_params', Unicode()),
+    autoload=True)
+settingTable = Table(
+    'setting',
+    metadata,
+    Column('value', Unicode()),
+    autoload=True)
+settingTextTable = Table(
+    'setting_text',
+    metadata,
+    Column('comment', Unicode()),
+    autoload=True)
+artistTable = Table(
+    'artist',
+    metadata,
+    Column('name', Unicode(128)),
+    Column('added', DateTime, nullable=False, default=datetime.now),
+    autoload=True)
+albumTable = Table(
+    'album',
+    metadata,
+    Column('name', Unicode(128)),
+    Column('type', Unicode(32)),
+    Column('added', DateTime, nullable=False, default=datetime.now),
+    autoload=True)
+songTable = Table(
+    'song',
+    metadata,
+    Column('title', Unicode(128)),
+    Column('localpath', Unicode(255)),
+    Column('lyrics', Unicode()),
+    Column('added', DateTime, nullable=False, default=datetime.now),
+    autoload=True)
+queueTable = Table(
+    'queue',
+    metadata,
+    Column('added', DateTime, nullable=False, default=datetime.now),
+    autoload=True)
 channelSongs = Table('channel_song_data', metadata, autoload=True)
 lastfmTable = Table('lastfm_queue', metadata, autoload=True)
-usersTable = Table('users', metadata,
-      Column('added', DateTime, nullable=False, default=datetime.now),
-      extend_existing=True,
-      autoload=True)
-dynamicPLTable = Table('dynamicPlaylist', metadata,
-      Column('label', Unicode(64)),
-      Column('query', Unicode()),
-      autoload=True)
+usersTable = Table(
+    'users',
+    metadata,
+    Column('added', DateTime, nullable=False, default=datetime.now),
+    extend_existing=True,
+    autoload=True)
+dynamicPLTable = Table(
+    'dynamicPlaylist',
+    metadata,
+    Column('label', Unicode(64)),
+    Column('query', Unicode()),
+    autoload=True)
 song_has_genre = Table('song_has_genre', metadata, autoload=True)
-genreTable = Table('genre', metadata,
-      Column('added', DateTime, nullable=False, default=datetime.now),
-      extend_existing=True,
-      autoload=True)
+genreTable = Table(
+    'genre',
+    metadata,
+    Column('added', DateTime, nullable=False, default=datetime.now),
+    extend_existing=True,
+    autoload=True)
 songStandingTable = Table('user_song_standing', metadata, autoload=True)
 songStatsTable = Table('user_song_stats', metadata, autoload=True)
 tagTable = Table('tag', metadata, autoload=True)
-song_has_tag = Table('song_has_tag', metadata,
-      Column('song_id', Integer, ForeignKey('song.id')),
-      Column('tag', String(32), ForeignKey('tag.label')),
-      )
-shoutboxTable = Table('shoutbox', metadata,
-      Column('message', Unicode(255)),
-      )
+song_has_tag = Table(
+    'song_has_tag',
+    metadata,
+    Column('song_id', Integer, ForeignKey('song.id')),
+    Column('tag', String(32), ForeignKey('tag.label')),
+)
+shoutboxTable = Table(
+    'shoutbox',
+    metadata,
+    Column('message', Unicode(255)),
+)
 groupsTable = Table('groups', metadata, autoload=True)
 
 # ----------------------------------------------------------------------------
@@ -136,8 +154,8 @@ class Setting(object):
             source = tb[-2]
             LOG.debug("Retriveing setting %r for user %r and "
                       "channel %r with default: %r (source: %s:%s)..." % (
-                        param_in, user_id, channel_id, default,
-                        basename(source[0]), source[1]))
+                          param_in, user_id, channel_id, default,
+                          basename(source[0]), source[1]))
 
         output = default
 
@@ -165,7 +183,7 @@ class Setting(object):
                 LOG.debug("    No per-channel setting found. "
                           "Falling back to global setting...")
                 return self.get(param_in=param_in, default=default,
-                        channel_id=None, user_id=user_id)
+                                channel_id=None, user_id=user_id)
 
             if not setting:
                 # The parameter was not found in the database. Do we have a
@@ -203,7 +221,7 @@ class Setting(object):
         except Exception as ex:
             if str(ex).lower().find('connect') > 0:
                 LOG.critical('Unable to connect to the database. Error was: '
-                        '\n%s' % ex)
+                             '\n%s' % ex)
                 sys.exit(0)
             if str(ex).lower().find('exist') > 0:
                 LOG.critical('Settings table not found. Did you create the '
@@ -269,7 +287,7 @@ class State(object):
             source = tb[-2]
             LOG.debug("State %r stored with value %r for channel %r "
                       "(from %s:%d)" % (statename, value, channel_id,
-                          basename(source[0]), source[1]))
+                                        basename(source[0]), source[1]))
 
     @classmethod
     def get(self, statename, channel_id=0, default=None):
@@ -337,7 +355,7 @@ class Song(object):
 
     def __repr__(self):
         return "<Song id=%r artist_id=%r title=%r path=%r>" % (
-                self.id, self.artist_id, self.title, self.localpath)
+            self.id, self.artist_id, self.title, self.localpath)
 
     def scan_from_file(self, localpath, encoding):
         """
@@ -356,7 +374,7 @@ class Song(object):
             audiometa = MetaFactory.create(localpath.encode(encoding))
         except Exception as ex:
             LOG.warning("%r contained invalid metadata. Error message: %r" %
-                    (localpath, str(ex)))
+                        (localpath, str(ex)))
 
         dirname = path.dirname(localpath.encode(encoding))
 
@@ -403,8 +421,8 @@ class Song(object):
             return row[0]
 
         insq = insert(genreTable).values({
-                'name': genre_name
-            })
+            'name': genre_name
+        })
         result = insq.execute()
         return result.inserted_primary_key[0]
 
@@ -426,8 +444,8 @@ class Song(object):
             return row[0]
 
         insq = insert(artistTable).values({
-                'name': artist_name
-            })
+            'name': artist_name
+        })
         result = insq.execute()
         return result.inserted_primary_key[0]
 
@@ -441,7 +459,7 @@ class Song(object):
         """
         if not self.artist_id or not self.__albumName:
             LOG.warning("Unable to determine the album ID without a valid "
-                    "artist_id and album-name!")
+                        "artist_id and album-name!")
 
         artist_id = self.artist_id
         album_name = self.__albumName
@@ -456,10 +474,10 @@ class Song(object):
 
         if not album_id:
             data = {
-                    'name': album_name,
-                    'artist_id': artist_id,
-                    'path': dirname,
-                }
+                'name': album_name,
+                'artist_id': artist_id,
+                'path': dirname,
+            }
             if self.year:
                 data["release_date"] = date(self.year, 1, 1)
 
@@ -472,7 +490,7 @@ class Song(object):
         if self.year and row:
             if ((row["release_date"] and
                  row["release_date"] < date(self.year, 1, 1)) or
-                     (not row["release_date"] and self.year)):
+                    (not row["release_date"] and self.year)):
 
                 updq = update(albumTable)
                 updq = updq.where(albumTable.c.path == dirname)
@@ -581,30 +599,31 @@ def getState(statename, channel_id=0):
         source[0], source[1], source[3]))
     return State.get(statename, channel_id)
 
+
 mapper(State, stateTable, properties={
-      ##'channel': relation(Channel)
-   })
+    # 'channel': relation(Channel)
+})
 mapper(Genre, genreTable)
 mapper(Tag, tagTable)
 mapper(ChannelStat, channelSongs)
 mapper(DynamicPlaylist, dynamicPLTable)
 mapper(QueueItem, queueTable, properties={
-         'song': relation(Song)
-      })
+    'song': relation(Song)
+})
 mapper(Setting, settingTable)
 mapper(Channel, channelTable)
 mapper(Album, albumTable, properties=dict(
-   songs=relation(Song, backref='album')))
+    songs=relation(Song, backref='album')))
 
 mapper(Artist, artistTable, properties=dict(
-   albums=relation(Album, backref='artist'),
-   songs=relation(Song, backref='artist')
-   ))
+    albums=relation(Album, backref='artist'),
+    songs=relation(Song, backref='artist')
+))
 mapper(Song, songTable, properties=dict(
-   channelstat=relation(ChannelStat, backref='song'),
-   genres=relation(Genre, secondary=song_has_genre, backref='songs'),
-   tags=relation(Tag, secondary=song_has_tag, backref='songs'),
-   ))
+    channelstat=relation(ChannelStat, backref='song'),
+    genres=relation(Genre, secondary=song_has_genre, backref='songs'),
+    tags=relation(Tag, secondary=song_has_tag, backref='songs'),
+))
 
 if __name__ == "__main__":
     print(getSetting("test"))
