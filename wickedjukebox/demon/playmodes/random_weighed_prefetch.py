@@ -1,5 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+# pylint: disable=global-statement
+#
+# Use of the global statement is currently required as this module behaves like
+# a singleton.
 """
 Weighed random. Different factors are considered when selecting a song at
 random. Like the time it was last played, how often it was skipped, and so on.
@@ -31,9 +36,9 @@ def bootstrap(channel_id):
     # as the query can take fscking long, we prefetch one song as soon as this
     # module is loaded!
     LOG.info('prefetching initial random song for each channel ...')
-    s = select([channelTable.c.id, channelTable.c.name])
-    s = s.where(channelTable.c.id == channel_id)
-    row = s.execute().fetchone()
+    query = select([channelTable.c.id, channelTable.c.name])
+    query = query.where(channelTable.c.id == channel_id)
+    row = query.execute().fetchone()
     pref = Prefetcher(row[0])
     pref.run()
     LOG.debug('  Channel %r prefetched %r', row[1], PREFETCH_STATE[row[0]])
@@ -41,6 +46,11 @@ def bootstrap(channel_id):
 
 
 def findSong(channel_id):
+    # pylint: disable=too-many-statements, too-many-locals
+    #
+    # This may be difficult to refactorl The high count of statements and
+    # locals comes partly from constructing the select-query and fetching
+    # settings. Ignoring this warning for now.
     """
     determine a song that would be best to play next and return it
     """
@@ -48,16 +58,16 @@ def findSong(channel_id):
     session = Session()
 
     # setup song scoring coefficients
-    userRating = int(Setting.get(
+    user_rating = int(Setting.get(
         'scoring_userRating', 4,
         channel_id=channel_id))
-    lastPlayed = int(Setting.get(
+    last_played = int(Setting.get(
         'scoring_lastPlayed', 10,
         channel_id=channel_id))
-    songAge = int(Setting.get(
+    song_age = int(Setting.get(
         'scoring_songAge', 1,
         channel_id=channel_id))
-    neverPlayed = int(Setting.get(
+    never_played = int(Setting.get(
         'scoring_neverPlayed', 4,
         channel_id=channel_id))
     randomness = int(Setting.get(
@@ -68,12 +78,12 @@ def findSong(channel_id):
         channel_id=channel_id))
     proofoflife_timeout = int(Setting.get('proofoflife_timeout', 120))
 
-    whereClauses = ["NOT broken"]
+    where_clauses = ["NOT broken"]
     if PREFETCH_STATE and PREFETCH_STATE[channel_id]:
         LOG.info("Ignoring song %r from random selection as it was already "
                  "prefetched!",
                  PREFETCH_STATE[channel_id])
-        whereClauses.append("s.id != %d" % PREFETCH_STATE[channel_id].id)
+        where_clauses.append("s.id != %d" % PREFETCH_STATE[channel_id].id)
 
     # Retrieve dynamic playlists
     sel = select([dynamicPLTable.c.query])
@@ -83,7 +93,7 @@ def findSong(channel_id):
     for dpl in res:
         try:
             if parseQuery(dpl["query"]):
-                whereClauses.append("(" + parseQuery(dpl["query"]) + ")")
+                where_clauses.append("(" + parseQuery(dpl["query"]) + ")")
             break  # only one query will be parsed. for now.... this is a big TODO
             # as it triggers an unexpected behaviour (bug). i.e.: Why the
             # heck does it only activate one playlist?!?
@@ -92,17 +102,16 @@ def findSong(channel_id):
             traceback.print_exc()
             LOG.error(str(ex))
             LOG.error('Query was: %s', dpl.query)
-        except:
-            import traceback
-            traceback.print_exc()
-            LOG.error()
+        except Exception:  # pylint: disable=broad-except
+            # catchall for graceful degradation
+            LOG.exception('Unhandled exception')
 
     if config['database.type'] == 'mysql':
 
-        s = select([usersTable], func.unix_timestamp(
+        query = select([usersTable], func.unix_timestamp(
             usersTable.c.proof_of_listening) + proofoflife_timeout > func.unix_timestamp(func.now()))
-        r = s.execute()
-        if len(r.fetchall()) == 0:
+        result = query.execute()
+        if result.count() == 0:
             # no users online
             query = """
             SELECT s.id, s.localpath,
@@ -118,14 +127,13 @@ def findSong(channel_id):
             WHERE (%(where)s) AND NOT s.broken AND s.duration < %(max_random_duration)d
             ORDER BY score DESC
             LIMIT 10 OFFSET 0
-         """ % {
-                'neverPlayed': neverPlayed,
-                'userRating':  userRating,
-                'lastPlayed':  lastPlayed,
-                'songAge':     songAge,
-                'randomness':  randomness,
+            """ % {
+                'neverPlayed': never_played,
+                'lastPlayed': last_played,
+                'songAge': song_age,
+                'randomness': randomness,
                 'max_random_duration': max_random_duration,
-                'where':       ") AND (".join(whereClauses).replace("%", "%%"),
+                'where': ") AND (".join(where_clauses).replace("%", "%%"),
             }
         else:
             query = """
@@ -161,23 +169,23 @@ def findSong(channel_id):
             WHERE (%(where)s) AND IFNULL(hs.hates,0) = 0 AND NOT s.broken AND s.duration < %(max_random_duration)d
             ORDER BY score DESC
             LIMIT 10 OFFSET 0
-         """ % {
-                'neverPlayed': neverPlayed,
-                'userRating':  userRating,
-                'lastPlayed':  lastPlayed,
+            """ % {
+                'neverPlayed': never_played,
+                'userRating': user_rating,
+                'lastPlayed': last_played,
                 'proofoflife': proofoflife_timeout,
-                'randomness':  randomness,
-                'songAge':     songAge,
+                'randomness': randomness,
+                'songAge': song_age,
                 'max_random_duration': max_random_duration,
-                'where':       ") AND (".join(whereClauses).replace("%", "%%"),
+                'where': ") AND (".join(where_clauses).replace("%", "%%"),
             }
     else:
         raise Exception(
             "SQLite support discontinued since revision 346. It may reappear in the future!")
 
     LOG.debug(query)
-    resultProxy = dbText(query, bind=engine).execute()
-    res = resultProxy.fetchall()
+    result_proxy = dbText(query, bind=engine).execute()
+    res = result_proxy.fetchall()
 
     if not res:
         return None
@@ -190,14 +198,13 @@ def findSong(channel_id):
         out = (res[0][0], res[0][1], float(res[0][2]))
         LOG.info("Selected song (%d, %s) via smartget. Score was %4.3f",
                  *out)
-        selectedSong = session.query(Song).filter(
+        selected_song = session.query(Song).filter(
             songTable.c.id == out[0]).first()
         session.close()
-        return selectedSong
+        return selected_song
     except IndexError:
-        import traceback
-        traceback.print_exc()
-        LOG.warning('No song returned from query. Is the database empty?')
+        LOG.warning('No song returned from query. Is the database empty?',
+                    exc_info=True)
         session.close()
         return None
 
