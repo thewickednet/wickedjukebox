@@ -119,7 +119,7 @@ class Song(object):
 
       try:
          metadata = MediaFile( localpath.encode(encoding) )
-      except Exception, ex:
+      except Exception as ex:
          logger.warning("%r contained invalid metadata. Error message: %r" % (localpath, str(ex) ) )
 
       dirname = path.dirname( localpath.encode(encoding) )
@@ -139,7 +139,7 @@ class Song(object):
 
       try:
          self.filesize = stat(localpath.encode(encoding)).st_size
-      except Exception, ex:
+      except Exception as ex:
          logger.warning(ex)
          self.filesize = None
 
@@ -237,7 +237,7 @@ class Song(object):
             # TDRC - year
             # musicbrainz_albumartist
             # title
-         except Exception, ex:
+         except Exception as ex:
             logger.warning(ex)
       return "unknown title"
 
@@ -259,7 +259,7 @@ class Song(object):
             elif len(elements) == 3:
                return date(int(elements[0]), int(elements[1]), int(elements[2]))
 
-      except Exception, e:
+      except Exception as e:
          logger.error( "Unable to set release year: " + str(e) )
 
    def parseAlbum( self, meta ):
@@ -270,7 +270,7 @@ class Song(object):
                return meta.get( 'TALB' ).text[0]
             elif 'album' in meta:
                return meta.get('album')[0]
-         except Exception, ex:
+         except Exception as ex:
             logger.warning(ex)
       return "unknown album"
 
@@ -282,7 +282,7 @@ class Song(object):
                return meta.get( 'TPE1' ).text[0]
             elif 'artist' in meta:
                return meta.get('artist')[0]
-         except Exception, ex:
+         except Exception as ex:
             logger.warning(ex)
       return "unknown artist"
 
@@ -293,7 +293,7 @@ class Song(object):
             if 'TCON' in meta:
                if meta.get( 'TCON' ).text[0] != '':
                   return meta.get( 'TCON' ).text[0]
-         except Exception, ex:
+         except Exception as ex:
             logger.warning(ex)
       return "unknown genre"
 
@@ -323,7 +323,7 @@ class Song(object):
          if 'audio/x-flac' in meta.mime: return None
          try:
             return meta.info.bitrate
-         except AttributeError, ex:
+         except AttributeError as ex:
             logger.warning("Error retrieving bitrate: %s", str(ex))
       return None
 
