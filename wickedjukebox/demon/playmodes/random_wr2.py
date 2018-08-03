@@ -52,7 +52,7 @@ def _get_user_settings(channel_id):
         user_settings.setdefault(row[0], {})
         user_settings[row[0]][row[2]] = row[3]
 
-    LOG.debug("The following users are online: %r" % online_users)
+    LOG.debug("The following users are online: %r", online_users)
     LOG.debug("User settings:")
     LOG.debug(user_settings)
     return user_settings
@@ -112,20 +112,16 @@ def _get_rough_query(channel_id):
     if dpl:
         try:
             rnd = random.random()
-            LOG.debug("Random value=%3.2f, playlist probability=%3.2f" % (
-                rnd, dpl["probability"]))
+            LOG.debug("Random value=%3.2f, playlist probability=%3.2f",
+                      rnd, dpl["probability"])
             if dpl and rnd <= dpl["probability"] and parseQuery(dpl["query"]):
                 rough_query = rough_query.where(
                     "(%s)" % parseQuery(dpl["query"]))
         except ParserSyntaxError as ex:
-            import traceback
-            traceback.print_exc()
-            LOG.error(str(ex))
-            LOG.error('Query was: %s' % dpl.query)
-        except:
-            import traceback
-            traceback.print_exc()
-            LOG.error()
+            LOG.error('Query was: %s', dpl.query, exc_info=True)
+        except:  # pylint: disable=broad-except
+            # catchall for graceful degradation
+            LOG.exception('Unhandled Exception')
 
     # bring in some random
     rough_query = rough_query.order_by(func.rand())
