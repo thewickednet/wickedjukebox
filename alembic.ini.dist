@@ -1,6 +1,11 @@
+;
+; alembic configuration
+;
+; Ensure to set the database DSN properly!
+;
 [alembic]
 script_location = alembic
-sqlalchemy.url = mysql://foo:bar@localhost/dbname
+sqlalchemy.url = mysql://<user>:<password>@<host>[:<port>]/<dbname>
 
 [loggers]
 keys = root,sqlalchemy,alembic
@@ -36,3 +41,4 @@ formatter = generic
 format = %(levelname)-5.5s [%(name)s] %(message)s
 datefmt = %H:%M:%S
 
+; vim: set filetype=cfg :

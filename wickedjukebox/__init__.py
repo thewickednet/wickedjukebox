@@ -7,7 +7,8 @@ import logging.config
 import pkg_resources
 
 
-__version__ = pkg_resources.resource_string(__name__, 'version.txt').strip()
+__version__ = pkg_resources.resource_string(__name__,
+    'version.txt').strip().decode('ascii')
 
 
 ENV_CONF = 'WICKEDJB_CONFIG_FOLDER'
