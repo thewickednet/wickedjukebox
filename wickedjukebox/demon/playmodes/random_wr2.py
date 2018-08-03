@@ -117,7 +117,7 @@ def _get_rough_query(channel_id):
             if dpl and rnd <= dpl["probability"] and parseQuery(dpl["query"]):
                 rough_query = rough_query.where(
                     "(%s)" % parseQuery(dpl["query"]))
-        except ParserSyntaxError, ex:
+        except ParserSyntaxError as ex:
             import traceback
             traceback.print_exc()
             LOG.error(str(ex))
