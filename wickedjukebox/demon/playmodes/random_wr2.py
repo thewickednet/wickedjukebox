@@ -267,7 +267,7 @@ def fetch_candidates(channel_id):
             # usable sort key to sort by score descending, then by recency
             # ascending.
             delta = datetime.now() - (row[2] and row[2] or datetime(
-                1900, 01, 01))
+                1900, 1, 1))
             num_delta = "%08d" % (delta.days * 24 * 60 + delta.seconds / 60)
             # num_delta = num_delta[::-1] # reverses the string
             key_score = "%05.2f" % score
