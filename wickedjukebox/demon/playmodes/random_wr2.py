@@ -279,9 +279,7 @@ def fetch_candidates(channel_id):
             if count_added == 10:
                 break
 
-        results.sort(cmp=lambda x, y: cmp(
-            float(y[1]["sortkey"]),
-            float(x[1]["sortkey"])))
+        results = sorted(results, key=lambda x: x[1]['sortkey'])
         return results
 
     except Exception:
