@@ -3,30 +3,21 @@ This is a no-op playmode used as blueprint for new playmodes.
 Simply complete the methods in this module and make them return the right type
 and you should be fine.
 """
-from datetime import datetime, timedelta
+import logging
 import random
+from datetime import datetime, timedelta
 
-from sqlalchemy.sql import func, select, or_, and_
-
-from wickedjukebox.demon.plparser import parseQuery, ParserSyntaxError
-from wickedjukebox.demon.dbmodel import (
-    Session,
-    dynamicPLTable,
-    Setting,
-    Song,
-    usersTable,
-    songTable,
-    songStandingTable,
-    channelSongs,
-    settingTable,
-    albumTable,
-    artistTable)
-
+from sqlalchemy.sql import and_, func, or_, select
+from wickedjukebox.demon.dbmodel import (Session, Setting, Song, albumTable,
+                                         artistTable, channelSongs,
+                                         dynamicPLTable, settingTable,
+                                         songStandingTable, songTable,
+                                         usersTable)
+from wickedjukebox.demon.plparser import ParserSyntaxError, parseQuery
 
 random.seed()
 
 
-import logging
 LOG = logging.getLogger(__name__)
 
 
@@ -40,19 +31,19 @@ def _get_user_settings(channel_id):
     """
     proofoflife_timeout = int(Setting.get('proofoflife_timeout', 120))
     listeners_query = select([
-          usersTable.c.id,
-          usersTable.c.username,
-          settingTable.c.var,
-          settingTable.c.value,
-          ],
-          from_obj=[usersTable.join(settingTable, and_(
-                usersTable.c.id == settingTable.c.user_id,
-                settingTable.c.channel_id == channel_id
-             ))]
-          )
+        usersTable.c.id,
+        usersTable.c.username,
+        settingTable.c.var,
+        settingTable.c.value,
+    ],
+        from_obj=[usersTable.join(settingTable, and_(
+            usersTable.c.id == settingTable.c.user_id,
+            settingTable.c.channel_id == channel_id
+        ))]
+    )
     listeners_query = listeners_query.where(
-          func.unix_timestamp(usersTable.c.proof_of_listening) +
-                proofoflife_timeout > func.unix_timestamp(func.now()))
+        func.unix_timestamp(usersTable.c.proof_of_listening) +
+        proofoflife_timeout > func.unix_timestamp(func.now()))
     r = listeners_query.execute()
     online_users = set()
     user_settings = {}
@@ -76,25 +67,25 @@ def _get_rough_query(channel_id):
     @return: SQLAlchemy query object
     """
     lastPlayed = int(Setting.get('scoring_lastPlayed', 10,
-        channel_id=channel_id))
+                                 channel_id=channel_id))
     recency_threshold = int(Setting.get('recency_threshold', 120,
-        channel_id=channel_id))
+                                        channel_id=channel_id))
     max_random_duration = int(Setting.get('max_random_duration', 600,
-        channel_id=channel_id))
+                                          channel_id=channel_id))
     rough_query = select([
-          songTable.c.id,
-          songTable.c.duration,
-          channelSongs.c.lastPlayed
-       ],
-       from_obj=[
-          songTable.outerjoin(
-              channelSongs,
-              songTable.c.id == channelSongs.c.song_id).outerjoin(
-                  albumTable,
-                  songTable.c.album_id == albumTable.c.id).outerjoin(
-                      artistTable,
-                      songTable.c.artist_id == artistTable.c.id)
-       ])
+        songTable.c.id,
+        songTable.c.duration,
+        channelSongs.c.lastPlayed
+    ],
+        from_obj=[
+        songTable.outerjoin(
+            channelSongs,
+            songTable.c.id == channelSongs.c.song_id).outerjoin(
+            albumTable,
+            songTable.c.album_id == albumTable.c.id).outerjoin(
+            artistTable,
+            songTable.c.artist_id == artistTable.c.id)
+    ])
 
     # skip songs that are too long
     rough_query = rough_query.where(songTable.c.duration < max_random_duration)
@@ -125,7 +116,7 @@ def _get_rough_query(channel_id):
                 rnd, dpl["probability"]))
             if dpl and rnd <= dpl["probability"] and parseQuery(dpl["query"]):
                 rough_query = rough_query.where(
-                        "(%s)" % parseQuery(dpl["query"]))
+                    "(%s)" % parseQuery(dpl["query"]))
         except ParserSyntaxError, ex:
             import traceback
             traceback.print_exc()
@@ -226,9 +217,9 @@ def fetch_candidates(channel_id):
     try:
         # get settings
         userRating = int(Setting.get('scoring_userRating', 4,
-            channel_id=channel_id))
+                                     channel_id=channel_id))
         neverPlayed = int(Setting.get('scoring_neverPlayed', 4,
-            channel_id=channel_id))
+                                      channel_id=channel_id))
 
         # fetch the channel ssettings for online users
         user_settings = _get_user_settings(channel_id)
@@ -241,23 +232,23 @@ def fetch_candidates(channel_id):
         results = []
         count_added = 0
         users_affecting_hate = [x for x in user_settings
-                if int(user_settings[x].setdefault(
-                    "hates_affect_random", 0)) == 1]
+                                if int(user_settings[x].setdefault(
+                                    "hates_affect_random", 0)) == 1]
         users_affecting_love = [x for x in user_settings
-                if int(user_settings[x].setdefault(
-                    "loves_affect_random", 0)) == 1]
+                                if int(user_settings[x].setdefault(
+                                    "loves_affect_random", 0)) == 1]
         LOG.debug("Haters: %r", users_affecting_hate)
         LOG.debug("Happy People: %r", users_affecting_love)
         for row in rough_query.execute():
             # if the song is hated by someone, don't consider it further
             hate_count = _get_standing_count(row[0], users_affecting_hate,
-                    'hate')
+                                             'hate')
             if hate_count > 0:
                 continue
 
             # count the loves, for points calculation
             love_count = _get_standing_count(row[0], users_affecting_love,
-                    'love')
+                                             'love')
 
             # okay... let's do the scoring, first, zero in:
             score = 0.0
@@ -283,11 +274,11 @@ def fetch_candidates(channel_id):
             key_score = key_score.replace(".", "")
             sortkey = "%s%s" % (key_score, num_delta)
             results.append((row[0],
-                  {"score": score,
-                   "love_count": love_count,
-                   "duration": row[1],
-                   "last_played": row[2],
-                   "sortkey": sortkey}))
+                            {"score": score,
+                             "love_count": love_count,
+                             "duration": row[1],
+                             "last_played": row[2],
+                             "sortkey": sortkey}))
             count_added += 1
             if count_added == 10:
                 break
