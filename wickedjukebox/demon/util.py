@@ -1,13 +1,12 @@
 from __future__ import print_function
+
+import logging
+import sys
 import threading
 import time
-import sys
-import logging
 
 import scrobbler
-
 from wickedjukebox import load_config
-
 
 # load the configuration file, and set up the DB-conenction
 config = load_config()
@@ -41,7 +40,7 @@ class Scrobbler(threading.Thread):
             self.__keepRunning = False
 
     def now_playing(self, artist, track, album="", length="", trackno="",
-            mbid=""):
+                    mbid=""):
         scrobbler.now_playing(artist, track, album, length, trackno, mbid)
 
     def run(self):
@@ -58,20 +57,20 @@ class Scrobbler(threading.Thread):
         sess = create_session()
         while self.__keepRunning:
             nextScrobble = sess.query(LastFMQueue).selectfirst(
-                    order_by=lastfmTable.c.queue_id)
+                order_by=lastfmTable.c.queue_id)
             if nextScrobble is not None:
                 while True:
                     try:
                         res = scrobbler.submit(
-                                artist=nextScrobble.song.artist.name,
-                                track=nextScrobble.song.title,
-                                time=int(time.mktime(
-                                    nextScrobble.time_played.timetuple())),
-                                length=int(nextScrobble.song.duration),
-                                album=nextScrobble.song.album.name,
-                                trackno=nextScrobble.song.track_no,
-                                autoflush=True
-                                )
+                            artist=nextScrobble.song.artist.name,
+                            track=nextScrobble.song.title,
+                            time=int(time.mktime(
+                                nextScrobble.time_played.timetuple())),
+                            length=int(nextScrobble.song.duration),
+                            album=nextScrobble.song.album.name,
+                            trackno=nextScrobble.song.track_no,
+                            autoflush=True
+                        )
                         break
                     except Exception as ex:
                         import traceback
@@ -94,6 +93,7 @@ class Scrobbler(threading.Thread):
 
     def stop(self):
         self.__keepRunning = False
+
 
 if (config.has_section('filesystem') and
         config.has_option('filesystem', 'force_encoding')):
