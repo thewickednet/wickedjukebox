@@ -1,3 +1,14 @@
+# pylint: disable=no-member, attribute-defined-outside-init
+# pylint: disable=too-few-public-methods, invalid-name
+#
+# SQLAlchemy mapped classes have their members injected by the Base metaclass.
+# Pylint does not see those and causes false "no-member" messages. Which is why
+# they are disabled in this module. The same goes for variable initialisation.
+# Additionally, mapped classes don't necessarily have public methods.
+# "invalid-name" is disabled because these variables don't really have the role
+# of constants. Renaming them now would just produce even more unnecessary
+# git-churn.
+
 from __future__ import print_function
 
 import logging
@@ -122,8 +133,8 @@ def caller_source():
     Then *source* will point to ``myfunction``!
     '''
     import traceback
-    tb = traceback.extract_stack()
-    source = tb[-2]
+    stack = traceback.extract_stack()
+    source = stack[-2]
     return source
 
 
@@ -155,7 +166,7 @@ class Tag(object):
 class Setting(object):
 
     @classmethod
-    def get(self, param_in, default=None, channel_id=None, user_id=None):
+    def get(cls, param_in, default=None, channel_id=None, user_id=None):
         """
         Retrieves a setting from the database.
 
@@ -179,30 +190,30 @@ class Setting(object):
         output = default
 
         try:
-            s = select([settingTable.c.value])
-            s = s.where(settingTable.c.var == param_in)
+            query = select([settingTable.c.value])
+            query = query.where(settingTable.c.var == param_in)
 
             if channel_id:
-                s = s.where(settingTable.c.channel_id == channel_id)
+                query = query.where(settingTable.c.channel_id == channel_id)
             else:
-                s = s.where(settingTable.c.channel_id == 0)
+                query = query.where(settingTable.c.channel_id == 0)
 
             if user_id:
-                s = s.where(settingTable.c.user_id == user_id)
+                query = query.where(settingTable.c.user_id == user_id)
             else:
-                s = s.where(settingTable.c.user_id == 0)
+                query = query.where(settingTable.c.user_id == 0)
 
-            r = s.execute()
-            if r:
-                setting = r.fetchone()
+            result = query.execute()
+            if result:
+                setting = result.fetchone()
 
             # if a channel-setting was requested but no entry was found, we
             # fall back to a global setting
             if channel_id and not setting:
                 LOG.debug("    No per-channel setting found. "
                           "Falling back to global setting...")
-                return self.get(param_in=param_in, default=default,
-                                channel_id=None, user_id=user_id)
+                return cls.get(param_in=param_in, default=default,
+                               channel_id=None, user_id=user_id)
 
             if not setting:
                 # The parameter was not found in the database. Do we have a
@@ -227,7 +238,7 @@ class Setting(object):
                         'user_id': user_id or 0})
                     ins_q.execute()
                     LOG.debug("    Inserted default value into the database!")
-                except Exception:  # pylint: disable=bare-except
+                except Exception:  # pylint: disable=broad-except
                     # catchall for graceful degradation
                     LOG.error("Unable to insert default setting into the "
                               "datatabase", exc_info=True)
@@ -238,7 +249,10 @@ class Setting(object):
             LOG.debug("    ... returning %r", output)
             return output
 
-        except Exception as ex:
+        except Exception as ex:  # pylint: disable=broad-except
+            # MySQL raises some unhelpful exception classes. So we have to
+            # inspect the error message instead and re-throw the exception if
+            # the mesage is unknown.
             if str(ex).lower().find('connect') > 0:
                 LOG.critical('Unable to connect to the database. Error was: '
                              '\n%s', ex)
@@ -271,7 +285,7 @@ class Artist(object):
 class State(object):
 
     @classmethod
-    def set(self, statename, value, channel_id=0):
+    def set(cls, statename, value, channel_id=0):
         """
         Saves a state variable into the database
 
@@ -281,17 +295,17 @@ class State(object):
                            the channel.
         """
 
-        s = select([stateTable.c.state])
-        s = s.where(stateTable.c.state == statename)
-        s = s.where(stateTable.c.channel_id == channel_id)
-        r = s.execute()
-        if r and r.fetchone():
+        query = select([stateTable.c.state])
+        query = query.where(stateTable.c.state == statename)
+        query = query.where(stateTable.c.channel_id == channel_id)
+        result = query.execute()
+        if result and result.fetchone():
             # the state exists, we need to update it
-            uq = update(stateTable)
-            uq = uq.values({'value': value, 'channel_id': channel_id})
-            uq = uq.where(stateTable.c.state == statename)
-            uq = uq.where(stateTable.c.channel_id == channel_id)
-            uq.execute()
+            query = update(stateTable)
+            query = query.values({'value': value, 'channel_id': channel_id})
+            query = query.where(stateTable.c.state == statename)
+            query = query.where(stateTable.c.channel_id == channel_id)
+            query.execute()
         else:
             # unknown state, store it in the DB
             ins_q = insert(stateTable)
@@ -304,11 +318,11 @@ class State(object):
         if LOG.isEnabledFor(logging.DEBUG):
             source = caller_source()
             LOG.debug("State %r stored with value %r for channel %r "
-                    "(from %s:%d)", statename, value, channel_id,
-                    basename(source[0]), source[1])
+                      "(from %s:%d)", statename, value, channel_id,
+                      basename(source[0]), source[1])
 
     @classmethod
-    def get(self, statename, channel_id=0, default=None):
+    def get(cls, statename, channel_id=0, default=None):
         """
         Retrieve a specific state.
 
@@ -318,20 +332,20 @@ class State(object):
         @param default: Return this value is the state is not found in the DB.
         @return: The state value
         """
-        s = select([stateTable.c.value])
-        s = s.where(stateTable.c.state == statename)
-        s = s.where(stateTable.c.channel_id == channel_id)
-        r = s.execute()
-        if r:
-            row = r.fetchone()
+        query = select([stateTable.c.value])
+        query = query.where(stateTable.c.state == statename)
+        query = query.where(stateTable.c.channel_id == channel_id)
+        result = query.execute()
+        if result:
+            row = result.fetchone()
             if row:
                 return row[0]
         if LOG.isEnabledFor(logging.WARNING):
             source = caller_source()
-            LOG.warn("State %r not found for channel %r. "
-                    "Returning %r (from %s:%d)",
-                    statename, channel_id, default,
-                    basename(source[0]), source[1])
+            LOG.warning("State %r not found for channel %r. "
+                        "Returning %r (from %s:%d)",
+                        statename, channel_id, default,
+                        basename(source[0]), source[1])
         ins_q = insert(stateTable)
         ins_q = ins_q.values({
             'channel_id': channel_id,
@@ -388,16 +402,17 @@ class Song(object):
 
         try:
             audiometa = MetaFactory.create(localpath.encode(encoding))
-        except Exception as ex:
-            LOG.warning("%r contained invalid metadata. Error message: %r",
-                        localpath, str(ex))
+        except Exception:  # pylint: disable=broad-except
+            # catchall for graceful-degradation
+            LOG.warning("%r contained invalid metadata.",
+                        localpath, exc_info=True)
 
         dirname = path.dirname(localpath.encode(encoding))
 
         self.__artistName = audiometa['artist']
-        self.__genreName = (len(audiometa['genres']) > 0 and
-                            audiometa['genres'][0] or
-                            None)
+        self.__genreName = (audiometa['genres'][0]
+                            if audiometa['genres']
+                            else None)
         self.__albumName = audiometa['album']
         self.localpath = localpath
         self.title = audiometa['title']
@@ -411,7 +426,8 @@ class Song(object):
 
         try:
             self.filesize = stat(localpath.encode(encoding)).st_size
-        except Exception as ex:
+        except Exception:  # pylint: disable=broad-except
+            # catchall for graceful-degradation
             LOG.warning('Unhandled Exception', exc_info=True)
             self.filesize = None
 
@@ -545,7 +561,7 @@ class Song(object):
             return
 
         for remove_tag in current_tag_names.difference(lastfm_tag_names):
-            LOG.debug("Removing tag %r from song %d", (remove_tag, self.id))
+            LOG.debug("Removing tag %r from song %d", remove_tag, self.id)
             song_has_tag.delete().where(song_has_tag.c.tag == remove_tag)
 
         for add_tag in lastfm_tag_names.difference(current_tag_names):
@@ -553,9 +569,9 @@ class Song(object):
                 LOG.debug("WARNING: tag %r is too long!", add_tag)
                 continue
             LOG.debug("Adding tag %r to song %d", add_tag, self.id)
-            t = Tag(add_tag)
-            t = session.merge(t)
-            self.tags.append(t)
+            tag = Tag(add_tag)
+            tag = session.merge(tag)
+            self.tags.append(tag)
 
 
 class QueueItem(object):
