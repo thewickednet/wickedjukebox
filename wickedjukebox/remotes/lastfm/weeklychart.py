@@ -8,6 +8,7 @@ __package__ = "lastfm"
 from lastfm.base import LastfmBase
 from lastfm.mixins import Cacheable
 from operator import xor
+from functools import reduce
 
 class WeeklyChart(LastfmBase, Cacheable):
     """A class for representing the weekly charts"""
@@ -321,9 +322,9 @@ class WeeklyTagChart(WeeklyChart):
             artist_pp = artist.stats.playcount/float(wac.stats.playcount)
                 
         tag_weights_sum = sum(tag_weights.values())
-        tag_weights = tag_weights.items()
+        tag_weights = list(tag_weights.items())
         tag_weights.sort(key=lambda x:x[1], reverse=True)
-        for i in xrange(len(tag_weights)):
+        for i in range(len(tag_weights)):
             tag, weight = tag_weights[i]
             tag_weights[i] = (tag, weight, i+1)
         

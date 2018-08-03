@@ -41,7 +41,7 @@ def cached_property(func):
     @return:      a property that wraps the getter function of the attribute
     @rtype:       L{property}
     """
-    func_name = func.func_code.co_name
+    func_name = func.__code__.co_name
     attribute_name = "_%s" % func_name
 
     def wrapper(ob):
@@ -115,13 +115,13 @@ def depaginate(func):
         @lazylist
         def generator(lst):
             gen = func(*args, **kwargs)
-            total_pages = gen.next()
+            total_pages = next(gen)
             for e in gen:
                 yield e
-            for page in xrange(2, total_pages+1):
+            for page in range(2, total_pages+1):
                 kwargs['page'] = page
                 gen = func(*args, **kwargs)
-                gen.next()
+                next(gen)
                 for e in gen:
                     yield e
         return generator()
@@ -157,7 +157,7 @@ def async_callback(func):
     def wrapper(self, *args, **kwargs):
         callback = None
         for a in args:
-            if callable(a):
+            if isinstance(a, collections.Callable):
                 callback = a
                 args = list(args)
                 args.remove(a)
@@ -167,12 +167,12 @@ def async_callback(func):
             callback = kwargs['callback']
             del kwargs['callback']
             
-        if (callback is not None and callable(callback)):
+        if (callback is not None and isinstance(callback, collections.Callable)):
             def async_call():
                 result = None
                 try:
                     result = func(self, *args, **kwargs)
-                except Exception, e:
+                except Exception as e:
                     result = e
                 callback(result)
             thread = Thread(target = async_call)
@@ -193,7 +193,7 @@ def _get_arg_string(argspecs):
         defargs = args[-len(defaults):]
         nondefargs = args[:-len(defaults)]
         nondefargs_str = ", ".join(nondefargs)
-        defargs_str = ", ".join(["%s = %s" % (defargs[i], defaults[i]) for i in xrange(len(defargs))])
+        defargs_str = ", ".join(["%s = %s" % (defargs[i], defaults[i]) for i in range(len(defargs))])
         if nondefargs_str != '' and defargs_str != '':
             arg_str = "%s, %s" % (nondefargs_str, defargs_str)
         elif nondefargs_str != '':
@@ -202,8 +202,9 @@ def _get_arg_string(argspecs):
             arg_str = defargs_str
     else:
         arg_str = ", ".join(args)
-    print arg_str
+    print(arg_str)
     return arg_str
 
 import copy
 from lastfm.error import LastfmError, AuthenticationFailedError
+import collections

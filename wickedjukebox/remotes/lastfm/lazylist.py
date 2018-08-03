@@ -83,11 +83,11 @@ class LazyList(object):
         if index is None:
             ind_range = itertools.count(len(self))
         else:
-            ind_range = range(len(self), index + 1)
+            ind_range = list(range(len(self), index + 1))
 
         for ind in ind_range:
             try:
-                self._data.append(self._iterator.next())
+                self._data.append(next(self._iterator))
             except StopIteration: #iterator is fully exhausted
                 self._exhausted = True
                 break
@@ -120,7 +120,7 @@ if __name__ == '__main__':
     def fibgen(lst):
         yield 0
         yield 1
-        for a, b in itertools.izip(lst, lst[1:]):
+        for a, b in zip(lst, lst[1:]):
             yield a + b
 
     fibs = fibgen() #now fibs can be indexed or iterated over as if it were
@@ -137,5 +137,5 @@ if __name__ == '__main__':
                 yield candidate
     primes = primegen() #same for primes- treat it like an infinitely long list
                         #containing all prime numbers.
-    print fibs[0], fibs[1], fibs[2], primes[0], primes[1], primes[2]
-    print list(fibs[:10]), list(primes[:10])
+    print(fibs[0], fibs[1], fibs[2], primes[0], primes[1], primes[2])
+    print(list(fibs[:10]), list(primes[:10]))

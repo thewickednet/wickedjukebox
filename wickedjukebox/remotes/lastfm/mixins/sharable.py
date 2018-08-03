@@ -18,7 +18,7 @@ class Sharable(object):
         if not isinstance(recipient, list):
             recipient = [recipient]
             
-        for i in xrange(len(recipient)):
+        for i in range(len(recipient)):
             if isinstance(recipient[i], User):
                 recipient[i] = recipient[i].name
         params['recipient'] = ",".join(recipient)

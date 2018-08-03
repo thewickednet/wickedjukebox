@@ -20,7 +20,7 @@ To use:
 .. And of course much more.
 """
 
-from __future__ import generators, print_function
+
 import os, socket, select, re
 
 __release__ = "0.10.0"
@@ -153,7 +153,7 @@ class Status(object):
   repeat         = -1
   random         = -1
   playlistLength = -1
-  playlist       = long(-1)
+  playlist       = -1
   state          = -1
   song           = 0
   elapsedTime    = 0
@@ -592,7 +592,7 @@ class MpdConnection(object):
         status.playlistLength = int(val)
 
       elif name == "playlist":
-        status.playlist = long(val)
+        status.playlist = int(val)
 
       elif name == "state":
 
@@ -602,7 +602,7 @@ class MpdConnection(object):
           status.state = playerStateSwapType("unknown")
 
       elif name == "time":
-        status.elapsedTime, status.totalTime = map(int, val.split(":"))
+        status.elapsedTime, status.totalTime = list(map(int, val.split(":")))
 
       elif name == "error":
 
@@ -617,7 +617,7 @@ class MpdConnection(object):
     tocheck = { "volume" : -9, "repeat" : 0, "random" : 0,
                 "playlist" : 0, "playlistLength" : 0, "state": 0 }
 
-    for attr, lowerbound in tocheck.items():
+    for attr, lowerbound in list(tocheck.items()):
       if getattr(status, attr) < lowerbound:
         raise MpdError("%s not found" % attr)
 
@@ -723,7 +723,7 @@ class MpdConnection(object):
       raise MpdNotMpdError(self.host, self.port,
             "error parsing version number `%s'" % ver)
 
-    self.version = map(int, ver.split("."))
+    self.version = list(map(int, ver.split(".")))
 
     self.doneProcessing = True
 
@@ -953,7 +953,7 @@ class MpdController(MpdConnection):
     # add them all
     try:
       self.sendCommandListBegin()
-      map(self.sendAddCommand, filenames)
+      list(map(self.sendAddCommand, filenames))
     finally:
       self.sendCommandListEnd()
 
@@ -974,7 +974,7 @@ class MpdController(MpdConnection):
         if not isinstance(name, str):
           raise ValueError("all names must be strings")
 
-      map(self.sendLoadCommand, names)
+      list(map(self.sendLoadCommand, names))
 
     finally:
       self.sendCommandListEnd()
@@ -1047,7 +1047,7 @@ class MpdController(MpdConnection):
           raise ValueError("ranges must be pairs")
 
         self._checkInts(*thing)
-        todelete.extend(range(thing[0], thing[1]+1))
+        todelete.extend(list(range(thing[0], thing[1]+1)))
       else:
         raise ValueError("nums must be ints or pairs in lists/tuples")
 
@@ -1058,7 +1058,7 @@ class MpdController(MpdConnection):
     self.sendCommandListBegin()
 
     try:
-      map(self.sendDeleteCommand, todelete)
+      list(map(self.sendDeleteCommand, todelete))
 
     finally:
       self.sendCommandListEnd()
@@ -1270,8 +1270,7 @@ class MpdController(MpdConnection):
     try:
       self.sendLsInfoCommand()
 
-      playlistNames = filter(lambda e: isinstance(e, PlaylistFile),
-                             self.iterInfoEntities())
+      playlistNames = [e for e in self.iterInfoEntities() if isinstance(e, PlaylistFile)]
     finally:
       self.finishCommand()
 

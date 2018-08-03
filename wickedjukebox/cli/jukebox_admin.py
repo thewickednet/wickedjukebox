@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf8 -*-
 
-from __future__ import print_function
+
 
 import cmd
 import logging
@@ -29,12 +29,12 @@ def colorprompt(term, color, label):
         normal=term.normal)
 
 
-def get_artists(glob=u"*"):
+def get_artists(glob="*"):
     # type: (str, str) -> Iterable
     if not glob.strip():
-        glob = u"*"
+        glob = "*"
 
-    glob = glob.replace(u"*", u"%")
+    glob = glob.replace("*", "%")
     query = select([artistTable],
                    artistTable.c.name.like(glob),
                    order_by=["name"]
@@ -43,12 +43,12 @@ def get_artists(glob=u"*"):
     return result.fetchall()
 
 
-def get_albums(aname, glob=u"*"):
+def get_albums(aname, glob="*"):
     # type: (str, str) -> Iterable
     if not glob.strip():
-        glob = u"*"
+        glob = "*"
 
-    glob = glob.replace(u"*", u"%")
+    glob = glob.replace("*", "%")
     query = select([albumTable])
     query = query.where(artistTable.c.name == aname)
     query = query.where(albumTable.c.artist_id == artistTable.c.id)
@@ -61,9 +61,9 @@ def get_albums(aname, glob=u"*"):
 def get_songs(bname, glob):
     # type: (str, str) -> Iterable
     if not glob.strip():
-        glob = u"*"
+        glob = "*"
 
-    glob = glob.replace(u"*", u"%")
+    glob = glob.replace("*", "%")
     query = select([songTable])
     query = query.where(albumTable.c.name == bname)
     query = query.where(songTable.c.album_id == albumTable.c.id)
@@ -191,7 +191,7 @@ class Console(cmd.Cmd):
         folders = []
         for root in mediadirs:
             folders.extend(listdir(root))
-        candidates = filter(lambda x: x.startswith(line), folders)
+        candidates = [x for x in folders if x.startswith(line)]
         return candidates
 
     def emptyline(self):
@@ -797,7 +797,7 @@ class Console(cmd.Cmd):
         Creates a user-session.
         """
         from getpass import getpass
-        username = raw_input(colorprompt(self.term, 'yellow', 'Login'))
+        username = input(colorprompt(self.term, 'yellow', 'Login'))
         passwd = getpass(colorprompt(self.term, 'yellow', 'Password'))
         username = username.decode(sys.stdin.encoding)
         passwd = passwd.decode(sys.stdin.encoding)
@@ -819,7 +819,7 @@ class Console(cmd.Cmd):
         from hashlib import md5
         from os import urandom
         try:
-            username = raw_input(colorprompt(self.term, 'yellow', 'Login'))
+            username = input(colorprompt(self.term, 'yellow', 'Login'))
             passwd = getpass(colorprompt(self.term, 'yellow', 'Password'))
             passwd2 = getpass(colorprompt(self.term, 'yellow', 'Verify password'))
             username = username.decode(sys.stdin.encoding)

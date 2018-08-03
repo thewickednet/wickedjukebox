@@ -62,7 +62,7 @@ class AudioMeta(dict):
 
     def items(self):
         "@overrides dict.items"
-        return zip(self.keys(), self.values())
+        return zip(list(self.keys()), list(self.values()))
 
     def __getitem__(self, key):
         "@overrides dict.__getitem__"

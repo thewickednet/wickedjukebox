@@ -5,7 +5,7 @@ Audio file scanner module
 This module contains everything needed to scan a directory of audio files an
 store the metadata in the jukebox database
 """
-from __future__ import print_function
+
 
 import logging
 import sys
@@ -67,7 +67,7 @@ def do_housekeeping():
             LOG.error("Unable to decode %r (%s)", row[0], exc)
 
 
-def scan(top, subfolder=u""):
+def scan(top, subfolder=""):
     """
     Scans a folder rootet at <top> for audio files. It will scan the supfolder
     named in ``subfolder``. The "*" character can be used for globbing.
@@ -83,7 +83,7 @@ def scan(top, subfolder=u""):
 
     def scan_folder(folder):
         LOG.info("Scanning %r", folder)
-        print(u"Scanning %r" % folder)
+        print("Scanning %r" % folder)
         spinner_position = 0
         stdout.write("Counting... /")
         count_total = 0

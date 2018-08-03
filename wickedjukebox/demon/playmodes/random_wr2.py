@@ -228,7 +228,7 @@ def fetch_candidates(channel_id):
 
         # fetch the channel ssettings for online users
         user_settings = _get_user_settings(channel_id)
-        online_users = user_settings.keys()
+        online_users = list(user_settings.keys())
 
         # first, we fetch a limited number of songs using the basic stats.
         # This will prevent too many queries when determining love/hate stats.

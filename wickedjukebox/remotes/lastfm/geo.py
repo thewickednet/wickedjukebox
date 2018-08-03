@@ -9,6 +9,7 @@ __package__ = "lastfm"
 from lastfm.base import LastfmBase
 from lastfm.mixins import Cacheable
 from lastfm.decorators import cached_property, top_property, depaginate
+from functools import reduce
 
 class Geo(object):
     """A class representing an geographic location"""

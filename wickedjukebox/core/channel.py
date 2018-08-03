@@ -453,7 +453,7 @@ class Channel(object):
                 return fixed_song
             return song
 
-        next_songs = map(fix_orphaned_song, next_songs)
+        next_songs = list(map(fix_orphaned_song, next_songs))
         return next_songs
 
     def handle_song_change(self, session, last_known_song,

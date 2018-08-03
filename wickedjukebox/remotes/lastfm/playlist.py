@@ -52,7 +52,7 @@ class Playlist(LastfmBase, Cacheable):
     def __repr__(self):
         return "<lastfm.Playlist: %s>" % self.url
 
-import StringIO
+import io
 import sys
 from lastfm.error import InvalidParametersError
 
@@ -65,5 +65,5 @@ else:
         try:
             import ElementTree
         except ImportError:
-            from error import LastfmError
+            from .error import LastfmError
             raise LastfmError("Install ElementTree package for using python-lastfm")

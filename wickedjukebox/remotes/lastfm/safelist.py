@@ -24,7 +24,7 @@ class SafeList(object):
             self._remove_func(l)
 
     def __iter__(self):
-        for i in xrange(len(self._list)):
+        for i in range(len(self._list)):
             yield self._list[i]
 
     def _tuple_from_slice(self, i):
@@ -46,9 +46,9 @@ class SafeList(object):
         if isinstance(i, slice):
             (start, end, step) = self._tuple_from_slice(i)
             if step == None:
-                indices = xrange(start, end)
+                indices = range(start, end)
             else:
-                indices = xrange(start, end, step)
+                indices = range(start, end, step)
             return [self._list[i] for i in indices]
         else:
             return self._list[i]
@@ -58,7 +58,7 @@ class SafeList(object):
             (i, j, ignore) = self._tuple_from_slice(slice(i, j))
         if j is None:
             j = len(self)
-        for k in xrange(i, j):
+        for k in range(i, j):
             if self._list[k] == x:
                 return k
         raise ValueError('index(x): x not in list')

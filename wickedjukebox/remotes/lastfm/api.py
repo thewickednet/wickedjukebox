@@ -553,22 +553,22 @@ class Api(object):
         opener = self._urllib.build_opener()
         if self._urllib._opener is not None:
             opener = self._urllib.build_opener(*self._urllib._opener.handlers)
-        opener.addheaders = self._request_headers.items()
+        opener.addheaders = list(self._request_headers.items())
         return opener
 
     def _encode(self, s):
         if self._input_encoding:
-            return unicode(s, self._input_encoding).encode('utf-8')
+            return str(s, self._input_encoding).encode('utf-8')
         else:
-            return unicode(s).encode('utf-8')
+            return str(s).encode('utf-8')
 
     def _encode_parameters(self, parameters):
         if parameters is None:
             return None
         else:
-            keys = parameters.keys()
+            keys = list(parameters.keys())
             keys.sort()
-            return urllib.urlencode([(k, self._encode(parameters[k])) for k in keys if parameters[k] is not None])
+            return urllib.parse.urlencode([(k, self._encode(parameters[k])) for k in keys if parameters[k] is not None])
 
     def _read_url_data(self, opener, url, data = None):
         now = datetime.now()
@@ -587,7 +587,7 @@ class Api(object):
         # Add key/value parameters to the query string of the url
         url = self._build_url(url, extra_params=parameters)
         if self._debug:
-            print url
+            print(url)
         # Get a url opener that can handle basic auth
         opener = self._get_opener(url)
 
@@ -595,7 +595,7 @@ class Api(object):
         if no_cache or not self._cache or not self._cache_timeout:
             try:
                 url_data = self._read_url_data(opener, url)
-            except urllib2.HTTPError, e:
+            except urllib.error.HTTPError as e:
                 url_data = e.read()
         else:
             # Unique keys are a combination of the url and the username
@@ -608,7 +608,7 @@ class Api(object):
             if not last_cached or time.time() >= last_cached + self._cache_timeout:
                 try:
                     url_data = self._read_url_data(opener, url)
-                except urllib2.HTTPError, e:
+                except urllib.error.HTTPError as e:
                     url_data = e.read()
                 self._cache.Set(key, url_data)
             else:
@@ -643,7 +643,7 @@ class Api(object):
         url = self._build_url(url)
         data = self._encode_parameters(parameters)
         if self._debug:
-            print data
+            print(data)
         opener = self._get_opener(url)
         url_data = self._read_url_data(opener, url, data)
         return url_data
@@ -662,9 +662,9 @@ class Api(object):
 
     def _get_api_sig(self, params):
         if self.secret is not None:
-            keys = params.keys()[:]
+            keys = list(params.keys())[:]
             keys.sort()
-            sig = unicode()
+            sig = str()
             for name in keys:
                 if name == 'api_sig': continue
                 sig += ("%s%s" % (name, params[name]))
@@ -678,12 +678,12 @@ class Api(object):
         data = None
         try:
             data = ElementTree.XML(xml)
-        except SyntaxError, e:
+        except SyntaxError as e:
             raise OperationFailedError("Error in parsing XML: %s" % e)
         if data.get('status') != "ok":
             code = int(data.find("error").get('code'))
             message = data.findtext('error')
-            if code in error_map.keys():
+            if code in list(error_map.keys()):
                 raise error_map[code](message, code)
             else:
                 raise LastfmError(message, code)
@@ -695,9 +695,9 @@ class Api(object):
 from datetime import datetime
 import sys
 import time
-import urllib
-import urllib2
-import urlparse
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
+import urllib.parse
 
 from lastfm.album import Album
 from lastfm.artist import Artist

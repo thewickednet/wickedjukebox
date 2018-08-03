@@ -5,7 +5,7 @@
 """
 Methods to convert a simplified filter string into an SQL query
 """
-from __future__ import print_function
+
 
 import ply.lex
 import ply.yacc

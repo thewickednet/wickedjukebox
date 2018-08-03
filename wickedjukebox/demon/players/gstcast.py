@@ -7,7 +7,7 @@ import logging
 import os
 import re
 import time
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 from datetime import datetime
 from hashlib import md5
 from threading import Thread
@@ -309,26 +309,26 @@ def current_listeners():
     pattern = re.compile(r"(((%s)\.){3}(%s))" % (part, part))
 
     # Create an OpenerDirector with support for Basic HTTP Authentication...
-    auth_handler = urllib2.HTTPBasicAuthHandler()
+    auth_handler = urllib.request.HTTPBasicAuthHandler()
     auth_handler.add_password(realm='Icecast2 Server',
                               uri=STATE.admin_url,
                               user=STATE.admin_username,
                               passwd=STATE.admin_password)
-    opener = urllib2.build_opener(auth_handler)
+    opener = urllib.request.build_opener(auth_handler)
     # ...and install it globally so it can be used with urlopen.
-    urllib2.install_opener(opener)
+    urllib.request.install_opener(opener)
 
     try:
         LOG.debug("Opening %r", STATE.admin_url)
-        handler = urllib2.urlopen(STATE.admin_url)
+        handler = urllib.request.urlopen(STATE.admin_url)
         data = handler.read()
 
         listeners = [md5(x[0]).hexdigest() for x in pattern.findall(data)]
         return listeners
-    except urllib2.HTTPError as ex:
+    except urllib.error.HTTPError as ex:
         LOG.error("Error opening %r: Caught %r", STATE.admin_url, str(ex))
         return []
-    except urllib2.URLError as ex:
+    except urllib.error.URLError as ex:
         LOG.error("Error opening %r: Caught %r", STATE.admin_url, str(ex))
         return []
 
@@ -341,9 +341,9 @@ def main():
     LOG.info("Streaming %r to icecast...", sys.argv[1])
 
     params = {}
-    params['port'] = int(raw_input("ICY port [8001]: ") or 8001)
-    params['mount'] = raw_input("ICY Mount [/test.mp3]: ") or "/test.mp3"
-    params['channel_id'] = int(raw_input("Channel ID [0]: ") or 0)
+    params['port'] = int(input("ICY port [8001]: ") or 8001)
+    params['mount'] = input("ICY Mount [/test.mp3]: ") or "/test.mp3"
+    params['channel_id'] = int(input("Channel ID [0]: ") or 0)
     params['pwd'] = getpass("ICY Passwd: ")
     config(params)
     init()

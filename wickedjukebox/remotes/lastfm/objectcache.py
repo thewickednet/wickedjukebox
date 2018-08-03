@@ -29,7 +29,7 @@ class ObjectCache(object):
             raise InvalidParametersError("Key does not correspond to a valid class")
         else:
             try:
-                vals = Cacheable.registry[eval(name)].values()
+                vals = list(Cacheable.registry[eval(name)].values())
                 vals.sort()
                 return vals
             except KeyError:

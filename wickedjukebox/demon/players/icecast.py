@@ -1,20 +1,20 @@
 # TODO: Maybe it would be better to have a "global" atexit function properly
 # TODO:    supervising stopping the threads.
-from __future__ import print_function
+
 
 import atexit
 import logging
 import os
 import re
 import time
-from Queue import Empty, Full, Queue
+from queue import Empty, Full, Queue
 from threading import Thread
 
 import requests
 from pkg_resources import resource_stream
 
 import shout
-from common import STATUS_PAUSED, STATUS_STARTED, STATUS_STOPPED
+from .common import STATUS_PAUSED, STATUS_STARTED, STATUS_STOPPED
 
 LOG = logging.getLogger(__name__)
 
@@ -188,9 +188,9 @@ class FileReader(Thread):
         Sets the title on the icecast provider
         """
         try:
-            title = u'{0[artist]} - {0[title]}'.format(song)
-            FileReader.LOG.debug(u'Telling IceProvider to set new title '
-                                 u'to %s', title)
+            title = '{0[artist]} - {0[title]}'.format(song)
+            FileReader.LOG.debug('Telling IceProvider to set new title '
+                                 'to %s', title)
             self._icy_commands.put_nowait((ICMD_SET_TITLE,
                                            title.encode('utf8')))
         except Full:

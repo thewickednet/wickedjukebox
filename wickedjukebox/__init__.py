@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring
-from __future__ import print_function
+
 import os
 import logging
 import logging.config

@@ -22,7 +22,7 @@ REVENCODINGS.reverse()
 
 
 def fsencode(filename):
-    if not isinstance(filename, unicode):
+    if not isinstance(filename, str):
         # no need to re-encode
         return filename
 
@@ -36,7 +36,7 @@ def fsencode(filename):
 
 def fsdecode(filename):
     LOG.debug("Trying to decode %r using %r.", filename, FS_CODING)
-    if isinstance(filename, unicode):
+    if isinstance(filename, str):
         # no need to redecode
         return filename
 
