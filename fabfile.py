@@ -1,25 +1,47 @@
-from ConfigParser import SafeConfigParser
+from pathlib import Path
+from tempfile import NamedTemporaryFile
 
-import fabric.api as fab
-import fabric.colors as clr
+from invoke import run, task
 
 
-@fab.task
-def develop():
-    fab.local('virtualenv env')
-    fab.local('./env/bin/pip install -e .')
-    fab.local('./env/bin/pip install alembic')
+def reconfigure(template: Path, target: Path) -> None:
+    if not template.is_file():
+        raise ValueError('%s should be a regular file!' % template)
+    if target.exists() and not target.is_file():
+        raise ValueError('%s should be a regular file!' % target)
 
-    ipy = fab.prompt(clr.green('Do you want ipython [Y/n]?'),
-                     default='Y').strip().upper()
-    if ipy == 'Y':
-        fab.local('./env/bin/pip install ipython')
+    if target.exists():
+        # Instead of using the application template, we will use the existing
+        # file to edit
+        template = target
 
-    conf = SafeConfigParser()
-    conf.read('alembic.ini.dist')
-    conf.read('alembic.ini')
-    url = fab.prompt(clr.green('Please enter the database DSN:'),
-                     default=conf.get('alembic', 'sqlalchemy.url'))
-    conf.set('alembic', 'sqlalchemy.url', url)
-    with open('alembic.ini', 'w') as fptr:
-        conf.write(fptr)
+    with NamedTemporaryFile() as tmpfile:
+        run('cat %s > %s' % (template, tmpfile.name))
+        run('$EDITOR %s' % tmpfile.name, pty=True)
+        diff = run('diff %s %s' % (tmpfile.name, template), warn=True,
+                   hide=True)
+
+        if diff.exited == 0:
+            # no changes to file. we can return with no-op
+            print('No changes made. Keeping old file.')
+            return
+
+        print('Applying changes %s -> %s' % (template, target))
+        run('mkdir -p %s' % target.parent)
+        run('cp -v %s %s' % (tmpfile.name, target))
+
+
+@task
+def develop(unused_ctx):
+    run('pipenv install -d -e .')
+    run('./db_container.sh', warn=True) 
+    print('The following config-file needs the MySQL port you see above!')
+    input('Press ENTER to continue...')
+    reconfigure(
+        Path('alembic.ini.dist'),
+        Path('alembic.ini'))
+    reconfigure(
+        Path('config.ini.dist'),
+        Path('.wicked/wickedjukebox/config.ini'))
+    print('Running DB container...')
+    run('alembic upgrade head')

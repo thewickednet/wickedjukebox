@@ -1,0 +1,26 @@
+[[source]]
+
+verify_ssl = true
+url = "https://pypi.python.org/simple"
+name = "pypi"
+
+
+[dev-packages]
+
+pylint = "*"
+astroid = "*"
+"e1839a8" = {editable = true, path = "."}
+fabric = "*"
+
+
+[packages]
+
+sqlalchemy = "*"
+mysqlclient = "*"
+mutagen = "*"
+ply = "*"
+config-resolver = "*"
+alembic = "*"
+requests = "*"
+"e1839a8" = {path = ".", editable = true}
+pusher = "*"

@@ -26,3 +26,6 @@ app_id = 12345
 key = 1234567890abcdef
 secret = 1234567890abcdef
 cluster = eu
+
+
+; vim: set filetype=cfg :
