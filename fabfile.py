@@ -34,7 +34,7 @@ def reconfigure(template: Path, target: Path) -> None:
 @task
 def develop(unused_ctx):
     run('pipenv install -d -e .')
-    run('./db_container.sh', warn=True) 
+    run('./db_container.sh', warn=True)
     print('The following config-file needs the MySQL port you see above!')
     input('Press ENTER to continue...')
     reconfigure(

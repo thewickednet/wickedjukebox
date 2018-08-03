@@ -6,9 +6,6 @@ Utility methods
 import logging
 import sys
 
-from wickedjukebox.tc import (ProgressBar,  # pylint: disable=unused-import
-                              TerminalController)
-
 LOG = logging.getLogger(__name__)
 
 ENCODINGS = [

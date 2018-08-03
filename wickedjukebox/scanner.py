@@ -76,9 +76,8 @@ def scan(top, subfolder=u""):
     @param subfolder: The subfolder to scan.
     """
     from sys import stdout
-    from wickedjukebox.util import TerminalController, ProgressBar
-
-    term = TerminalController()
+    from blessings import Terminal
+    from progress.bar import ChargingBar
 
     spinner_chars = r"/-\|"
 
@@ -100,7 +99,7 @@ def scan(top, subfolder=u""):
         stdout.flush()
         stdout.write("\n%d files to examine\n" % count_total)
 
-        pbar = ProgressBar(term, "Scanning...")
+        pbar = ChargingBar("Scanning...", max=count_total)
 
         count_scanned = 0
         count_processed = 0
@@ -118,8 +117,8 @@ def scan(top, subfolder=u""):
                 except TypeError as exc:
                     LOG.error('Unable to scan %s (%s)',
                               path.join(root, file), exc)
-                pbar.update(completed_ratio, path.join(root, file))
-        pbar.update(1.0, "done")
+                pbar.next()
+        pbar.finish()
         stdout.write("\n")
 
     glob = subfolder.endswith('*')

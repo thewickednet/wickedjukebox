@@ -16,10 +16,12 @@ setup(
         },
     install_requires=[
         'alembic',
+        'blessings',
         'config_resolver',
         'mutagen',
         'mysqlclient',
         'ply',
+        'progress',
         'pusher',
         'requests',
         'sqlalchemy',

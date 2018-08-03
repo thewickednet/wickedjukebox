@@ -8,6 +8,7 @@ import logging
 import sys
 from os import path
 
+from blessings import Terminal
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import and_, bindparam, func, insert, select, update
 from wickedjukebox import __version__, setup_logging
@@ -17,10 +18,15 @@ from wickedjukebox.demon.dbmodel import (Artist, Session, Setting, albumTable,
                                          song_has_genre, song_has_tag,
                                          songStandingTable, songStatsTable,
                                          songTable, usersTable)
-from wickedjukebox.remotes import lastfm
-from wickedjukebox.util import TerminalController, direxists
+from wickedjukebox.util import direxists
 
 LOG = logging.getLogger(__name__)
+
+def colorprompt(term, color, label):
+    return '{color}{label:>20}{normal} '.format(
+        color=getattr(term, color),
+        label=label,
+        normal=term.normal)
 
 
 def get_artists(glob=u"*"):
@@ -91,7 +97,7 @@ class Console(cmd.Cmd):
         # type: () -> None
         "Bootstrap the command line interpreter"
         cmd.Cmd.__init__(self)
-        self.term = TerminalController()
+        self.term = Terminal()
         self.set_promt()
         self.user_id = None
 
@@ -199,10 +205,13 @@ class Console(cmd.Cmd):
         Sets the default prompt
         """
         if not self.__path:
-            self.prompt = self.term.render("${GREEN}jukebox>${NORMAL} ")
+            self.prompt = self.term.green('jukebox> ')
         else:
-            self.prompt = self.term.render(
-                "${GREEN}jukebox:${BLUE}%s${GREEN}>${NORMAL} " % "/".join(self.__path))
+            self.prompt = ("{t.green}jukebox:{t.blue}{path}{t.green}>"
+                           "{t.normal} ").format(
+                    t=self.term,
+                    path="/".join(self.__path)
+                )
 
     def get_string(self, string):
         # type: (str) -> str
@@ -242,17 +251,16 @@ class Console(cmd.Cmd):
         """
         line = line.decode(sys.stdin.encoding)
 
-        print(self.term.HIDE_CURSOR)
-        mediadirs = [x for x in Setting.get('mediadir', '').split(' ')
-                     if direxists(x)]
-        import wickedjukebox.scanner
-        print("Scanning inside %s" % ", ".join(mediadirs))
-        try:
-            wickedjukebox.scanner.scan(mediadirs[0], line)
-            print("done")
-        except KeyboardInterrupt:
-            print("\naborted!")
-        print(self.term.SHOW_CURSOR)
+        with self.term.hidden_cursor():
+            mediadirs = [x for x in Setting.get('mediadir', '').split(' ')
+                         if direxists(x)]
+            import wickedjukebox.scanner
+            print("Scanning inside %s" % ", ".join(mediadirs))
+            try:
+                wickedjukebox.scanner.scan(mediadirs[0], line)
+                print("done")
+            except KeyboardInterrupt:
+                print("\naborted!")
 
     def do_update_tags(self, line):
         # type: (str) -> None
@@ -268,29 +276,30 @@ class Console(cmd.Cmd):
         PARAMETERS
             artist - The artis name
         """
-        line = line.decode(sys.stdin.encoding)
+        print('This is currently not implemented for Python 3')
+        # TODO line = line.decode(sys.stdin.encoding)
 
-        sess = Session()
-        api_key = Setting.get("lastfm_api_key", None)
-        if not api_key:
-            print("ERROR: No API key specified. You can do this it in the "
-                  "settings")
-            return
-        api = lastfm.Api(api_key)
-        artist = sess.query(Artist).filter_by(name=line).first()
-        if not artist:
-            sess.close()
-            print("Artist %r not found" % line)
-            return
-        songs = artist.songs
-        print("%5d songs to update" % len(songs))
-        from time import sleep
-        for song in songs:
-            song.update_tags(api)
-            sleep(1)
-            print("%-40s has now %4d tags" % (song.title, len(song.tags)))
+        # TODO sess = Session()
+        # TODO api_key = Setting.get("lastfm_api_key", None)
+        # TODO if not api_key:
+        # TODO     print("ERROR: No API key specified. You can do this it in the "
+        # TODO           "settings")
+        # TODO     return
+        # TODO api = lastfm.Api(api_key)
+        # TODO artist = sess.query(Artist).filter_by(name=line).first()
+        # TODO if not artist:
+        # TODO     sess.close()
+        # TODO     print("Artist %r not found" % line)
+        # TODO     return
+        # TODO songs = artist.songs
+        # TODO print("%5d songs to update" % len(songs))
+        # TODO from time import sleep
+        # TODO for song in songs:
+        # TODO     song.update_tags(api)
+        # TODO     sleep(1)
+        # TODO     print("%-40s has now %4d tags" % (song.title, len(song.tags)))
 
-        sess.close()
+        # TODO sess.close()
 
     def do_orphans(self, line):
         # type: (str) -> None
@@ -394,7 +403,8 @@ class Console(cmd.Cmd):
         print(" id    | Genre                                  | count ")
         print("------+--------------------------------+-------")
         for genre in result.fetchall():
-            print("%5d | %-30s | %d" % (genre.id, genre.name, genre.song_count))
+            print("%5d | %-30s | %d" %
+                  (genre.id, genre.name, genre.song_count))
         print("------+--------------------------------+-------")
         print(" id    | Genre                                  | count ")
 
@@ -787,17 +797,15 @@ class Console(cmd.Cmd):
         Creates a user-session.
         """
         from getpass import getpass
-        username = raw_input(self.term.render(
-            '${YELLOW}%20s:${NORMAL} ' % 'Login'))
-        passwd = getpass(self.term.render(
-            '${YELLOW}%20s:${NORMAL} ' % 'Password'))
+        username = raw_input(colorprompt(self.term, 'yellow', 'Login'))
+        passwd = getpass(colorprompt(self.term, 'yellow', 'Password'))
         username = username.decode(sys.stdin.encoding)
         passwd = passwd.decode(sys.stdin.encoding)
         query = select([usersTable.c.id])
         query = query.where(usersTable.c.username == username)
         identity = query.execute().fetchone()
         if not identity:
-            print(self.term.render('${RED}Acceess denied!${NORMAL}'))
+            print('{t.red}Acceess denied!{t.normal}'.format(t=self.term))
             return
 
         self.user_id = identity[0]
@@ -811,19 +819,16 @@ class Console(cmd.Cmd):
         from hashlib import md5
         from os import urandom
         try:
-            username = raw_input(self.term.render(
-                '${YELLOW}%20s:${NORMAL} ' % 'Login'))
-            passwd = getpass(self.term.render(
-                '${YELLOW}%20s:${NORMAL} ' % 'Password'))
-            passwd2 = getpass(self.term.render(
-                '${YELLOW}%20s:${NORMAL} ' % 'Verify password'))
+            username = raw_input(colorprompt(self.term, 'yellow', 'Login'))
+            passwd = getpass(colorprompt(self.term, 'yellow', 'Password'))
+            passwd2 = getpass(colorprompt(self.term, 'yellow', 'Verify password'))
             username = username.decode(sys.stdin.encoding)
         except KeyboardInterrupt:
-            print(self.term.render('${YELLOW}Aborted!${NORMAL}'))
+            print(self.term.yellow('Aborted!'))
             return
 
         if passwd != passwd2:
-            print(self.term.render('${RED}Passwords do not match!${NORMAL}'))
+            print(self.term.red('Passwords do not match!'))
             return
 
         passwd = md5(passwd.decode(sys.stdin.encoding)).hexdigest()
@@ -847,10 +852,9 @@ class Console(cmd.Cmd):
 
         try:
             insq.execute()
-            print(self.term.render('${GREEN}User created!${NORMAL}\n'
-                                   'You may now login.'))
+            print(self.term.green('User created!\nYou may now login.'))
         except IntegrityError as exc:
-            print(self.term.render('${RED}ERROR:${NORMAL}%s' % exc))
+            print(self.term.red('ERROR:%s' % exc))
 
     def do_add_group(self, line):
         # type: (str) -> None
