@@ -55,6 +55,6 @@ def setup_logging():
             log.info('Additional log config read from %s', logging_conf_name)
         except IOError:
             print(log.error(str(exc)))
-        except Exception as exc:
-            log.error("Error reading from %r! Error message: %r",
-                      logging_conf_name, exc, exc_info=1)
+        except Exception:  # pylint: disable=broad-except
+            log.error("Error reading from %r!",
+                      logging_conf_name, exc_info=True)

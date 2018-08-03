@@ -126,16 +126,19 @@ class MP3Meta(AudioMeta):
         if data.encoding == 0:
             # latin-1
             return text
-        elif data.encoding == 1 or data.encoding == 2:
+
+        if data.encoding == 1 or data.encoding == 2:
             # utf16 or utf16be
             encoded = text.encode("utf_16_le")
             if (encoded.startswith(codecs.BOM_UTF16_BE) or
                     encoded.startswith(codecs.BOM_UTF16_LE)):
                 return encoded[2:].replace("\x00", "").decode("utf8")
             return text
-        elif data.encoding == 3:
+
+        if data.encoding == 3:
             # utf8
             return text
+
         raise NotImplementedError(
             "Unknown character encoding (enoding=%s)" % data.encoding)
 
@@ -150,12 +153,12 @@ class MP3Meta(AudioMeta):
         try:
             if len(elements) == 1:
                 return date(int(elements[0]), 1, 1)
-            elif len(elements) == 2:
+            if len(elements) == 2:
                 return date(int(elements[0]), int(elements[1]), 1)
-            elif len(elements) == 3:
+            if len(elements) == 3:
                 return date(int(elements[0]), int(elements[1]), int(elements[2]))
         except ValueError as exc:
-            LOG.warning("%s (datestring was %s)" % (exc, raw_string))
+            LOG.warning("%s (datestring was %s)", exc, raw_string)
             return None
 
     def get_title(self):

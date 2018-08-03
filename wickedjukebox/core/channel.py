@@ -14,8 +14,7 @@ from wickedjukebox import load_config
 from wickedjukebox.demon import playmodes
 from wickedjukebox.demon.dbmodel import (Album, Artist, ChannelStat, Session,
                                          Setting, Song, State, channelSongs,
-                                         channelTable, queueTable, songTable,
-                                         usersTable)
+                                         channelTable, songTable, usersTable)
 from wickedjukebox.demon.players import common
 from wickedjukebox.util import fsencode
 
@@ -70,7 +69,7 @@ class Channel(object):
             channelTable.c.name,
             channelTable.c.backend,
             channelTable.c.backend_params,
-            ])
+        ])
         s = s.where(channelTable.c.name == name.decode("utf-8"))
         r = s.execute()
         self.__channel_data = r.fetchone()
@@ -111,7 +110,8 @@ class Channel(object):
         payload = [song._asdict() for song in self.__player.upcoming_songs()]
         try:
             self.__pusher_client.trigger('wicked', 'internal_queue', payload)
-        except Exception as exc:
+        except Exception:  # pylint: disable=broad-except
+            # catchall for graceful degradation
             LOG.warning('Unandled exception in pusher submission',
                         exc_info=True)
 
@@ -283,7 +283,6 @@ class Channel(object):
             LOG.info('No jingles folder set in the DB. No jingle will be '
                      'played')
             return None
-
 
         interval_raw = Setting.get(
             'jingles_interval',
@@ -475,7 +474,8 @@ class Channel(object):
         try:
             self.__pusher_client.trigger('wicked', 'current', {
                 'action': 'update'})
-        except Exception as exc:
+        except Exception:  # pylint: disable=broad-except
+            # catchall for graceful degradation
             LOG.warning('Unandled exception in pusher submission',
                         exc_info=True)
 
@@ -590,12 +590,12 @@ class Channel(object):
                 usersTable.update(
                     usersTable.c.credits < maxCredits,
                     values={usersTable.c.credits: usersTable.c.credits + 5}
-                    ).execute()
+                ).execute()
                 # we may have overshot our target slightly. This fixes it
                 usersTable.update(
                     usersTable.c.credits > maxCredits,
                     values={usersTable.c.credits: maxCredits}
-                    ).execute()
+                ).execute()
                 lastCreditGiveaway = datetime.now()
 
             session.close()

@@ -13,7 +13,7 @@ from os import listdir, path, walk
 
 from sqlalchemy.sql import select
 from wickedjukebox.demon.dbmodel import Session, Setting, Song, songTable
-from wickedjukebox.util import fsdecode, fsencode
+from wickedjukebox.util import fsencode
 
 LOG = logging.getLogger(__name__)
 

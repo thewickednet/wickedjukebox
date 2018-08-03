@@ -3,11 +3,11 @@
 Utility methods
 """
 
-import ConfigParser
 import logging
 import sys
 
-from wickedjukebox.tc import TerminalController, ProgressBar
+from wickedjukebox.tc import (ProgressBar,  # pylint: disable=unused-import
+                              TerminalController)
 
 LOG = logging.getLogger(__name__)
 
