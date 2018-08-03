@@ -106,6 +106,27 @@ shoutboxTable = Table(
 )
 groupsTable = Table('groups', metadata, autoload=True)
 
+
+def caller_source():
+    '''
+    Returns the source line from the stack-frame *before* the call of
+    *caller_source*.
+
+    For example, if the stack is something like this::
+
+        main()
+            myfunction()
+                my_inner_function()
+                    source = caller_source()
+
+    Then *source* will point to ``myfunction``!
+    '''
+    import traceback
+    tb = traceback.extract_stack()
+    source = tb[-2]
+    return source
+
+
 # ----------------------------------------------------------------------------
 # Mappers
 # ----------------------------------------------------------------------------
@@ -149,9 +170,7 @@ class Setting(object):
         """
 
         if LOG.isEnabledFor(logging.DEBUG):
-            import traceback
-            tb = traceback.extract_stack()
-            source = tb[-2]
+            source = caller_source()
             LOG.debug("Retriveing setting %r for user %r and "
                       "channel %r with default: %r (source: %s:%s)...",
                       param_in, user_id, channel_id, default,
@@ -283,9 +302,7 @@ class State(object):
             ins_q.execute()
 
         if LOG.isEnabledFor(logging.DEBUG):
-            import traceback
-            tb = traceback.extract_stack()
-            source = tb[-2]
+            source = caller_source()
             LOG.debug("State %r stored with value %r for channel %r "
                     "(from %s:%d)", statename, value, channel_id,
                     basename(source[0]), source[1])
@@ -310,9 +327,7 @@ class State(object):
             if row:
                 return row[0]
         if LOG.isEnabledFor(logging.WARNING):
-            import traceback
-            tb = traceback.extract_stack()
-            source = tb[-2]
+            source = caller_source()
             LOG.warn("State %r not found for channel %r. "
                     "Returning %r (from %s:%d)",
                     statename, channel_id, default,
@@ -575,27 +590,21 @@ class QueueItem(object):
 
 
 def getSetting(param_in, default=None, channel_id=None, user_id=None):
-    import traceback
-    tb = traceback.extract_stack()
-    source = tb[-2]
+    source = caller_source()
     LOG.warning("DEPRECTAED: Please use Setting.get!\nSource: %s:%d --> %s",
                 source[0], source[1], source[3])
     return Setting.get(param_in, default, channel_id, user_id)
 
 
 def setState(statename, value, channel_id=0):
-    import traceback
-    tb = traceback.extract_stack()
-    source = tb[-2]
+    source = caller_source()
     LOG.warning("DEPRECTAED: Please use Setting.set!\nSource: %s:%d --> %s",
                 source[0], source[1], source[3])
     return State.set(statename, value, channel_id)
 
 
 def getState(statename, channel_id=0):
-    import traceback
-    tb = traceback.extract_stack()
-    source = tb[-2]
+    source = caller_source()
     LOG.warning("DEPRECTAED: Please use State.get!\nSource: %s:%d --> %s",
                 source[0], source[1], source[3])
     return State.get(statename, channel_id)
