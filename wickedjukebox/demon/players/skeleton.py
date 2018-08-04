@@ -3,7 +3,7 @@
 # TODO This requires some names to be camel-case. This should be removed in the
 # future, but then the "player" API must change as well.
 
-# pylint: disable=unused-argument
+# pylint: disable=unused-argument, no-self-use
 #
 # This is a "skeleton" file with empty implementations. Arguments are always
 # unused.
@@ -12,122 +12,117 @@ A no-op player interface. Use this as blueprint for new player interfaces.
 """
 
 
-def config(params):
-    """
-    This method gets called right after loading the module. "params" is a
-    dictionary created from the "backend_params" field in the channel-settings.
-    """
+class Player(object):
 
-    pass  # no-op
+    def __init__(self, id_, params):
+        self.id_ = id_
+        self.params = params
 
+    def connect(self):
+        pass  # no-op
 
-def getPosition():
-    """
-    Returns the current position in the song. (currentSec, totalSec)
-    """
+    def config(self, params):
+        """
+        This method gets called right after loading the module. "params" is a
+        dictionary created from the "backend_params" field in the channel-settings.
+        """
 
-    return (0, 0)
+        pass  # no-op
 
+    def getPosition(self):
+        """
+        Returns the current position in the song. (currentSec, totalSec)
+        """
 
-def getSong():
-    """
-    Returns the full path to the currently running song
-    """
+        return (0, 0)
 
-    return None
+    def getSong(self):
+        """
+        Returns the full path to the currently running song
+        """
 
+        return None
 
-def playlistPosition():
-    """
-    Returns the position in the playlist as integer
-    """
-    return 0
+    def playlistPosition(self):
+        """
+        Returns the position in the playlist as integer
+        """
+        return 0
 
+    def queue(self, filename):
+        """
+        Appends a new song to the playlist, and removes the first entry in the
+        playlist if it's becoming too large. This prevents having huge playlists
+        after a while playing.
 
-def queue(filename):
-    """
-    Appends a new song to the playlist, and removes the first entry in the
-    playlist if it's becoming too large. This prevents having huge playlists
-    after a while playing.
+        @type  filename: str
+        @param filename: The full path of the file
+        """
+        success = True
+        return success
 
-    @type  filename: str
-    @param filename: The full path of the file
-    """
+    def playlistSize(self):
+        """
+        Returns the complete size of the playlist
+        """
+        return 0
 
-    success = True
-    return success
+    def cropPlaylist(self, length=2):
+        """
+        Removes items from the *beginning* of the playlist to ensure it has only
+        a fixed number of entries.
 
+        @type  length: int
+        @param length: The new size of the playlist
+        """
 
-def playlistSize():
-    """
-    Returns the complete size of the playlist
-    """
-    return 0
+        pass  # no-op
 
+    def clearPlaylist(self):
+        """
+        Clears the player's playlist
+        """
+        cropPlaylist(0)
 
-def cropPlaylist(length=2):
-    """
-    Removes items from the *beginning* of the playlist to ensure it has only
-    a fixed number of entries.
+    def skipSong(self):
+        """
+        Skips the current song
+        """
 
-    @type  length: int
-    @param length: The new size of the playlist
-    """
+        pass  # no-op
 
-    pass  # no-op
+    def stopPlayback(self):
+        """
+        Stops playback
+        """
 
+        pass  # no-op
 
-def clearPlaylist():
-    """
-    Clears the player's playlist
-    """
-    cropPlaylist(0)
+    def pausePlayback(self):
+        """
+        Pauses playback
+        """
 
+        pass  # no-op
 
-def skipSong():
-    """
-    Skips the current song
-    """
+    def startPlayback(self):
+        """
+        Starts playback
+        """
 
-    pass  # no-op
+        pass  # no-op
 
+    def status(self):
+        """
+        Returns the status of the player (play, stop, pause, unknown)
+        """
 
-def stopPlayback():
-    """
-    Stops playback
-    """
+        return 'unknown'
 
-    pass  # no-op
+    def current_listeners(self):
+        """
+        Returns a list of unique identifiers of current listeners
 
-
-def pausePlayback():
-    """
-    Pauses playback
-    """
-
-    pass  # no-op
-
-
-def startPlayback():
-    """
-    Starts playback
-    """
-
-    pass  # no-op
-
-
-def status():
-    """
-    Returns the status of the player (play, stop, pause, unknown)
-    """
-
-    return 'unknown'
-
-
-def current_listeners():
-    """
-    Returns a list of unique identifiers of current listeners
-
-    Return "None" if this feature is not supported or if the list of listeners is unknown
-    """
-    return []
+        Return "None" if this feature is not supported or if the list of listeners is unknown
+        """
+        return []
