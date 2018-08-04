@@ -10,17 +10,18 @@
 # git-churn.
 
 
-
 import logging
 import sys
+from base64 import b64encode
 from datetime import date, datetime
-from os import stat
+from os import stat, urandom
 from os.path import basename
 
 from sqlalchemy import (Column, DateTime, ForeignKey, Integer, MetaData,
                         String, Table, Unicode, create_engine)
 from sqlalchemy.orm import mapper, relation, scoped_session, sessionmaker
 from sqlalchemy.sql import insert, select, update
+
 from wickedjukebox import load_config
 
 LOG = logging.getLogger(__name__)
@@ -255,6 +256,11 @@ class Setting(object):
 
 class Channel(object):
 
+    def __init__(self, name, backend, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.name = name
+        self.backend = backend
+
     def __repr__(self):
         return "<Channel %s name=%s>" % (self.id, repr(self.name))
 
@@ -364,11 +370,9 @@ class Song(object):
     def __init__(self, localpath, artist, album):
         if localpath:
             self.localpath = localpath
-        # if artist:
-        #     self.artist_id = artist.id
-        # if album:
-        #     self.album_id  = album.id
         self.added = datetime.now()
+        self.artist = artist
+        self.album = album
 
     def __repr__(self):
         return "<Song id=%r artist_id=%r title=%r path=%r>" % (
@@ -581,6 +585,36 @@ class ChannelStat(object):
         self.channel_id = channel_id
 
 
+class User:
+    def __init__(self, username, group, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.username = username
+        self.cookie = ''
+        self.password = b64encode(urandom(20)).decode('ascii')
+        self.fullname = 'default user'
+        self.email = ''
+        self.proof_of_life = datetime.now()
+        self.proof_of_listening = None
+        self.IP = ''
+        self.credits = 0
+        self.group = group
+        self.picture = ''
+        self.lifetime = 0
+
+    def __repr__(self):
+        return '<User %d %r>' % (self.id, self.username)
+
+
+class Group:
+
+    def __init__(self, title, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.title = title
+
+    def __repr__(self):
+        return '<Group %d %r>' % (self.id, self.title)
+
+
 def getSetting(param_in, default=None, channel_id=None, user_id=None):
     source = caller_source()
     LOG.warning("DEPRECTAED: Please use Setting.get!\nSource: %s:%d --> %s",
@@ -626,6 +660,10 @@ mapper(Song, songTable, properties=dict(
     genres=relation(Genre, secondary=song_has_genre, backref='songs'),
     tags=relation(Tag, secondary=song_has_tag, backref='songs'),
 ))
+mapper(Group, groupsTable)
+mapper(User, usersTable, properties={
+    'group': relation(Group, backref='users'),
+})
 
 if __name__ == "__main__":
     print(getSetting("test"))
