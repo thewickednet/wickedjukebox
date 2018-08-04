@@ -1,6 +1,7 @@
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
+from config_resolver import Config
 from invoke import run, task
 
 
@@ -45,3 +46,23 @@ def develop(unused_ctx):
         Path('.wicked/wickedjukebox/config.ini'))
     print('Running DB container...')
     run('alembic upgrade head')
+
+
+@task
+def test(unused_ctx, autorun=False, cover=False):
+    cfg = Config('wicked', 'wickedjukebox', require_load=True,
+                 filename='config.ini')
+    dsn = cfg.get('database', 'dsn')
+
+    if autorun:
+        base_cmd = 'find test wickedjukebox -name "*.py" | entr -c sh -c "%s"'
+    else:
+        base_cmd = '%s'
+
+    runner_cmd = ['pytest --sqlalchemy-connect-url=%s' % dsn]
+
+    if cover:
+        runner_cmd.append('--cov-report=term --cov wickedjukebox')
+
+    runner_cmd = ' '.join(runner_cmd)
+    run(base_cmd % runner_cmd, pty=True)

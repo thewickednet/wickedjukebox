@@ -10,11 +10,14 @@ from random import choice, random
 
 import pusher
 from sqlalchemy.sql import func, or_, select, update
+
 from wickedjukebox import load_config
 from wickedjukebox.demon import playmodes
-from wickedjukebox.demon.dbmodel import (Album, Artist, ChannelStat, Session,
-                                         Setting, Song, State, channelSongs,
-                                         channelTable, songTable, usersTable)
+from wickedjukebox.demon.dbmodel import Album, Artist
+from wickedjukebox.demon.dbmodel import Channel as DbChannel
+from wickedjukebox.demon.dbmodel import (ChannelStat, Session, Setting, Song,
+                                         State, channelSongs, channelTable,
+                                         songTable, usersTable)
 from wickedjukebox.demon.players import common
 from wickedjukebox.util import fsencode
 
@@ -44,11 +47,9 @@ class Jingle(object):  # pylint: disable=too-few-public-methods
 
 class Channel(object):
 
-    def __init__(self, name):
-        # type: (str) -> None
+    def __init__(self, session, name):
+        # type: (Session, str) -> None
 
-        self.id = None
-        self.name = None
         self.__scrobbler = None
         self.__keepRunning = True
         self.__playStatus = 'stopped'
@@ -56,43 +57,39 @@ class Channel(object):
         self.__queuestrategy = None
         self.__no_jingle_count = 0
         self.__lastfm_api = None
-        self.last_tagged_song = None
         self.__config = load_config()
+        self.__session = session
+        self.id = None
+        self.name = None
+        self.last_tagged_song = None
 
-        lastfm_api_key = Setting.get("lastfm_api_key", None)
+        lastfm_api_key = Setting.get(session, "lastfm_api_key", None)
         if lastfm_api_key:
             from wickedjukebox import lastfm
             self.__lastfm_api = lastfm.Api(lastfm_api_key)
 
-        s = select([
-            channelTable.c.id,
-            channelTable.c.name,
-            channelTable.c.backend,
-            channelTable.c.backend_params,
-        ])
-        s = s.where(channelTable.c.name == name.decode("utf-8"))
-        r = s.execute()
-        self.__channel_data = r.fetchone()
-        if not self.__channel_data:
+        query = session.query(DbChannel).filter(DbChannel.name == name)
+        channel_data = query.one_or_none()
+        if not channel_data:
             raise ValueError("Failed to load channel %s from database. "
                              "Please make sure that the named channel exists "
                              "in the database table called 'channel'" % name)
 
-        self.name = self.__channel_data["name"]
+        self.name = channel_data.name
         LOG.debug("Loaded channel %s", self.name)
 
         player_params = {}
-        if self.__channel_data['backend_params']:
-            for param in self.__channel_data['backend_params'].split(','):
+        if channel_data.backend_params:
+            for param in channel_data.backend_params.split(','):
                 key, value = param.split('=')
                 player_params[key.strip()] = value.strip()
 
-        self.__player = common.make_player(self.__channel_data['backend'],
-                                           self.__channel_data['id'],
+        self.__player = common.make_player(channel_data.backend,
+                                           channel_data.id,
                                            player_params)
         self.__player.connect()
 
-        self.id = self.__channel_data["id"]
+        self.id = channel_data.id
 
         self.__pusher_client = pusher.Pusher(
             app_id=self.__config.get('pusher', 'app_id'),
@@ -139,7 +136,7 @@ class Channel(object):
 
         LOG.info("Queueing %r", song)
 
-        session = Session()
+        session = self.__session
 
         # re-attach the song instance to the new session
         if isinstance(song, Song):

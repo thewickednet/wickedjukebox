@@ -71,8 +71,8 @@ class Player(object):
         "Disconnect from mpd-player"
         self.__connection = None
 
-    def queue(self, args):
-        # type: (Dict[str, str]) -> bool
+    def queue(self, filename):
+        # type: (str) -> bool
         """
         Appends a new song to the playlist, and removes the first entry in the
         playlist if it's becoming too large. This prevents having huge playlists
@@ -80,7 +80,6 @@ class Player(object):
 
         @type  args: dict
         """
-        filename = args['filename']
         # with MPD, filenames are relative to the path specified in the mpd
         # config!! This is handled here.
         if filename[0:len(self.root_folder)] == self.root_folder:

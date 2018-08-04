@@ -10,4 +10,7 @@ def make_player(backend, id_, params):
     if backend == 'mpd':
         from wickedjukebox.demon.players.mpd import Player
         return Player(id_, params)
+    if backend == 'skeleton':
+        from wickedjukebox.demon.players.skeleton import Player
+        return Player(id_, params)
     raise ValueError('Unsupported backend: %r' % backend)

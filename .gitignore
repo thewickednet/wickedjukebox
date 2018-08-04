@@ -14,3 +14,4 @@ httpd_data/users/
 logs/
 parser.out
 parsetab.py
+/.pytest_cache

@@ -11,6 +11,10 @@ pylint = "*"
 astroid = "*"
 "e1839a8" = {editable = true, path = "."}
 fabric = "*"
+pytest = "*"
+pytest-cache = "*"
+pytest-sqlalchemy = "*"
+pytest-coverage = "*"
 
 
 [packages]

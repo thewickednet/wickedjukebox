@@ -249,8 +249,6 @@ class Console(cmd.Cmd):
             jukebox> rescan Depeche Mode
             jukebox> rescan Dep*
         """
-        line = line.decode(sys.stdin.encoding)
-
         with self.term.hidden_cursor():
             mediadirs = [x for x in Setting.get('mediadir', '').split(' ')
                          if direxists(x)]

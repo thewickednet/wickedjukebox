@@ -167,7 +167,7 @@ class Tag(object):
 class Setting(object):
 
     @classmethod
-    def get(cls, param_in, default=None, channel_id=None, user_id=None):
+    def get(cls, session, param_in, default=None, channel_id=None, user_id=None):
         """
         Retrieves a setting from the database.
 
