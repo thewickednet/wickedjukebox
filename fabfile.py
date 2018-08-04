@@ -62,7 +62,7 @@ def test(unused_ctx, autorun=False, cover=False):
     runner_cmd = ['pytest --sqlalchemy-connect-url=%s' % dsn]
 
     if cover:
-        runner_cmd.append('--cov-report=term --cov wickedjukebox')
+        runner_cmd.append('--cov-report=term-missing --cov wickedjukebox')
 
     runner_cmd = ' '.join(runner_cmd)
     run(base_cmd % runner_cmd, pty=True)
