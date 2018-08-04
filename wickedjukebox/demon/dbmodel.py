@@ -351,13 +351,9 @@ class State(object):
 
 class Album(object):
 
-    def __init__(self, name, artist=None, artist_id=None, path=None):
+    def __init__(self, name, artist, path):
         self.name = name
-        if artist:
-            self.artist_id = artist.id
-        elif artist_id:
-            self.artist_id = artist_id
-
+        self.artist = artist
         self.path = path
         self.added = datetime.now()
 
