@@ -1,0 +1,4 @@
+[run]
+omit =
+    # omit external code which we have no control over
+    wickedjukebox/remotes/*
