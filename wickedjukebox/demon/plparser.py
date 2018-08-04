@@ -5,10 +5,12 @@
 """
 Methods to convert a simplified filter string into an SQL query
 """
-
+import logging
 
 import ply.lex
 import ply.yacc
+
+LOG = logging.getLogger(__name__)
 
 
 class ParserSyntaxError(Exception):
@@ -54,7 +56,7 @@ t_ignore = ' \t\n\r'
 
 
 def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
+    LOG.debug("Skipping illegal character %r", t.value[0])
     t.lexer.skip(1)
 
 
@@ -94,13 +96,13 @@ def p_statement(p):
 
 def p_expression(p):
     '''expression : FIELD EQUALS VALUE
-                 | FIELD LIKE VALUE'''
+                  | FIELD LIKE VALUE'''
     # map field names to correct db names (a=artist, s=song, b=album, g=genre)
     if p[1] == 'artist':
         p[1] = 'artist.name'
     elif p[1] == 'album':
         p[1] = 'album.name'
-    elif p[1] == 'song':
+    elif p[1] == 'title':
         p[1] = 'song.title'
     elif p[1] == 'genre':
         p[1] = 'genre.name'
@@ -121,43 +123,18 @@ ply.yacc.yacc()
 
 
 def get_tokens(data):
+    '''
+    Helper function to retrieve the tokens from a query input.
+
+    Useful for debugging
+    '''
     ply.lex.input(data)
     while True:
         tok = ply.lex.token()
         if not tok:
             break
-        print(tok)
+        yield tok
 
 
 def parse_query(data):
     return ply.yacc.parse(data)
-
-
-if __name__ == "__main__":
-    import sys
-
-    if len(sys.argv) == 1:
-        testinput = [
-            ('(genre = rock | genre = "Heavy Metal" or genre = Industrial) & '
-             'title ~ wicked'),
-            ('artist is "Nine Inch Nails" or '
-             'artist is "Black Sabbath" or '
-             'artist is Clawfinger or '
-             'album contains "Nativity in Black" '
-             'or artist is Incubus')
-        ]
-        for line in testinput:
-            print(80*"=")
-            print('Simplified query: "%s"' % line.strip())
-            print(80*"-")
-            print("result:", parse_query(line))
-            print()
-    elif len(sys.argv) == 2:
-        line = sys.argv[1]
-        print(80*"=")
-        print('Simplified query: "%s"' % line.strip())
-        print(80*"-")
-        print("result:", parse_query(line))
-        print()
-    else:
-        print("Usage: plparser.py [simplequery]")
