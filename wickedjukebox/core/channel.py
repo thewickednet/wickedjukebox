@@ -18,7 +18,6 @@ from wickedjukebox.demon.dbmodel import (ChannelStat, Session, Setting, Song,
                                          State, channelSongs, channelTable,
                                          songTable, usersTable)
 from wickedjukebox.demon.players import common
-from wickedjukebox.util import fsencode
 
 LOG = logging.getLogger(__name__)
 DEFAULT_RANDOM_MODE = 'random_wr2'
@@ -444,7 +443,7 @@ class Channel(object):
                             'happen', song)
                 return song
 
-            if not os.path.exists(fsencode(song.localpath)):
+            if not os.path.exists(song.localpath):
                 LOG.warning("%r not found!", song.localpath)
                 songTable.update(songTable.c.id == song.id,
                                  values={'broken': True}).execute()

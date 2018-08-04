@@ -2,11 +2,11 @@
 # -*- coding: utf8 -*-
 
 
-
 import cmd
 import logging
 import sys
 from os import path
+from os.path import exists
 
 from blessings import Terminal
 from sqlalchemy.exc import IntegrityError
@@ -18,9 +18,9 @@ from wickedjukebox.demon.dbmodel import (Artist, Session, Setting, albumTable,
                                          song_has_genre, song_has_tag,
                                          songStandingTable, songStatsTable,
                                          songTable, usersTable)
-from wickedjukebox.util import direxists
 
 LOG = logging.getLogger(__name__)
+
 
 def colorprompt(term, color, label):
     return '{color}{label:>20}{normal} '.format(
@@ -186,7 +186,7 @@ class Console(cmd.Cmd):
     def complete_rescan(self, line):
         # type: (str) -> List[str]
         mediadirs = [x for x in Setting.get('mediadir', '').split(' ')
-                     if direxists(x)]
+                     if exists(x)]
         from os import listdir
         folders = []
         for root in mediadirs:
@@ -209,9 +209,9 @@ class Console(cmd.Cmd):
         else:
             self.prompt = ("{t.green}jukebox:{t.blue}{path}{t.green}>"
                            "{t.normal} ").format(
-                    t=self.term,
-                    path="/".join(self.__path)
-                )
+                t=self.term,
+                path="/".join(self.__path)
+            )
 
     def get_string(self, string):
         # type: (str) -> str
@@ -251,7 +251,7 @@ class Console(cmd.Cmd):
         """
         with self.term.hidden_cursor():
             mediadirs = [x for x in Setting.get('mediadir', '').split(' ')
-                         if direxists(x)]
+                         if exists(x)]
             import wickedjukebox.scanner
             print("Scanning inside %s" % ", ".join(mediadirs))
             try:
@@ -819,7 +819,8 @@ class Console(cmd.Cmd):
         try:
             username = input(colorprompt(self.term, 'yellow', 'Login'))
             passwd = getpass(colorprompt(self.term, 'yellow', 'Password'))
-            passwd2 = getpass(colorprompt(self.term, 'yellow', 'Verify password'))
+            passwd2 = getpass(colorprompt(
+                self.term, 'yellow', 'Verify password'))
             username = username.decode(sys.stdin.encoding)
         except KeyboardInterrupt:
             print(self.term.yellow('Aborted!'))

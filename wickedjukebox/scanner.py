@@ -13,7 +13,6 @@ from os import listdir, path, walk
 
 from sqlalchemy.sql import select
 from wickedjukebox.demon.dbmodel import Session, Setting, Song, songTable
-from wickedjukebox.util import fsencode
 
 LOG = logging.getLogger(__name__)
 
@@ -61,7 +60,7 @@ def do_housekeeping():
     songs = select([songTable.c.localpath]).execute()
     for row in songs:
         try:
-            if not path.exists(fsencode(row[0])):
+            if not path.exists(row[0]):
                 print("%r removed from disk" % row[0])
         except UnicodeEncodeError as exc:
             LOG.error("Unable to decode %r (%s)", row[0], exc)
