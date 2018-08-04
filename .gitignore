@@ -4,6 +4,9 @@
 *~
 .*.swp
 .vagrant
+/.mypy_cache/
+/.pylintrc
+/.pytest_cache
 /alembic.ini
 /logging.ini
 build
@@ -14,4 +17,3 @@ httpd_data/users/
 logs/
 parser.out
 parsetab.py
-/.pytest_cache
