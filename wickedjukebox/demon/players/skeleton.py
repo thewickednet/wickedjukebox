@@ -126,3 +126,10 @@ class Player(object):
         Return "None" if this feature is not supported or if the list of listeners is unknown
         """
         return []
+
+    def upcoming_songs(self):
+        # type: () -> Generator[Song, None, None]
+        """
+        Returns songs which are queued after the current song
+        """
+        return []

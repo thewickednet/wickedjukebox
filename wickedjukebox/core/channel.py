@@ -8,9 +8,8 @@ import time
 from datetime import datetime
 from random import choice, random
 
-import pusher
+from pusher import Pusher
 from sqlalchemy.sql import func, or_, select, update
-
 from wickedjukebox import load_config
 from wickedjukebox.demon import playmodes
 from wickedjukebox.demon.dbmodel import Album, Artist
@@ -47,8 +46,8 @@ class Jingle(object):  # pylint: disable=too-few-public-methods
 
 class Channel(object):
 
-    def __init__(self, session, name):
-        # type: (Session, str) -> None
+    def __init__(self, session, name, pusher_client=None):
+        # type: (Session, str, Pusher) -> None
 
         self.__scrobbler = None
         self.__keepRunning = True
@@ -91,13 +90,16 @@ class Channel(object):
 
         self.id = channel_data.id
 
-        self.__pusher_client = pusher.Pusher(
-            app_id=self.__config.get('pusher', 'app_id'),
-            key=self.__config.get('pusher', 'key'),
-            secret=self.__config.get('pusher', 'secret'),
-            cluster=self.__config.get('pusher', 'cluster'),
-            ssl=True
-        )
+        if pusher_client:
+            self.__pusher_client = pusher_client
+        else:
+            self.__pusher_client = Pusher(
+                app_id=self.__config.get('pusher', 'app_id'),
+                key=self.__config.get('pusher', 'key'),
+                secret=self.__config.get('pusher', 'secret'),
+                cluster=self.__config.get('pusher', 'cluster'),
+                ssl=True
+            )
 
         LOG.info("Initialised channel %s with ID %d", self.name, self.id)
 
