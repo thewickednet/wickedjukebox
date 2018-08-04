@@ -1,7 +1,11 @@
-def create(modname):
-    if modname in globals():
-        return reload(globals()[modname])
+from sqlalchemy.orm import Session
 
-    module = 'wickedjukebox.demon.playmodes.%s' % modname
-    __import__(module)
-    return globals()[modname]
+from .interface import PlayMode
+from .random_wr2 import RandomWR2
+
+
+def create(modname: str, channel_id: int = 0, session: Session = None) -> PlayMode:
+    if modname == 'random_wr2':
+        instance = RandomWR2(session, channel_id)
+        return instance
+    raise ValueError('No such play-mode: %r' % modname)
