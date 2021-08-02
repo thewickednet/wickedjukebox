@@ -15,17 +15,26 @@ setup(
             ]
         },
     install_requires=[
-        'alembic',
-        'blessings',
-        'config_resolver',
-        'mutagen',
-        'mysqlclient',
-        'ply',
-        'progress',
-        'pusher',
-        'requests',
-        'sqlalchemy',
+        "alembic",
+        "blessings",
+        "config-resolver",
+        "mutagen",
+        "mysqlclient",
+        "ply",
+        "progress",
+        "pusher",
+        "requests",
+        "sqlalchemy",
     ],
+    extras_require={
+        "dev": [
+            "pylint",
+            "pytest",
+            "pytest-cache",
+            "pytest-coverage",
+            "pytest-sqlalchemy",
+        ]
+    },
     include_package_data=True,
     zip_safe=False
 )
