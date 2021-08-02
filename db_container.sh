@@ -17,13 +17,13 @@ read
 CONTAINER_ID=$(docker run \
     --rm \
     --name jukeboxdb \
-    -e MYSQL_DATABASE=jukebox \
-    -e MYSQL_USER=jukebox \
-    -e MYSQL_PASSWORD=jukebox \
-    -e MYSQL_ROOT_PASSWORD=rootpw \
+    -e MARIADB_DATABASE=jukebox \
+    -e MARIADB_USER=jukebox \
+    -e MARIADB_PASSWORD=jukebox \
+    -e MARIADB_ROOT_PASSWORD=rootpw \
     -P \
     -d \
-    mysql:8
+    mariadb:10
 )
 
 echo
