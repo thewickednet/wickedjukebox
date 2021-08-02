@@ -65,13 +65,13 @@ RAISE_ERRORS = 20
 
 # the basics
 
-class MpdError(Exception):
+class MpdError(BaseException):
   "Base error class"
   def __init__(self, msg, num="<none>"):
     self._msg = msg
     self._num = num
 
-    Exception.__init__(self, "Errno %s: %s" % (self._num, self._msg))
+    super().__init__("Errno %s: %s" % (self._num, self._msg))
 
 class MpdNetError(MpdError):
   "Base error class for network-related errors"

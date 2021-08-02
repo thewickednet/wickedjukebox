@@ -49,6 +49,10 @@ class Player(object):
         self.song_started = None
         self.__connection = None
 
+    @property
+    def connection(self):
+        return self.__connection
+
     def connect(self):
         # type: () -> None
         """
@@ -59,7 +63,7 @@ class Player(object):
                 LOG.info("Connecting to MPD backend...")
                 self.__connection = mpdclient.MpdController(
                     self.host, self.port)
-            except mpdclient.MpdConnectionPortError:
+            except mpdclient.MpdConnectionPortError:  # pragma: no cover
                 LOG.warning("Error connecting to the player.", exc_info=True)
                 time.sleep(1)
                 continue
@@ -89,8 +93,8 @@ class Player(object):
 
         output = True
         try:
-            added_files.extend(self.__connection.add(
-                [filename.encode('utf-8')]))
+            mpd_response = self.__connection.add([filename.encode('utf-8')])
+            added_files.extend(mpd_response)
             if Setting.get('sys_utctime', 0) == 0:
                 self.song_started = datetime.utcnow()
             else:
@@ -100,9 +104,9 @@ class Player(object):
                 output = False
             else:
                 output = True
-        except Exception as ex:  # pylint: disable=broad-except
+        except Exception:  # pylint: disable=broad-except
             # catch-all for graceful degradation
-            LOG.error("error queuing (%s).", ex)
+            LOG.error("error queuing.", exc_info=True)
             output = False
 
         # Crop Playlist
@@ -161,13 +165,13 @@ class Player(object):
         """
         while True:
             try:
-                if self.__connection.getCurrentSong() is False:
+                result = self.__connection.getCurrentSong()
+                if result is False:
                     return None
 
-                return os.path.join(
-                    self.root_folder,
-                    self.__connection.getCurrentSong().path.decode(
-                        sys.getfilesystemencoding()))
+                fs_encoding = sys.getfilesystemencoding()
+                decoded = result.path.decode(fs_encoding)
+                return os.path.join(self.root_folder, decoded)
             except mpdclient.MpdError as ex:
                 if str(ex).find('not done processing current command') > 0:
                     LOG.warning('"not done processing current command" received. '
@@ -178,9 +182,9 @@ class Player(object):
                 elif str(ex).find('playlistLength not found') > 0:
                     LOG.warning('"playlistLength not found" received. '
                                 'Reconnecting to backend...')
-                    __disconnect()
+                    self.disconnect()
                     time.sleep(1)
-                    __connect()
+                    self.connect()
                     continue
                 elif str(ex).find('problem parsing song info') > 0:
                     LOG.warning(
@@ -190,9 +194,6 @@ class Player(object):
                     continue
                 else:
                     raise
-            break
-
-        return None
 
     def pause(self):
         # type: () -> None
@@ -245,7 +246,7 @@ class Player(object):
                     return common.STATUS_PAUSED
                 return 'unknown (%s)' % self.__connection.getStatus().state
             except mpdclient.MpdStoredError:
-                return 'stop'
+                return common.STATUS_STOPPED
             except mpdclient.MpdError as ex:
                 if str(ex).find('not done processing current command') > 0:
                     LOG.debug("'Not done proc. command' error skipped")
@@ -256,9 +257,6 @@ class Player(object):
                     time.sleep(1)
                     continue
                 raise
-            break
-
-        return 'unknown'
 
     def upcoming_songs(self):
         # type: () -> Generator[Song, None, None]

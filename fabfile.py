@@ -52,7 +52,7 @@ def develop(ctx):
 
 
 @task
-def test(ctx, autorun=False, cover=False):
+def test(ctx, autorun=False, cover=False, lf=False):
     from configparser import ConfigParser
     cfg = ConfigParser()
     cfg.read(".wicked/wickedjukebox/config.ini")
@@ -65,8 +65,15 @@ def test(ctx, autorun=False, cover=False):
 
     runner_cmd = ['./env/bin/pytest --sqlalchemy-connect-url=%s' % dsn]
 
+    if lf:
+        runner_cmd.append("--lf")
+
     if cover:
-        runner_cmd.append('--cov-report=term-missing --cov wickedjukebox')
+        runner_cmd.append(
+            '--cov-report=term-missing '
+            '--cov-report=term-missing '
+            '--cov wickedjukebox '
+        )
 
     runner_cmd = ' '.join(runner_cmd)
-    ctx.run(base_cmd % runner_cmd, pty=True)
+    ctx.run(base_cmd % runner_cmd, pty=True, replace_env=False)

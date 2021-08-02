@@ -28,6 +28,7 @@ setup(
     ],
     extras_require={
         "dev": [
+            "coverage[toml]",
             "pylint",
             "pytest",
             "pytest-cache",
