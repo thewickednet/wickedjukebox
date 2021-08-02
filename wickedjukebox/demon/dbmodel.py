@@ -16,6 +16,7 @@ from base64 import b64encode
 from datetime import date, datetime
 from os import stat, urandom
 from os.path import basename
+from typing import Optional
 
 from sqlalchemy import (Column, DateTime, ForeignKey, Integer, MetaData,
                         String, Table, Unicode, create_engine)
@@ -27,6 +28,9 @@ from wickedjukebox import load_config
 LOG = logging.getLogger(__name__)
 CFG = load_config()
 DBURI = CFG.get('database', 'dsn')
+
+#: sentinel object to mark settings with no explicit default
+NO_DEFAULT = object()
 
 metadata = MetaData()
 engine = create_engine(DBURI, echo=False)
@@ -167,7 +171,7 @@ class Tag(object):
 class Setting(object):
 
     @classmethod
-    def get(cls, session, param_in, default=None, channel_id=None, user_id=None):
+    def get(cls, session, param_in, default=NO_DEFAULT, channel_id=None, user_id=None):
         """
         Retrieves a setting from the database.
 
@@ -219,7 +223,7 @@ class Setting(object):
             if not setting:
                 # The parameter was not found in the database. Do we have a
                 # default?
-                if default:
+                if default is not NO_DEFAULT:
                     # yes, we have a default. Return that instead the database
                     # value.
                     LOG.debug("    Requested setting was not found! Returning "
@@ -373,6 +377,11 @@ class Song(object):
     def __repr__(self):
         return "<Song id=%r artist_id=%r title=%r path=%r>" % (
             self.id, self.artist_id, self.title, self.localpath)
+
+    @staticmethod
+    def by_filename(session: Session, filename: str) -> Optional["Song"]:
+        song = session.query(Song).filter_by(localpath=filename).one_or_none()
+        return song
 
     def scan_from_file(self, localpath, encoding):
         """
