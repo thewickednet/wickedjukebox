@@ -251,10 +251,9 @@ class RandomWR2(PlayMode):
         if not user_list:
             return 0
 
-        query = select([songStandingTable.c.user_id])
-        query = query.where(songStandingTable.c.standing == standing)
-        query = query.where(songStandingTable.c.song_id == song_id)
-        query = query.where(songStandingTable.c.user_id.in_(user_list))
-        alias = query.alias()  # MySQL bugfix
-        hate_count = self.session.execute(alias.count()).fetchone()[0]
+        query = self.session.query(songStandingTable.c.user_id)
+        query = query.filter_by(standing = standing)
+        query = query.filter_by(song_id = song_id)
+        query = query.filter(songStandingTable.c.user_id.in_(user_list))
+        hate_count = query.count()
         return hate_count
