@@ -1,11 +1,10 @@
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
-from config_resolver import Config
-from invoke import run, task
+from invoke import task
 
 
-def reconfigure(template: Path, target: Path) -> None:
+def reconfigure(ctx, template: Path, target: Path) -> None:
     if not template.is_file():
         raise ValueError('%s should be a regular file!' % template)
     if target.exists() and not target.is_file():
@@ -17,9 +16,9 @@ def reconfigure(template: Path, target: Path) -> None:
         template = target
 
     with NamedTemporaryFile() as tmpfile:
-        run('cat %s > %s' % (template, tmpfile.name))
-        run('$EDITOR %s' % tmpfile.name, pty=True)
-        diff = run('diff %s %s' % (tmpfile.name, template), warn=True,
+        ctx.run('cat %s > %s' % (template, tmpfile.name))
+        ctx.run('$EDITOR %s' % tmpfile.name, pty=True, replace_env=False)
+        diff = ctx.run('diff %s %s' % (tmpfile.name, template), warn=True,
                    hide=True)
 
         if diff.exited == 0:
@@ -28,41 +27,46 @@ def reconfigure(template: Path, target: Path) -> None:
             return
 
         print('Applying changes %s -> %s' % (template, target))
-        run('mkdir -p %s' % target.parent)
-        run('cp -v %s %s' % (tmpfile.name, target))
+        ctx.run('mkdir -p %s' % target.parent)
+        ctx.run('cp -v %s %s' % (tmpfile.name, target))
 
 
 @task
-def develop(unused_ctx):
-    run('pipenv install -d -e .')
-    run('./db_container.sh', warn=True)
+def develop(ctx):
+    ctx.run("[ -d env ] || python3 -m venv env")
+    ctx.run("./env/bin/pip install -U pip")
+    ctx.run("./env/bin/pip install -e .[dev,test]")
+    ctx.run('./db_container.sh', warn=True, pty=True)
     print('The following config-file needs the MySQL port you see above!')
     input('Press ENTER to continue...')
     reconfigure(
+        ctx,
         Path('alembic.ini.dist'),
         Path('alembic.ini'))
     reconfigure(
+        ctx,
         Path('config.ini.dist'),
         Path('.wicked/wickedjukebox/config.ini'))
     print('Running DB container...')
-    run('alembic upgrade head')
+    ctx.run('./env/bin/alembic upgrade head')
 
 
 @task
-def test(unused_ctx, autorun=False, cover=False):
-    cfg = Config('wicked', 'wickedjukebox', require_load=True,
-                 filename='config.ini')
+def test(ctx, autorun=False, cover=False):
+    from configparser import ConfigParser
+    cfg = ConfigParser()
+    cfg.read(".wicked/wickedjukebox/config.ini")
     dsn = cfg.get('database', 'dsn')
 
     if autorun:
-        base_cmd = 'find test wickedjukebox -name "*.py" | entr -c sh -c "%s"'
+        base_cmd = 'git ls-files | entr -c sh -c "%s"'
     else:
         base_cmd = '%s'
 
-    runner_cmd = ['pytest --sqlalchemy-connect-url=%s' % dsn]
+    runner_cmd = ['./env/bin/pytest --sqlalchemy-connect-url=%s' % dsn]
 
     if cover:
         runner_cmd.append('--cov-report=term-missing --cov wickedjukebox')
 
     runner_cmd = ' '.join(runner_cmd)
-    run(base_cmd % runner_cmd, pty=True)
+    ctx.run(base_cmd % runner_cmd, pty=True)

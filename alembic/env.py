@@ -3,7 +3,7 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool, create_engine
 from logging.config import fileConfig
 
-from config_resolver import Config
+from config_resolver import get_config
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -26,8 +26,14 @@ target_metadata = None
 
 
 def get_url():
-    config = Config('wicked', 'wickedjukebox', filename='config.ini',
-                    require_load=True)
+    config = get_config(
+        'wickedjukebox',
+        group_name='wicked',
+        lookup_options={
+            "filename": 'config.ini',
+            "require_load": True
+        }
+    ).config
     return config.get('database', 'dsn')
 
 

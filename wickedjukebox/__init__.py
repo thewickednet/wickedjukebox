@@ -19,13 +19,19 @@ def load_config():
     """
     Loads the application config.
     """
-    from config_resolver import Config
+    from config_resolver import get_config
     clog = logging.getLogger('config_resolver')
     stderr = logging.StreamHandler()
     stderr.setLevel(logging.WARNING)
     clog.addHandler(stderr)
-    cfg = Config('wicked', 'wickedjukebox', filename='config.ini')
-    if not cfg.loaded_files:
+    cfg, meta = get_config(
+        'wickedjukebox',
+        group_name='wicked',
+        lookup_options={
+            "filename": 'config.ini'
+        }
+    )
+    if not meta.loaded_files:
         raise IOError('No valid config file found. Search path was: %s' % (
             cfg.active_path))
     return cfg
