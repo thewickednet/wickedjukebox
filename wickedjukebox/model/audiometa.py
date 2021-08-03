@@ -12,9 +12,13 @@ This modul is also executable and can be used to display meta information of a
 specific file.
 """
 
+import codecs
 import logging
 from datetime import date
+from typing import List, TextIO
+from sys import stdout
 
+from mutagen import File
 from mutagen.id3 import ID3TimeStamp
 from mutagen.mp3 import MP3
 
@@ -116,7 +120,6 @@ class AudioMeta(dict):
 class MP3Meta(AudioMeta):
 
     def decode_text(self, data):
-        import codecs
 
         if isinstance(data.text[0], ID3TimeStamp):
             text = "".join([x.text for x in data.text])
@@ -202,7 +205,6 @@ class MetaFactory(object):
 
     @staticmethod
     def create(filename):
-        from mutagen import File
         try:
             mutagen_meta = File(filename)
         except IOError as exc:
@@ -216,26 +218,30 @@ class MetaFactory(object):
             "This filetype (%s) is not yet implemented" % type(mutagen_meta))
 
 
-def display_file(filename):
+def display_file(filename, stream: TextIO = stdout):
     metadata = MetaFactory.create(filename)
 
     if metadata is None:
         return
 
-    print(79*"-")
-    print(filename)
-    print(79*"-")
+    print(79*"-", file=stream)
+    print(filename, file=stream)
+    print(79*"-", file=stream)
     for key in metadata.keys():
-        print("%-15s | %s" % (key, metadata[key]))
-    print(79*"-")
+        print("%-15s | %s" % (key, metadata[key]), file=stream)
+    print(79*"-", file=stream)
 
+
+def main(argv: List[str], stream=stdout) -> int:
+    logging.basicConfig()
+    if len(argv) != 2:
+        print("""Usage:
+         %s <filename>
+      """ % argv[0], file=stream)
+        return 9
+    display_file(argv[1], stream=stream)
+    return 0
 
 if __name__ == "__main__":
     import sys
-    logging.basicConfig()
-    if len(sys.argv) != 2:
-        print("""Usage:
-         %s <filename>
-      """ % sys.argv[0])
-        sys.exit(9)
-    display_file(sys.argv[1])
+    sys.exit(main())
