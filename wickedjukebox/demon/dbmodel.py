@@ -16,7 +16,7 @@ from base64 import b64encode
 from datetime import date, datetime
 from os import stat, urandom
 from os.path import basename
-from typing import Optional
+from typing import Any, Optional
 
 from sqlalchemy import (Column, DateTime, ForeignKey, Integer, MetaData,
                         String, Table, Unicode, create_engine)
@@ -170,6 +170,33 @@ class Tag(object):
 
 class Setting(object):
 
+    @staticmethod
+    def set(
+        session: Session,
+        var: str,
+        value: Any,
+        channel_id: int = 0,
+        user_id: int = 0
+    ) -> None:
+        """
+        Set a setting in the database.
+
+        @param var: The name of the setting as string
+        @param value: The value to be stored
+        @param channel_id: The channel id if the setting is bound to a channel.
+            Using 0 will make it apply to all channels
+        @param user_id: The user id if the setting is bound to a user. Using 0
+            will make it apply to all users
+        """
+        setting = Setting()
+        setting.var = var
+        setting.value = value
+        setting.channel_id = channel_id
+        setting.user_id = user_id
+
+        session.add(setting)
+        session.flush()
+
     @classmethod
     def get(cls, session, param_in, default=NO_DEFAULT, channel_id=None, user_id=None):
         """
@@ -217,7 +244,7 @@ class Setting(object):
             if channel_id and not setting:
                 LOG.debug("    No per-channel setting found. "
                           "Falling back to global setting...")
-                return cls.get(param_in=param_in, default=default,
+                return cls.get(session=session, param_in=param_in, default=default,
                                channel_id=None, user_id=user_id)
 
             if not setting:
@@ -367,7 +394,9 @@ class Album(object):
 
 class Song(object):
 
-    def __init__(self, localpath, artist, album):
+    def __init__(
+        self, localpath: str, artist: "Artist", album: "Album"
+    ) -> None:
         if localpath:
             self.localpath = localpath
         self.added = datetime.now()

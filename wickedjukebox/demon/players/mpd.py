@@ -25,9 +25,9 @@ import os
 import sys
 import time
 from datetime import datetime
+from typing import Dict
 
 from wickedjukebox.adt import Song
-from wickedjukebox.demon.dbmodel import Setting
 from wickedjukebox.demon.lib import mpdclient
 from wickedjukebox.demon.players import common
 
@@ -36,8 +36,8 @@ LOG = logging.getLogger(__name__)
 
 class Player(object):
 
-    def __init__(self, id_, params):  # pylint: disable=unused-argument
-        # type: (int, Dict[str, str]) -> None
+    def __init__(self, id_, params, sys_utctime=0):  # pylint: disable=unused-argument
+        # type: (int, Dict[str, str], int) -> None
         """
         Constructor
         Connects to the mpd-daemon.
@@ -47,6 +47,7 @@ class Player(object):
         self.port = int(params['port'])
         self.root_folder = params['root_folder']
         self.song_started = None
+        self.sys_utctime = sys_utctime
         self.__connection = None
 
     @property
@@ -95,7 +96,7 @@ class Player(object):
         try:
             mpd_response = self.__connection.add([filename.encode('utf-8')])
             added_files.extend(mpd_response)
-            if Setting.get('sys_utctime', 0) == 0:
+            if self.sys_utctime == 0:
                 self.song_started = datetime.utcnow()
             else:
                 self.song_started = datetime.now()

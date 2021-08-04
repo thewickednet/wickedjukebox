@@ -24,16 +24,18 @@ class RandomWR2(PlayMode):
         self.channel_id = channel_id
 
     def bootstrap(self) -> None:
-        random.seed()
+        pass
 
     def fetch_candidates(self) -> List[RandomItem]:
         channel_id = self.channel_id
         try:
             # get settings
-            user_rating = int(Setting.get('scoring_userRating', 4,
-                                          channel_id=channel_id))
-            never_played = int(Setting.get('scoring_neverPlayed', 4,
-                                           channel_id=channel_id))
+            user_rating = int(Setting.get(
+                self.session, 'scoring_userRating', 4, channel_id=channel_id
+            ))
+            never_played = int(Setting.get(
+                self.session, 'scoring_neverPlayed', 4, channel_id=channel_id
+            ))
 
             # fetch the channel ssettings for online users
             user_settings = self._get_user_settings()
@@ -53,7 +55,7 @@ class RandomWR2(PlayMode):
                                         "loves_affect_random", 0)) == 1]
             LOG.debug("Haters: %r", users_affecting_hate)
             LOG.debug("Happy People: %r", users_affecting_love)
-            for row in rough_query.execute():
+            for row in self.session.execute(rough_query):
                 # if the song is hated by someone, don't consider it further
                 hate_count = self._get_standing_count(
                     row[0], users_affecting_hate, 'hate')
@@ -111,13 +113,12 @@ class RandomWR2(PlayMode):
             return []
 
     def get(self) -> Optional[Song]:
-        candidates = self.fetch_candidates(self.channel_id)
+        candidates = self.fetch_candidates()
         if not candidates:
             LOG.warning("No song returned!")
             return None
         song = self.session.query(Song).filter(
             songTable.c.id == candidates[0][0]).first()
-        sess.close()
         return song
 
     def peek(self) -> Optional[Song]:
@@ -130,15 +131,53 @@ class RandomWR2(PlayMode):
         candidates = self.fetch_candidates(self.channel_id)
         return candidates[0:10]
 
+    def apply_dynamic_playlist(self, query):
+        """
+        Apply a "WHERE" clause to *query* to honour "dynamic playlists"
+        """
+        # keep only songs that satisfy the dynamic playlist query for this channel
+        sel = select([dynamicPLTable.c.query, dynamicPLTable.c.probability])
+        sel = sel.where(dynamicPLTable.c.group_id > 0)
+        sel = sel.where(dynamicPLTable.c.channel_id == self.channel_id)
+
+        # only one query will be parsed. for now.... this is a big TODO
+        # as it triggers an unexpected behaviour (bug). i.e.: Why the
+        # heck does it only activate one playlist?!?
+        dpl = self.session.execute(sel).fetchone()
+        if dpl:
+            try:
+                rnd = random.random()
+                LOG.debug("Random value=%3.2f, playlist probability=%3.2f",
+                          rnd, dpl["probability"])
+                if dpl and rnd <= dpl["probability"] and parse_query(dpl["query"]):
+                    query = query.where(
+                        "(%s)" % parse_query(dpl["query"]))
+            except ParserSyntaxError:
+                LOG.error('Query was: %s', dpl.query, exc_info=True)
+            except Exception:  # pylint: disable=broad-except
+                # catchall for graceful degradation
+                LOG.exception('Unhandled Exception')
+        return query
+
     def _get_rough_query(self) -> Query:
         """
         Construct a first selection of songs. This is later expanded to
         calculate a more exact scoring
         """
-        recency_threshold = int(Setting.get('recency_threshold', 120,
-                                            channel_id=self.channel_id))
-        max_random_duration = int(Setting.get('max_random_duration', 600,
-                                              channel_id=self.channel_id))
+        recency_threshold = int(
+            Setting.get(
+                self.session,
+                'recency_threshold',
+                120,
+                channel_id=self.channel_id,
+        ))
+        max_random_duration = int(
+            Setting.get(
+                self.session,
+                'max_random_duration',
+                600,
+                channel_id=self.channel_id,
+        ))
         rough_query = select(
             [
                 songTable.c.id,
@@ -170,31 +209,10 @@ class RandomWR2(PlayMode):
             channelSongs.c.lastPlayed < old_time,
             channelSongs.c.lastPlayed == None))  # pylint: disable=singleton-comparison
 
-        # keep only songs that satisfy the dynamic playlist query for this channel
-        sel = select([dynamicPLTable.c.query, dynamicPLTable.c.probability])
-        sel = sel.where(dynamicPLTable.c.group_id > 0)
-        sel = sel.where(dynamicPLTable.c.channel_id == self.channel_id)
-
         # skip unavailable songs
         rough_query = rough_query.where(songTable.c.available == 1)
 
-        # only one query will be parsed. for now.... this is a big TODO
-        # as it triggers an unexpected behaviour (bug). i.e.: Why the
-        # heck does it only activate one playlist?!?
-        dpl = self.session.execute(sel).fetchone()
-        if dpl:
-            try:
-                rnd = random.random()
-                LOG.debug("Random value=%3.2f, playlist probability=%3.2f",
-                          rnd, dpl["probability"])
-                if dpl and rnd <= dpl["probability"] and parse_query(dpl["query"]):
-                    rough_query = rough_query.where(
-                        "(%s)" % parse_query(dpl["query"]))
-            except ParserSyntaxError:
-                LOG.error('Query was: %s', dpl.query, exc_info=True)
-            except Exception:  # pylint: disable=broad-except
-                # catchall for graceful degradation
-                LOG.exception('Unhandled Exception')
+        rough_query = self.apply_dynamic_playlist(rough_query)
 
         # bring in some random
         rough_query = rough_query.order_by(func.rand())
@@ -210,7 +228,9 @@ class RandomWR2(PlayMode):
 
         @return: A dict of dicts
         """
-        proofoflife_timeout = int(Setting.get('proofoflife_timeout', 120))
+        proofoflife_timeout = int(
+            Setting.get(self.session, 'proofoflife_timeout', 120)
+        )
         listeners_query = select(
             [
                 usersTable.c.id,

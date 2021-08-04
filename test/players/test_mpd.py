@@ -76,6 +76,7 @@ def test_queue(connected_mpd: Player, filename: str):
     status.playlistLength = 10
     status.song = 3
     connected_mpd.connection.getStatus.return_value = status
+    connected_mpd.sys_utctime = 1
     with patch("wickedjukebox.demon.players.mpd.datetime") as dt:
         dt.now.return_value = datetime(2001, 1, 1)
         connected_mpd.connection.add.return_value = ["sentinel"]
@@ -90,10 +91,7 @@ def test_queue_utc_time(connected_mpd: Player):
     status.playlistLength = 10
     status.song = 3
     connected_mpd.connection.getStatus.return_value = status
-    with patch("wickedjukebox.demon.players.mpd.datetime") as dt, patch(
-        "wickedjukebox.demon.players.mpd.Setting"
-    ) as Setting:
-        Setting.get.return_value = 0
+    with patch("wickedjukebox.demon.players.mpd.datetime") as dt:
         dt.utcnow.return_value = datetime(2001, 1, 1)
         connected_mpd.connection.add.return_value = ["sentinel"]
         result = connected_mpd.queue("filename.mp3")
