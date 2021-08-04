@@ -10,9 +10,6 @@ default_channel = exhuma
 open_channel    = 1
 auto_play       = 1
 
-[xmlrpc]
-port            = 65222
-
 [filesystem]
 ;; If you have trouble with the filesystem encodings, you can tell the system to
 ;; use this encoding instead of the one from the locale settings (LC_*)
