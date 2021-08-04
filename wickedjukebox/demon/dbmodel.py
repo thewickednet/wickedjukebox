@@ -605,7 +605,9 @@ class QueueItem(object):
         self.added = datetime.now()
 
     def __repr__(self):
-        return "<QueueItem %s>" % (self.id)
+        return "<QueueItem id=%r position=%r song_id=%r>" % (
+            self.id, self.position, self.song_id
+        )
 
 
 class DynamicPlaylist(object):

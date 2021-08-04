@@ -21,6 +21,7 @@ def default_data(dbsession, transaction):
         artist=default_artist,
         album=default_album,
     )
+    default_song.title = "title"
 
     dbsession.add(default_channel)
     dbsession.add(default_song)

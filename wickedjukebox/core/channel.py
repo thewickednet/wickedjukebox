@@ -207,10 +207,14 @@ class Channel(object):
         self.__queuestrategy = playmodes.create(Setting.get(
             'queue_model',
             DEFAULT_QUEUE_MODE, channel_id=self.id))
+        session = Session()
         self.__queuestrategy.enqueue(
+            session,
             songID,
             userID,
             self.id)
+        session.commit()
+        session.close()
         return 'OK: queued song <%d> for user <%d> on channel <%d>' % (
             songID, userID, self.id)
 

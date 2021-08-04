@@ -8,13 +8,16 @@ each item and finally removes all items with an id smaller than -10
 from datetime import datetime
 
 from sqlalchemy import and_
-from wickedjukebox.demon.dbmodel import (QueueItem, Session, albumTable,
+from wickedjukebox.demon.dbmodel import (QueueItem, albumTable,
                                          artistTable, queueTable, songTable)
 
 
-def enqueue(songID, userID, channel_id):
+def enqueue(session, songID, userID, channel_id):
     """
     Enqueues a song onto a queue of a given channel
+
+    @type  session: Session
+    @param session: The DB Session
 
     @type  songID: int
     @param songID: The id of the song to be enqueued
@@ -26,12 +29,10 @@ def enqueue(songID, userID, channel_id):
     @param userID: The user who added the queue action
     """
 
-    session = Session()
-
     # determine the next position
     old = session.query(QueueItem)
     old = old.filter(queueTable.c.position > 0)
-    old = old.order_by('-position')
+    old = old.order_by(QueueItem.position.desc())
     old = old.first()
     if old:
         nextPos = old.position + 1
@@ -46,10 +47,10 @@ def enqueue(songID, userID, channel_id):
     queue_item.channel_id = channel_id
 
     session.add(queue_item)
-    session.close()
+    session.flush()
 
 
-def list(channel_id):
+def list(session, channel_id):
     """
     Returns an ordered list of the items on the queue including position.
     """
@@ -58,7 +59,8 @@ def list(channel_id):
         .join(albumTable, onclause=songTable.c.album_id == albumTable.c.id) \
         .select(order_by=queueTable.c.position, use_labels=True) \
         .where(queueTable.c.channel_id == channel_id)
-    items = query.execute()
+
+    items = session.execute(query)
     out = []
     for item in items:
         data = {
@@ -81,16 +83,17 @@ def list(channel_id):
     return out
 
 
-def dequeue(channel_id):
+def dequeue(session, channel_id):
     """
     Return the filename of the next item on the queue. If the queue is empty,
     return None
 
+    @type  session: Session
+    @param session: The DB Session
+
     @type  channel_id: int
     @param channel_id: The id of the channel
     """
-
-    session = Session()
 
     nextSong = session.query(QueueItem) \
         .filter(queueTable.c.position == 1) \
@@ -103,22 +106,26 @@ def dequeue(channel_id):
         song = None
 
     if song:
+        query = queueTable.update().where(queueTable.c.channel_id == channel_id).values(
+            {queueTable.c.position: queueTable.c.position-1})
+        session.execute(query)
+        session.execute(queueTable.delete(queueTable.c.position < -20))
 
-        queueTable.update().where(queueTable.c.channel_id == channel_id).values(
-            {queueTable.c.position: queueTable.c.position-1}).execute()
-        queueTable.delete(queueTable.c.position < -20)
-
-        session.close()
+        session.flush()
+        session.expire_all()
         return song
 
-    session.close()
+    session.flush()
     return None
 
 
-def moveup(channel_id, qid, delta):
+def moveup(session, channel_id, qid, delta):
     """
     Move a song upwards in the queue by <delta> steps
     (meaning it will be played earlier).
+
+    @type  session: Session
+    @param session: The DB Session
 
     @type channel_id: int
     @param channel_id: The channel ID
@@ -130,45 +137,53 @@ def moveup(channel_id, qid, delta):
     @param qid: The database ID of the queue item (*not* the song!)
     """
 
-    session = Session()
-
     qitem = session.query(QueueItem).get(qid)
+    if qitem is None:
+        return
 
-    # we only need to do this for songs that are not already queue as next song
+    # we only need to do this for songs that are not already queued as next song
     if qitem.position > 1 and (qitem.position - delta) > 1:
         old_position = qitem.position
         min = old_position - delta
         max = old_position
-        queueTable.update(and_(
+        query = queueTable.update(and_(
             queueTable.c.position <= max,
             queueTable.c.position >= min,
             queueTable.c.channel_id == channel_id
         ), values={
             queueTable.c.position: queueTable.c.position+1
-        }).execute()
-        queueTable.update(queueTable.c.id == qitem.id,
+        })
+        session.execute(query)
+        query = queueTable.update(queueTable.c.id == qitem.id,
                           values={
                               queueTable.c.position: min
-                          }).execute()
+                          })
+        session.execute(query)
     elif qitem.position > 1 and (qitem.position - delta) < 1:
-        queueTable.update(and_(
+        query = queueTable.update(and_(
             queueTable.c.position >= 1,
             queueTable.c.position < qitem.position,
             queueTable.c.channel_id == channel_id
         ), values={
             queueTable.c.position: queueTable.c.position+1
-        }).execute()
-        queueTable.update(queueTable.c.id == qitem.id,
+        })
+        session.execute(query)
+        query = queueTable.update(queueTable.c.id == qitem.id,
                           values={
                               queueTable.c.position: 1
-                          }).execute()
-    session.close()
+                          })
+        session.execute(query)
+    session.flush()
+    session.expire_all()
 
 
-def movedown(channel_id, qid, delta):
+def movedown(session, channel_id, qid, delta):
     """
     Move a song downwards in the queue by <delta> steps
     (meaning it will be played later).
+
+    @type  session: Session
+    @param session: The DB Session
 
     @type channel_id: int
     @param channel_id: The channel ID
@@ -180,11 +195,11 @@ def movedown(channel_id, qid, delta):
     @param qid: The database ID of the queue item (*not* the song!)
     """
 
-    session = Session()
-
     qitem = session.query(QueueItem).get(qid)
+    if qitem is None:
+        return
 
-    qitem_bot = session.query(QueueItem).select(order_by=['-position'])
+    qitem_bot = session.query(QueueItem).order_by(QueueItem.position.desc())
     if qitem_bot != []:
         bottom = qitem_bot[0].position
     else:
@@ -196,53 +211,64 @@ def movedown(channel_id, qid, delta):
         old_position = qitem.position
         min = old_position
         max = old_position + delta
-        queueTable.update(and_(
+        query = queueTable.update(and_(
             queueTable.c.position <= max,
             queueTable.c.position >= min,
             queueTable.c.channel_id == channel_id
         ), values={
             queueTable.c.position: queueTable.c.position-1
-        }).execute()
-        queueTable.update(queueTable.c.id == qitem.id,
+        })
+        session.execute(query)
+        query = queueTable.update(queueTable.c.id == qitem.id,
                           values={
                               queueTable.c.position: max
-                          }).execute()
+                          })
+        session.execute(query)
     elif qitem.position < bottom < (qitem.position + delta):
-        queueTable.update(and_(
+        query = queueTable.update(and_(
             queueTable.c.position <= bottom,
             queueTable.c.position > qitem.position,
             queueTable.c.channel_id == channel_id
         ), values={
             queueTable.c.position: queueTable.c.position-1
-        }).execute()
-        queueTable.update(queueTable.c.id == qitem.id,
+        })
+        session.execute(query)
+        query = queueTable.update(queueTable.c.id == qitem.id,
                           values={
                               queueTable.c.position: bottom
-                          }).execute()
-    session.close()
+                          })
+        session.execute(query)
+    session.flush()
+    session.expire_all()
 
 
-def movetop(channel_id, qid):
+def movetop(session, channel_id, qid):
     """
     Move a song to the top of the queue (meaning it will be played next)
 
+    @type  session: Session
+    @param session: The DB Session
+
     @type channel_id: int
     @param channel_id: The channel ID
 
     @type  qid: int
     @param qid: The database ID of the queue item (*not* the song!)
     """
-    pass
+    raise NotImplementedError("Not yet implemented")
 
 
-def movebottom(channel_id, qid):
+def movebottom(session, channel_id, qid):
     """
     Move a song to the bottom of the queue (meaning it will be played last)
 
+    @type  session: Session
+    @param session: The DB Session
+
     @type channel_id: int
     @param channel_id: The channel ID
 
     @type  qid: int
     @param qid: The database ID of the queue item (*not* the song!)
     """
-    pass
+    raise NotImplementedError("Not yet implemented")

@@ -20,9 +20,12 @@ and you should be fine.
 ## from wickedjukebox.demon.model import create_session, QueueItem
 
 
-def enqueue(songID, userID, channelID):
+def enqueue(session, songID, userID, channelID):
     """
     Enqueues a song onto a queue of a given channel
+
+    @type  session: Session
+    @param session: The DB Session
 
     @type  songID: int
     @param songID: The id of the song to be enqueued
@@ -37,9 +40,12 @@ def enqueue(songID, userID, channelID):
     pass
 
 
-def dequeue(channelID):
+def dequeue(session, channelID):
     """
     Return the next song from the queue
+
+    @type  session: Session
+    @param session: The DB Session
 
     @type  channelID: int
     @param channelID: The id of the channel
@@ -54,10 +60,13 @@ def dequeue(channelID):
     return None
 
 
-def moveup(channelID, qid, delta):
+def moveup(session, channelID, qid, delta):
     """
     Move a song upwards in the queue by <delta> steps
     (meaning it will be played earlier).
+
+    @type  session: Session
+    @param session: The DB Session
 
     @type channelID: int
     @param channelID: The channel ID
@@ -71,10 +80,13 @@ def moveup(channelID, qid, delta):
     pass
 
 
-def movedown(channelID, qid, delta):
+def movedown(session, channelID, qid, delta):
     """
     Move a song downwards in the queue by <delta> steps
     (meaning it will be played later).
+
+    @type  session: Session
+    @param session: The DB Session
 
     @type channelID: int
     @param channelID: The channel ID
@@ -88,10 +100,13 @@ def movedown(channelID, qid, delta):
     pass
 
 
-def movetop(channelID, qid):
+def movetop(session, channelID, qid):
     """
     Move a song to the top of the queue (meaning it will be played next)
 
+    @type  session: Session
+    @param session: The DB Session
+
     @type channelID: int
     @param channelID: The channel ID
 
@@ -101,10 +116,13 @@ def movetop(channelID, qid):
     pass
 
 
-def movebottom(channelID, qid):
+def movebottom(session, channelID, qid):
     """
     Move a song to the bottom of the queue (meaning it will be played last)
 
+    @type  session: Session
+    @param session: The DB Session
+
     @type channelID: int
     @param channelID: The channel ID
 
@@ -114,7 +132,7 @@ def movebottom(channelID, qid):
     pass
 
 
-def list(channelID):
+def list(session, channelID):
     """
     Returns an ordered list of the items on the queue including position.
 
@@ -136,6 +154,9 @@ def list(channelID):
                 'name': 'Wildecker Herzbuben'
              }
         }]
+
+    @type  session: Session
+    @param session: The DB Session
 
     @type channelID: int
     @param channelID: The channel ID
