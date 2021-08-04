@@ -17,3 +17,4 @@ httpd_data/users/
 logs/
 parser.out
 parsetab.py
+coverage.xml

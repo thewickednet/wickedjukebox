@@ -71,7 +71,7 @@ def test(ctx, autorun=False, cover=False, lf=False):
     if cover:
         runner_cmd.append(
             '--cov-report=term-missing '
-            '--cov-report=term-missing '
+            '--cov-report=xml:coverage.xml '
             '--cov wickedjukebox '
         )
 

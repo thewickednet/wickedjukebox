@@ -2,5 +2,9 @@
     "python.formatting.provider": "black",
     "editor.rulers": [
         80
+    ],
+    "coverage-gutters.coverageFileNames": [
+        "cov.xml",
+        "coverage.xml"
     ]
 }
