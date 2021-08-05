@@ -6,7 +6,7 @@ NAME = 'wickedjukebox'
 setup(
     name=NAME,
     version="2.2.3",
-    packages=find_packages(),
+    packages=find_packages(exclude=["test"]),
     entry_points={
         'console_scripts': [
                 'run-channel=wickedjukebox.cli.run_channel:main',
