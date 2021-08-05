@@ -5,7 +5,7 @@
 ;
 [alembic]
 script_location = alembic
-sqlalchemy.url = mysql://<user>:<password>@<host>[:<port>]/<dbname>
+sqlalchemy.url = mysql://jukebox:jukebox@127.0.0.1:{{db_port}}/jukebox
 
 [loggers]
 keys = root,sqlalchemy,alembic
