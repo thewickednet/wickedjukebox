@@ -1,14 +1,12 @@
 # pylint: disable=missing-docstring
 
-import os
+import importlib.metadata
 import logging
 import logging.config
+import os
 
-import pkg_resources
 
-
-__version__ = pkg_resources.resource_string(__name__,
-    'version.txt').strip().decode('ascii')
+__version__ = importlib.metadata.version("wickedjukebox")
 
 
 ENV_CONF = 'WICKEDJB_CONFIG_FOLDER'
