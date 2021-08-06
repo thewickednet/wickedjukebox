@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# This file runs a simple container for real database usage during development.
+# The container is not persistent and shouldn't be used for production.
+# -----------------------------------------------------------------------------
 
 echo WARNING: This is INSECURE! It is meant for development only!
 echo

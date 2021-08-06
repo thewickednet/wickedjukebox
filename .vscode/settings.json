@@ -6,5 +6,6 @@
     "coverage-gutters.coverageFileNames": [
         "cov.xml",
         "coverage.xml"
-    ]
+    ],
+    "restructuredtext.confPath": ""
 }
