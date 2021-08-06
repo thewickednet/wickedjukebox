@@ -1,19 +1,20 @@
-FROM ubuntu:16.04
+FROM alpine:3.14
 MAINTAINER Michel Albert <michel@albert.lu>
 
 ENV UNAME mpduser
 
 # Install everything needed for MPD via Pulse (and a client for convenience)
-RUN apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install --yes \
+RUN set -xe && \
+    apk add --no-cache \
     pulseaudio-utils \
     mpd \
-    ncmpcpp
+    ncmpcpp && \
+    setcap -r /usr/bin/mpd
 
 # Add a separate user to be able to run the process in user-space and set up
 # required folders
 RUN adduser --disabled-password --uid 1000 ${UNAME} && \
-    usermod -a -G audio ${UNAME} && \
+    addgroup ${UNAME} audio && \
     install -o ${UNAME} -d /var/lib/mpd && \
     install -o ${UNAME} -d /run/mpd
 
