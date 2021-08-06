@@ -3,7 +3,6 @@
 *.pyo
 *~
 .*.swp
-.vagrant
 /.mypy_cache/
 /.pylintrc
 /.pytest_cache
