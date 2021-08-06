@@ -18,7 +18,7 @@ setup(
         "blessings",
         "config-resolver",
         "mutagen",
-        "mysqlclient",
+        "pymysql",
         "ply",
         "progress",
         "pusher",

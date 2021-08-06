@@ -16,7 +16,7 @@ auto_play       = 1
 ; force_encoding  = utf-8
 
 [database]
-dsn=mysql://jukebox:jukebox@127.0.0.1:{{db_port}}/jukebox?charset=utf8
+dsn=mysql+pymysql://jukebox:jukebox@127.0.0.1:{{db_port}}/jukebox?charset=utf8
 
 [pusher]
 app_id = 12345
