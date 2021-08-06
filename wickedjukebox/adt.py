@@ -2,7 +2,11 @@
 Collection of abstract data types
 """
 
-from collections import namedtuple
+from typing import NamedTuple
 
 
-Song = namedtuple('Song', 'artist album title filename')
+class Song(NamedTuple):
+    artist: str
+    album: str
+    title: str
+    filename: str
