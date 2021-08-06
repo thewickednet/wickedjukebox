@@ -78,6 +78,7 @@ def develop(ctx):
         variables={"db_port": str(db_port)},
     )
     ctx.run("./env/bin/alembic upgrade head")
+    ctx.run("pre-commit install")
 
 
 @task
