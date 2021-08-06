@@ -50,8 +50,8 @@ def test_tick():
     mock_queue.dequeue.assert_called_once()
     mock_jingle.pick.assert_called_once()
     assert mock_player.enqueue.mock_calls == [
-        call("fake-jingle"),
-        call("fake-random"),
+        call("fake-jingle", is_jingle=True),
+        call("fake-random", is_jingle=False),
     ]
 
 
@@ -82,7 +82,7 @@ def test_queue_needed_empty():
     mock_queue.dequeue.return_value = sentinel
     channel = Channel(queue=mock_queue, player=mock_player)
     channel.tick()
-    mock_player.enqueue.assert_called_once_with(sentinel)
+    mock_player.enqueue.assert_called_once_with(sentinel, is_jingle=False)
 
 
 def test_random_needed():
@@ -99,7 +99,7 @@ def test_random_needed():
     mock_random.pick.return_value = sentinel
     channel = Channel(queue=mock_queue, player=mock_player, random=mock_random)
     channel.tick()
-    mock_player.enqueue.assert_called_once_with(sentinel)
+    mock_player.enqueue.assert_called_once_with(sentinel, is_jingle=False)
 
 
 def test_skip_requested():

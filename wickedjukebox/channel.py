@@ -40,7 +40,7 @@ class Channel:
             self._log.debug("Jingle interval surpassed. Enqueueing new jingle.")
             jingle = self.jingle.pick()
             if jingle:
-                self.player.enqueue(jingle)
+                self.player.enqueue(jingle, is_jingle=True)
             else:
                 self._log.debug("no jingle available.")
 
@@ -51,7 +51,7 @@ class Channel:
                 self.player.remaining_seconds,
             )
             next_song = self.queue.dequeue() or self.random.pick()
-            self.player.enqueue(next_song)
+            self.player.enqueue(next_song, is_jingle=False)
 
         if do_skip:
             self._log.info("Skipping (via external request)")
