@@ -1,4 +1,6 @@
 from pathlib import Path
+from os import getuid
+from os.path import abspath
 from tempfile import NamedTemporaryFile
 
 from invoke import task
@@ -77,3 +79,33 @@ def test(ctx, autorun=False, cover=False, lf=False):
 
     runner_cmd = ' '.join(runner_cmd)
     ctx.run(base_cmd % runner_cmd, pty=True, replace_env=False)
+
+
+@task
+def build_mpd(ctx):
+    """
+    Builds a docker-image for mpd
+    """
+    ctx.run("docker build -t wickedjukebox/mpd .", pty=True)
+
+
+@task
+def run_mpd(ctx, mp3_path=""):
+    """
+    Runs MPD in an ephemeral docker-container
+
+    This is mainly intended for testing. For real production use, a persistent
+    volume should be used for ``/var/lib/mpd``
+    """
+    build_mpd(ctx)
+    uid = getuid()
+    volume = ""
+    if mp3_path:
+        volume = f"--volume={abspath(mp3_path)}:/var/lib/mpd/music:ro "
+    ctx.run(
+        "docker run --rm "
+        f"--volume=/run/user/{uid}/pulse:/run/user/{uid}/pulse {volume} "
+        "--name wickedjukebox_mpd "
+        "wickedjukebox/mpd",
+        pty=True,
+    )
