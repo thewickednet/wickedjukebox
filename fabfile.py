@@ -118,7 +118,7 @@ def build_mpd(ctx):
 
 
 @task
-def run_mpd(ctx, mp3_path=""):
+def run_mpd(ctx, mp3_path="", port=6600):
     """
     Runs MPD in an ephemeral docker-container
 
@@ -134,6 +134,7 @@ def run_mpd(ctx, mp3_path=""):
         "docker run --rm "
         f"--volume=/run/user/{uid}/pulse:/run/user/{uid}/pulse {volume} "
         "--name wickedjukebox_mpd "
+        f"-p {port}:6600 "
         "wickedjukebox/mpd",
         pty=True,
     )
