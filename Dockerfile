@@ -27,4 +27,4 @@ RUN chown ${UNAME} /etc/mpd.conf && \
 USER $UNAME
 ENV HOME /home/${UNAME}
 
-ENTRYPOINT ["mpd", "-v", "--stdout", "--no-daemon"]
+ENTRYPOINT ["mpd", "--stdout", "--no-daemon"]
