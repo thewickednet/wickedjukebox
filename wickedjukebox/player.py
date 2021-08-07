@@ -49,6 +49,11 @@ class AbstractPlayer(ABC):
     def upcoming_songs(self) -> List[Song]:  # pragma: no cover
         ...
 
+    @property
+    @abstractmethod
+    def is_playing(self) -> bool:  # pragma: no cover
+        ...
+
 
 class NullPlayer(AbstractPlayer):
     def skip(self) -> None:
@@ -66,6 +71,10 @@ class NullPlayer(AbstractPlayer):
     @property
     def upcoming_songs(self) -> List[Song]:
         return []
+
+    @property
+    def is_playing(self) -> bool:
+        return False
 
 
 class MpdPlayer(AbstractPlayer):
@@ -165,3 +174,9 @@ class MpdPlayer(AbstractPlayer):
             self.mpd2jukebox(item["file"]) for item in playlist[first_upcoming:]
         ]
         return output
+
+    @property
+    def is_playing(self) -> bool:
+        self.connect()
+        status: Dict[str, str] = self.client.status()  # type: ignore
+        return status.get("state") == "play"

@@ -100,3 +100,24 @@ def test_upcoming_songs(mocked_player: Tuple[p.MpdPlayer, Mock]):
     result = player.upcoming_songs
     expected = ["/jukebox/root/foo.mp3", "/jukebox/root/bar.mp3"]
     assert result == expected
+
+
+@pytest.mark.parametrize(
+    "state_str, expected",
+    [
+        ("play", True),
+        ("stop", False),
+        ("pause", False),
+    ],
+)
+def test_is_playing(
+    mocked_player: Tuple[p.MpdPlayer, Mock], state_str: str, expected: bool
+):
+    player, MPDClient = mocked_player
+    client = Mock()
+    MPDClient.return_value = client
+    client.status.return_value = {  # type: ignore
+        "state": state_str,
+    }
+    result = player.is_playing
+    assert result == expected
