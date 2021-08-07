@@ -1,12 +1,12 @@
 import logging
 from time import sleep
 
+from wickedjukebox.ipc import AbstractState, NullState, States
 from wickedjukebox.jingle import AbstractJingle, NullJingle
 from wickedjukebox.logutil import qualname
 from wickedjukebox.player import AbstractPlayer, NullPlayer
 from wickedjukebox.queue import AbstractQueue, NullQueue
 from wickedjukebox.random import AbstractRandom, NullRandom
-from wickedjukebox.xcom import AbstractState, NullState, States
 
 
 class Channel:
