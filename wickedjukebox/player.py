@@ -30,21 +30,23 @@ class AbstractPlayer(ABC):
         return f"<{qualname(self)}>"
 
     @abstractmethod
-    def skip(self) -> None:
+    def skip(self) -> None:  # pragma: no cover
         ...
 
     @abstractmethod
-    def enqueue(self, song: Song, is_jingle: bool = False) -> None:
-        ...
-
-    @property
-    @abstractmethod
-    def remaining_seconds(self) -> int:
+    def enqueue(
+        self, song: Song, is_jingle: bool = False
+    ) -> None:  # pragma: no cover
         ...
 
     @property
     @abstractmethod
-    def upcoming_songs(self) -> List[Song]:
+    def remaining_seconds(self) -> int:  # pragma: no cover
+        ...
+
+    @property
+    @abstractmethod
+    def upcoming_songs(self) -> List[Song]:  # pragma: no cover
         ...
 
 
@@ -72,18 +74,29 @@ class MpdPlayer(AbstractPlayer):
         self.client = None
         self.path_map = path_map
 
-    def from_song(self, jukebox_item: Song) -> MpdSong:
-        jukebox_root = str(self.path_map.jukebox_path)
-        relative_name = jukebox_item.filename[len(jukebox_root) + 1 :]
-        return {"file": relative_name}
+    def jukebox2mpd(self, filename: str) -> str:
+        """
+        Convert a filename from the jukebox to mpd
 
-    def to_song(self, mpd_item: MpdSong) -> Song:
-        return Song(
-            mpd_item["artist"],
-            mpd_item["album"],
-            mpd_item["title"],
-            mpd_item["file"],
-        )
+        The filenames may differ in case the jukebox and mpd run on different
+        systems (or containers). This maps a "jukebox-filename" to a
+        "mpd-filename". MPD filenames are relative to the internal mpd-database
+        root.
+        """
+        jukebox_root = str(self.path_map.jukebox_path)
+        mpd_path = filename[len(jukebox_root) + 1 :]
+        return str(mpd_path)
+
+    def mpd2jukebox(self, filename: str) -> str:
+        """
+        Convert a filename from mpd to the jukebox.
+
+        The filenames may differ in case the jukebox and mpd run on different
+        systems (or containers). This maps a "mpd-filename" to a
+        "jukebox-filename"
+        """
+        jb_path = self.path_map.jukebox_path / filename
+        return str(jb_path)
 
     def connect(self) -> None:
         """
@@ -107,9 +120,9 @@ class MpdPlayer(AbstractPlayer):
 
     def enqueue(self, song: Song, is_jingle: bool) -> None:
         self.connect()
-        mpd_info = self.from_song(song)
-        self._log.debug("Queuing %r to mpd", mpd_info["file"])
-        self.client.add(mpd_info["file"])  # type: ignore
+        mpd_filename = self.jukebox2mpd(song.filename)
+        self._log.debug("Queuing %r to mpd", mpd_filename)
+        self.client.add(mpd_filename)  # type: ignore
 
     @property
     def remaining_seconds(self) -> int:
@@ -148,5 +161,7 @@ class MpdPlayer(AbstractPlayer):
         first_upcoming = current_playlist_pos + offset
 
         playlist: List[MpdSong] = self.client.playlistinfo()  # type: ignore
-        output = [self.to_song(item) for item in playlist[first_upcoming:]]
+        output = [
+            self.mpd2jukebox(item["file"]) for item in playlist[first_upcoming:]
+        ]
         return output
