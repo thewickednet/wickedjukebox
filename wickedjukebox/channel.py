@@ -14,6 +14,8 @@ class Channel:
         self,
         name: str = "",
         tick_interval_s: int = 5,
+        jingle_interval: int = 5,
+        autoplay: bool = True,
         queue: AbstractQueue = NullQueue(),
         random: AbstractRandom = NullRandom(),
         player: AbstractPlayer = NullPlayer(),
@@ -27,8 +29,9 @@ class Channel:
         self.random = random
         self.jingle = jingle
         self.tick_interval_s = tick_interval_s
+        self.jingle_interval = jingle_interval
+        self.autoplay = autoplay
         self.ticks = 0
-        self.jingle_interval = 5
         self.keep_running = True
         self._log = logging.getLogger(qualname(self))
 
@@ -44,11 +47,14 @@ class Channel:
             self._enqueue()
 
         if not self.player.is_playing:
-            self._log.info(
-                "Player is currently not playing (paused or stopped). "
-                "Not doing anything."
-            )
-            return
+            if not self.autoplay:
+                self._log.info(
+                    "Player is currently not playing (paused or stopped). "
+                    "Autoplay is disabled -> Not doing anything."
+                )
+                return
+            else:
+                self.player.play()
 
         do_skip = self.state.get(States.SKIP_REQUESTED)
 

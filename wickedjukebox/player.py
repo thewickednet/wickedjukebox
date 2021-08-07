@@ -34,6 +34,10 @@ class AbstractPlayer(ABC):
         ...
 
     @abstractmethod
+    def play(self) -> None:  # pragma: no cover
+        ...
+
+    @abstractmethod
     def enqueue(
         self, filename: str, is_jingle: bool = False
     ) -> None:  # pragma: no cover
@@ -63,6 +67,10 @@ class AbstractPlayer(ABC):
 class NullPlayer(AbstractPlayer):
     def skip(self) -> None:
         self._log.debug("Skipping (no-op)")
+        return
+
+    def play(self) -> None:
+        self._log.debug("Starting playback (no-op)")
         return
 
     def enqueue(self, filename: str, is_jingle: bool = False) -> None:
@@ -131,6 +139,10 @@ class MpdPlayer(AbstractPlayer):
         client.connect(mpd_host, mpd_port)  # type: ignore
         client.consume(1)  # type: ignore
         self.client = client
+
+    def play(self) -> None:
+        self.connect()
+        self.client.play()  # type: ignore
 
     def skip(self) -> None:
         self.connect()
