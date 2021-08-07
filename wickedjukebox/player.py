@@ -4,7 +4,7 @@ from math import floor
 from pathlib import Path
 from typing import Dict, List, NamedTuple
 
-from mpd.base import MPDClient
+from mpd.base import MPDClient  # type: ignore
 
 from wickedjukebox.adt import Song
 from wickedjukebox.logutil import qualname
