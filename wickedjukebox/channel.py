@@ -32,13 +32,16 @@ class Channel:
         self.keep_running = True
         self._log = logging.getLogger(qualname(self))
 
+    def _enqueue(self) -> None:
+        next_song = self.queue.dequeue() or self.random.pick()
+        if next_song:
+            self.player.enqueue(next_song, is_jingle=False)
+
     def tick(self) -> None:
         self._log.debug("tick")
 
         if self.player.is_empty:
-            next_song = self.queue.dequeue() or self.random.pick()
-            if next_song:
-                self.player.enqueue(next_song, is_jingle=False)
+            self._enqueue()
 
         if not self.player.is_playing:
             self._log.info(
@@ -46,6 +49,7 @@ class Channel:
                 "Not doing anything."
             )
             return
+
         do_skip = self.state.get(States.SKIP_REQUESTED)
 
         if self.player.songs_since_last_jingle > self.jingle_interval:
@@ -62,12 +66,11 @@ class Channel:
                 "Enqueueing new song.",
                 self.player.remaining_seconds,
             )
-            next_song = self.queue.dequeue() or self.random.pick()
-            if next_song:
-                self.player.enqueue(next_song, is_jingle=False)
+            self._enqueue()
 
         if do_skip:
             self._log.info("Skipping (via external request)")
+            self._enqueue()
             self.player.skip()
             self.state.set(States.SKIP_REQUESTED, False)
 
