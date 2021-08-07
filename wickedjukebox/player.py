@@ -46,7 +46,7 @@ class AbstractPlayer(ABC):
 
     @property
     @abstractmethod
-    def upcoming_songs(self) -> List[Song]:  # pragma: no cover
+    def upcoming_songs(self) -> List[str]:  # pragma: no cover
         ...
 
     @property
@@ -69,7 +69,7 @@ class NullPlayer(AbstractPlayer):
         return 0
 
     @property
-    def upcoming_songs(self) -> List[Song]:
+    def upcoming_songs(self) -> List[str]:
         return []
 
     @property
@@ -152,7 +152,7 @@ class MpdPlayer(AbstractPlayer):
         return floor(remaining_playtime)
 
     @property
-    def upcoming_songs(self) -> List[Song]:
+    def upcoming_songs(self) -> List[str]:
         self.connect()
         current_playlist_pos = 0
         status: Dict[str, str] = self.client.status()  # type: ignore
