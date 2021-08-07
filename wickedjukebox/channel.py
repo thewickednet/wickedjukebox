@@ -34,6 +34,12 @@ class Channel:
 
     def tick(self) -> None:
         self._log.debug("tick")
+
+        if self.player.is_empty:
+            next_song = self.queue.dequeue() or self.random.pick()
+            if next_song:
+                self.player.enqueue(next_song, is_jingle=False)
+
         if not self.player.is_playing:
             self._log.info(
                 "Player is currently not playing (paused or stopped). "

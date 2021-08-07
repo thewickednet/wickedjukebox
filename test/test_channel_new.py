@@ -37,6 +37,7 @@ def test_tick():
     mock_player = create_autospec(AbstractPlayer)
     mock_player.remaining_seconds = 5
     mock_player.songs_since_last_jingle = 99
+    mock_player.is_empty = False
     channel = Channel(
         player=mock_player,
         random=mock_random,
@@ -63,6 +64,7 @@ def test_queue_needed():
     mock_player = create_autospec(AbstractPlayer)
     mock_player.songs_since_last_jingle = 0
     mock_player.remaining_seconds = 5
+    mock_player.is_empty = False
     mock_queue = create_autospec(AbstractQueue)
     channel = Channel(tick_interval_s=5, queue=mock_queue, player=mock_player)
     channel.tick()
@@ -77,6 +79,7 @@ def test_queue_needed_empty():
     mock_player = create_autospec(AbstractPlayer)
     mock_player.songs_since_last_jingle = 0
     mock_player.remaining_seconds = 0
+    mock_player.is_empty = False
     mock_queue = create_autospec(AbstractQueue)
     sentinel = object()
     mock_queue.dequeue.return_value = sentinel
@@ -92,6 +95,7 @@ def test_random_needed():
     mock_player = create_autospec(AbstractPlayer)
     mock_player.songs_since_last_jingle = 0
     mock_player.remaining_seconds = 0
+    mock_player.is_empty = False
     mock_queue = create_autospec(AbstractQueue)
     mock_queue.dequeue.return_value = None
     mock_random = create_autospec(AbstractRandom)

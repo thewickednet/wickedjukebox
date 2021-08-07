@@ -54,6 +54,11 @@ class AbstractPlayer(ABC):
     def is_playing(self) -> bool:  # pragma: no cover
         ...
 
+    @property
+    @abstractmethod
+    def is_empty(self) -> bool:  # pragma: no cover
+        ...
+
 
 class NullPlayer(AbstractPlayer):
     def skip(self) -> None:
@@ -74,6 +79,10 @@ class NullPlayer(AbstractPlayer):
 
     @property
     def is_playing(self) -> bool:
+        return False
+
+    @property
+    def is_empty(self) -> bool:
         return False
 
 
@@ -180,3 +189,9 @@ class MpdPlayer(AbstractPlayer):
         self.connect()
         status: Dict[str, str] = self.client.status()  # type: ignore
         return status.get("state") == "play"
+
+    @property
+    def is_empty(self) -> bool:
+        self.connect()
+        playlist: List[MpdSong] = self.client.playlistinfo()  # type: ignore
+        return playlist == []
