@@ -17,7 +17,7 @@ class AbstractRandom(ABC):
         return f"<{qualname(self)}>"
 
     @abstractmethod
-    def pick(self) -> Optional[Song]:  # pragma: no cover
+    def pick(self) -> str:  # pragma: no cover
         ...
 
 
@@ -30,8 +30,8 @@ class NullRandom(AbstractRandom):
     test-harness.
     """
 
-    def pick(self) -> Optional[Song]:
-        return Song("", "", "", "")
+    def pick(self) -> str:
+        return ""
 
 
 class AllFilesRandom(AbstractRandom):
@@ -46,7 +46,7 @@ class AllFilesRandom(AbstractRandom):
         super().__init__()
         self.root = root
 
-    def pick(self) -> Optional[Song]:
+    def pick(self) -> str:
         pth = Path(self.root)
         candidates = list(pth.glob("**/*.mp3"))
         if not candidates:
@@ -57,7 +57,7 @@ class AllFilesRandom(AbstractRandom):
             )
             return None
         pick = choice(candidates)
-        output = Song("", "", "", str(pick.absolute()))
+        output = str(pick.absolute())
         self._log.debug(
             "Picked %r as random file from all files in %r",
             output,

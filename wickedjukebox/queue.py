@@ -1,9 +1,7 @@
-from abc import ABC, abstractmethod
 import logging
-from typing import Optional
-from wickedjukebox.logutil import qualname
+from abc import ABC, abstractmethod
 
-from wickedjukebox.adt import Song
+from wickedjukebox.logutil import qualname
 
 
 class AbstractQueue(ABC):
@@ -14,11 +12,11 @@ class AbstractQueue(ABC):
         return f"<{qualname(self)}>"
 
     @abstractmethod
-    def dequeue(self) -> Optional[Song]:
+    def dequeue(self) -> str:
         ...
 
 
 class NullQueue(AbstractQueue):
-    def dequeue(self) -> Optional[Song]:
+    def dequeue(self) -> str:
         self._log.debug("Dequeuing nothing")
-        return None
+        return ""

@@ -18,7 +18,7 @@ def test_null_random():
     obj = rnd.NullRandom()
     result = obj.pick()
     assert result is not None
-    assert result.filename == ""
+    assert result == ""
 
 
 def test_allfiles():
@@ -27,7 +27,7 @@ def test_allfiles():
         MockPath().glob.return_value = [Path("foo")]
         result = obj.pick()
     assert result is not None
-    assert str(result.filename) == str(Path("foo").absolute())
+    assert str(result) == str(Path("foo").absolute())
 
 
 def test_allfiles_empty():

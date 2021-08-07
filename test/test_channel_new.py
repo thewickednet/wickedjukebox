@@ -136,7 +136,9 @@ def test_skip_ensure_queue():
         States.SKIP_REQUESTED: 1,
     }
     mock_state.get.side_effect = fake_state.get
-    channel = Channel(player=mock_player, state=mock_state)
+    mock_queue = create_autospec(AbstractQueue)
+    mock_queue.dequeue.return_value = object()
+    channel = Channel(player=mock_player, state=mock_state, queue=mock_queue)
     channel.tick()
     mock_player.skip.assert_called_once_with()
     mock_player.enqueue.assert_called()

@@ -35,7 +35,7 @@ class AbstractPlayer(ABC):
 
     @abstractmethod
     def enqueue(
-        self, song: Song, is_jingle: bool = False
+        self, filename: str, is_jingle: bool = False
     ) -> None:  # pragma: no cover
         ...
 
@@ -65,8 +65,8 @@ class NullPlayer(AbstractPlayer):
         self._log.debug("Skipping (no-op)")
         return
 
-    def enqueue(self, song: Song, is_jingle: bool = False) -> None:
-        self._log.debug("Queuing %r, jingle: %r (no-op)", song, is_jingle)
+    def enqueue(self, filename: str, is_jingle: bool = False) -> None:
+        self._log.debug("Queuing %r, jingle: %r (no-op)", filename, is_jingle)
         return None
 
     @property
@@ -136,9 +136,9 @@ class MpdPlayer(AbstractPlayer):
         self.connect()
         self.client.next()  # type: ignore
 
-    def enqueue(self, song: Song, is_jingle: bool) -> None:
+    def enqueue(self, filename: str, is_jingle: bool) -> None:
         self.connect()
-        mpd_filename = self.jukebox2mpd(song.filename)
+        mpd_filename = self.jukebox2mpd(filename)
         self._log.info("Queuing %r (jingle=%r) to mpd", mpd_filename, is_jingle)
         self.client.add(mpd_filename)  # type: ignore
         if is_jingle:

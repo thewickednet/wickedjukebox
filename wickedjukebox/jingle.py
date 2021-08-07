@@ -2,9 +2,7 @@ import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 from random import choice
-from typing import Optional
 
-from wickedjukebox.adt import Song
 from wickedjukebox.logutil import qualname
 
 
@@ -16,12 +14,12 @@ class AbstractJingle(ABC):
         return f"<{qualname(self)}>"
 
     @abstractmethod
-    def pick(self) -> Optional[Song]:
+    def pick(self) -> str:
         ...
 
 
 class NullJingle(AbstractJingle):
-    def pick(self) -> Optional[Song]:
+    def pick(self) -> str:
         self._log.debug("Returning 'null' jingle")
         return None
 
@@ -38,7 +36,7 @@ class FileBasedJingles(AbstractJingle):
         super().__init__()
         self.root = root
 
-    def pick(self) -> Optional[Song]:
+    def pick(self) -> str:
         pth = Path(self.root)
         candidates = list(pth.glob("**/*.mp3"))
         if not candidates:
@@ -47,7 +45,7 @@ class FileBasedJingles(AbstractJingle):
                 "folder!",
                 self.root,
             )
-            return None
+            return ""
         pick = choice(candidates)
         output = str(pick.absolute())
         self._log.debug(
@@ -55,4 +53,4 @@ class FileBasedJingles(AbstractJingle):
             output,
             pth.absolute(),
         )
-        return Song("", "", "", output)
+        return output
