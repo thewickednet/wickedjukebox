@@ -63,7 +63,8 @@ class Channel:
                 self.player.remaining_seconds,
             )
             next_song = self.queue.dequeue() or self.random.pick()
-            self.player.enqueue(next_song, is_jingle=False)
+            if next_song:
+                self.player.enqueue(next_song, is_jingle=False)
 
         if do_skip:
             self._log.info("Skipping (via external request)")

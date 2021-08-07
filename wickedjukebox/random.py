@@ -2,6 +2,7 @@ import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 from random import choice
+from typing import Optional
 
 from wickedjukebox.adt import Song
 from wickedjukebox.logutil import qualname
@@ -16,7 +17,7 @@ class AbstractRandom(ABC):
         return f"<{qualname(self)}>"
 
     @abstractmethod
-    def pick(self) -> Song:
+    def pick(self) -> Optional[Song]:
         ...
 
 
@@ -29,7 +30,7 @@ class NullRandom(AbstractRandom):
     test-harness.
     """
 
-    def pick(self) -> Song:
+    def pick(self) -> Optional[Song]:
         return Song("", "", "", "")
 
 
@@ -45,9 +46,17 @@ class AllFilesRandom(AbstractRandom):
         super().__init__()
         self.root = root
 
-    def pick(self) -> Song:
+    def pick(self) -> Optional[Song]:
         pth = Path(self.root)
-        pick = choice(list(pth.glob("**/*.mp3")))
+        candidates = list(pth.glob("**/*.mp3"))
+        if not candidates:
+            self._log.info(
+                "Files configured using random in %r but no files "
+                "found in that folder!",
+                self.root,
+            )
+            return None
+        pick = choice(candidates)
         output = Song("", "", "", str(pick.absolute()))
         self._log.debug(
             "Picked %r as random file from all files in %r",
