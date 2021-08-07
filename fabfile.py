@@ -3,6 +3,7 @@ from os import getuid
 from os.path import abspath
 from pathlib import Path
 from tempfile import NamedTemporaryFile
+from time import sleep
 from typing import Dict
 
 from invoke import task
@@ -18,17 +19,16 @@ def get_db_port(json_doc: str) -> int:
 
 
 def reconfigure(
-    ctx, template: Path, target: Path, variables: Dict[str, str]
+    ctx,
+    template: Path,
+    target: Path,
+    variables: Dict[str, str],
+    unattended: bool,
 ) -> None:
     if not template.is_file():
         raise ValueError("%s should be a regular file!" % template)
     if target.exists() and not target.is_file():
         raise ValueError("%s should be a regular file!" % target)
-
-    if target.exists():
-        # Instead of using the application template, we will use the existing
-        # file to edit
-        template = target
 
     template_str = template.read_text()
 
@@ -39,14 +39,16 @@ def reconfigure(
         tmpfile.write(template_str.encode("utf8"))
         tmpfile.flush()
 
-        ctx.run("$EDITOR %s" % tmpfile.name, pty=True, replace_env=False)
+        if not unattended:
+            ctx.run("$EDITOR %s" % tmpfile.name, pty=True, replace_env=False)
+
         diff = ctx.run(
             "diff %s %s" % (tmpfile.name, template), warn=True, hide=True
         )
 
         if diff.exited == 0:
             # no changes to file. we can return with no-op
-            print("No changes made. Keeping old file.")
+            print("No changes made. Keeping old file %r." % target)
             return
 
         print("Applying changes %s -> %s" % (template, target))
@@ -54,36 +56,52 @@ def reconfigure(
         ctx.run("cp -v %s %s" % (tmpfile.name, target))
 
 
-@task
-def develop(ctx):
-    ctx.run("[ -d env ] || python3 -m venv env")
-    ctx.run("./env/bin/pip install -U pip")
-    ctx.run("./env/bin/pip install -e .[dev,test]")
-    print("Running DB container...")
-    ctx.run("./db_container.sh", warn=True, pty=True)
-    output = ctx.run("docker inspect jukeboxdb", hide="both")
-    db_port = get_db_port(output.stdout)
-    print("The following config-file needs the MySQL port you see above!")
-    input("Press ENTER to continue...")
+def run_db_container(ctx):
+    """
+    Starts a new db-container and adapts ports in config-files if necessary.
+    """
+
+    container_check = ctx.run(
+        "docker inspect jukeboxdb", hide="both", warn=True
+    )
+    if container_check.failed:
+        print("Running DB container...")
+        ctx.run("bash db_container.sh", pty=True)
+        sleep(3)
+        container_check = ctx.run("docker inspect jukeboxdb", hide="both")
+
+    db_port = get_db_port(container_check.stdout)
     reconfigure(
         ctx,
         Path("alembic.ini.dist"),
         Path("alembic.ini"),
         variables={"db_port": str(db_port)},
+        unattended=True,
     )
     reconfigure(
         ctx,
         Path("config.ini.dist"),
         Path(".wicked/wickedjukebox/config.ini"),
         variables={"db_port": str(db_port)},
+        unattended=True,
     )
     ctx.run("./env/bin/alembic upgrade head")
+
+
+@task
+def develop(ctx):
+    ctx.run("[ -d env ] || python3 -m venv env")
+    ctx.run("./env/bin/pip install -U pip")
+    ctx.run("./env/bin/pip install -e .[dev,test]")
+    run_db_container(ctx)
     ctx.run("pre-commit install")
 
 
 @task
 def test(ctx, autorun=False, cover=False, lf=False):
     from configparser import ConfigParser
+
+    run_db_container(ctx)
 
     cfg = ConfigParser()
     cfg.read(".wicked/wickedjukebox/config.ini")
