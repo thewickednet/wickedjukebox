@@ -32,6 +32,8 @@ def test_null_player():
     player.enqueue(Song("", "", "", "foo"))
     assert player.remaining_seconds == 0
     assert player.upcoming_songs == []
+    assert player.is_playing is False
+    assert player.is_empty is False
 
 
 def test_path_jukebox2mpd(mocked_player: Tuple[p.MpdPlayer, Mock]):
@@ -63,7 +65,20 @@ def test_enqueue(mocked_player: Tuple[p.MpdPlayer, Mock]):
     player, MPDClient = mocked_player
     client = Mock()
     MPDClient.return_value = client
+    assert player.songs_since_last_jingle == 0
     player.enqueue(Song("", "", "", "/jukebox/root/foo.mp3"), is_jingle=False)
+    assert player.songs_since_last_jingle == 1
+    client.add.assert_called_with("foo.mp3")  # type: ignore
+
+
+def test_enqueue_jingle(mocked_player: Tuple[p.MpdPlayer, Mock]):
+    player, MPDClient = mocked_player
+    client = Mock()
+    MPDClient.return_value = client
+    player.enqueue(Song("", "", "", "/jukebox/root/foo.mp3"), is_jingle=False)
+    assert player.songs_since_last_jingle == 1
+    player.enqueue(Song("", "", "", "/jukebox/root/foo.mp3"), is_jingle=True)
+    assert player.songs_since_last_jingle == 0
     client.add.assert_called_with("foo.mp3")  # type: ignore
 
 
@@ -121,3 +136,11 @@ def test_is_playing(
     }
     result = player.is_playing
     assert result == expected
+
+
+def test_is_empty(mocked_player: Tuple[p.MpdPlayer, Mock]):
+    player, MPDClient = mocked_player
+    client = Mock()
+    MPDClient.return_value = client
+    client.playlistinfo.return_value = []  # type: ignore
+    assert player.is_empty is True

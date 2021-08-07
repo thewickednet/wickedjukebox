@@ -17,7 +17,7 @@ class AbstractRandom(ABC):
         return f"<{qualname(self)}>"
 
     @abstractmethod
-    def pick(self) -> Optional[Song]:
+    def pick(self) -> Optional[Song]:  # pragma: no cover
         ...
 
 
