@@ -134,7 +134,7 @@ class MpdPlayer(AbstractPlayer):
 
     def skip(self) -> None:
         self.connect()
-        raise NotImplementedError()
+        self.client.next()  # type: ignore
 
     def enqueue(self, song: Song, is_jingle: bool) -> None:
         self.connect()
