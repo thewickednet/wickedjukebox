@@ -139,9 +139,7 @@ class MpdPlayer(AbstractPlayer):
     def enqueue(self, song: Song, is_jingle: bool) -> None:
         self.connect()
         mpd_filename = self.jukebox2mpd(song.filename)
-        self._log.debug(
-            "Queuing %r (jingle=%r) to mpd", mpd_filename, is_jingle
-        )
+        self._log.info("Queuing %r (jingle=%r) to mpd", mpd_filename, is_jingle)
         self.client.add(mpd_filename)  # type: ignore
         if is_jingle:
             self.songs_since_last_jingle = 0
