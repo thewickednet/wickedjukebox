@@ -34,6 +34,12 @@ class Channel:
 
     def tick(self) -> None:
         self._log.debug("tick")
+        if not self.player.is_playing:
+            self._log.info(
+                "Player is currently not playing (paused or stopped). "
+                "Not doing anything."
+            )
+            return
         do_skip = self.state.get(States.SKIP_REQUESTED)
 
         if self.player.songs_since_last_jingle > self.jingle_interval:
