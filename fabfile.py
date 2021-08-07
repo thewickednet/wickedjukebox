@@ -67,7 +67,7 @@ def run_db_container(ctx):
     if container_check.failed:
         print("Running DB container...")
         ctx.run("bash db_container.sh", pty=True)
-        sleep(3)
+        sleep(10)
         container_check = ctx.run("docker inspect jukeboxdb", hide="both")
 
     db_port = get_db_port(container_check.stdout)
