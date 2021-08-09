@@ -16,7 +16,9 @@ from wickedjukebox.adt import Song
 def mocked_player():
     with patch("wickedjukebox.player.MPDClient") as MPDClient:
         player = p.MpdPlayer(
-            p.PathMap(Path("/jukebox/root"), Path("/mpd/root"))
+            "localhost",
+            6600,
+            p.PathMap(Path("/jukebox/root"), Path("/mpd/root")),
         )
         yield player, MPDClient
 

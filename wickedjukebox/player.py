@@ -95,10 +95,12 @@ class NullPlayer(AbstractPlayer):
 
 
 class MpdPlayer(AbstractPlayer):
-    def __init__(self, path_map: PathMap) -> None:
+    def __init__(self, host: str, port: int, path_map: PathMap) -> None:
         super().__init__()
         self.client = None
         self.path_map = path_map
+        self.host = host
+        self.port = port
 
     def jukebox2mpd(self, filename: str) -> str:
         """
@@ -130,13 +132,11 @@ class MpdPlayer(AbstractPlayer):
         """
         if self.client is not None:
             return
-        mpd_host = "127.0.0.1"
-        mpd_port = 6600
-        self._log.info("Connecting to MPD via %s:%s", mpd_host, mpd_port)
+        self._log.info("Connecting to MPD via %s:%s", self.host, self.port)
         client = MPDClient()
         client.timeout = 10
         client.idletimeout = None
-        client.connect(mpd_host, mpd_port)  # type: ignore
+        client.connect(self.host, self.port)  # type: ignore
         client.consume(1)  # type: ignore
         self.client = client
 
