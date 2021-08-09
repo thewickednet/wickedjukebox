@@ -176,7 +176,7 @@ class MpdPlayer(AbstractPlayer):
             )
             for row in playlist[current_playlist_pos + 1 :]:
                 remaining_playtime += float(row["duration"])
-        self._log.debug("Remaining playtime: %3.2f", remaining_playtime)
+        self._log.debug("Remaining playtime: %3.2fs", remaining_playtime)
         return floor(remaining_playtime)
 
     @property
