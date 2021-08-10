@@ -10,7 +10,7 @@ from random import choice, random
 
 from pusher import Pusher
 from sqlalchemy.sql import func, or_, select, update
-from wickedjukebox import load_config
+from wickedjukebox.config import load_config
 from wickedjukebox.demon import playmodes
 from wickedjukebox.demon.dbmodel import Album, Artist
 from wickedjukebox.demon.dbmodel import Channel as DbChannel

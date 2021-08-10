@@ -23,7 +23,7 @@ from sqlalchemy import (Column, DateTime, ForeignKey, Integer, MetaData,
 from sqlalchemy.orm import mapper, relation, scoped_session, sessionmaker
 from sqlalchemy.sql import insert, select, update
 
-from wickedjukebox import load_config
+from wickedjukebox.config import load_config
 
 LOG = logging.getLogger(__name__)
 CFG = load_config()
