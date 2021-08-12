@@ -56,9 +56,11 @@ def reconfigure(
         ctx.run("cp -v %s %s" % (tmpfile.name, target))
 
 
+@task
 def run_db_container(ctx):
     """
-    Starts a new db-container and adapts ports in config-files if necessary.
+    Starts a new db-container and adapts ports in config-files if
+    necessary.
     """
 
     container_check = ctx.run(
