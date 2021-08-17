@@ -249,8 +249,6 @@ class Console(cmd.Cmd):
             artist - The artis name
         """
         print('This is currently not implemented for Python 3')
-        # TODO line = line.decode(sys.stdin.encoding)
-
         # TODO sess = Session()
         # TODO api_key = Setting.get("lastfm_api_key", None)
         # TODO if not api_key:
@@ -287,8 +285,6 @@ class Console(cmd.Cmd):
             -q     - Don't pint each matching row. Print only overall info
                      (counts)
         """
-        line = line.decode(sys.stdin.encoding)
-
         params = set([_.strip().lower() for _ in line.split()])
         delete = False
         quiet = False
@@ -358,8 +354,6 @@ class Console(cmd.Cmd):
             order  - may be one of "name" or "count". If ommitted, "count" is
                         used.
         """
-        line = line.decode(sys.stdin.encoding)
-
         if line in ("count", ""):
             order_by = "song_count"
         elif line == "name":
@@ -392,8 +386,6 @@ class Console(cmd.Cmd):
             Both "A" and "B" are id's to genres in the database. Use "genres"
             to get a list
         """
-        line = line.decode(sys.stdin.encoding)
-
         try:
             old_genre, new_genre = line.split(" ")
         except Exception as ex:  # pylint: disable=broad-except
@@ -443,8 +435,6 @@ class Console(cmd.Cmd):
         SYNOPSIS
             rename_genre <genre_id> <new_name>
         """
-        line = line.decode(sys.stdin.encoding)
-
         try:
             args = line.split(" ")
             gid = int(args[0])
@@ -471,8 +461,6 @@ class Console(cmd.Cmd):
         PARAMETERS
             log_file -- path to a log file
         """
-        line = line.decode(sys.stdin.encoding)
-
         hashtable = {}
         logfile = None
         default_out = sys.stdout
@@ -524,7 +512,6 @@ class Console(cmd.Cmd):
         PARAMETERS
             path     - name of the artist/album or ".."
         """
-        line = line.decode(sys.stdin.encoding)
         arg = self.get_string(line)
 
         if arg.strip() == "..":
@@ -544,8 +531,6 @@ class Console(cmd.Cmd):
         """
         Lists entries in the current context
         """
-        line = line.decode(sys.stdin.encoding)
-
         glob = self.get_string(line)
         if not self.__path:
             artists = get_artists(glob)
@@ -592,7 +577,6 @@ class Console(cmd.Cmd):
             setting    - the setting name (when modifying the setting)
             value      - if specified, change that setting
         """
-        line = line.decode(sys.stdin.encoding)
         params = line.split()
 
         if len(params) <= 2:
@@ -649,7 +633,6 @@ class Console(cmd.Cmd):
         PARAMETERS
             channel - The channel name
         """
-        line = line.decode(sys.stdin.encoding)
         params = line.split(' ', 1)
 
         if len(params) != 2:
@@ -667,8 +650,6 @@ class Console(cmd.Cmd):
         """
         List existing channels.
         """
-        line = line.decode(sys.stdin.encoding)
-
         sel = select([
             channelTable.c.name,
             channelTable.c.backend,
@@ -691,7 +672,6 @@ class Console(cmd.Cmd):
                               'icecast')
             backend_params  - Parameters for the backend.
         """
-        line = line.decode(sys.stdin.encoding)
         params = line.split(' ', 2)
 
         if len(params) != 3:
@@ -720,7 +700,6 @@ class Console(cmd.Cmd):
             channel_id       - The channel ID. If none is given, "1" is
                                assumed as default.
         """
-        line = line.decode(sys.stdin.encoding)
         params = line.split()
 
         if not params:
@@ -834,8 +813,6 @@ class Console(cmd.Cmd):
         """
         Adds a new group.
         """
-        line = line.decode(sys.stdin.encoding)
-
         insq = insert(groupsTable)
         insq = insq.values({
             'title': line.strip()
