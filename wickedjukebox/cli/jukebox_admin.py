@@ -1,5 +1,6 @@
 #!/usr/bin/python
-# -*- coding: utf8 -*-
+
+import argparse
 
 
 import cmd
@@ -7,6 +8,7 @@ import logging
 import sys
 from os import path
 from os.path import exists
+from wickedjukebox.scanner import scan
 
 from blessings import Terminal
 from sqlalchemy.exc import IntegrityError
@@ -231,34 +233,6 @@ class Console(cmd.Cmd):
         """Quits you out of Quitter."""
         print("bye")
         return 1
-
-    def do_rescan(self, line, force=0):
-        # type: (str) -> None
-        """
-        Scan the defined library folders for new songs.
-
-        SYNOPSIS
-            rescan <folder>[*]
-
-        PARAMETERS
-            folder  -  Only scan files withing the named folder. If the
-                       foldername ends with an asterisk (*), then all folders
-                       starting with the given name will be scanned.
-
-        EXAMPLES
-            jukebox> rescan Depeche Mode
-            jukebox> rescan Dep*
-        """
-        with self.term.hidden_cursor():
-            mediadirs = [x for x in Setting.get('mediadir', '').split(' ')
-                         if exists(x)]
-            import wickedjukebox.scanner
-            print("Scanning inside %s" % ", ".join(mediadirs))
-            try:
-                wickedjukebox.scanner.scan(mediadirs[0], line)
-                print("done")
-            except KeyboardInterrupt:
-                print("\naborted!")
 
     def do_update_tags(self, line):
         # type: (str) -> None
@@ -876,8 +850,26 @@ class Console(cmd.Cmd):
     do_EOF = do_quit
 
 
-def main():
-    # type: () -> None
+def process_rescan(args: argparse.Namespace) -> int:
+    for path in args.path:
+        scan(path)
+    return 0
+
+def parse_args() -> argparse.Namespace:
+    """
+    Parses the command-line arguments
+    """
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(help="Subcommands help")
+    rescan_parser = subparsers.add_parser("rescan")
+    rescan_parser.add_argument("path", nargs=1)
+    rescan_parser.set_defaults(func=process_rescan)
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+    return args.func(args)
     setup_logging()
     logging.getLogger('wickedjukebox.scanner').setLevel(logging.WARNING)
     # TODO: Catch logging messages from the scanner!

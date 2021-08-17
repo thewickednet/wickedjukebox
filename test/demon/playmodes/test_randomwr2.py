@@ -29,11 +29,9 @@ def test_bootstrap():
 
 
 def test_fetch_candidates(default_data, dbsession):
-    song = Song(
-        "/path/to/song.mp3",
-        default_data["default_artist"],
-        default_data["default_album"],
-    )
+    song = Song("/path/to/song.mp3")
+    song.artist = default_data["default_artist"]
+    song.album = default_data["default_album"]
     song.duration = 300
     dbsession.add(song)
     dbsession.flush()
@@ -55,11 +53,9 @@ def test_fetch_candidates(default_data, dbsession):
     }
 
 def test_get(default_data, dbsession):
-    song = Song(
-        "/path/to/song.mp3",
-        default_data["default_artist"],
-        default_data["default_album"],
-    )
+    song = Song("/path/to/song.mp3")
+    song.artist = default_data["default_artist"]
+    song.album = default_data["default_album"]
     song.duration = 300
     dbsession.add(song)
     dbsession.flush()

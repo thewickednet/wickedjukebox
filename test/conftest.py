@@ -18,9 +18,9 @@ def default_data(dbsession, transaction):
     )
     default_song = db.Song(
         localpath="some.mp3",
-        artist=default_artist,
-        album=default_album,
     )
+    default_song.artist = default_artist
+    default_song.album = default_album
     default_song.title = "title"
 
     dbsession.add(default_channel)

@@ -14,16 +14,27 @@ import logging
 import sys
 from base64 import b64encode
 from datetime import date, datetime
-from os import stat, urandom
+from os import stat, urandom, path
 from os.path import basename
 from typing import Any, Optional
 
-from sqlalchemy import (Column, DateTime, ForeignKey, Integer, MetaData,
-                        String, Table, Unicode, create_engine)
-from sqlalchemy.orm import mapper, relation, scoped_session, sessionmaker
+from sqlalchemy import (
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    MetaData,
+    String,
+    Table,
+    Unicode,
+    create_engine,
+)
+from sqlalchemy.orm import mapper, relation, scoped_session, sessionmaker, Session as TSession
+from sqlalchemy.orm.session import object_session
 from sqlalchemy.sql import insert, select, update
 
 from wickedjukebox.config import load_config
+from wickedjukebox.model.audiometa import MetaFactory
 
 LOG = logging.getLogger(__name__)
 CFG = load_config()
@@ -157,6 +168,11 @@ class Genre(object):
     def __repr__(self):
         return "<Genre %s name=%s>" % (self.id, repr(self.name))
 
+    @staticmethod
+    def by_name(name: str) -> Optional["Genre"]:
+        session = Session()
+        query = session.query(Genre).filter_by(name=name)
+        return query.one_or_none()
 
 class Tag(object):
 
@@ -172,7 +188,7 @@ class Setting(object):
 
     @staticmethod
     def set(
-        session: Session,
+        session: TSession,
         var: str,
         value: Any,
         channel_id: int = 0,
@@ -305,6 +321,11 @@ class Artist(object):
     def __repr__(self):
         return "<Artist %s name=%s>" % (self.id, repr(self.name))
 
+    @staticmethod
+    def by_name(name: str, session: Optional[TSession] = None) -> Optional["Artist"]:
+        session = session or Session()
+        query = session.query(Artist).filter_by(name=name)
+        return query.one_or_none()
 
 class State(object):
 
@@ -391,74 +412,75 @@ class Album(object):
     def __repr__(self):
         return "<Album %s name=%s>" % (self.id, repr(self.name))
 
+    @staticmethod
+    def by_name(name: str, session: Optional[TSession] = None) -> Optional["Album"]:
+        session: TSession = session or Session()
+        album = session.query(Album).filter_by(name=name).one_or_none()
+        return album
+
 
 class Song(object):
-
-    def __init__(
-        self, localpath: str, artist: "Artist", album: "Album"
-    ) -> None:
-        if localpath:
-            self.localpath = localpath
+    def __init__(self, localpath: str) -> None:
+        self.localpath = localpath
         self.added = datetime.now()
-        self.artist = artist
-        self.album = album
 
     def __repr__(self):
         return "<Song id=%r artist_id=%r title=%r path=%r>" % (
             self.id, self.artist_id, self.title, self.localpath)
 
     @staticmethod
-    def by_filename(session: Session, filename: str) -> Optional["Song"]:
+    def by_filename(session: TSession, filename: str) -> Optional["Song"]:
+        """
+        Retrieve a song from the database using the local filename as key
+        """
         song = session.query(Song).filter_by(localpath=filename).one_or_none()
         return song
 
-    def scan_from_file(self, localpath, encoding):
+    def update_metadata(self) -> None:
         """
         Scans a file on the disk and loads the metadata from that file
 
-        @param localpath: The absolute path to the file
-        @param encoding: The file system encoding
+        :param localpath: The absolute path to the file
+        :param encoding: The file system encoding
         """
-
-        from os import path
-        from wickedjukebox.model.audiometa import MetaFactory
-
+        localpath = self.localpath
         LOG.debug("Extracting metadata from %r", localpath)
 
-        try:
-            audiometa = MetaFactory.create(localpath.encode(encoding))
-        except Exception:  # pylint: disable=broad-except
-            # catchall for graceful-degradation
-            LOG.warning("%r contained invalid metadata.",
-                        localpath, exc_info=True)
+        audiometa = MetaFactory.create(localpath)
+        dirname = path.dirname(localpath)
 
-        dirname = path.dirname(localpath.encode(encoding))
+        artist = Artist.by_name(audiometa["artist"])
+        if not artist:
+            artist = Artist(audiometa["artist"])
+        self.artist = artist
 
-        self.__artistName = audiometa['artist']
-        self.__genreName = (audiometa['genres'][0]
-                            if audiometa['genres']
-                            else None)
-        self.__albumName = audiometa['album']
-        self.localpath = localpath
-        self.title = audiometa['title']
-        self.duration = audiometa['duration']
-        self.bitrate = audiometa['bitrate']
-        self.track_no = audiometa['track_no']
+        album = Album.by_name(audiometa["album"])
+        if not album:
+            album = Album(
+                audiometa["album"],
+                artist,
+                dirname,
+            )
+        self.album = album
 
-        release_date = audiometa['release_date']
+        self.genres=  []
+        if audiometa["genres"] is not None:
+            for genre_name in audiometa["genres"]:
+                genre = Genre.by_name(genre_name)
+                if not genre:
+                    genre = Genre(genre_name)
+                self.genres.append(genre)
+        self.title = audiometa["title"]
+        self.duration = audiometa["duration"]
+        self.bitrate = audiometa["bitrate"]
+        self.track_no = audiometa["track_no"]
+
+        release_date = audiometa["release_date"]
         if release_date:
             self.year = release_date.year
 
-        try:
-            self.filesize = stat(localpath.encode(encoding)).st_size
-        except Exception:  # pylint: disable=broad-except
-            # catchall for graceful-degradation
-            LOG.warning('Unhandled Exception', exc_info=True)
-            self.filesize = None
+        self.filesize = stat(localpath).st_size
 
-        self.artist_id = self.get_artist_id(self.__artistName)
-        self.genre_id = self.get_genre_id(self.__genreName)
-        self.album_id = self.get_album_id(dirname)
         self.lastScanned = datetime.now()
 
     def get_genre_id(self, genre_name):
