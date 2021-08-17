@@ -154,37 +154,6 @@ class Console(cmd.Cmd):
             if not path.exists(row[1]):
                 yield row
 
-    def list_settings(self, channel_id=None, user_id=None):
-        # type: (int, int) -> None
-        """
-        List settings
-
-        @param channel_id: If set, list only settings for that channel
-        @param user_id: If set, list only settings for that user
-        """
-        sel = settingTable.select()
-
-        if channel_id:
-            sel = sel.where(settingTable.c.channel_id == int(channel_id))
-
-        if user_id:
-            sel = sel.where(settingTable.c.user_id == int(user_id))
-
-        sel = sel.order_by("user_id", "channel_id", "var")
-        print(" Channel ID | User ID | Setting                         | Value")
-        previous_channel = None
-        for row in sel.execute().fetchall():
-            if row["channel_id"] != previous_channel:
-                print(
-                    "---------+------------+---------------------------+----------------")
-                previous_channel = row['channel_id']
-            print(" %10d | %7d | %-25s | %s" % (
-                row["channel_id"],
-                row["user_id"],
-                row["var"],
-                row["value"],
-            ))
-
     def complete_rescan(self, line):
         # type: (str) -> List[str]
         mediadirs = [x for x in Setting.get('mediadir', '').split(' ')
@@ -561,89 +530,6 @@ class Console(cmd.Cmd):
         result = query.execute()
         for row in result.fetchall():
             print(row)
-
-    def do_settings(self, line):
-        # type: (str) -> None
-        """
-        Lists or set application settings
-
-        SYNOPSIS
-            settings [channel_id [user_id [setting value]]]
-
-        PARAMETERS
-            channel_id - if specified, list only settings of that channel
-            user_id    - if specified, list only settings for that user (and
-                         channel)
-            setting    - the setting name (when modifying the setting)
-            value      - if specified, change that setting
-        """
-        params = line.split()
-
-        if len(params) <= 2:
-            self.list_settings(*params)
-            return
-
-        if len(params) == 3:
-            channel_id, user_id, var = params
-            # we already have the setting. Go and update it
-            upq = update(settingTable)
-            upq = upq.where(settingTable.c.channel_id == int(channel_id))
-            upq = upq.where(settingTable.c.user_id == int(user_id))
-            upq = upq.where(settingTable.c.var == var)
-            upq = upq.values({"value": None})
-            upq.execute()
-            print('Setting %s-%s-%s reverted to "NULL"' % (
-                channel_id, user_id, var))
-            return
-
-        channel_id, user_id, var, value = params
-        testsel = select([settingTable.c.value])
-        testsel = testsel.where(settingTable.c.channel_id == int(channel_id))
-        testsel = testsel.where(settingTable.c.user_id == int(user_id))
-        testsel = testsel.where(settingTable.c.var == var)
-        res = testsel.execute()
-        if res and res.fetchone():
-            # we already have the setting. Go and update it
-            upq = update(settingTable)
-            upq = upq.where(settingTable.c.channel_id == int(channel_id))
-            upq = upq.where(settingTable.c.user_id == int(user_id))
-            upq = upq.where(settingTable.c.var == var)
-            upq = upq.values({"value": value})
-            upq.execute()
-        else:
-            # new setting -> insert
-            insq = insert(settingTable)
-            insq = insq.values({
-                "channel_id": int(channel_id),
-                "user_id": int(user_id),
-                "var": var,
-                "value": value
-            })
-            insq.execute()
-        LOG.debug("New setting stored: %r", params)
-
-    def do_channel_settings(self, line):
-        # type: (str) -> None
-        """
-        Modify the settings of one channel.
-
-        SYNOPSIS
-            channel_settings <channel> <settings>
-
-        PARAMETERS
-            channel - The channel name
-        """
-        params = line.split(' ', 1)
-
-        if len(params) != 2:
-            print("Error. See `help channel_settings`")
-            return
-
-        name, params = params
-
-        query = channelTable.update(channelTable.c.name == name,
-                                    values={'backend_params': params})
-        query.execute()
 
     def do_channels(self, line):
         # type: (str) -> None
