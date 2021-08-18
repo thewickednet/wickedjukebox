@@ -139,7 +139,7 @@ def build_mpd(ctx):
 
 
 @task
-def run_mpd(ctx, mp3_path="", port=6600):
+def run_mpd(ctx, mp3_path, port=6600):
     """
     Runs MPD in an ephemeral docker-container
 
