@@ -555,8 +555,12 @@ class Console(cmd.Cmd):
         PARAMETERS
             name            - The channel name
             backend         - Backend (currently tested and supported:
-                              'icecast')
-            backend_params  - Parameters for the backend.
+                              'mpd')
+            backend_params  - Parameters for the backend (comma-separated
+                              key/avlue pairs.)
+
+        EXAMPLE
+            add_channel mychannel mpd host=127.0.0.1,port=6600
         """
         params = line.split(' ', 2)
 
@@ -694,10 +698,9 @@ class Console(cmd.Cmd):
         except IntegrityError as exc:
             print(self.term.red('ERROR:%s' % exc))
 
-    def do_add_group(self, line):
-        # type: (str) -> None
+    def do_add_group(self, line: str) -> None:
         """
-        Adds a new group.
+        Adds a new user-group to the database.
         """
         insq = insert(groupsTable)
         insq = insq.values({
