@@ -537,12 +537,13 @@ class Console(cmd.Cmd):
         List existing channels.
         """
         sel = select([
+            channelTable.c.id,
             channelTable.c.name,
             channelTable.c.backend,
             channelTable.c.backend_params])
         res = sel.execute()
         for row in res.fetchall():
-            print("%-15s | %-10s | %s" % tuple(row))
+            print("%3d | %-15s | %-10s | %s" % tuple(row))
 
     def do_add_channel(self, line):
         # type: (str) -> None
