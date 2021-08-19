@@ -15,10 +15,13 @@ from wickedjukebox.adt import Song
 @pytest.fixture
 def mocked_player():
     with patch("wickedjukebox.player.MPDClient") as MPDClient:
-        player = p.MpdPlayer(
-            "localhost",
-            6600,
-            p.PathMap(Path("/jukebox/root"), Path("/mpd/root")),
+        player = p.MpdPlayer()
+        player.configure(
+            {
+                "host": "localhost",
+                "port": "6600",
+                "path_map": "/jukebox/root:/mpd/root",
+            }
         )
         yield player, MPDClient
 

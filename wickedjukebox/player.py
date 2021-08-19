@@ -2,7 +2,7 @@ import logging
 from abc import ABC, abstractmethod
 from math import floor
 from pathlib import Path
-from typing import Dict, List, NamedTuple
+from typing import Any, Dict, List, NamedTuple
 
 from mpd.base import MPDClient  # type: ignore
 
@@ -28,6 +28,13 @@ class AbstractPlayer(ABC):
 
     def __repr__(self) -> str:
         return f"<{qualname(self)}>"
+
+    @abstractmethod
+    def configure(self, cfg: Dict[str, Any]) -> None:
+        """
+        Process configuration data from a configuration mapping. The
+        required keys depend on the specific player type.
+        """
 
     @abstractmethod
     def skip(self) -> None:  # pragma: no cover
@@ -65,6 +72,9 @@ class AbstractPlayer(ABC):
 
 
 class NullPlayer(AbstractPlayer):
+    def configure(self, cfg: Dict[str, Any]) -> None:
+        pass
+
     def skip(self) -> None:
         self._log.debug("Skipping (no-op)")
         return
@@ -95,12 +105,18 @@ class NullPlayer(AbstractPlayer):
 
 
 class MpdPlayer(AbstractPlayer):
-    def __init__(self, host: str, port: int, path_map: PathMap) -> None:
+    def __init__(self) -> None:
         super().__init__()
         self.client = None
-        self.path_map = path_map
-        self.host = host
-        self.port = port
+        self.path_map = PathMap(Path(""), Path(""))
+        self.host = ""
+        self.port = ""
+
+    def configure(self, cfg: Dict[str, Any]) -> None:
+        self.host = cfg["host"].strip()
+        self.port = int(cfg["port"])
+        outer_path, _, inner_path = cfg["path_map"].partition(":")
+        self.path_map = PathMap(Path(outer_path), Path(inner_path))
 
     def jukebox2mpd(self, filename: str) -> str:
         """
