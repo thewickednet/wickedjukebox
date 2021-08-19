@@ -53,7 +53,18 @@ def reconfigure(
 
         print("Applying changes %s -> %s" % (template, target))
         ctx.run("mkdir -p %s" % target.parent)
-        ctx.run("cp -v %s %s" % (tmpfile.name, target))
+        do_copy = True
+        if target.exists():
+            if unattended:
+                print(f"{target} exists. Will not overwrite!")
+                do_copy = False
+            else:
+                raise Exception(
+                    f"{target} exists. Non-unattended mode not yet "
+                    "implemented for this case"
+                )
+        if do_copy:
+            ctx.run("cp -v %s %s" % (tmpfile.name, target))
 
 
 @task
