@@ -8,6 +8,7 @@ import gobject
 import pygst
 pygst.require("0.10")
 import gst
+from wickedjukebox.config import Config
 
 LOG = logging.getLogger(__name__)
 
@@ -152,7 +153,7 @@ def getSong():
 def queue(filename):
    from wickedjukebox.demon.dbmodel import Setting
    LOG.debug( "Received a queue (%s)" % filename )
-   if Setting.get('sys_utctime', 0) == 0:
+   if Config.get("system", "sys_utctime", fallback=0) == 0:
       STATE.song_started = datetime.utcnow()
    else:
       STATE.song_started = datetime.now()

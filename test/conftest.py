@@ -28,32 +28,6 @@ def default_data(dbsession, transaction):
     dbsession.add(default_user)
     dbsession.flush()
 
-    db.Setting.set(
-        dbsession, "recency_threshold", 120, default_channel.id, default_user.id
-    )
-    db.Setting.set(
-        dbsession,
-        "max_random_duration",
-        600,
-        default_channel.id,
-        default_user.id,
-    )
-    db.Setting.set(
-        dbsession, "scoring_userRating", 4, default_channel.id, default_user.id
-    )
-    db.Setting.set(
-        dbsession, "scoring_neverPlayed", 4, default_channel.id, default_user.id
-    )
-    db.Setting.set(
-        dbsession,
-        "proofoflife_timeout",
-        120,
-        default_channel.id,
-        default_user.id,
-    )
-
-    dbsession.flush()
-
     dbsession.execute(
         db.songStandingTable.insert().values(
             {

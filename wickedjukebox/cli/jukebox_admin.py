@@ -14,7 +14,7 @@ from blessings import Terminal
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import and_, bindparam, func, insert, select, update
 from wickedjukebox import __version__, setup_logging
-from wickedjukebox.demon.dbmodel import (Artist, Session, Setting, albumTable,
+from wickedjukebox.demon.dbmodel import (Artist, Session, albumTable,
                                          artistTable, channelTable, genreTable,
                                          groupsTable, settingTable,
                                          song_has_genre, song_has_tag,
@@ -156,7 +156,7 @@ class Console(cmd.Cmd):
 
     def complete_rescan(self, line):
         # type: (str) -> List[str]
-        mediadirs = [x for x in Setting.get('mediadir', '').split(' ')
+        mediadirs = [x for x in Config.get(Config.MEDIA_DIR, "").split(' ')
                      if exists(x)]
         from os import listdir
         folders = []
@@ -219,7 +219,7 @@ class Console(cmd.Cmd):
         """
         print('This is currently not implemented for Python 3')
         # TODO sess = Session()
-        # TODO api_key = Setting.get("lastfm_api_key", None)
+        # TODO api_key = Config.get(Config.LASTFM_API_KEY, None)
         # TODO if not api_key:
         # TODO     print("ERROR: No API key specified. You can do this it in the "
         # TODO           "settings")

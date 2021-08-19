@@ -184,123 +184,6 @@ class Tag(object):
         return "<Tag label=%r>" % (self.label)
 
 
-class Setting(object):
-
-    @staticmethod
-    def set(
-        session: TSession,
-        var: str,
-        value: Any,
-        channel_id: int = 0,
-        user_id: int = 0
-    ) -> None:
-        """
-        Set a setting in the database.
-
-        @param var: The name of the setting as string
-        @param value: The value to be stored
-        @param channel_id: The channel id if the setting is bound to a channel.
-            Using 0 will make it apply to all channels
-        @param user_id: The user id if the setting is bound to a user. Using 0
-            will make it apply to all users
-        """
-        setting = Setting()
-        setting.var = var
-        setting.value = value
-        setting.channel_id = channel_id
-        setting.user_id = user_id
-
-        session.add(setting)
-        session.flush()
-
-    @classmethod
-    def get(cls, session, param_in, default=NO_DEFAULT, channel_id=None, user_id=None):
-        """
-        Retrieves a setting from the database.
-
-        @type  param_in:    str
-        @param param_in:    The name of the setting as string
-        @param default:     If it's set, it provides the default value in case
-                            the value was not found in the database.
-        @type  channel_id: int
-        @param channel_id: The channel id if the setting is bound to a channel.
-        @type  user_id:     int
-        @param user_id:     The user id if the setting is bound to a user.
-        """
-
-        if LOG.isEnabledFor(logging.DEBUG):
-            source = caller_source()
-            LOG.debug("Retriveing setting %r for user %r and "
-                      "channel %r with default: %r (source: %s:%s)...",
-                      param_in, user_id, channel_id, default,
-                      basename(source[0]), source[1])
-
-        output = default
-
-        try:
-            query = select([settingTable.c.value])
-            query = query.where(settingTable.c.var == param_in)
-
-            if channel_id:
-                query = query.where(settingTable.c.channel_id == channel_id)
-            else:
-                query = query.where(settingTable.c.channel_id == 0)
-
-            if user_id:
-                query = query.where(settingTable.c.user_id == user_id)
-            else:
-                query = query.where(settingTable.c.user_id == 0)
-
-            result = query.execute()
-            if result:
-                setting = result.fetchone()
-
-            # if a channel-setting was requested but no entry was found, we
-            # fall back to a global setting
-            if channel_id and not setting:
-                LOG.debug("    No per-channel setting found. "
-                          "Falling back to global setting...")
-                return cls.get(session=session, param_in=param_in, default=default,
-                               channel_id=None, user_id=user_id)
-
-            if not setting:
-                # The parameter was not found in the database. Do we have a
-                # default?
-                if default is not NO_DEFAULT:
-                    # yes, we have a default. Return that instead the database
-                    # value.
-                    LOG.debug("    Requested setting was not found! Returning "
-                              "default value...")
-                    output = default
-                else:
-                    LOG.debug("    Required parameter %s was not found in the "
-                              "settings table!", param_in)
-                    output = None
-
-
-            else:
-                output = setting["value"]
-
-            LOG.debug("    ... returning %r", output)
-            return output
-
-        except Exception as ex:  # pylint: disable=broad-except
-            # MySQL raises some unhelpful exception classes. So we have to
-            # inspect the error message instead and re-throw the exception if
-            # the mesage is unknown.
-            if str(ex).lower().find('connect') > 0:
-                LOG.critical('Unable to connect to the database. Error was: '
-                             '\n%s', ex)
-                sys.exit(0)
-            if str(ex).lower().find('exist') > 0:
-                LOG.critical('Settings table not found. Did you create the '
-                             'database tables?')
-                sys.exit(0)
-            else:
-                # An unknown error occured. We raise it again
-                raise
-
-
 class Channel(object):
 
     def __init__(self, name, backend, *args, **kwargs):
@@ -582,9 +465,15 @@ class Song(object):
         """
         @raises: lastfm.error.InvalidApiKeyError
         """
+        api_key = Config.get(ConfigKeys.LASTFM_API_KEY)
+        if not api_key:
+            LOG.warning(
+                "Unable to update tags. LastFM API key not "
+                "set in config file"
+            )
+            return
         if not api:
             from wickedjukebox import lastfm
-            api_key = getSetting.get("lastfm_api_key")
             LOG.warning("'update_tags' should be called with an instantiated "
                         "LastFM API instance to avoid unnecessary network "
                         "traffic!")
@@ -673,16 +562,9 @@ class Group:
         return '<Group %d %r>' % (self.id, self.title)
 
 
-def getSetting(param_in, default=None, channel_id=None, user_id=None):
-    source = caller_source()
-    LOG.warning("DEPRECTAED: Please use Setting.get!\nSource: %s:%d --> %s",
-                source[0], source[1], source[3])
-    return Setting.get(param_in, default, channel_id, user_id)
-
-
 def setState(statename, value, channel_id=0):
     source = caller_source()
-    LOG.warning("DEPRECTAED: Please use Setting.set!\nSource: %s:%d --> %s",
+    LOG.warning("DEPRECTAED: Please use State.set!\nSource: %s:%d --> %s",
                 source[0], source[1], source[3])
     return State.set(statename, value, channel_id)
 
@@ -704,7 +586,6 @@ mapper(DynamicPlaylist, dynamicPLTable)
 mapper(QueueItem, queueTable, properties={
     'song': relation(Song)
 })
-mapper(Setting, settingTable)
 mapper(Channel, channelTable)
 mapper(Album, albumTable, properties=dict(
     songs=relation(Song, backref='album')))
@@ -722,6 +603,3 @@ mapper(Group, groupsTable)
 mapper(User, usersTable, properties={
     'group': relation(Group, backref='users'),
 })
-
-if __name__ == "__main__":
-    print(getSetting("test"))

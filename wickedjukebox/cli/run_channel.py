@@ -8,6 +8,12 @@ from pathlib import Path
 
 from wickedjukebox import __version__, setup_logging
 from wickedjukebox.channel import Channel
+from wickedjukebox.config import (
+    Config,
+    ConfigKeys,
+    get_config_files,
+    parse_param_string,
+)
 from wickedjukebox.jingle import FileBasedJingles
 from wickedjukebox.player import MpdPlayer, PathMap
 from wickedjukebox.random import AllFilesRandom

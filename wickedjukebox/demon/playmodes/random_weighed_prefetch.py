@@ -14,11 +14,12 @@ import threading
 
 from sqlalchemy.sql import func, select
 from sqlalchemy.sql import text as dbText
-from wickedjukebox.demon.dbmodel import (Session, Setting, Song, channelTable,
+from wickedjukebox.demon.dbmodel import (Session, Song, channelTable,
                                          dynamicPLTable, engine, songTable,
                                          usersTable)
 from wickedjukebox.demon.plparser import ParserSyntaxError, parse_query
 from wickedjukebox.demon.util import config
+from wickedjukebox.config import Config, ConfigKeys
 
 LOG = logging.getLogger(__name__)
 
@@ -58,25 +59,47 @@ def findSong(channel_id):
     session = Session()
 
     # setup song scoring coefficients
-    user_rating = int(Setting.get(
-        'scoring_userRating', 4,
-        channel_id=channel_id))
-    last_played = int(Setting.get(
-        'scoring_lastPlayed', 10,
-        channel_id=channel_id))
-    song_age = int(Setting.get(
-        'scoring_songAge', 1,
-        channel_id=channel_id))
-    never_played = int(Setting.get(
-        'scoring_neverPlayed', 4,
-        channel_id=channel_id))
-    randomness = int(Setting.get(
-        'scoring_randomness', 1,
-        channel_id=channel_id))
-    max_random_duration = int(Setting.get(
-        'max_random_duration', 600,
-        channel_id=channel_id))
-    proofoflife_timeout = int(Setting.get('proofoflife_timeout', 120))
+    user_rating = Config.get(
+        ConfigKeys.SCORING_USERRATING,
+        4,
+        channel=channel_name,
+        converter=int,
+    )
+    last_played = Config.get(
+        ConfigKeys.SCORING_LASTPLAYED,
+        10,
+        channel=channel_name,
+        converter=int,
+    )
+    song_age = Config.get(
+        ConfigKeys.SCORING_SONGAGE,
+        1,
+        channel=channel_name,
+        converter=int,
+    )
+    never_played = Config.get(
+        ConfigKeys.SCORING_NEVERPLAYED,
+        4,
+        channel=channel_name,
+        converter=int,
+    )
+    randomness = Config.get(
+        ConfigKeys.SCORING_RANDOMNESS,
+        1,
+        channel=channel_name,
+        converter=int
+    )
+    max_random_duration = Config.get(
+        ConfigKeys.MAX_RANDOM_DURATION,
+        600,
+        channel=channel_name,
+        converter=int,
+    )
+    proofoflife_timeout = Config.get(
+        ConfigKeys.PROOFOFLIFE_TIMEOUT,
+        120,
+        converter=int
+    )
 
     where_clauses = ["NOT broken"]
     if PREFETCH_STATE and PREFETCH_STATE[channel_id]:

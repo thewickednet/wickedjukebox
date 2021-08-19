@@ -5,12 +5,13 @@ from typing import Any, Dict, List, Optional
 
 from sqlalchemy.orm import Query
 from sqlalchemy.sql import and_, func, or_, select
-from wickedjukebox.demon.dbmodel import (Session, Setting, Song, albumTable,
+from wickedjukebox.demon.dbmodel import (Session, Song, albumTable,
                                          artistTable, channelSongs,
                                          dynamicPLTable, settingTable,
                                          songStandingTable, songTable,
-                                         usersTable)
+                                         usersTable, Channel)
 from wickedjukebox.demon.plparser import ParserSyntaxError, parse_query
+from wickedjukebox.config import Config, ConfigKeys
 
 from .interface import PlayMode, RandomItem
 
@@ -27,15 +28,22 @@ class RandomWR2(PlayMode):
         pass
 
     def fetch_candidates(self) -> List[RandomItem]:
-        channel_id = self.channel_id
+        query = self.session.query(Channel).filter_by(id=self.channel_id)
+        channel = query.one()
         try:
             # get settings
-            user_rating = int(Setting.get(
-                self.session, 'scoring_userRating', 4, channel_id=channel_id
-            ))
-            never_played = int(Setting.get(
-                self.session, 'scoring_neverPlayed', 4, channel_id=channel_id
-            ))
+            user_rating = Config.get(
+                ConfigKeys.SCORING_USERRATING,
+                4,
+                channel=channel.name,
+                converter=int
+            )
+            never_played = Config.get(
+                ConfigKeys.SCORING_NEVERPLAYED,
+                4,
+                channel=channel.name,
+                converter=int
+            )
 
             # fetch the channel ssettings for online users
             user_settings = self._get_user_settings()
@@ -164,20 +172,20 @@ class RandomWR2(PlayMode):
         Construct a first selection of songs. This is later expanded to
         calculate a more exact scoring
         """
-        recency_threshold = int(
-            Setting.get(
-                self.session,
-                'recency_threshold',
-                120,
-                channel_id=self.channel_id,
-        ))
-        max_random_duration = int(
-            Setting.get(
-                self.session,
-                'max_random_duration',
-                600,
-                channel_id=self.channel_id,
-        ))
+        query = self.session.query(Channel).filter_by(id=self.channel_id)
+        channel = query.one()
+        recency_threshold = Config.get(
+            ConfigKeys.RECENCY_THRESHOLD,
+            120,
+            channel=channel.name,
+            converter=int,
+        )
+        max_random_duration = Config.get(
+            ConfigKeys.MAX_RANDOM_DURATION,
+            600,
+            channel=channel.name,
+            converter=int
+        )
         rough_query = select(
             [
                 songTable.c.id,
@@ -228,8 +236,10 @@ class RandomWR2(PlayMode):
 
         @return: A dict of dicts
         """
-        proofoflife_timeout = int(
-            Setting.get(self.session, 'proofoflife_timeout', 120)
+        proofoflife_timeout = Config.get(
+            ConfigKeys.PROOFOFLIFE_TIMEOUT,
+            120,
+            converter=int
         )
         listeners_query = select(
             [

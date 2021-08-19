@@ -10,11 +10,16 @@ from random import choice, random
 
 from pusher import Pusher
 from sqlalchemy.sql import func, or_, select, update
-from wickedjukebox.config import load_config
+from wickedjukebox.config import (
+    Config,
+    ConfigKeys,
+    load_config,
+    parse_param_string,
+)
 from wickedjukebox.demon import playmodes
 from wickedjukebox.demon.dbmodel import Album, Artist
 from wickedjukebox.demon.dbmodel import Channel as DbChannel
-from wickedjukebox.demon.dbmodel import (ChannelStat, Session, Setting, Song,
+from wickedjukebox.demon.dbmodel import (ChannelStat, Session, Song,
                                          State, channelSongs, channelTable,
                                          songTable, usersTable)
 from wickedjukebox.demon.players import common
@@ -61,7 +66,9 @@ class Channel(object):
         self.name = None
         self.last_tagged_song = None
 
-        lastfm_api_key = Setting.get(session, "lastfm_api_key", None)
+        lastfm_api_key = Config.get(
+            ConfigKeys.LASTFM_API_KEY, None
+        )
         if lastfm_api_key:
             from wickedjukebox import lastfm
             self.__lastfm_api = lastfm.Api(lastfm_api_key)
@@ -76,12 +83,7 @@ class Channel(object):
         self.name = channel_data.name
         LOG.debug("Loaded channel %s", self.name)
 
-        player_params = {}
-        if channel_data.backend_params:
-            for param in channel_data.backend_params.split(','):
-                key, value = param.split('=')
-                player_params[key.strip()] = value.strip()
-
+        player_params = parse_param_string(channel_data.backend_params)
         self.__player = common.make_player(channel_data.backend,
                                            channel_data.id,
                                            player_params)
@@ -204,9 +206,13 @@ class Channel(object):
     def enqueue(self, songID, userID=None):
         # type: (int, Optional[int]) -> str
 
-        self.__queuestrategy = playmodes.create(Setting.get(
-            'queue_model',
-            DEFAULT_QUEUE_MODE, channel_id=self.id))
+        self.__queuestrategy = playmodes.create(
+            Config.get(
+                ConfigKeys.QUEUE_MODEL,
+                fallback=DEFAULT_QUEUE_MODE,
+                channel=self.name
+            )
+        )
         session = Session()
         self.__queuestrategy.enqueue(
             session,
@@ -220,10 +226,13 @@ class Channel(object):
 
     def current_queue(self):
         # type: () -> List[dict]
-        self.__queuestrategy = playmodes.create(Setting.get(
-            'queue_model',
-            DEFAULT_QUEUE_MODE,
-            channel_id=self.id))
+        self.__queuestrategy = playmodes.create(
+            Config.get(
+                ConfigKeys.QUEUE_MODEL,
+                fallback=DEFAULT_QUEUE_MODE,
+                channel=self.name,
+            )
+        )
         return self.__queuestrategy.list(self.id)
 
     def skipSong(self, current_song_entity):
@@ -261,35 +270,43 @@ class Channel(object):
 
     def moveup(self, qid, delta):
         # type: (int, int) -> None
-        self.__queuestrategy = playmodes.create(Setting.get(
-            'queue_model',
-            DEFAULT_QUEUE_MODE,
-            channel_id=self.id))
+        self.__queuestrategy = playmodes.create(
+            Config.get(
+                ConfigKeys.QUEUE_MODEL,
+                DEFAULT_QUEUE_MODE,
+                channel=self.name,
+            )
+        )
         self.__queuestrategy.moveup(self.id, qid, delta)
 
     def movedown(self, qid, delta):
         # type: (int, int) -> None
-        self.__queuestrategy = playmodes.create(Setting.get(
-            'queue_model',
-            DEFAULT_QUEUE_MODE,
-            channel_id=self.id))
+        self.__queuestrategy = playmodes.create(
+            Config.get(
+                ConfigKeys.QUEUE_MODEL,
+                DEFAULT_QUEUE_MODE,
+                channel=self.name,
+            )
+        )
         self.__queuestrategy.movedown(self.id, qid, delta)
 
     def get_jingle(self):
         # type: () -> Optional[Song]
-        jingles_folder = Setting.get(
-            'jingles_folder',
-            default='',
-            channel_id=self.id).strip()
+        jingles_folder = Config.get(
+            ConfigKeys.JINGLES_FOLDER,
+            "",
+            channel=self.name,
+        ).strip()
         if not jingles_folder:
             LOG.info('No jingles folder set in the DB. No jingle will be '
                      'played')
             return None
 
-        interval_raw = Setting.get(
-            'jingles_interval',
-            default='0',
-            channel_id=self.id)
+        interval_raw = Config.get(
+            ConfigKeys.JINGLES_INTERVAL,
+            fallback="0",
+            channel=self.name,
+        )
 
         # This should clean up any whitespace and ensure the value is properly
         # initialised if the DB contained an all-whitespace string.
@@ -390,14 +407,20 @@ class Channel(object):
     def getNextSongs(self):
         # type: () -> List[Song]
         LOG.info('Determining next song to play...')
-        self.__randomstrategy = playmodes.create(Setting.get(
-            'random_model',
-            DEFAULT_RANDOM_MODE,
-            channel_id=self.id))
-        self.__queuestrategy = playmodes.create(Setting.get(
-            'queue_model',
-            DEFAULT_QUEUE_MODE,
-            channel_id=self.id))
+        self.__randomstrategy = playmodes.create(
+            Config.get(
+                ConfigKeys.RANDOM_MODEL,
+                DEFAULT_RANDOM_MODE,
+                channel=self.name,
+            )
+        )
+        self.__queuestrategy = playmodes.create(
+            Config.get(
+                ConfigKeys.QUEUE_MODEL,
+                DEFAULT_QUEUE_MODE,
+                channel=self.name,
+            )
+        )
         self.__randomstrategy.bootstrap(self.id)
 
         next_songs = []
@@ -485,13 +508,21 @@ class Channel(object):
 
     def run(self):
         # type: () -> None
-        cycleTime = int(Setting.get(
-            'channel_cycle',
-            default='3',
-            channel_id=self.id))
+        cycleTime = int(
+            Config.get(
+                ConfigKeys.CHANNEL_CYCLE,
+                "3",
+                channel=self.name,
+            )
+        )
         lastCreditGiveaway = datetime.now()
         lastPing = datetime.now()
-        proofoflife_timeout = int(Setting.get("proofoflife_timeout", 120))
+        proofoflife_timeout = int(
+            Config.get(
+                ConfigKeys.PROOFOFLIFE_TIMEOUT,
+                "120"
+            )
+        )
         current_song = self.__player.current_song()
         last_known_song = current_song
 
@@ -526,9 +557,12 @@ class Channel(object):
                     channelTable.c.id == self.id).values(
                         {'ping': datetime.now()}).execute()
 
-                proofoflife_timeout = int(Setting.get(
-                    "proofoflife_timeout",
-                    120))
+                proofoflife_timeout = int(
+                    Config.get(
+                        ConfigKeys.PROOFOFLIFE_TIMEOUT,
+                        "120",
+                    )
+                )
 
             skipState = State.get("skipping", self.id, default=False)
             if skipState and int(skipState) == 1:
@@ -585,10 +619,13 @@ class Channel(object):
             # more
             if (datetime.now() - lastCreditGiveaway).seconds > 300:
                 LOG.info('Handing out credits to users.')
-                maxCredits = int(Setting.get(
-                    'max_credits',
-                    '30',
-                    channel_id=self.id))
+                maxCredits = int(
+                    Config.get(
+                        ConfigKeys.MAX_CREDITS,
+                        "30",
+                        channel=self.name,
+                    )
+                )
                 usersTable.update(
                     usersTable.c.credits < maxCredits,
                     values={usersTable.c.credits: usersTable.c.credits + 5}
