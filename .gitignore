@@ -7,7 +7,6 @@
 /.pylintrc
 /.pytest_cache
 /alembic.ini
-/logging.ini
 build
 config.ini
 dist

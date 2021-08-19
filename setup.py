@@ -17,6 +17,7 @@ setup(
         "alembic",
         "blessings",
         "config-resolver",
+        "gouge",
         "mutagen",
         "ply",
         "progress",

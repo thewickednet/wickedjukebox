@@ -6,7 +6,8 @@ import sys
 from argparse import ArgumentParser, Namespace
 from typing import Optional
 
-from wickedjukebox import __version__, setup_logging
+from wickedjukebox import __version__
+from wickedjukebox.logutil import setup_logging
 from wickedjukebox.channel import Channel
 from wickedjukebox.config import (
     Config,
@@ -27,18 +28,6 @@ class UnknownPlayer(Exception):
     """
 
 
-def set_log_verbosity(verbosity: int) -> None:
-    verbosity_map = {
-        5: logging.DEBUG,
-        4: logging.INFO,
-        3: logging.WARN,
-        2: logging.ERROR,
-        1: logging.CRITICAL,
-    }
-    verbosity = verbosity_map.get(verbosity, logging.DEBUG)
-    logging.getLogger().setLevel(verbosity)
-
-
 def parse_args() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument(
@@ -52,6 +41,7 @@ def parse_args() -> Namespace:
         "-v",
         action="count",
         dest="verbosity",
+        default=0,
         help=(
             "Application verbosity. Can be repeated up to 5 "
             "times, each time increasing verbosity). If not "
@@ -112,10 +102,9 @@ def main():
     """
     Parse command line options, bootstrap the app and run the channel
     """
-    setup_logging()
-    LOG.info(" Wicked Jukebox %s", __version__.center(79, "#"))
     args = parse_args()
-    set_log_verbosity(args.verbosity)
+    setup_logging(args.verbosity)
+    LOG.info(" Wicked Jukebox %s", __version__.center(79, "#"))
     channel = make_channel(args.channel_name)
     if not channel:
         print(

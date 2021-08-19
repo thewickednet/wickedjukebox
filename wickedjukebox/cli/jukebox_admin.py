@@ -13,7 +13,8 @@ from wickedjukebox.scanner import scan
 from blessings import Terminal
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import and_, bindparam, func, insert, select, update
-from wickedjukebox import __version__, setup_logging
+from wickedjukebox import __version__
+from wickedjukebox.logutil import setup_logging
 from wickedjukebox.demon.dbmodel import (Artist, Session, albumTable,
                                          artistTable, channelTable, genreTable,
                                          groupsTable, settingTable,
@@ -735,11 +736,6 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
+    setup_logging(1)
     args = parse_args()
     return args.func(args)
-    setup_logging()
-    logging.getLogger('wickedjukebox.scanner').setLevel(logging.WARNING)
-    # TODO: Catch logging messages from the scanner!
-    print(" Wicked Jukebox {0} ".format(__version__).center(79, '#'))
-    app = Console()
-    app.cmdloop()

@@ -1,5 +1,8 @@
 
+import logging
+import logging.config
 from typing import Any
+import gouge.colourcli as gc
 
 
 def qualname(instance: Any) -> str:
@@ -11,3 +14,14 @@ def qualname(instance: Any) -> str:
     if module == '__builtin__':
         return cls.__name__
     return ".".join([module, cls.__name__])
+
+
+def setup_logging(verbosity: int = 0) -> None:
+    levelmap = {
+        0: logging.WARNING,
+        1: logging.INFO,
+        2: logging.DEBUG,
+    }
+    verbosity = max(0, min(verbosity, max(levelmap.keys())))
+    gc.Simple.basicConfig(level=levelmap[verbosity])
+    logging.getLogger('requests').setLevel(logging.WARNING)

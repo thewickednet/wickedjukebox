@@ -258,9 +258,10 @@ def current_listeners():
 STATE = PlayerState()
 
 if __name__ == "__main__":
+    import wickedjukebox.logutil as lu
     import sys
     from getpass import getpass
-    logging.basicConfig(level=logging.DEBUG)
+    lu.setup_logging(3)
     LOG.info("Streaming %r to icecast..." % sys.argv[1])
 
     params = {}
