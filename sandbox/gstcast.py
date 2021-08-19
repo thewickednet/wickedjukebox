@@ -118,7 +118,7 @@ class GStreamer(object):
                     int(self.player.query_duration(gst.FORMAT_TIME, None)[0] * 1E-9),
                 )
                 LOG.debug("Current position: %r/%r " % self.position)
-            except Exception, exc:
+            except Exception as exc:
                 self.position = (0, 0)
                 LOG.error(exc)
             time.sleep(1)
@@ -248,10 +248,10 @@ def current_listeners():
 
       listeners = [md5(x[0]).hexdigest() for x in p.findall(data)]
       return listeners
-   except urllib2.HTTPError, ex:
+   except urllib2.HTTPError as ex:
       LOG.error("Error opening %r: Caught %r" % (STATE.admin_url, str(ex)))
       return None
-   except urllib2.URLError, ex:
+   except urllib2.URLError as ex:
       LOG.error("Error opening %r: Caught %r" % (STATE.admin_url, str(ex)))
       return None
 
