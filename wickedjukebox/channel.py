@@ -1,7 +1,7 @@
 import logging
 from time import sleep
 
-from wickedjukebox.ipc import AbstractState, NullState, States
+from wickedjukebox.ipc import AbstractIPC, Command, NullIPC
 from wickedjukebox.jingle import AbstractJingle, NullJingle
 from wickedjukebox.logutil import qualname
 from wickedjukebox.player import AbstractPlayer, NullPlayer
@@ -19,12 +19,12 @@ class Channel:
         queue: AbstractQueue = NullQueue(),
         random: AbstractRandom = NullRandom(),
         player: AbstractPlayer = NullPlayer(),
-        state: AbstractState = NullState(),
+        ipc: AbstractIPC = NullIPC(),
         jingle: AbstractJingle = NullJingle(),
     ):
         self.name = name
         self.player = player
-        self.state = state
+        self.ipc = ipc
         self.queue = queue
         self.random = random
         self.jingle = jingle
@@ -56,7 +56,7 @@ class Channel:
             else:
                 self.player.play()
 
-        do_skip = self.state.get(States.SKIP_REQUESTED)
+        do_skip = self.ipc.get(Command.SKIP)
 
         if self.player.songs_since_last_jingle > self.jingle_interval:
             self._log.debug("Jingle interval surpassed. Enqueueing new jingle.")
@@ -78,14 +78,14 @@ class Channel:
             self._log.info("Skipping (via external request)")
             self._enqueue()
             self.player.skip()
-            self.state.set(States.SKIP_REQUESTED, False)
+            self.ipc.set(Command.SKIP, False)
 
         self.ticks += 1
 
     def run(self) -> None:
         self._log.info("Starting channel %r", self.name)
         self._log.info("Player type: %r", self.player)
-        self._log.info("State type: %r", self.state)
+        self._log.info("IPC type: %r", self.ipc)
         self._log.info("Queue type: %r", self.queue)
         self._log.info("Random type: %r", self.random)
         self._log.info("Jingle type: %r", self.jingle)

@@ -5,7 +5,7 @@ This module contains high-level tests for a new "channel" architecture (as of
 from unittest.mock import call, create_autospec
 
 from wickedjukebox.channel import Channel
-from wickedjukebox.ipc import AbstractState, States
+from wickedjukebox.ipc import AbstractIPC, Command
 from wickedjukebox.jingle import AbstractJingle
 from wickedjukebox.player import AbstractPlayer
 from wickedjukebox.queue import AbstractQueue
@@ -113,12 +113,12 @@ def test_skip_requested():
     mock_player = create_autospec(AbstractPlayer)
     mock_player.songs_since_last_jingle = 0
     mock_player.remaining_seconds = 99
-    mock_state = create_autospec(AbstractState)
+    mock_ipc = create_autospec(AbstractIPC)
     fake_state = {
-        States.SKIP_REQUESTED: 1,
+        Command.SKIP: 1,
     }
-    mock_state.get.side_effect = fake_state.get
-    channel = Channel(player=mock_player, state=mock_state)
+    mock_ipc.get.side_effect = fake_state.get
+    channel = Channel(player=mock_player, ipc=mock_ipc)
     channel.tick()
     mock_player.skip.assert_called_once_with()
 
@@ -131,14 +131,14 @@ def test_skip_ensure_queue():
     mock_player = create_autospec(AbstractPlayer)
     mock_player.songs_since_last_jingle = 0
     mock_player.remaining_seconds = 0
-    mock_state = create_autospec(AbstractState)
+    mock_ipc = create_autospec(AbstractIPC)
     fake_state = {
-        States.SKIP_REQUESTED: 1,
+        Command.SKIP: 1,
     }
-    mock_state.get.side_effect = fake_state.get
+    mock_ipc.get.side_effect = fake_state.get
     mock_queue = create_autospec(AbstractQueue)
     mock_queue.dequeue.return_value = object()
-    channel = Channel(player=mock_player, state=mock_state, queue=mock_queue)
+    channel = Channel(player=mock_player, ipc=mock_ipc, queue=mock_queue)
     channel.tick()
     mock_player.skip.assert_called_once_with()
     mock_player.enqueue.assert_called()

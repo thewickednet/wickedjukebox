@@ -7,7 +7,7 @@ from typing import Any, Optional
 from wickedjukebox.logutil import qualname
 
 
-class InvalidStateRequest(Exception):
+class InvalidCommand(Exception):
     pass
 
 
@@ -19,11 +19,11 @@ class FSStateFiles(Enum):
     SKIP_REQUESTED = "skip"
 
 
-class States(Enum):
-    SKIP_REQUESTED = "skip"
+class Command(Enum):
+    SKIP = "skip"
 
 
-class AbstractState(ABC):
+class AbstractIPC(ABC):
     def __init__(self) -> None:
         self._log = logging.getLogger(qualname(self))
 
@@ -31,25 +31,27 @@ class AbstractState(ABC):
         return f"<{qualname(self)}>"
 
     @abstractmethod
-    def get(self, key: States) -> Optional[Any]:  # pragma: no cover
+    def get(self, key: Command) -> Optional[Any]:  # pragma: no cover
         ...
 
     @abstractmethod
-    def set(self, key: States, value: Any) -> Optional[Any]:  # pragma: no cover
+    def set(
+        self, key: Command, value: Any
+    ) -> Optional[Any]:  # pragma: no cover
         ...
 
 
-class NullState(AbstractState):
-    def get(self, key: States) -> Optional[Any]:
-        self._log.debug("Retrieving state for %r (no-op)", key)
+class NullIPC(AbstractIPC):
+    def get(self, key: Command) -> Optional[Any]:
+        self._log.debug("Retrieving command for %r (no-op)", key)
         return None
 
-    def set(self, key: States, value: Any) -> Optional[Any]:
-        self._log.debug("Setting state for %r to %r (no-op)", key, value)
+    def set(self, key: Command, value: Any) -> Optional[Any]:
+        self._log.debug("Setting command for %r to %r (no-op)", key, value)
         return None
 
 
-class FSState(AbstractState):
+class FSIPC(AbstractIPC):
     """
     A no-db solution for IPC using simple files on disk
     """
@@ -75,16 +77,12 @@ class FSState(AbstractState):
         elif value is False and pth.exists():
             pth.unlink()
 
-    def get(self, key: States) -> Optional[Any]:
-        if key == States.SKIP_REQUESTED:
+    def get(self, key: Command) -> Optional[Any]:
+        if key == Command.SKIP:
             return self._exists(FSStateFiles.SKIP_REQUESTED)
-        raise InvalidStateRequest(
-            "State {key} is not (yet) supported by {self!r}"
-        )
+        raise InvalidCommand("Command {key} is not (yet) supported by {self!r}")
 
-    def set(self, key: States, value: Any) -> Optional[Any]:
-        if key == States.SKIP_REQUESTED:
+    def set(self, key: Command, value: Any) -> Optional[Any]:
+        if key == Command.SKIP:
             return self._set_boolfile(FSStateFiles.SKIP_REQUESTED, value)
-        raise InvalidStateRequest(
-            "State {key} is not (yet) supported by {self!r}"
-        )
+        raise InvalidCommand("Command {key} is not (yet) supported by {self!r}")
