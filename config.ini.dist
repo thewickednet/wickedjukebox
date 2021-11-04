@@ -25,9 +25,13 @@ secret = 1234567890abcdef
 cluster = eu
 
 
-[channel:wicked]
-player = mpd
-player_settings = host=127.0.0.1, port=6600, path_map=/path/to/mp3s:/path/to/mp3s/in/container
+[channel:wicked:player]
+backend = mpd
+settings = host=127.0.0.1, port=6600, path_map=/path/to/mp3s:/path/to/mp3s/in/container
+
+[channel:wicked:ipc]
+backend = fs
+settings = path=ipc
 
 
 ; vim: set filetype=cfg :
