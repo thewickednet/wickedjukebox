@@ -7,7 +7,6 @@ from argparse import ArgumentParser, Namespace
 from typing import Optional
 
 from wickedjukebox import __version__
-from wickedjukebox.logutil import setup_logging
 from wickedjukebox.channel import Channel
 from wickedjukebox.config import (
     Config,
@@ -15,8 +14,10 @@ from wickedjukebox.config import (
     get_config_files,
     parse_param_string,
 )
+from wickedjukebox.exc import ConfigError
 from wickedjukebox.jingle import FileBasedJingles
-from wickedjukebox.player import MpdPlayer, NullPlayer
+from wickedjukebox.logutil import setup_logging
+from wickedjukebox.player import AbstractPlayer, MpdPlayer, NullPlayer
 from wickedjukebox.random import AllFilesRandom
 
 LOG = logging.getLogger(__name__)
@@ -53,7 +54,7 @@ def parse_args() -> Namespace:
     return args
 
 
-def make_channel(channel_name: str) -> Optional[Channel]:
+def get_player(channel_name: str) -> AbstractPlayer:
     player_type = Config.get(
         ConfigKeys.PLAYER, channel=channel_name, fallback=""
     )
@@ -78,16 +79,22 @@ def make_channel(channel_name: str) -> Optional[Channel]:
             player.configure(player_settings)
         except KeyError as exc:
             key = exc.args[0]
-            print(
+            raise ConfigError(
                 f"Missing config-key {key!r} in 'player_settings' "
-                f"{player_settings_str!r} for channel {channel_name!r}"
+                f"{player_settings_str!r} for channel {channel_name!r} "
                 f"(set in one of {get_config_files()})",
-                file=sys.stderr,
-            )
-            return None
-    else:
-        raise UnknownPlayer(player_type)
+            ) from exc
+        return player
 
+    raise ConfigError(
+        f"Unknown player {player_type!r} defined in config for "
+        "channel {channel_name!r}"
+    )
+
+
+def make_channel(channel_name: str) -> Optional[Channel]:
+
+    player = get_player(channel_name)
     channel = Channel(
         channel_name,
         random=AllFilesRandom("mp3s/Tagged"),
