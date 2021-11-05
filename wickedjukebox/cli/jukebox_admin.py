@@ -25,7 +25,7 @@ from wickedjukebox.demon.dbmodel import (Artist, Session, albumTable,
 LOG = logging.getLogger(__name__)
 
 
-def colorprompt(term, color, label):
+def colorprompt(term: Terminal, color: str, label: str) -> str:
     return '{color}{label:>20}{normal} '.format(
         color=getattr(term, color),
         label=label,

@@ -3,6 +3,7 @@ Unit-test for the command-line admin interface
 """
 # pylint: disable=redefined-outer-name
 
+from typing import List
 from unittest.mock import Mock, patch
 
 import pytest
@@ -36,7 +37,7 @@ def test_color_prompt():
     assert result == "<blue>               label<normal> "
 
 
-def test_quit(cmd):
+def test_quit(cmd: admin.Console):
     """
     Quitting should give us an exit-code of 1
     """
@@ -52,7 +53,7 @@ def test_quit(cmd):
         ["foo", "bar"],
     ],
 )
-def test_ls(cmd, path):
+def test_ls(cmd: admin.Console, path: List[str]):
     """
     Listing entries should work
     """

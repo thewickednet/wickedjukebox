@@ -1,4 +1,6 @@
+# type: ignore
 import pytest
+
 import wickedjukebox.demon.dbmodel as db
 
 
