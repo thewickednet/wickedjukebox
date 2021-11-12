@@ -4,9 +4,10 @@ from math import floor
 from pathlib import Path
 from typing import Any, Dict, List, NamedTuple
 
-from mpd.base import MPDClient  # type: ignore
+from mpd.base import CommandError, FailureResponseCode, MPDClient  # type: ignore
 
 from wickedjukebox.adt import Song
+from wickedjukebox.exc import ConfigError
 from wickedjukebox.logutil import qualname
 
 MpdSong = Dict[str, str]
@@ -168,7 +169,16 @@ class MpdPlayer(AbstractPlayer):
         self.connect()
         mpd_filename = self.jukebox2mpd(filename)
         self._log.info("Queuing %r (jingle=%r) to mpd", mpd_filename, is_jingle)
-        self.client.add(mpd_filename)  # type: ignore
+        try:
+            self.client.add(mpd_filename)  # type: ignore
+        except CommandError as exc:
+            if exc.errno == FailureResponseCode.NO_EXIST:
+                raise ConfigError(
+                    f"MPD backend did not find {mpd_filename!r}. Sneaky cause: "
+                    "Different path inside docker-container than on host. "
+                    "Use 'path_map' config-option in wicked-jukebox config!"
+                )
+            raise
         if is_jingle:
             self.songs_since_last_jingle = 0
         else:
