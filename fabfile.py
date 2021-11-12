@@ -59,10 +59,17 @@ def reconfigure(
                 print(f"{target} exists. Will not overwrite!")
                 do_copy = False
             else:
-                raise Exception(
-                    f"{target} exists. Non-unattended mode not yet "
-                    "implemented for this case"
+                diff_check = ctx.run(
+                    f"diff {tmpfile.name} {target.absolute()}",
+                    warn=True,
+                    hide="both",
                 )
+                if diff_check.failed:
+                    ctx.run(
+                        f"vim -d {tmpfile.name} {target.absolute()}",
+                        pty=True,
+                        replace_env=False,
+                    )
         if do_copy:
             ctx.run("cp -v %s %s" % (tmpfile.name, target))
 
@@ -89,14 +96,14 @@ def run_db_container(ctx):
         Path("alembic.ini.dist"),
         Path("alembic.ini"),
         variables={"db_port": str(db_port)},
-        unattended=True,
+        unattended=False,
     )
     reconfigure(
         ctx,
         Path("config.ini.dist"),
         Path(".wicked/wickedjukebox/config.ini"),
         variables={"db_port": str(db_port)},
-        unattended=True,
+        unattended=False,
     )
     ctx.run("./env/bin/alembic upgrade head")
 
