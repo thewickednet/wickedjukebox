@@ -58,7 +58,7 @@ def get_player(channel_name: str) -> AbstractPlayer:
     player_type = Config.get(
         ConfigKeys.PLAYER, channel=channel_name, fallback=""
     )
-    if player_type == "":
+    if player_type.strip() == "":
         LOG.warning("Config-value 'player' is missing. Using NULL-player!")
         player_type = "null"
 
@@ -88,7 +88,7 @@ def get_player(channel_name: str) -> AbstractPlayer:
 
     raise ConfigError(
         f"Unknown player {player_type!r} defined in config for "
-        "channel {channel_name!r}"
+        f"channel {channel_name!r}"
     )
 
 

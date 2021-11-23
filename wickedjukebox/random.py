@@ -76,7 +76,7 @@ class AllFilesRandom(AbstractRandom):
                 "found in that folder!",
                 self.root,
             )
-            return None
+            return ""
         pick = choice(candidates)
         output = str(pick.absolute())
         self._log.debug(
