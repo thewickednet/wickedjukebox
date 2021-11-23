@@ -36,6 +36,9 @@ class AbstractPlayer(ABC):
         Process configuration data from a configuration mapping. The
         required keys depend on the specific player type.
         """
+        # TODO: This can be implemented in the top-class (i.e. here) by defining
+        #       the expected keys as a class-variable and then "pulling them in"
+        #       using setattr
 
     @abstractmethod
     def skip(self) -> None:  # pragma: no cover

@@ -18,7 +18,7 @@ from wickedjukebox.exc import ConfigError
 from wickedjukebox.jingle import FileBasedJingles
 from wickedjukebox.logutil import setup_logging
 from wickedjukebox.player import AbstractPlayer, MpdPlayer, NullPlayer
-from wickedjukebox.random import AllFilesRandom
+from wickedjukebox.random import AbstractRandom, AllFilesRandom, NullRandom
 
 LOG = logging.getLogger(__name__)
 
@@ -92,13 +92,55 @@ def get_player(channel_name: str) -> AbstractPlayer:
     )
 
 
+def get_autoplay(channel_name: str) -> AbstractRandom:
+    autoplay_type = Config.get(
+        ConfigKeys.AUTOPLAY, channel=channel_name, fallback=""
+    )
+    # TODO: This function is very similar to get_player and can likely be merged
+    if autoplay_type.strip() == "":
+        LOG.warning(
+            "Config-value %s is missing. Disabling auto-play",
+            ConfigKeys.AUTOPLAY,
+        )
+        autoplay_type = "null"
+
+    autoplay_settings_str = Config.get(
+        ConfigKeys.AUTOPLAY_SETTINGS, channel=channel_name, fallback=""
+    )
+    autoplay_settings = parse_param_string(autoplay_settings_str)
+    instance = None
+    clsmap = {
+        "allfiles_random": AllFilesRandom,
+        "null": NullRandom,
+    }
+    cls = clsmap.get(autoplay_type, None)
+    if cls:
+        instance = cls()
+        try:
+            instance.configure(autoplay_settings)
+        except KeyError as exc:
+            key = exc.args[0]
+            raise ConfigError(
+                f"Missing config-key {key!r} in 'autoplay_settings' "
+                f"{autoplay_settings_str!r} for channel {channel_name!r} "
+                f"(set in one of {get_config_files()})",
+            ) from exc
+        return instance
+
+    raise ConfigError(
+        f"Unknown player {autoplay_type!r} defined in config for "
+        f"channel {channel_name!r}"
+    )
+
+
 def make_channel(channel_name: str) -> Optional[Channel]:
 
     player = get_player(channel_name)
+    autoplay = get_autoplay(channel_name)
     channel = Channel(
         channel_name,
-        random=AllFilesRandom("mp3s/Tagged"),
-        jingle=FileBasedJingles("mp3s/Jingles"),
+        random=autoplay,
+        jingle=FileBasedJingles("mp3s/Jingles"),  # TODO
         player=player,
         tick_interval_s=10,
     )

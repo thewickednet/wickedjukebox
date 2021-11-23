@@ -107,6 +107,11 @@ class ConfigKeys(Enum):
     PLAYER_SETTINGS = ConfigOption(ConfigScope.CHANNEL, "player", "settings")
     PLAYER = ConfigOption(ConfigScope.CHANNEL, "player", "backend")
 
+    AUTOPLAY = ConfigOption(ConfigScope.CHANNEL, "autoplay", "type")
+    AUTOPLAY_SETTINGS = ConfigOption(
+        ConfigScope.CHANNEL, "autoplay", "settings"
+    )
+
 
 class Config:
     @staticmethod

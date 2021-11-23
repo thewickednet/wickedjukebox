@@ -22,7 +22,8 @@ def test_null_random():
 
 
 def test_allfiles():
-    obj = rnd.AllFilesRandom("fakeroot")
+    obj = rnd.AllFilesRandom()
+    obj.root = "fakeroot"
     with patch("wickedjukebox.random.Path") as MockPath:
         MockPath().glob.return_value = [Path("foo")]
         result = obj.pick()
@@ -31,8 +32,9 @@ def test_allfiles():
 
 
 def test_allfiles_empty():
-    obj = rnd.AllFilesRandom("fakeroot")
+    obj = rnd.AllFilesRandom()
+    obj.root = "fakeroot"
     with patch("wickedjukebox.random.Path") as MockPath:
         MockPath().glob.return_value = []
         result = obj.pick()
-    assert result is None
+    assert result == ""

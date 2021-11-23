@@ -2,9 +2,8 @@ import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 from random import choice
-from typing import Optional
+from typing import Any, Dict
 
-from wickedjukebox.adt import Song
 from wickedjukebox.logutil import qualname
 
 
@@ -20,6 +19,16 @@ class AbstractRandom(ABC):
     def pick(self) -> str:  # pragma: no cover
         ...
 
+    @abstractmethod
+    def configure(self, cfg: Dict[str, Any]) -> None:
+        """
+        Process configuration data from a configuration mapping. The
+        required keys depend on the specific random type.
+        """
+        # TODO: This can be implemented in the top-class (i.e. here) by defining
+        #       the expected keys as a class-variable and then "pulling them in"
+        #       using setattr
+
 
 class NullRandom(AbstractRandom):
     """
@@ -31,7 +40,11 @@ class NullRandom(AbstractRandom):
     """
 
     def pick(self) -> str:
+        self._log.debug("Random mode is disabled. Not queueing anything")
         return ""
+
+    def configure(self, cfg: Dict[str, Any]) -> None:
+        pass
 
 
 class AllFilesRandom(AbstractRandom):
@@ -42,11 +55,19 @@ class AllFilesRandom(AbstractRandom):
     random.
     """
 
-    def __init__(self, root: str) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self.root = root
+        self.root = ""
+
+    def configure(self, cfg: Dict[str, Any]) -> None:
+        self.root = cfg["root"].strip()
 
     def pick(self) -> str:
+        if self.root == "":
+            self._log.error(
+                "%r has no 'root folder' configured. Cannot find files!", self
+            )
+            return ""
         pth = Path(self.root)
         candidates = list(pth.glob("**/*.mp3"))
         if not candidates:
