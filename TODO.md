@@ -1,1 +1,3 @@
 - Review which progress bar libraries are available and modernise if needed
+- Implement "random-weighed-prefetch"
+- Implement a file-based queuing (like the IPC) for easier testing
