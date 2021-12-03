@@ -30,7 +30,7 @@ backend = mpd
 settings = host=127.0.0.1, port=6600, path_map=/path/to/mp3s:/path/to/mp3s/in/container
 
 [channel:wicked:ipc]
-backend = fs
+type = fs
 settings = path=ipc
 
 

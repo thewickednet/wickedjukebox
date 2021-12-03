@@ -15,6 +15,7 @@ from wickedjukebox.config import (
     parse_param_string,
 )
 from wickedjukebox.exc import ConfigError
+from wickedjukebox.ipc import FSIPC, AbstractIPC, NullIPC
 from wickedjukebox.jingle import FileBasedJingles
 from wickedjukebox.logutil import setup_logging
 from wickedjukebox.player import AbstractPlayer, MpdPlayer, NullPlayer
@@ -133,15 +134,56 @@ def get_autoplay(channel_name: str) -> AbstractRandom:
     )
 
 
+def get_ipc(channel_name: str) -> AbstractIPC:
+    ipc_type = Config.get(ConfigKeys.IPC, channel=channel_name, fallback="")
+    # TODO: This function is very similar to get_player and can likely be merged
+    if ipc_type.strip() == "":
+        LOG.warning(
+            "Config-value %s is missing. Disabling auto-play",
+            ConfigKeys.IPC,
+        )
+        ipc_type = "null"
+
+    ipc_settings_str = Config.get(
+        ConfigKeys.IPC_SETTINGS, channel=channel_name, fallback=""
+    )
+    ipc_settings = parse_param_string(ipc_settings_str)
+    instance = None
+    clsmap = {
+        "null": NullIPC,
+        "fs": FSIPC,
+    }
+    cls = clsmap.get(ipc_type, None)
+    if cls:
+        instance = cls()
+        try:
+            instance.configure(ipc_settings)
+        except KeyError as exc:
+            key = exc.args[0]
+            raise ConfigError(
+                f"Missing config-key {key!r} in 'ipc_settings' "
+                f"{ipc_settings_str!r} for channel {channel_name!r} "
+                f"(set in one of {get_config_files()})",
+            ) from exc
+        return instance
+
+    raise ConfigError(
+        f"Unknown player {ipc_type!r} defined in config for "
+        f"channel {channel_name!r}"
+    )
+
+
 def make_channel(channel_name: str) -> Optional[Channel]:
 
     player = get_player(channel_name)
     autoplay = get_autoplay(channel_name)
+    ipc = get_ipc(channel_name)
     channel = Channel(
         channel_name,
         random=autoplay,
         jingle=FileBasedJingles("mp3s/Jingles"),  # TODO
         player=player,
+        ipc=ipc,
         tick_interval_s=10,
     )
     return channel

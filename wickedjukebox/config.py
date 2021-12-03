@@ -112,6 +112,9 @@ class ConfigKeys(Enum):
         ConfigScope.CHANNEL, "autoplay", "settings"
     )
 
+    IPC = ConfigOption(ConfigScope.CHANNEL, "ipc", "type")
+    IPC_SETTINGS = ConfigOption(ConfigScope.CHANNEL, "ipc", "settings")
+
 
 class Config:
     @staticmethod

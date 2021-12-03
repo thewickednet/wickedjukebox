@@ -169,6 +169,9 @@ class MpdPlayer(AbstractPlayer):
         self.client.next()  # type: ignore
 
     def enqueue(self, filename: str, is_jingle: bool) -> None:
+        if not filename.strip():
+            self._log.error("Trying to enqueue an empty filename. Ignoring.")
+            return
         self.connect()
         mpd_filename = self.jukebox2mpd(filename)
         self._log.info("Queuing %r (jingle=%r) to mpd", mpd_filename, is_jingle)
