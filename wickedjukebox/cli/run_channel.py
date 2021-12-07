@@ -201,7 +201,7 @@ def main():
     """
     args = parse_args()
     setup_logging(args.verbosity)
-    LOG.info(" Wicked Jukebox %s", __version__.center(79, "#"))
+    LOG.info("Wicked Jukebox v%s ", __version__)
     channel = make_channel(args.channel_name)
     if not channel:
         print(
