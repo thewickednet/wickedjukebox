@@ -1,3 +1,7 @@
+---
+# We exclude some legacy files from pre-commit for now. It would generate
+# too much churn
+exclude: ^wickedjukebox/demon.*
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.0.1
