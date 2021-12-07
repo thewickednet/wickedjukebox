@@ -28,6 +28,7 @@ from sqlalchemy import (
     Table,
     Unicode,
     create_engine,
+    func,
 )
 from sqlalchemy.orm import mapper, relation, scoped_session, sessionmaker, Session as TSession
 from sqlalchemy.orm.session import object_session
@@ -317,6 +318,24 @@ class Song(object):
         Retrieve a song from the database using the local filename as key
         """
         song = session.query(Song).filter_by(localpath=filename).one_or_none()
+        return song
+
+    @staticmethod
+    def random(session: TSession) -> Optional["Song"]:
+        """
+        Retrieve a song from the database using the local filename as key
+        """
+        song = session.query(Song).order_by(func.rand()).first()
+        return song
+
+    @staticmethod
+    def smart_random(session: TSession) -> Optional["Song"]:
+        """
+        Retrieve a song using a smart guess based on play statistics and active
+        listeners.
+        """
+        # TODO: Implement
+        song = session.query(Song).order_by(func.rand()).first()
         return song
 
     def update_metadata(self) -> None:

@@ -19,7 +19,12 @@ from wickedjukebox.ipc import FSIPC, AbstractIPC, NullIPC
 from wickedjukebox.jingle import FileBasedJingles
 from wickedjukebox.logutil import setup_logging
 from wickedjukebox.player import AbstractPlayer, MpdPlayer, NullPlayer
-from wickedjukebox.random import AbstractRandom, AllFilesRandom, NullRandom
+from wickedjukebox.random import (
+    AbstractRandom,
+    AllFilesRandom,
+    NullRandom,
+    SmartPrefetch,
+)
 
 LOG = logging.getLogger(__name__)
 
@@ -112,6 +117,7 @@ def get_autoplay(channel_name: str) -> AbstractRandom:
     instance = None
     clsmap = {
         "allfiles_random": AllFilesRandom,
+        "smart_prefetch": SmartPrefetch,
         "null": NullRandom,
     }
     cls = clsmap.get(autoplay_type, None)

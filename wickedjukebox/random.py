@@ -1,9 +1,29 @@
 import logging
+import time
 from abc import ABC, abstractmethod
+from os.path import abspath
 from pathlib import Path
+from queue import Queue
 from random import choice
+from threading import Thread
 from typing import Any, Dict
 
+from sqlalchemy.engine import create_engine
+from sqlalchemy.pool import NullPool
+from sqlalchemy.sql.expression import select
+
+from wickedjukebox.config import Config, ConfigKeys
+from wickedjukebox.demon.dbmodel import (
+    ChannelStat,
+    Session,
+    Song,
+    State,
+    channelSongs,
+    channelTable,
+    songTable,
+    usersTable,
+)
+from wickedjukebox.exc import ConfigError
 from wickedjukebox.logutil import qualname
 
 
@@ -56,7 +76,7 @@ class AllFilesRandom(AbstractRandom):
     """
 
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__(config)
         self.root = ""
 
     def configure(self, cfg: Dict[str, Any]) -> None:
@@ -85,3 +105,74 @@ class AllFilesRandom(AbstractRandom):
             pth.absolute(),
         )
         return output
+
+
+class SmartPrefetchThread(Thread):
+
+    daemon = True
+
+    def __init__(self, dsn: str, queue: Queue[str]) -> None:
+        super().__init__()
+        self.queue = queue
+        self.dsn = dsn
+        self._log = logging.getLogger(qualname(self))
+
+    def run(self) -> None:
+        self._log.info("Smart random prefetcher started")
+        engine = create_engine(self.dsn, poolclass=NullPool)
+        with Session(bind=engine) as session:  # type: ignore
+            # We use a "naive" random first so we have something quickly. The
+            # "smart" query is much slower.
+            song = Song.random(session)  # type: ignore
+            if song is None:
+                self._log.error(
+                    "Unable to prefetch a song using pure random. Is the DB "
+                    "empty?"
+                )
+                return
+            self._log.debug("Quick prefetch found song %r", song)
+            self.queue.put(abspath(song.localpath), block=True, timeout=None)
+
+        # Now that we have something on the (threading) queue the player should
+        # have picked this up and play that song. While that song is playing, we
+        # can run the slow query to fetch the next song and put it on the queue.
+        # The queue is blocking which will take care of proper
+        # waiting/prefetching only if needed.
+        while True:
+            self._log.debug("Prefetching next song via smart random...")
+            song = Song.smart_random(session)  # type: ignore
+            if song is None:
+                self._log.error(
+                    "Smart random did not find any songs. Is the DB empty?"
+                )
+                time.sleep(5)
+            self._log.debug("Smart prefetch found song %r", song)
+            self.queue.put(abspath(song.localpath), block=True, timeout=None)
+
+
+class SmartPrefetch(AbstractRandom):
+    """
+    An implementation which queries the database for a song that make "the most
+    sense" to play next according to currently connected listeners and
+    persistent state of songs.
+
+    As the query can take a long time to execute, one result will always be
+    prefetched ahead of time. So the *exact* calculation is always off by one
+    "play".
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.queue: Queue[str] = Queue(maxsize=1)
+        dsn = Config.get(ConfigKeys.DSN, "")
+        if not dsn:
+            raise ConfigError("No DSN available for smart-random")
+        self._prefetcher = SmartPrefetchThread(dsn, self.queue)
+
+    def configure(self, cfg: Dict[str, Any]) -> None:
+        self._prefetcher.start()
+
+    def pick(self) -> str:
+        item = self.queue.get(block=True, timeout=None)
+        self.queue.task_done()
+        return item

@@ -17,6 +17,8 @@ LOG = logging.getLogger(__name__)
 class ConfigScope(Enum):
     CORE = "core"
     CHANNEL = "channel"
+    # TODO: The DSN could be moved to "core"
+    DATABASE = "database"
 
 
 class ConfigOption(NamedTuple):
@@ -76,6 +78,7 @@ class ConfigKeys(Enum):
     they are expected to be in.
     """
 
+    DSN = ConfigOption(ConfigScope.DATABASE, "database", "dsn")
     CHANNEL_CYCLE = ConfigOption(ConfigScope.CHANNEL, "channel_cycle", "")
     JINGLES_FOLDER = ConfigOption(ConfigScope.CHANNEL, "jingles_folder", "")
     JINGLES_INTERVAL = ConfigOption(ConfigScope.CHANNEL, "jingles_interval", "")
@@ -128,6 +131,8 @@ class Config:
         scope, section, option = key.value
         if scope == ConfigScope.CHANNEL:
             section = f"channel:{channel}:{section}"
+        elif scope == ConfigScope.DATABASE:
+            section = "database"
         else:
             section = "core"
         if fallback is NO_DEFAULT:

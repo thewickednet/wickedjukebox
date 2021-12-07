@@ -33,5 +33,10 @@ settings = host=127.0.0.1, port=6600, path_map=/path/to/mp3s:/path/to/mp3s/in/co
 type = fs
 settings = path=ipc
 
+[channel:wicked:autoplay]
+type = smart_prefetch
+; TODO: Settings should be optional
+settings = nothing=needed
+
 
 ; vim: set filetype=cfg :
