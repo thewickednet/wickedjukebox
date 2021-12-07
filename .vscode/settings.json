@@ -9,5 +9,6 @@
     ],
     "restructuredtext.confPath": "",
     "python.analysis.typeCheckingMode": "strict",
-    "python.linting.pylintEnabled": true
+    "python.linting.pylintEnabled": true,
+    "editor.formatOnSave": false
 }
