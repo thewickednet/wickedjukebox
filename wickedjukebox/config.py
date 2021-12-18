@@ -9,6 +9,8 @@ from typing import Any, Callable, Dict, List, NamedTuple, Type, TypeVar
 
 from config_resolver import get_config
 
+from wickedjukebox.exc import ConfigError
+
 T = TypeVar("T", bound=Type[Any])
 NO_DEFAULT = object()
 LOG = logging.getLogger(__name__)
@@ -117,6 +119,12 @@ class ConfigKeys(Enum):
 
     IPC = ConfigOption(ConfigScope.CHANNEL, "ipc", "type")
     IPC_SETTINGS = ConfigOption(ConfigScope.CHANNEL, "ipc", "settings")
+
+    def __str__(self) -> str:
+        return (
+            f"[{self.value.scope.value}:<channel-name>:{self.value.section}] / "
+            f"{self.value.subsection}"
+        )
 
 
 class Config:
