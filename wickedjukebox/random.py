@@ -6,7 +6,7 @@ from pathlib import Path
 from queue import Queue
 from random import choice
 from threading import Thread
-from typing import Any, Dict
+from typing import Any, Dict, Set
 
 from sqlalchemy.engine import create_engine
 from sqlalchemy.pool import NullPool
@@ -28,6 +28,10 @@ from wickedjukebox.logutil import qualname
 
 
 class AbstractRandom(ABC):
+    #: The names of the config-keys that this instance requires to be
+    #: successfully configured.
+    CONFIG_KEYS: Set[str] = set()
+
     def __init__(self, channel_name: str) -> None:
         super().__init__()
         self._log = logging.getLogger(qualname(self))
@@ -75,6 +79,8 @@ class AllFilesRandom(AbstractRandom):
     It builds possible file-names recursively from a root and picks one file at
     random.
     """
+
+    CONFIG_KEYS = {"root"}
 
     def __init__(self, channel_name: str) -> None:
         super().__init__(channel_name)

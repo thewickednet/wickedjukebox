@@ -24,19 +24,18 @@ key = 1234567890abcdef
 secret = 1234567890abcdef
 cluster = eu
 
-
 [channel:wicked:player]
 backend = mpd
-settings = host=127.0.0.1, port=6600, path_map=/path/to/mp3s:/var/lib/mpd/music
+host = 127.0.0.1
+port = 6600
+path_map = /path/to/mp3s:/var/lib/mpd/music
 
 [channel:wicked:ipc]
 type = fs
-settings = path=ipc
+path = ipc
 
 [channel:wicked:autoplay]
 type = smart_prefetch
-; TODO: Settings should be optional
-settings = nothing=needed
 
 
 ; vim: set filetype=cfg :

@@ -5,7 +5,7 @@ This module contains helpers for application configuration
 import logging
 from configparser import ConfigParser
 from enum import Enum
-from typing import Any, Callable, Dict, List, NamedTuple, Type, TypeVar
+from typing import Any, Callable, Dict, List, NamedTuple, Set, Type, TypeVar
 
 from config_resolver import get_config
 
@@ -109,16 +109,11 @@ class ConfigKeys(Enum):
     )
     SYS_UTCTIME = ConfigOption(ConfigScope.CORE, "sys_utctime", "")
     RECENCY_THRESHOLD = ConfigOption(ConfigScope.CORE, "recency_threshold", "")
-    PLAYER_SETTINGS = ConfigOption(ConfigScope.CHANNEL, "player", "settings")
+
+    # Modular components
     PLAYER = ConfigOption(ConfigScope.CHANNEL, "player", "backend")
-
     AUTOPLAY = ConfigOption(ConfigScope.CHANNEL, "autoplay", "type")
-    AUTOPLAY_SETTINGS = ConfigOption(
-        ConfigScope.CHANNEL, "autoplay", "settings"
-    )
-
     IPC = ConfigOption(ConfigScope.CHANNEL, "ipc", "type")
-    IPC_SETTINGS = ConfigOption(ConfigScope.CHANNEL, "ipc", "settings")
 
     def __str__(self) -> str:
         return (
@@ -128,6 +123,24 @@ class ConfigKeys(Enum):
 
 
 class Config:
+    """
+    The Config class provides an abstraction around config-file values
+    """
+
+    @staticmethod
+    def get_section(key: ConfigOption, channel: str):
+        """
+        Get the section linked to a given config-option for a given channel.
+        """
+        scope, section, _ = key
+        if scope == ConfigScope.CHANNEL:
+            section = f"channel:{channel}:{section}"
+        elif scope == ConfigScope.DATABASE:
+            section = "database"
+        else:
+            section = "core"
+        return section
+
     @staticmethod
     def get(
         key: ConfigKeys,
@@ -135,16 +148,40 @@ class Config:
         channel: str = "",
         converter: Callable[[str], T] = lambda x: x,
     ) -> T:
+        """
+        Retrieve a config-value for a given config-key
+        """
         config = load_config()
-        scope, section, option = key.value
-        if scope == ConfigScope.CHANNEL:
-            section = f"channel:{channel}:{section}"
-        elif scope == ConfigScope.DATABASE:
-            section = "database"
-        else:
-            section = "core"
+        section = Config.get_section(key.value, channel)
+        _, _, option = key.value
         if fallback is NO_DEFAULT:
             value = config.get(section, option)
         else:
             value = config.get(section, option, fallback=fallback)
         return converter(value)
+
+    @staticmethod
+    def dictify(key: ConfigKeys, channel: str, keys: Set[str]):
+        """
+        Convert a given section to a simple Python dictionary.
+
+        :param key: The config key to convert
+        :param channel: The channel-name
+        :param keys: Expect exactly these keys in the options. If a difference
+            is detectd, raise a ConfigError
+        """
+        config = load_config()
+        section = Config.get_section(key.value, channel)
+        output: Dict[str, str] = {}
+        missing_keys: Set[str] = set()
+        for option in config.options(section):
+            if option in keys:
+                if config.has_option(section, option):
+                    output[option] = config.get(section, option)
+        missing_keys = keys - set(output.keys())
+        if missing_keys:
+            raise ConfigError(
+                f"The config-section {section!r} is missing "
+                f"the keys {sorted(missing_keys)!r}"
+            )
+        return output

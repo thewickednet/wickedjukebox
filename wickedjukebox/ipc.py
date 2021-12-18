@@ -2,7 +2,7 @@ import logging
 from abc import ABC, abstractmethod
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Set
 
 from wickedjukebox.exc import ConfigError
 from wickedjukebox.logutil import qualname
@@ -25,6 +25,10 @@ class Command(Enum):
 
 
 class AbstractIPC(ABC):
+    #: The names of the config-keys that this instance requires to be
+    #: successfully configured.
+    CONFIG_KEYS: Set[str] = set()
+
     def __init__(self) -> None:
         self._log = logging.getLogger(qualname(self))
 
@@ -70,6 +74,7 @@ class FSIPC(AbstractIPC):
     A no-db solution for IPC using simple files on disk
     """
 
+    CONFIG_KEYS = {"path"}
     root: Optional[Path]
 
     def __init__(self) -> None:

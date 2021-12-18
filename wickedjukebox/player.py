@@ -2,7 +2,7 @@ import logging
 from abc import ABC, abstractmethod
 from math import floor
 from pathlib import Path
-from typing import Any, Dict, List, NamedTuple
+from typing import Any, Dict, List, NamedTuple, Set
 
 from mpd.base import CommandError, FailureResponseCode, MPDClient  # type: ignore
 
@@ -23,6 +23,10 @@ class PathMap(NamedTuple):
 
 
 class AbstractPlayer(ABC):
+    #: The names of the config-keys that this instance requires to be
+    #: successfully configured.
+    CONFIG_KEYS: Set[str] = set()
+
     def __init__(self) -> None:
         self.songs_since_last_jingle = 0
         self._log = logging.getLogger(qualname(self))
@@ -76,6 +80,8 @@ class AbstractPlayer(ABC):
 
 
 class NullPlayer(AbstractPlayer):
+    CONFIG_KEYS: Set[str] = set()
+
     def configure(self, cfg: Dict[str, Any]) -> None:
         pass
 
@@ -109,6 +115,8 @@ class NullPlayer(AbstractPlayer):
 
 
 class MpdPlayer(AbstractPlayer):
+    CONFIG_KEYS = {"host", "port", "path_map"}
+
     def __init__(self) -> None:
         super().__init__()
         self.client = None

@@ -8,23 +8,9 @@ from typing import Optional
 
 from wickedjukebox import __version__
 from wickedjukebox.channel import Channel
-from wickedjukebox.config import (
-    Config,
-    ConfigKeys,
-    get_config_files,
-    parse_param_string,
-)
-from wickedjukebox.exc import ConfigError
-from wickedjukebox.ipc import FSIPC, AbstractIPC, NullIPC
+from wickedjukebox.components import get_autoplay, get_ipc, get_player
 from wickedjukebox.jingle import FileBasedJingles
 from wickedjukebox.logutil import setup_logging
-from wickedjukebox.player import AbstractPlayer, MpdPlayer, NullPlayer
-from wickedjukebox.random import (
-    AbstractRandom,
-    AllFilesRandom,
-    NullRandom,
-    SmartPrefetch,
-)
 
 LOG = logging.getLogger(__name__)
 
@@ -58,125 +44,6 @@ def parse_args() -> Namespace:
     )
     args = parser.parse_args()
     return args
-
-
-def get_player(channel_name: str) -> AbstractPlayer:
-    player_type = Config.get(
-        ConfigKeys.PLAYER, channel=channel_name, fallback=""
-    )
-    if player_type.strip() == "":
-        LOG.warning("Config-value 'player' is missing. Using NULL-player!")
-        player_type = "null"
-
-    player_settings_str = Config.get(
-        ConfigKeys.PLAYER_SETTINGS, channel=channel_name, fallback=""
-    )
-
-    player_settings = parse_param_string(player_settings_str)
-    player = None
-    clsmap = {
-        "mpd": MpdPlayer,
-        "null": NullPlayer,
-    }
-    cls = clsmap.get(player_type, None)
-    if cls:
-        player = cls()
-        try:
-            player.configure(player_settings)
-        except KeyError as exc:
-            key = exc.args[0]
-            raise ConfigError(
-                f"Missing config-key {key!r} in 'player_settings' "
-                f"{player_settings_str!r} for channel {channel_name!r} "
-                f"(set in one of {get_config_files()})",
-            ) from exc
-        return player
-
-    raise ConfigError(
-        f"Unknown player {player_type!r} defined in config for "
-        f"channel {channel_name!r}"
-    )
-
-
-def get_autoplay(channel_name: str) -> AbstractRandom:
-    autoplay_type = Config.get(
-        ConfigKeys.AUTOPLAY, channel=channel_name, fallback=""
-    )
-    # TODO: This function is very similar to get_player and can likely be merged
-    if autoplay_type.strip() == "":
-        LOG.warning(
-            "Config-value %s is missing. Disabling auto-play",
-            ConfigKeys.AUTOPLAY,
-        )
-        autoplay_type = "null"
-
-    autoplay_settings_str = Config.get(
-        ConfigKeys.AUTOPLAY_SETTINGS, channel=channel_name, fallback=""
-    )
-    autoplay_settings = parse_param_string(autoplay_settings_str)
-    instance = None
-    clsmap = {
-        "allfiles_random": AllFilesRandom,
-        "smart_prefetch": SmartPrefetch,
-        "null": NullRandom,
-    }
-    cls = clsmap.get(autoplay_type, None)
-    if cls:
-        instance = cls(channel_name)
-        try:
-            instance.configure(autoplay_settings)
-        except KeyError as exc:
-            key = exc.args[0]
-            raise ConfigError(
-                f"Missing config-key {key!r} in 'autoplay_settings' "
-                f"{autoplay_settings_str!r} for channel {channel_name!r} "
-                f"(set in one of {get_config_files()})",
-            ) from exc
-        return instance
-
-    raise ConfigError(
-        f"Unknown player {autoplay_type!r} defined in config for "
-        f"channel {channel_name!r}"
-    )
-
-
-def get_ipc(channel_name: str) -> AbstractIPC:
-    ipc_type = Config.get(ConfigKeys.IPC, channel=channel_name, fallback="")
-    # TODO: This function is very similar to get_player and can likely be merged
-    if ipc_type.strip() == "":
-        LOG.warning(
-            "Config-value %s is missing. Disabling auto-play",
-            ConfigKeys.IPC,
-        )
-        ipc_type = "null"
-
-    ipc_settings_str = Config.get(
-        ConfigKeys.IPC_SETTINGS, channel=channel_name, fallback=""
-    )
-    ipc_settings = parse_param_string(ipc_settings_str)
-    instance = None
-    clsmap = {
-        "null": NullIPC,
-        "fs": FSIPC,
-    }
-    cls = clsmap.get(ipc_type, None)
-    if cls:
-        instance = cls()
-        try:
-            instance.configure(ipc_settings)
-        except KeyError as exc:
-            key = exc.args[0]
-            raise ConfigError(
-                f"Missing config-key {key!r} in 'ipc_settings' "
-                f"{ipc_settings_str!r} for channel {channel_name!r} "
-                f"(set in one of {get_config_files()})",
-            ) from exc
-        return instance
-
-    raise ConfigError(
-        f"Unknown player {ipc_type!r} defined in config for "
-        f"channel {channel_name!r}"
-    )
 
 
 def make_channel(channel_name: str) -> Optional[Channel]:
