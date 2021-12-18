@@ -7,12 +7,13 @@
 /.pylintrc
 /.pytest_cache
 /alembic.ini
+/sampledata
 build
 config.ini
+coverage.xml
 dist
 env
 httpd_data/users/
 logs/
 parser.out
 parsetab.py
-coverage.xml
