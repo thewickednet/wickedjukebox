@@ -10,19 +10,9 @@ from typing import Any, Dict, Set
 
 from sqlalchemy.engine import create_engine
 from sqlalchemy.pool import NullPool
-from sqlalchemy.sql.expression import select
 
 from wickedjukebox.config import Config, ConfigKeys
-from wickedjukebox.demon.dbmodel import (
-    ChannelStat,
-    Session,
-    Song,
-    State,
-    channelSongs,
-    channelTable,
-    songTable,
-    usersTable,
-)
+from wickedjukebox.demon.dbmodel import Session, Song
 from wickedjukebox.exc import ConfigError
 from wickedjukebox.logutil import qualname
 
