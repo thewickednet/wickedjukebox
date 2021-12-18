@@ -28,9 +28,10 @@ from wickedjukebox.logutil import qualname
 
 
 class AbstractRandom(ABC):
-    def __init__(self) -> None:
+    def __init__(self, channel_name: str) -> None:
         super().__init__()
         self._log = logging.getLogger(qualname(self))
+        self.channel_name = channel_name
 
     def __repr__(self) -> str:
         return f"<{qualname(self)}>"
@@ -75,8 +76,8 @@ class AllFilesRandom(AbstractRandom):
     random.
     """
 
-    def __init__(self) -> None:
-        super().__init__(config)
+    def __init__(self, channel_name: str) -> None:
+        super().__init__(channel_name)
         self.root = ""
 
     def configure(self, cfg: Dict[str, Any]) -> None:
@@ -111,8 +112,9 @@ class SmartPrefetchThread(Thread):
 
     daemon = True
 
-    def __init__(self, dsn: str, queue: Queue[str]) -> None:
+    def __init__(self, dsn: str, channel_name: str, queue: Queue[str]) -> None:
         super().__init__()
+        self.channel_name = channel_name
         self.queue = queue
         self.dsn = dsn
         self._log = logging.getLogger(qualname(self))
@@ -140,14 +142,17 @@ class SmartPrefetchThread(Thread):
         # waiting/prefetching only if needed.
         while True:
             self._log.debug("Prefetching next song via smart random...")
-            song = Song.smart_random(session)  # type: ignore
+            song = Song.smart_random(session, self.channel_name)  # type: ignore
             if song is None:
                 self._log.error(
                     "Smart random did not find any songs. Is the DB empty?"
                 )
                 time.sleep(5)
-            self._log.debug("Smart prefetch found song %r", song)
-            self.queue.put(abspath(song.localpath), block=True, timeout=None)
+            else:
+                self._log.debug("Smart prefetch found song %r", song)
+                self.queue.put(
+                    abspath(song.localpath), block=True, timeout=None
+                )
 
 
 class SmartPrefetch(AbstractRandom):
@@ -161,13 +166,13 @@ class SmartPrefetch(AbstractRandom):
     "play".
     """
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, channel_name: str) -> None:
+        super().__init__(channel_name)
         self.queue: Queue[str] = Queue(maxsize=1)
         dsn = Config.get(ConfigKeys.DSN, "")
         if not dsn:
             raise ConfigError("No DSN available for smart-random")
-        self._prefetcher = SmartPrefetchThread(dsn, self.queue)
+        self._prefetcher = SmartPrefetchThread(dsn, channel_name, self.queue)
 
     def configure(self, cfg: Dict[str, Any]) -> None:
         self._prefetcher.start()

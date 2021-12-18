@@ -10,6 +10,8 @@ def default_data(dbsession, transaction):
     Create the minimal necessary data to get the system up and running.
     """
     dbsession.bind = transaction
+    dbsession.execute("DELETE FROM song")
+    dbsession.flush()
     default_channel = db.Channel("test-channel", "mpd")
 
     default_group = db.Group("test-group")
@@ -24,6 +26,7 @@ def default_data(dbsession, transaction):
     default_song.artist = default_artist
     default_song.album = default_album
     default_song.title = "title"
+    default_song.duration = 300
 
     dbsession.add(default_channel)
     dbsession.add(default_song)

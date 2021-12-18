@@ -1,5 +1,6 @@
 import logging
 from time import sleep
+from typing import Optional
 
 from wickedjukebox.ipc import AbstractIPC, Command, NullIPC
 from wickedjukebox.jingle import AbstractJingle, NullJingle
@@ -17,7 +18,7 @@ class Channel:
         jingle_interval: int = 5,
         autoplay: bool = True,
         queue: AbstractQueue = NullQueue(),
-        random: AbstractRandom = NullRandom(),
+        random: Optional[AbstractRandom] = None,
         player: AbstractPlayer = NullPlayer(),
         ipc: AbstractIPC = NullIPC(),
         jingle: AbstractJingle = NullJingle(),
@@ -26,7 +27,7 @@ class Channel:
         self.player = player
         self.ipc = ipc
         self.queue = queue
-        self.random = random
+        self.random = random or NullRandom(name)
         self.jingle = jingle
         self.tick_interval_s = tick_interval_s
         self.jingle_interval = jingle_interval

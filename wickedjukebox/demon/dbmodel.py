@@ -31,6 +31,7 @@ from sqlalchemy import (
     func,
 )
 from sqlalchemy.orm import mapper, relation, scoped_session, sessionmaker, Session as TSession
+from sqlalchemy.orm.query import Query
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.sql import insert, select, update
 
@@ -304,6 +305,8 @@ class Album(object):
 
 
 class Song(object):
+
+
     def __init__(self, localpath: str) -> None:
         self.localpath = localpath
         self.added = datetime.now()
@@ -325,17 +328,19 @@ class Song(object):
         """
         Retrieve a song from the database using the local filename as key
         """
-        song = session.query(Song).order_by(func.rand()).first()
+        query = session.query(Song).order_by(func.rand())
+        song = query.first()
         return song
 
     @staticmethod
-    def smart_random(session: TSession) -> Optional["Song"]:
+    def smart_random(session: TSession, channel_name: str) -> Optional["Song"]:
         """
         Retrieve a song using a smart guess based on play statistics and active
         listeners.
         """
         # TODO: Implement
-        song = session.query(Song).order_by(func.rand()).first()
+        from wickedjukebox.demon.playmodes.random_weighed_prefetch import find_song
+        song = find_song(session, channel_name)
         return song
 
     def update_metadata(self) -> None:

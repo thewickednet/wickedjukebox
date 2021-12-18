@@ -122,7 +122,7 @@ def get_autoplay(channel_name: str) -> AbstractRandom:
     }
     cls = clsmap.get(autoplay_type, None)
     if cls:
-        instance = cls()
+        instance = cls(channel_name)
         try:
             instance.configure(autoplay_settings)
         except KeyError as exc:

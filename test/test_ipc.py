@@ -9,7 +9,8 @@ import wickedjukebox.ipc as ipc
 @pytest.fixture
 def fs():
     with patch("wickedjukebox.ipc.Path") as pth:
-        state = ipc.FSIPC("fakedir")
+        state = ipc.FSIPC()
+        state.configure({"path": "fakedir"})
         state.root = Mock()
         child_file = Mock()
         state.root.__truediv__ = Mock(return_value=child_file)

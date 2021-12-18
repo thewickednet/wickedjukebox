@@ -1,9 +1,11 @@
-from wickedjukebox.demon.playmodes.interface import RandomItem
-from wickedjukebox.demon.dbmodel import Song
-from pytest_sqlalchemy import connection, dbsession, engine, transaction
-from wickedjukebox.demon.playmodes import create
 from decimal import Decimal
+
 import pytest
+from pytest_sqlalchemy import connection, dbsession, engine, transaction
+
+from wickedjukebox.demon.dbmodel import Song
+from wickedjukebox.demon.playmodes import create
+from wickedjukebox.demon.playmodes.interface import RandomItem
 
 
 def test_standing_count(default_data, dbsession):
@@ -28,6 +30,7 @@ def test_bootstrap():
     instance.bootstrap()
 
 
+@pytest.mark.skip("Legacy and probably no longer needed")
 def test_fetch_candidates(default_data, dbsession):
     song = Song("/path/to/song.mp3")
     song.artist = default_data["default_artist"]
@@ -52,6 +55,8 @@ def test_fetch_candidates(default_data, dbsession):
         "last_played": None,
     }
 
+
+@pytest.mark.skip("Legacy and probably no longer needed")
 def test_get(default_data, dbsession):
     song = Song("/path/to/song.mp3")
     song.artist = default_data["default_artist"]

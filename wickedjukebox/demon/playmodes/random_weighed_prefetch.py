@@ -11,15 +11,20 @@ random. Like the time it was last played, how often it was skipped, and so on.
 """
 import logging
 import threading
+from typing import Generator, Optional
+from sqlalchemy.orm.strategy_options import load_only
 
 from sqlalchemy.sql import func, select
 from sqlalchemy.sql import text as dbText
-from wickedjukebox.demon.dbmodel import (Session, Song, channelTable,
+import sqlalchemy.orm as orm
+from sqlalchemy.sql.elements import literal_column, not_
+from sqlalchemy.sql.expression import and_, bindparam, text
+from wickedjukebox.demon.dbmodel import (Session, Song, User, channelTable,
                                          dynamicPLTable, engine, songTable,
                                          usersTable)
 from wickedjukebox.demon.plparser import ParserSyntaxError, parse_query
-from wickedjukebox.demon.util import config
 from wickedjukebox.config import Config, ConfigKeys
+from . import queries
 
 LOG = logging.getLogger(__name__)
 
@@ -45,8 +50,35 @@ def bootstrap(channel_id):
     LOG.debug('  Channel %r prefetched %r', row[1], PREFETCH_STATE[row[0]])
     ALREADY_INITIALISED = True
 
+def parse_dynamic_playlists() -> Generator[str, None, None]:
+    raise NotImplementedError(
+        "An issue with table-aliasing would cause cartesian products when "
+        "enabling this. Before this is enabled again, review the generated "
+        "queries cautiously."
+    )
+    # Retrieve dynamic playlists
+    sel = select([dynamicPLTable.c.query])
+    sel = sel.where(dynamicPLTable.c.group_id > 0)
+    sel = sel.order_by('group_id')
+    res = sel.execute().fetchall()
+    for dpl in res:
+        try:
+            if parse_query(dpl["query"]):
+                yield "(" + parse_query(dpl["query"]) + ")"
+            break  # only one query will be parsed. for now.... this is a big TODO
+            # as it triggers an unexpected behaviour (bug). i.e.: Why the
+            # heck does it only activate one playlist?!?
+        except ParserSyntaxError as ex:
+            import traceback
+            traceback.print_exc()
+            LOG.error(str(ex))
+            LOG.error('Query was: %s', dpl.query)
+        except Exception:  # pylint: disable=broad-except
+            # catchall for graceful degradation
+            LOG.exception('Unhandled exception')
 
-def findSong(channel_id):
+
+def find_song(session: orm.Session, channel_name: str) -> Optional[Song]:
     # pylint: disable=too-many-statements, too-many-locals
     #
     # This may be difficult to refactorl The high count of statements and
@@ -55,8 +87,6 @@ def findSong(channel_id):
     """
     determine a song that would be best to play next and return it
     """
-    global PREFETCH_STATE
-    session = Session()
 
     # setup song scoring coefficients
     user_rating = Config.get(
@@ -100,125 +130,60 @@ def findSong(channel_id):
         120,
         converter=int
     )
+    is_mysql = Config.get(ConfigKeys.DSN, "").lower().startswith("mysql")
 
-    where_clauses = ["NOT broken"]
-    if PREFETCH_STATE and PREFETCH_STATE[channel_id]:
-        LOG.info("Ignoring song %r from random selection as it was already "
-                 "prefetched!",
-                 PREFETCH_STATE[channel_id])
-        where_clauses.append("s.id != %d" % PREFETCH_STATE[channel_id].id)
+    if is_mysql:
 
-    # Retrieve dynamic playlists
-    sel = select([dynamicPLTable.c.query])
-    sel = sel.where(dynamicPLTable.c.group_id > 0)
-    sel = sel.order_by('group_id')
-    res = sel.execute().fetchall()
-    for dpl in res:
-        try:
-            if parse_query(dpl["query"]):
-                where_clauses.append("(" + parse_query(dpl["query"]) + ")")
-            break  # only one query will be parsed. for now.... this is a big TODO
-            # as it triggers an unexpected behaviour (bug). i.e.: Why the
-            # heck does it only activate one playlist?!?
-        except ParserSyntaxError as ex:
-            import traceback
-            traceback.print_exc()
-            LOG.error(str(ex))
-            LOG.error('Query was: %s', dpl.query)
-        except Exception:  # pylint: disable=broad-except
-            # catchall for graceful degradation
-            LOG.exception('Unhandled exception')
-
-    if config['database.type'] == 'mysql':
-
-        query = select([usersTable], func.unix_timestamp(
-            usersTable.c.proof_of_listening) + proofoflife_timeout > func.unix_timestamp(func.now()))
-        result = query.execute()
-        if result.count() == 0:
+        query = session.query(User.id).filter(
+            func.unix_timestamp(User.proof_of_listening)
+            + proofoflife_timeout > func.unix_timestamp(func.now())
+        )
+        if query.count() == 0:
             # no users online
-            query = """
-            SELECT s.id, s.localpath,
-               ((IFNULL( least(604800, (NOW()-lastPlayed)), 604800)-604800)/604800*%(lastPlayed)d)
-                  + IF( lastPlayed IS NULL, %(neverPlayed)d, 0)
-                  + IFNULL( IF( (NOW()-s.added)<1209600, (NOW()-s.added)/1209600*%(songAge)d, 0), 0)
-                  + ((RAND()*%(randomness)f*2)-%(randomness)f)
-               AS score
-            FROM song s
-               LEFT JOIN channel_song_data c ON (c.song_id=s.id)
-               INNER JOIN artist a ON ( a.id = s.artist_id )
-               INNER JOIN album b ON ( b.id = s.album_id )
-            WHERE (%(where)s) AND NOT s.broken AND s.duration < %(max_random_duration)d
-            ORDER BY score DESC
-            LIMIT 10 OFFSET 0
-            """ % {
-                'neverPlayed': never_played,
-                'lastPlayed': last_played,
-                'songAge': song_age,
-                'randomness': randomness,
-                'max_random_duration': max_random_duration,
-                'where': ") AND (".join(where_clauses).replace("%", "%%"),
-            }
+            query = queries.smart_random_no_users(
+                never_played,
+                last_played,
+                song_age,
+                randomness,
+                max_random_duration,
+            )
         else:
-            query = """
-            SELECT s.id, s.localpath,
-               ((IFNULL( least(604800, (NOW()-lastPlayed)), 604800)-604800)/604800*%(lastPlayed)d)
-                  + ((IFNULL(ls.loves,0)) / (SELECT COUNT(*) FROM users WHERE UNIX_TIMESTAMP(proof_of_listening)+%(proofoflife)d > UNIX_TIMESTAMP(NOW())) * %(userRating)d)
-                  + IF( lastPlayed IS NULL, %(neverPlayed)d, 0)
-                  + IFNULL( IF( (NOW()-s.added) < 1209600, (NOW()-s.added)/1209600*%(songAge)d, 0), 0)
-                  + ((RAND()*%(randomness)f*2)-%(randomness)f)
-               AS score
-            FROM song s
-               LEFT JOIN channel_song_data c ON (c.song_id=s.id)
-               LEFT JOIN (
-                  SELECT song_id, COUNT(*) AS loves
-                  FROM user_song_standing
-                  INNER JOIN users ON(users.id=user_song_standing.user_id)
-                  LEFT OUTER JOIN setting ON(users.id=setting.user_id AND setting.var="loves_affect_random")
-                  WHERE standing='love' AND IFNULL(setting.value, 1) = 1
-                     AND UNIX_TIMESTAMP(proof_of_listening)+%(proofoflife)d > UNIX_TIMESTAMP(NOW())
-                  GROUP BY song_id
-               ) ls ON (s.id=ls.song_id)
-               LEFT JOIN (
-                  SELECT song_id, COUNT(*) AS hates
-                  FROM user_song_standing
-                  INNER JOIN users ON(users.id=user_song_standing.user_id)
-                  LEFT OUTER JOIN setting ON(users.id=setting.user_id AND setting.var="hates_affect_random")
-                  WHERE standing='hate' AND IFNULL(setting.value, 1) = 1
-                     AND UNIX_TIMESTAMP(proof_of_listening)+%(proofoflife)d > UNIX_TIMESTAMP(NOW())
-                  GROUP BY song_id
-               ) hs ON (s.id=hs.song_id)
-               INNER JOIN artist a ON ( a.id = s.artist_id )
-               INNER JOIN album b ON ( b.id = s.album_id )
-            WHERE (%(where)s) AND IFNULL(hs.hates,0) = 0 AND NOT s.broken AND s.duration < %(max_random_duration)d
-            ORDER BY score DESC
-            LIMIT 10 OFFSET 0
-            """ % {
-                'neverPlayed': never_played,
-                'userRating': user_rating,
-                'lastPlayed': last_played,
-                'proofoflife': proofoflife_timeout,
-                'randomness': randomness,
-                'songAge': song_age,
-                'max_random_duration': max_random_duration,
-                'where': ") AND (".join(where_clauses).replace("%", "%%"),
-            }
+            query = queries.smart_random_with_users(
+                never_played,
+                user_rating,
+                last_played,
+                proofoflife_timeout,
+                randomness,
+                song_age,
+                max_random_duration,
+            )
     else:
         raise Exception(
             "SQLite support discontinued since revision 346. It may reappear in the future!")
 
-    LOG.debug(query)
-    result_proxy = dbText(query, bind=engine).execute()
-    res = result_proxy.fetchall()
+    query = query.where(not_(text("s.broken")))  # type: ignore
+    if PREFETCH_STATE and PREFETCH_STATE[channel_id]:
+        LOG.info("Ignoring song %r from random selection as it was already "
+                 "prefetched!",
+                 PREFETCH_STATE[channel_id])
+        query = query.where(text("s.id != :excluded_song").bindparams(excluded_song=PREFETCH_STATE[channel_id].id))  # type: ignore
 
-    if not res:
+    # TODO: Add dynamic playlist clauses
+    # TODO fix cross-product issue query = query.where(and_(*parse_dynamic_playlists()))
+
+    LOG.debug(query)
+    res = session.execute(query)
+    candidate = res.first()
+
+    if candidate is None:
         return None
 
     try:
-        if not res[0][2]:
+        if not candidate.score:
             # no users are online!
             session.close()
             return None
-        out = (res[0][0], res[0][1], float(res[0][2]))
+        out = (candidate.id, candidate.localpath, float(candidate.score))
         LOG.info("Selected song (%d, %s) via smartget. Score was %4.3f",
                  *out)
         selected_song = session.query(Song).filter(
@@ -243,7 +208,8 @@ class Prefetcher(threading.Thread):
     def run(self):
         global PREFETCH_STATE
         LOG.debug("Background prefetching... ")
-        song = findSong(self._channel_id)
+        session = Session()
+        song = find_song(session, self._channel_id)
         LOG.debug("  ... prefetched %r", song)
         PREFETCH_STATE[self._channel_id] = song
 
@@ -272,7 +238,7 @@ def prefetch(channel_id, run_async=True):
     global PREFETCH_STATE
     PREFETCH_STATE[channel_id] = None
     pref = Prefetcher(channel_id)
-    if async:
+    if run_async:
         pref.start()
     else:
         pref.run()
