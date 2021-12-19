@@ -76,7 +76,7 @@ class FSIPC(AbstractIPC):
     """
 
     CONFIG_KEYS = {"path"}
-    root: Optional[Path]
+    _root: Optional[Path]
 
     def __init__(self, channel_name: str) -> None:
         super().__init__(channel_name)
