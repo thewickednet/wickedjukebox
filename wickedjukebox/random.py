@@ -8,9 +8,6 @@ from random import choice
 from threading import Thread
 from typing import Any, Dict, Set
 
-from sqlalchemy.engine import create_engine
-from sqlalchemy.pool import NullPool
-
 from wickedjukebox.config import Config, ConfigKeys
 from wickedjukebox.demon.dbmodel import Session, Song
 from wickedjukebox.exc import ConfigError
@@ -117,8 +114,7 @@ class SmartPrefetchThread(Thread):
 
     def run(self) -> None:
         self._log.info("Smart random prefetcher started")
-        engine = create_engine(self.dsn, poolclass=NullPool)
-        with Session(bind=engine) as session:  # type: ignore
+        with Session() as session:  # type: ignore
             # We use a "naive" random first so we have something quickly. The
             # "smart" query is much slower.
             song = Song.random(session)  # type: ignore
