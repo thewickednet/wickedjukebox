@@ -7,7 +7,7 @@ from wickedjukebox.config import (
     parse_param_string,
 )
 from wickedjukebox.exc import ConfigError
-from wickedjukebox.ipc import FSIPC, AbstractIPC, NullIPC
+from wickedjukebox.ipc import DBIPC, FSIPC, AbstractIPC, NullIPC
 from wickedjukebox.player import AbstractPlayer, MpdPlayer, NullPlayer
 from wickedjukebox.random import (
     AbstractRandom,
@@ -94,10 +94,11 @@ def get_ipc(channel_name: str) -> AbstractIPC:
     clsmap = {
         "null": NullIPC,
         "fs": FSIPC,
+        "db": DBIPC,
     }
     cls = clsmap.get(ipc_type, None)
     if cls:
-        instance = cls()
+        instance = cls(channel_name)
         ipc_settings = Config.dictify(
             ConfigKeys.IPC, channel_name, cls.CONFIG_KEYS
         )

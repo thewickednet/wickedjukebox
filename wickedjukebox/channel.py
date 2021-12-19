@@ -20,7 +20,7 @@ class Channel:
         queue: AbstractQueue = NullQueue(),
         random: Optional[AbstractRandom] = None,
         player: AbstractPlayer = NullPlayer(),
-        ipc: AbstractIPC = NullIPC(),
+        ipc: AbstractIPC = NullIPC(""),
         jingle: AbstractJingle = NullJingle(),
     ):
         self.name = name

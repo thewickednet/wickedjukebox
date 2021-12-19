@@ -4,8 +4,15 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, Optional, Set
 
+from sqlalchemy.engine import create_engine
+from sqlalchemy.pool import NullPool
+
+from wickedjukebox.config import Config, ConfigKeys
+from wickedjukebox.demon.dbmodel import Session, State
 from wickedjukebox.exc import ConfigError
 from wickedjukebox.logutil import qualname
+
+LOG = logging.getLogger(__name__)
 
 
 class InvalidCommand(Exception):
@@ -29,21 +36,18 @@ class AbstractIPC(ABC):
     #: successfully configured.
     CONFIG_KEYS: Set[str] = set()
 
-    def __init__(self) -> None:
+    def __init__(self, channel_name: str) -> None:
         self._log = logging.getLogger(qualname(self))
+        self._channel_name = channel_name
 
     def __repr__(self) -> str:
         return f"<{qualname(self)}>"
 
-    @abstractmethod
     def configure(self, cfg: Dict[str, Any]) -> None:
         """
         Process configuration data from a configuration mapping. The
         required keys depend on the specific random type.
         """
-        # TODO: This can be implemented in the top-class (i.e. here) by defining
-        #       the expected keys as a class-variable and then "pulling them in"
-        #       using setattr
 
     @abstractmethod
     def get(self, key: Command) -> Optional[Any]:  # pragma: no cover
@@ -57,9 +61,6 @@ class AbstractIPC(ABC):
 
 
 class NullIPC(AbstractIPC):
-    def configure(self, cfg: Dict[str, Any]) -> None:
-        pass
-
     def get(self, key: Command) -> Optional[Any]:
         self._log.debug("Retrieving command for %r (no-op)", key)
         return None
@@ -77,8 +78,8 @@ class FSIPC(AbstractIPC):
     CONFIG_KEYS = {"path"}
     root: Optional[Path]
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, channel_name: str) -> None:
+        super().__init__(channel_name)
         self._root = None
 
     def __repr__(self) -> str:
@@ -98,7 +99,7 @@ class FSIPC(AbstractIPC):
             pth.mkdir(parents=True, exist_ok=True)
 
     def configure(self, cfg: Dict[str, Any]) -> None:
-        self._root = Path(cfg["path"].strip())
+        self._root = Path(cfg["path"].strip()) / self._channel_name
 
     def _exists(self, file: FSStateFiles) -> bool:
         pth = self.root / Path(file.value)
@@ -120,3 +121,49 @@ class FSIPC(AbstractIPC):
         if key == Command.SKIP:
             return self._set_boolfile(FSStateFiles.SKIP_REQUESTED, value)
         raise InvalidCommand("Command {key} is not (yet) supported by {self!r}")
+
+
+class DBIPC(AbstractIPC):
+    """
+    Read IPC sentinel values from the database
+    """
+
+    def __init__(self, channel_name: str) -> None:
+        super().__init__(channel_name)
+        dsn = Config.get(ConfigKeys.DSN, "")
+        if not dsn:
+            raise ConfigError("No DSN available for DB-IPC")
+        self._dsn = dsn
+
+    def get(self, key: Command) -> Optional[Any]:  # pragma: no cover
+        from wickedjukebox.demon.dbmodel import Channel
+
+        skip_state = False
+        with Session() as session:  # type: ignore
+            query = session.query(Channel)
+            query = query.filter(Channel.name == self._channel_name)
+            channel = query.one()
+            if key == Command.SKIP:
+                skip_state = bool(
+                    int(State.get("skipping", channel.id, default=False))
+                )
+            else:
+                LOG.error(f"Unknown IPC command: {key!r}")
+        return skip_state
+
+    def set(
+        self, key: Command, value: Any
+    ) -> Optional[Any]:  # pragma: no cover
+        from wickedjukebox.demon.dbmodel import Channel
+
+        skip_state = False
+        with Session() as session:  # type: ignore
+            query = session.query(Channel)
+            query = query.filter(Channel.name == self._channel_name)
+            channel = query.one()
+            if key == Command.SKIP:
+                skip_state = State.set("skipping", value, channel.id)
+            else:
+                LOG.error(f"Unknown IPC command: {key!r}")
+            session.commit()
+        return skip_state

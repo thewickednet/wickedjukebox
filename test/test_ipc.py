@@ -9,7 +9,7 @@ import wickedjukebox.ipc as ipc
 @pytest.fixture
 def fs():
     with patch("wickedjukebox.ipc.Path") as pth:
-        state = ipc.FSIPC()
+        state = ipc.FSIPC("test-channel")
         state.configure({"path": "fakedir"})
         state.root = Mock()
         child_file = Mock()
@@ -18,12 +18,12 @@ def fs():
 
 
 def test_repr():
-    state = ipc.NullIPC()
+    state = ipc.NullIPC("test-channel")
     assert "NullIPC" in repr(state)
 
 
 def test_null_state():
-    state = ipc.NullIPC()
+    state = ipc.NullIPC("test-channel")
     assert state.get(ipc.Command.SKIP) is None
     assert state.set(ipc.Command.SKIP, True) is None
 
