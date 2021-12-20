@@ -53,15 +53,6 @@ def test_process_invalid_file():
         scanner.process(Path("/path/to/mp3s/file.txt"))
 
 
-def test_housekeeping():
-    with patch("wickedjukebox.scanner.select") as select, patch(
-        "wickedjukebox.scanner.path"
-    ) as path:
-        select().execute.return_value = ["file1.mp3", "file2.mp3"]
-        path.exists.side_effect = [True, False]
-        scanner.do_housekeeping()
-
-
 def test_process_files(dbsession, transaction):
     stdout = StringIO()
     with patch("wickedjukebox.scanner.ChargingBar"), patch(

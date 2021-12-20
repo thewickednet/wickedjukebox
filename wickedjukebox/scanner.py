@@ -43,32 +43,13 @@ def process(pth: Path) -> None:
     return
 
 
-def do_housekeeping():
-    """
-    Database cleanup, and set other values that are difficult to read during
-    scanning.
-    """
-    LOG.info("Performing housekeeping. This may take a while!")
-    songs = select([songTable.c.localpath]).execute()
-    for row in songs:
-        try:
-            if not path.exists(row[0]):
-                print("%r removed from disk" % row[0])
-        except UnicodeEncodeError as exc:
-            LOG.error("Unable to decode %r (%s)", row[0], exc)
-
-
 def process_files(files: List[Path], stream: TextIO = stdout) -> None:
     pbar = ChargingBar(
         "Scanning: ", max=len(files)
     )  # TODO use something more moden
-    count_scanned = 0
-    count_processed = 0
     for file in files:
         try:
             process(file)
-            count_scanned += 1
-            count_processed += 1
         except TypeError as exc:
             LOG.error("Unable to scan %s (%s)", file, exc, exc_info=True)
         pbar.next()
