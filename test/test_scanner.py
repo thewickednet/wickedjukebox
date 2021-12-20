@@ -1,8 +1,10 @@
-import wickedjukebox.scanner as scanner
-from unittest.mock import Mock, patch
-import pytest
-from pathlib import Path
 from io import StringIO
+from pathlib import Path
+from unittest.mock import Mock, patch
+
+import pytest
+
+import wickedjukebox.scanner as scanner
 
 
 @pytest.mark.parametrize(
@@ -56,5 +58,6 @@ def test_process_invalid_file():
 def test_process_files(dbsession, transaction):
     stdout = StringIO()
     with patch("wickedjukebox.scanner.ChargingBar"), patch(
-        "wickedjukebox.scanner.process"):
+        "wickedjukebox.scanner.process"
+    ):
         scanner.process_files(["file1", "file2"], stdout)
