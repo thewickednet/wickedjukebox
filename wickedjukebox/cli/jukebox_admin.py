@@ -204,43 +204,6 @@ class Console(cmd.Cmd):
         print("bye")
         return 1
 
-    def do_update_tags(self, line):
-        # type: (str) -> None
-        """
-        Updates song tags via Last.FM
-
-        To avoid hammering the Lasst.FM API we will add a small sleep between
-        function call, so this may take a long time!
-
-        SYNOPSIS
-            update_tags <artist>
-
-        PARAMETERS
-            artist - The artis name
-        """
-        print('This is currently not implemented for Python 3')
-        # TODO sess = Session()
-        # TODO api_key = Config.get(Config.LASTFM_API_KEY, None)
-        # TODO if not api_key:
-        # TODO     print("ERROR: No API key specified. You can do this it in the "
-        # TODO           "settings")
-        # TODO     return
-        # TODO api = lastfm.Api(api_key)
-        # TODO artist = sess.query(Artist).filter_by(name=line).first()
-        # TODO if not artist:
-        # TODO     sess.close()
-        # TODO     print("Artist %r not found" % line)
-        # TODO     return
-        # TODO songs = artist.songs
-        # TODO print("%5d songs to update" % len(songs))
-        # TODO from time import sleep
-        # TODO for song in songs:
-        # TODO     song.update_tags(api)
-        # TODO     sleep(1)
-        # TODO     print("%-40s has now %4d tags" % (song.title, len(song.tags)))
-
-        # TODO sess.close()
-
     def do_orphans(self, line):
         # type: (str) -> None
         """

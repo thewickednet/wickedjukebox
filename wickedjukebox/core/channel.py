@@ -59,19 +59,11 @@ class Channel(object):
         self.__randomstrategy = None
         self.__queuestrategy = None
         self.__no_jingle_count = 0
-        self.__lastfm_api = None
         self.__config = load_config()
         self.__session = session
         self.id = None
         self.name = None
         self.last_tagged_song = None
-
-        lastfm_api_key = Config.get(
-            ConfigKeys.LASTFM_API_KEY, None
-        )
-        if lastfm_api_key:
-            from wickedjukebox import lastfm
-            self.__lastfm_api = lastfm.Api(lastfm_api_key)
 
         query = session.query(DbChannel).filter(DbChannel.name == name)
         channel_data = query.one_or_none()
@@ -579,11 +571,6 @@ class Channel(object):
             if change_detected:
                 last_known_song = current_song
                 self.emit_internal_playlist()
-
-            # update tags for the current song
-            if (self.last_tagged_song != current_song and
-                    self.__lastfm_api):
-                pass  # TODO: currently disabled until it can be handled in a thread
 
             # if the song is soon finished, update stats and pick the next one
             currentPosition = self.__player.position()

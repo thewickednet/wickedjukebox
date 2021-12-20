@@ -485,54 +485,6 @@ class Song(object):
 
         return album_id
 
-    def update_tags(self, api=None, session=None):
-        """
-        @raises: lastfm.error.InvalidApiKeyError
-        """
-        api_key = Config.get(ConfigKeys.LASTFM_API_KEY)
-        if not api_key:
-            LOG.warning(
-                "Unable to update tags. LastFM API key not "
-                "set in config file"
-            )
-            return
-        if not api:
-            from wickedjukebox import lastfm
-            LOG.warning("'update_tags' should be called with an instantiated "
-                        "LastFM API instance to avoid unnecessary network "
-                        "traffic!")
-            api = lastfm.Api(api_key)
-        if not self.title or not self.artist or not self.artist.name:
-            LOG.error("Cannot update the tags for this song. Either artist or "
-                      "track name are unknown")
-
-        lastfm_track = api.get_track(
-            artist=self.artist.name,
-            track=self.title)
-        current_tag_names = set([tag.label for tag in self.tags])
-        lastfm_tag_names = set([tag.name for tag in lastfm_track.top_tags])
-
-        if not session:
-            # try to get the current session for this object
-            session = Session.object_session(self)
-
-        if not session:
-            # unable to get a session
-            return
-
-        for remove_tag in current_tag_names.difference(lastfm_tag_names):
-            LOG.debug("Removing tag %r from song %d", remove_tag, self.id)
-            song_has_tag.delete().where(song_has_tag.c.tag == remove_tag)
-
-        for add_tag in lastfm_tag_names.difference(current_tag_names):
-            if len(add_tag) > 32:
-                LOG.debug("WARNING: tag %r is too long!", add_tag)
-                continue
-            LOG.debug("Adding tag %r to song %d", add_tag, self.id)
-            tag = Tag(add_tag)
-            tag = session.merge(tag)
-            self.tags.append(tag)
-
 
 class QueueItem(object):
 

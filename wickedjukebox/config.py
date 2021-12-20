@@ -84,7 +84,6 @@ class ConfigKeys(Enum):
     CHANNEL_CYCLE = ConfigOption(ConfigScope.CHANNEL, "channel_cycle", "")
     JINGLES_FOLDER = ConfigOption(ConfigScope.CHANNEL, "jingles_folder", "")
     JINGLES_INTERVAL = ConfigOption(ConfigScope.CHANNEL, "jingles_interval", "")
-    LASTFM_API_KEY = ConfigOption(ConfigScope.CORE, "lastfm_api_key", "")
     MAX_CREDITS = ConfigOption(ConfigScope.CORE, "max_credits", "")
     MAX_RANDOM_DURATION = ConfigOption(
         ConfigScope.CORE, "max_random_duration", ""
