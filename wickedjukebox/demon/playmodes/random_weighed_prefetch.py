@@ -226,14 +226,6 @@ def get(channel_id):
     return PREFETCH_STATE[channel_id]
 
 
-def peek(channel_id):
-    global PREFETCH_STATE
-    output = PREFETCH_STATE.get(channel_id, None)
-    if not output:
-        return None
-    return output, None
-
-
 def prefetch(channel_id, run_async=True):
     global PREFETCH_STATE
     PREFETCH_STATE[channel_id] = None

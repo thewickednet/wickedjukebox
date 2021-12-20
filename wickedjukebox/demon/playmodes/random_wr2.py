@@ -129,9 +129,6 @@ class RandomWR2(PlayMode):
             songTable.c.id == candidates[0][0]).first()
         return song
 
-    def peek(self) -> Optional[Song]:
-        return None
-
     def prefetch(self, blocking: bool = True) -> None:
         pass
 

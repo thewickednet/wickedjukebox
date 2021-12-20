@@ -34,16 +34,6 @@ class PlayMode(metaclass=ABCMeta):
         raise NotImplementedError()
 
     @abstractmethod
-    def peek(self) -> Optional[Song]:
-        """
-        Returns the song that will play immediately after the current song
-
-        .. note::
-            Returns "None" if the playmode does not support this feature
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
     def prefetch(self, blocking: bool = False) -> None:
         """
         Trigger prefetching of a song. This may be used when a client requests
