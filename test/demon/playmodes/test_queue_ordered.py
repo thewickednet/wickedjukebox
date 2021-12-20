@@ -53,13 +53,3 @@ def test_movedown(queue_data, dbsession):
     queue.movedown(dbsession, queue_data["default_channel"].id, items[0].id, 1)
     positions = [row.position for row in dbsession.query(QueueItem)]
     assert positions == [2, 1, 3]
-
-
-def test_movetop(dbsession):
-    with pytest.raises(NotImplementedError):
-        queue.movetop(dbsession, 0, 0)
-
-
-def test_movebottom(dbsession):
-    with pytest.raises(NotImplementedError):
-        queue.movebottom(dbsession, 0, 0)

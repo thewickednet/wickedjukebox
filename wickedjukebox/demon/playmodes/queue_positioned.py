@@ -240,35 +240,3 @@ def movedown(session, channel_id, qid, delta):
         session.execute(query)
     session.flush()
     session.expire_all()
-
-
-def movetop(session, channel_id, qid):
-    """
-    Move a song to the top of the queue (meaning it will be played next)
-
-    @type  session: Session
-    @param session: The DB Session
-
-    @type channel_id: int
-    @param channel_id: The channel ID
-
-    @type  qid: int
-    @param qid: The database ID of the queue item (*not* the song!)
-    """
-    raise NotImplementedError("Not yet implemented")
-
-
-def movebottom(session, channel_id, qid):
-    """
-    Move a song to the bottom of the queue (meaning it will be played last)
-
-    @type  session: Session
-    @param session: The DB Session
-
-    @type channel_id: int
-    @param channel_id: The channel ID
-
-    @type  qid: int
-    @param qid: The database ID of the queue item (*not* the song!)
-    """
-    raise NotImplementedError("Not yet implemented")
