@@ -35,14 +35,6 @@ These methods only need to implement a "get" method. This should return a valid
 "Song" instance as well. This should not return "None".
 
 ------------------------------------------------------------------------------
-"Skeletons"
-------------------------------------------------------------------------------
-Next to the default playmodes, there are some "skeleton" files. These are
-"no-op" files that contain the bare-minimum to write a new playmode from
-scratch. Make sure to read through them as they may contain more detailed
-explanations as the default playmodes.
-
-------------------------------------------------------------------------------
 Combining files
 ------------------------------------------------------------------------------
 As the two methods have different names ("get" and "dequeue") it is by all

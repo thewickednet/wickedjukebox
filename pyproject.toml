@@ -6,9 +6,6 @@ omit = [
     # omit external code which we have no control over
     "wickedjukebox/demon/lib/mpdclient.py",
     "wickedjukebox/remotes/*",
-    # omit code which is not actually used (only serves as examples)
-    "wickedjukebox/demon/playmodes/queue_skeleton.py",
-    "wickedjukebox/demon/players/skeleton.py",
 ]
 
 [tool.isort]
