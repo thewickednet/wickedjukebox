@@ -224,13 +224,3 @@ def get(channel_id):
         pass
 
     return PREFETCH_STATE[channel_id]
-
-
-def prefetch(channel_id, run_async=True):
-    global PREFETCH_STATE
-    PREFETCH_STATE[channel_id] = None
-    pref = Prefetcher(channel_id)
-    if run_async:
-        pref.start()
-    else:
-        pref.run()

@@ -129,9 +129,6 @@ class RandomWR2(PlayMode):
             songTable.c.id == candidates[0][0]).first()
         return song
 
-    def prefetch(self, blocking: bool = True) -> None:
-        pass
-
     def test(self) -> List[RandomItem]:
         candidates = self.fetch_candidates(self.channel_id)
         return candidates[0:10]

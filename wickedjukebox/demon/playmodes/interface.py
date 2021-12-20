@@ -34,21 +34,6 @@ class PlayMode(metaclass=ABCMeta):
         raise NotImplementedError()
 
     @abstractmethod
-    def prefetch(self, blocking: bool = False) -> None:
-        """
-        Trigger prefetching of a song. This may be used when a client requests
-        that the song marked as "upcoming song" is unwanted.
-
-        Playmodes that do not support a lookahead (see also "peek") will simply
-        do nothing when this method is called.
-
-        :param blocking: Whether to run the internal prefetch call
-            asynchronously or not. This MUST be implemented for asynchronous
-            prefetchers to ensure thread safety
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
     def fetch_candidates(self) -> List[RandomItem]:
         raise NotImplementedError()
 
