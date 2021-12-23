@@ -5,15 +5,21 @@ This module contains helpers for application configuration
 import logging
 from configparser import ConfigParser
 from enum import Enum
-from typing import Any, Callable, Dict, List, NamedTuple, Set, Type, TypeVar
+from typing import Any, Callable, Dict, List, NamedTuple, Set, TypeVar, Union
 
 from config_resolver import get_config
 
 from wickedjukebox.exc import ConfigError
 
-T = TypeVar("T", bound=Type[Any])
-NO_DEFAULT = object()
+TFallback = TypeVar("TFallback", bound=Any)
 LOG = logging.getLogger(__name__)
+
+
+class Sentinel:
+    pass
+
+
+NO_DEFAULT = Sentinel()
 
 
 class ConfigScope(Enum):
@@ -143,10 +149,10 @@ class Config:
     @staticmethod
     def get(
         key: ConfigKeys,
-        fallback: T = NO_DEFAULT,
+        fallback: Union[TFallback, Sentinel] = NO_DEFAULT,
         channel: str = "",
-        converter: Callable[[str], T] = lambda x: x,
-    ) -> T:
+        converter: Callable[[str], TFallback] = lambda x: x,
+    ) -> TFallback:
         """
         Retrieve a config-value for a given config-key
         """
@@ -156,7 +162,7 @@ class Config:
         if fallback is NO_DEFAULT:
             value = config.get(section, option)
         else:
-            value = config.get(section, option, fallback=fallback)
+            value = str(config.get(section, option, fallback=fallback))
         return converter(value)
 
     @staticmethod
