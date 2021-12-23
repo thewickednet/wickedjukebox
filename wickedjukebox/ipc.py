@@ -4,9 +4,6 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, Optional, Set
 
-from sqlalchemy.engine import create_engine
-from sqlalchemy.pool import NullPool
-
 from wickedjukebox.config import Config, ConfigKeys
 from wickedjukebox.demon.dbmodel import Session, State
 from wickedjukebox.exc import ConfigError
@@ -133,7 +130,6 @@ class DBIPC(AbstractIPC):
         dsn = Config.get(ConfigKeys.DSN, "")
         if not dsn:
             raise ConfigError("No DSN available for DB-IPC")
-        self._dsn = dsn
 
     def get(self, key: Command) -> Optional[Any]:  # pragma: no cover
         from wickedjukebox.demon.dbmodel import Channel

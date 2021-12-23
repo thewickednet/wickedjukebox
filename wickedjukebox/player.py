@@ -163,7 +163,6 @@ class MpdPlayer(AbstractPlayer):
         self._log.info("Connecting to MPD via %s:%s", self.host, self.port)
         client = MPDClient()
         client.timeout = 10
-        client.idletimeout = None
         client.connect(self.host, self.port)  # type: ignore
         client.consume(1)  # type: ignore
         self.client = client
