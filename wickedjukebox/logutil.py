@@ -1,3 +1,6 @@
+"""
+This module contains some helpers that come in handy during logging
+"""
 
 import logging
 import logging.config
@@ -17,6 +20,9 @@ def qualname(instance: Any) -> str:
 
 
 def setup_logging(verbosity: int = 0) -> None:
+    """
+    Configure logging for the application for a given verbosity level
+    """
     levelmap = {
         0: logging.WARNING,
         1: logging.INFO,
