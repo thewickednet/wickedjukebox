@@ -1,3 +1,6 @@
+"""
+This module contains implementations for jingle-handling
+"""
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -7,6 +10,11 @@ from wickedjukebox.logutil import qualname
 
 
 class AbstractJingle(ABC):
+    """
+    This abstract class provides the interface for the underlying
+    implementations
+    """
+
     def __init__(self) -> None:
         self._log = logging.getLogger(qualname(self))
 
@@ -15,10 +23,18 @@ class AbstractJingle(ABC):
 
     @abstractmethod
     def pick(self) -> str:
+        """
+        Pick a jingle to be added to the player queue
+        """
         ...
 
 
 class NullJingle(AbstractJingle):
+    """
+    A no-op implementation that simply logging the fact that we *would* play a
+    jingle next.
+    """
+
     def pick(self) -> str:
         self._log.debug("Returning 'null' jingle")
         return None
