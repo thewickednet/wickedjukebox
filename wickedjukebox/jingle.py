@@ -37,7 +37,7 @@ class NullJingle(AbstractJingle):
 
     def pick(self) -> str:
         self._log.debug("Returning 'null' jingle")
-        return None
+        return ""
 
 
 class FileBasedJingles(AbstractJingle):
