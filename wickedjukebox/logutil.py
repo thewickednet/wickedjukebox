@@ -5,6 +5,7 @@ This module contains some helpers that come in handy during logging
 import logging
 import logging.config
 from typing import Any
+
 import gouge.colourcli as gc
 
 
@@ -14,7 +15,7 @@ def qualname(instance: Any) -> str:
     """
     cls = instance.__class__
     module = cls.__module__
-    if module == '__builtin__':
+    if module == "__builtin__":
         return cls.__name__
     return ".".join([module, cls.__name__])
 
@@ -30,4 +31,4 @@ def setup_logging(verbosity: int = 0) -> None:
     }
     verbosity = max(0, min(verbosity, max(levelmap.keys())))
     gc.Simple.basicConfig(level=levelmap[verbosity])
-    logging.getLogger('requests').setLevel(logging.WARNING)
+    logging.getLogger("requests").setLevel(logging.WARNING)
