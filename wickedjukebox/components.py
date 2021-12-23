@@ -1,3 +1,7 @@
+"""
+This module contains code to construct the appropriate components as defined in
+the application config-file
+"""
 import logging
 
 from wickedjukebox.config import (
@@ -20,6 +24,9 @@ LOG = logging.getLogger(__name__)
 
 
 def get_player(channel_name: str) -> AbstractPlayer:
+    """
+    Construct the configured player-backend using the channel-name
+    """
     player_type = Config.get(
         ConfigKeys.PLAYER, channel=channel_name, fallback=""
     )

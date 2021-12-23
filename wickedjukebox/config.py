@@ -16,23 +16,47 @@ LOG = logging.getLogger(__name__)
 
 
 class Sentinel:
-    pass
+    """
+    Helper class to type-check "unset" variables.
+    """
 
 
 NO_DEFAULT = Sentinel()
 
 
 class ConfigScope(Enum):
+    """
+    Possible "scopes" for config values. Each scope has slightly different
+    semantics on how to find the appropriate section/option.
+    """
+
     CORE = "core"
+    "Core values are in the [core] section"
     CHANNEL = "channel"
-    # TODO: The DSN could be moved to "core"
+    "Channel values are in the [channel:<channel-name>...] section"
     DATABASE = "database"
+    """
+    The DATABASE setting remains here (for now) due to backwards compatibility
+    during refactoring
+    """
+    # TODO: The DSN could be moved to "core"
 
 
 class ConfigOption(NamedTuple):
+    """
+    A helper class to define where a configuration value can be found
+
+    This allows defining section headers with more meta-information like
+    "channel-kontext" and "subsection". For example a value scoped to a channel
+    with the name "test-channel" in subsection "player" is located in the
+    ini-section: ``[channel:test-channel:player]``
+    """
     scope: ConfigScope
+    "How 'global' a value is"
     section: str
+    "The section in which to find the option"
     subsection: str
+    "The subsection is defined as part of the section-name"
 
 
 def parse_param_string(value: str) -> Dict[str, str]:

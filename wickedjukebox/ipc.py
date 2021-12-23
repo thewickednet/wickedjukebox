@@ -1,3 +1,9 @@
+"""
+This module contains implementations for inter-process calls.
+
+IPC modules allow external applications to trigger certain behaviour in the
+jukebox like skipping the currently running song for example.
+"""
 import logging
 from abc import ABC, abstractmethod
 from enum import Enum
@@ -10,10 +16,13 @@ from wickedjukebox.exc import ConfigError
 from wickedjukebox.logutil import qualname
 
 LOG = logging.getLogger(__name__)
+"The module logger"
 
 
 class InvalidCommand(Exception):
-    pass
+    """
+    Raise if we got an invalid IPC command from the outside world
+    """
 
 
 class FSStateFiles(Enum):
@@ -22,13 +31,27 @@ class FSStateFiles(Enum):
     """
 
     SKIP_REQUESTED = "skip"
+    """
+    If this file exists, the running song will be skipped and this file will
+    be removed
+    """
 
 
 class Command(Enum):
+    """
+    Possible commands that can be interpreted
+    """
+
     SKIP = "skip"
+    "Skip the current song as soon as possible"
 
 
 class AbstractIPC(ABC):
+    """
+    The abstract IPC class provides an interface for the undelying
+    implementations.
+    """
+
     #: The names of the config-keys that this instance requires to be
     #: successfully configured.
     CONFIG_KEYS: Set[str] = set()
@@ -48,16 +71,28 @@ class AbstractIPC(ABC):
 
     @abstractmethod
     def get(self, key: Command) -> Optional[Any]:  # pragma: no cover
+        """
+        Get the currentl state of a given command.
+        """
         ...
 
     @abstractmethod
     def set(
         self, key: Command, value: Any
     ) -> Optional[Any]:  # pragma: no cover
+        """
+        Set the new state of a given command
+        """
         ...
 
 
 class NullIPC(AbstractIPC):
+    """
+    An IPC implementation where each command is a simple no-op.
+
+    Commands are logged, no other action is taken.
+    """
+
     def get(self, key: Command) -> Optional[Any]:
         self._log.debug("Retrieving command for %r (no-op)", key)
         return None
@@ -69,7 +104,11 @@ class NullIPC(AbstractIPC):
 
 class FSIPC(AbstractIPC):
     """
-    A no-db solution for IPC using simple files on disk
+    A no-db solution for IPC using simple files on disk.
+
+    Each command is represented as a single plain-text file in a given folder.
+    If the command requires a value/argument it will use the content of the file
+    as such.
     """
 
     CONFIG_KEYS = {"path"}
@@ -85,6 +124,9 @@ class FSIPC(AbstractIPC):
 
     @property
     def root(self) -> Path:
+        """
+        The root folder for this IPC instance
+        """
         if self._root is None:
             raise ConfigError(f"Invalid path ({self.root!r} for file-based IPC")
         return self._root
@@ -99,10 +141,17 @@ class FSIPC(AbstractIPC):
         self._root = Path(cfg["path"].strip()) / self._channel_name
 
     def _exists(self, file: FSStateFiles) -> bool:
+        """
+        Check if a given file exists in this IPCs base folder
+        """
         pth = self.root / Path(file.value)
         return pth.exists()
 
     def _set_boolfile(self, file: FSStateFiles, value: bool) -> None:
+        """
+        Use an file-existence as boolean check. If *value* is true, create the
+        file, if it is false, remove the file.
+        """
         pth = self.root / Path(file.value)
         if value is True:
             pth.touch()
@@ -122,7 +171,7 @@ class FSIPC(AbstractIPC):
 
 class DBIPC(AbstractIPC):
     """
-    Read IPC sentinel values from the database
+    An IPC implementation using the underlying database as backend
     """
 
     def __init__(self, channel_name: str) -> None:
