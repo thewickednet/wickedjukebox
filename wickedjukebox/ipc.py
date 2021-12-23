@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Set
 
 from wickedjukebox.config import Config, ConfigKeys
-from wickedjukebox.demon.dbmodel import Session, State
+from wickedjukebox.demon.dbmodel import Channel, Session, State
 from wickedjukebox.exc import ConfigError
 from wickedjukebox.logutil import qualname
 
@@ -181,34 +181,34 @@ class DBIPC(AbstractIPC):
             raise ConfigError("No DSN available for DB-IPC")
 
     def get(self, key: Command) -> Optional[Any]:  # pragma: no cover
-        from wickedjukebox.demon.dbmodel import Channel
 
         skip_state = False
         with Session() as session:  # type: ignore
-            query = session.query(Channel)
-            query = query.filter(Channel.name == self._channel_name)
-            channel = query.one()
+            query = session.query(Channel)  # type: ignore
+            query = query.filter(Channel.name == self._channel_name)  # type: ignore
+            channel = Channel, query.one()  # type: ignore
             if key == Command.SKIP:
                 skip_state = bool(
-                    int(State.get("skipping", channel.id, default=False))
+                    int(State.get("skipping", channel.id, default=False))  # type: ignore
                 )
             else:
-                LOG.error(f"Unknown IPC command: {key!r}")
+                LOG.error("Unknown IPC command: %r", key)
         return skip_state
 
     def set(
         self, key: Command, value: Any
     ) -> Optional[Any]:  # pragma: no cover
-        from wickedjukebox.demon.dbmodel import Channel
 
         skip_state = False
         with Session() as session:  # type: ignore
-            query = session.query(Channel)
-            query = query.filter(Channel.name == self._channel_name)
-            channel = query.one()
+            query = session.query(Channel)  # type: ignore
+            query = query.filter(Channel.name == self._channel_name)  # type: ignore
+            channel = query.one()  # type: ignore
             if key == Command.SKIP:
-                skip_state = State.set("skipping", value, channel.id)
+                skip_state = State.set(  # type: ignore
+                    "skipping", value, channel.id  # type: ignore
+                )
             else:
-                LOG.error(f"Unknown IPC command: {key!r}")
-            session.commit()
+                LOG.error("Unknown IPC command: %r", key)
+            session.commit()  # type: ignore
         return skip_state
