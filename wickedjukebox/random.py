@@ -11,9 +11,10 @@ from typing import Any, Dict, Set
 from wickedjukebox.config import Config, ConfigKeys
 from wickedjukebox.demon.dbmodel import Session, Song
 from wickedjukebox.exc import ConfigError
-from wickedjukebox.logutil import qualname
+from wickedjukebox.logutil import qualname, qualname_repr
 
 
+@qualname_repr
 class AbstractRandom(ABC):
     #: The names of the config-keys that this instance requires to be
     #: successfully configured.
@@ -23,9 +24,6 @@ class AbstractRandom(ABC):
         super().__init__()
         self._log = logging.getLogger(qualname(self))
         self.channel_name = channel_name
-
-    def __repr__(self) -> str:
-        return f"<{qualname(self)}>"
 
     @abstractmethod
     def pick(self) -> str:  # pragma: no cover

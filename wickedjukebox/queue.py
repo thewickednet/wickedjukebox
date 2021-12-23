@@ -1,15 +1,13 @@
 import logging
 from abc import ABC, abstractmethod
 
-from wickedjukebox.logutil import qualname
+from wickedjukebox.logutil import qualname, qualname_repr
 
 
+@qualname_repr
 class AbstractQueue(ABC):
     def __init__(self) -> None:
         self._log = logging.getLogger(qualname(self))
-
-    def __repr__(self) -> str:
-        return f"<{qualname(self)}>"
 
     @abstractmethod
     def dequeue(self) -> str:

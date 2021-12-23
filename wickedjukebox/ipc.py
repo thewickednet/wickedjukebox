@@ -13,7 +13,7 @@ from typing import Any, Dict, Optional, Set
 from wickedjukebox.config import Config, ConfigKeys
 from wickedjukebox.demon.dbmodel import Channel, Session, State
 from wickedjukebox.exc import ConfigError
-from wickedjukebox.logutil import qualname
+from wickedjukebox.logutil import qualname, qualname_repr
 
 LOG = logging.getLogger(__name__)
 "The module logger"
@@ -46,6 +46,7 @@ class Command(Enum):
     "Skip the current song as soon as possible"
 
 
+@qualname_repr
 class AbstractIPC(ABC):
     """
     The abstract IPC class provides an interface for the undelying
@@ -59,9 +60,6 @@ class AbstractIPC(ABC):
     def __init__(self, channel_name: str) -> None:
         self._log = logging.getLogger(qualname(self))
         self._channel_name = channel_name
-
-    def __repr__(self) -> str:
-        return f"<{qualname(self)}>"
 
     def configure(self, cfg: Dict[str, Any]) -> None:
         """
@@ -120,7 +118,7 @@ class FSIPC(AbstractIPC):
 
     def __repr__(self) -> str:
         pth = str(self._root.absolute()) if self._root else ""
-        return f"<{qualname(self)} path={pth!r}>"
+        return f"{super().__repr__()[:-1]} path={pth!r}>"
 
     @property
     def root(self) -> Path:

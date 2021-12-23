@@ -6,9 +6,10 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from random import choice
 
-from wickedjukebox.logutil import qualname
+from wickedjukebox.logutil import qualname, qualname_repr
 
 
+@qualname_repr
 class AbstractJingle(ABC):
     """
     This abstract class provides the interface for the underlying
@@ -17,9 +18,6 @@ class AbstractJingle(ABC):
 
     def __init__(self) -> None:
         self._log = logging.getLogger(qualname(self))
-
-    def __repr__(self) -> str:
-        return f"<{qualname(self)}>"
 
     @abstractmethod
     def pick(self) -> str:

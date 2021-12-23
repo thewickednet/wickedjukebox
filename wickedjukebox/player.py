@@ -8,7 +8,7 @@ from mpd.base import CommandError, FailureResponseCode, MPDClient  # type: ignor
 
 from wickedjukebox.adt import Song
 from wickedjukebox.exc import ConfigError
-from wickedjukebox.logutil import qualname
+from wickedjukebox.logutil import qualname, qualname_repr
 
 MpdSong = Dict[str, str]
 
@@ -22,6 +22,7 @@ class PathMap(NamedTuple):
     mpd_path: Path
 
 
+@qualname_repr
 class AbstractPlayer(ABC):
     #: The names of the config-keys that this instance requires to be
     #: successfully configured.
@@ -30,9 +31,6 @@ class AbstractPlayer(ABC):
     def __init__(self) -> None:
         self.songs_since_last_jingle = 0
         self._log = logging.getLogger(qualname(self))
-
-    def __repr__(self) -> str:
-        return f"<{qualname(self)}>"
 
     @abstractmethod
     def configure(self, cfg: Dict[str, Any]) -> None:

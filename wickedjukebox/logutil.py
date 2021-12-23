@@ -4,9 +4,11 @@ This module contains some helpers that come in handy during logging
 
 import logging
 import logging.config
-from typing import Any
+from typing import Any, Type, TypeVar
 
 import gouge.colourcli as gc
+
+_T = TypeVar("_T", bound=Type[Any])
 
 
 def qualname(instance: Any) -> str:
@@ -32,3 +34,15 @@ def setup_logging(verbosity: int = 0) -> None:
     verbosity = max(0, min(verbosity, max(levelmap.keys())))
     gc.Simple.basicConfig(level=levelmap[verbosity])
     logging.getLogger("requests").setLevel(logging.WARNING)
+
+
+def qualname_repr(cls: _T) -> _T:
+    """
+    Adds a simple __repr__ to a class returning the qualified name of the class
+    """
+
+    def __repr__(self: _T) -> str:
+        return f"<{qualname(self)}>"
+
+    cls.__repr__ = __repr__
+    return cls
