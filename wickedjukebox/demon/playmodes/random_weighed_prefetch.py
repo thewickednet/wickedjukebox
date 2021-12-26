@@ -20,10 +20,9 @@ import sqlalchemy.orm as orm
 from sqlalchemy.sql.elements import literal_column, not_
 from sqlalchemy.sql.expression import and_, bindparam, text
 from wickedjukebox.demon.dbmodel import (Session, Song, User, channelTable,
-                                         dynamicPLTable, engine, songTable,
-                                         usersTable)
-from wickedjukebox.smartplaylist.parser import ParserSyntaxError, parse_query
+                                         songTable)
 from wickedjukebox.config import Config, ConfigKeys
+from wickedjukebox.smartplaylist.dbbridge import parse_dynamic_playlists
 from . import queries
 
 LOG = logging.getLogger(__name__)
@@ -49,34 +48,6 @@ def bootstrap(channel_id):
     pref.run()
     LOG.debug('  Channel %r prefetched %r', row[1], PREFETCH_STATE[row[0]])
     ALREADY_INITIALISED = True
-
-def parse_dynamic_playlists() -> Generator[str, None, None]:
-    raise NotImplementedError(
-        "An issue with table-aliasing would cause cartesian products when "
-        "enabling this. Before this is enabled again, review the generated "
-        "queries cautiously."
-    )
-    # Retrieve dynamic playlists
-    sel = select([dynamicPLTable.c.query])
-    sel = sel.where(dynamicPLTable.c.group_id > 0)
-    sel = sel.order_by('group_id')
-    res = sel.execute().fetchall()
-    for dpl in res:
-        try:
-            if parse_query(dpl["query"]):
-                yield "(" + parse_query(dpl["query"]) + ")"
-            break  # only one query will be parsed. for now.... this is a big TODO
-            # as it triggers an unexpected behaviour (bug). i.e.: Why the
-            # heck does it only activate one playlist?!?
-        except ParserSyntaxError as ex:
-            import traceback
-            traceback.print_exc()
-            LOG.error(str(ex))
-            LOG.error('Query was: %s', dpl.query)
-        except Exception:  # pylint: disable=broad-except
-            # catchall for graceful degradation
-            LOG.exception('Unhandled exception')
-
 
 def find_song(session: orm.Session, channel_name: str) -> Optional[Song]:
     # pylint: disable=too-many-statements, too-many-locals
