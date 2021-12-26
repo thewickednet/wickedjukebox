@@ -1,3 +1,6 @@
+"""
+This module contains implementations for the underlying player backends
+"""
 import logging
 from abc import ABC, abstractmethod
 from math import floor
@@ -24,6 +27,10 @@ class PathMap(NamedTuple):
 
 @qualname_repr
 class AbstractPlayer(ABC):
+    """
+    This class provides the interface for the underlying implementations
+    """
+
     #: The names of the config-keys that this instance requires to be
     #: successfully configured.
     CONFIG_KEYS: Set[str] = set()
@@ -44,40 +51,69 @@ class AbstractPlayer(ABC):
 
     @abstractmethod
     def skip(self) -> None:  # pragma: no cover
+        """
+        Trigger the player to play the next song immediately
+        """
         ...
 
     @abstractmethod
     def play(self) -> None:  # pragma: no cover
+        """
+        Start/Resume playing
+        """
         ...
 
     @abstractmethod
     def enqueue(
         self, filename: str, is_jingle: bool = False
     ) -> None:  # pragma: no cover
+        """
+        Append a new song to the queue
+
+        :param filename: The file on-disk
+        :param is_jingle: Whether to consider this song as a jingle or not.
+            Jingles are excluded from certain statistic calculations.
+        """
         ...
 
     @property
     @abstractmethod
     def remaining_seconds(self) -> int:  # pragma: no cover
+        """
+        How many seconds until we arrive at the end of the queue
+        """
         ...
 
     @property
     @abstractmethod
     def upcoming_songs(self) -> List[str]:  # pragma: no cover
+        """
+        Which songs are left (after this one) on the internal queue
+        """
         ...
 
     @property
     @abstractmethod
     def is_playing(self) -> bool:  # pragma: no cover
+        """
+        Whether the player is currently playing or not
+        """
         ...
 
     @property
     @abstractmethod
     def is_empty(self) -> bool:  # pragma: no cover
+        """
+        Whether the internal playlist is empty or not
+        """
         ...
 
 
 class NullPlayer(AbstractPlayer):
+    """
+    A player which only logs the underlying calls but does nothing.
+    """
+
     CONFIG_KEYS: Set[str] = set()
 
     def configure(self, cfg: Dict[str, Any]) -> None:
@@ -97,18 +133,22 @@ class NullPlayer(AbstractPlayer):
 
     @property
     def remaining_seconds(self) -> int:
+        self._log.debug("Returning remaining seconds")
         return 0
 
     @property
     def upcoming_songs(self) -> List[str]:
+        self._log.debug("Returning upcoming songs")
         return []
 
     @property
     def is_playing(self) -> bool:
+        self._log.debug("Returning current play-state")
         return False
 
     @property
     def is_empty(self) -> bool:
+        self._log.debug("Returning current empty-state")
         return False
 
 
