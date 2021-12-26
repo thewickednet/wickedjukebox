@@ -8,7 +8,7 @@ from typing import Generator
 
 from sqlalchemy.sql import select
 
-from wickedjukebox.demon.dbmodel import dynamicPLTable
+from wickedjukebox.model.database import dynamicPLTable
 from wickedjukebox.smartplaylist.parser import ParserSyntaxError, parse_query
 
 LOG = logging.getLogger(__name__)

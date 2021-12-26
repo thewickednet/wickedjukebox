@@ -10,7 +10,7 @@ from typing import Any, Dict
 
 from sqlalchemy.orm.session import Session
 
-from wickedjukebox.demon.dbmodel import Song, User
+from wickedjukebox.model.database import Song, User
 
 
 def test_random(dbsession: Session, default_data: Dict[str, Any]):

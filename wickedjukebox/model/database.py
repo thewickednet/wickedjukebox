@@ -349,9 +349,7 @@ class Song(object):
         listeners.
         """
         # TODO: Implement
-        from wickedjukebox.demon.playmodes.random_weighed_prefetch import (
-            find_song,
-        )
+        from wickedjukebox.demon.playmodes.random_weighed_prefetch import find_song
 
         song = find_song(session, channel_name)
         return song

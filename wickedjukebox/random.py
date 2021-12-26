@@ -11,8 +11,8 @@ from random import choice
 from threading import Thread
 from typing import Any, Dict, Set
 
-from wickedjukebox.demon.dbmodel import Session, Song
 from wickedjukebox.logutil import qualname, qualname_repr
+from wickedjukebox.model.database import Session, Song
 
 
 @qualname_repr

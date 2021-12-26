@@ -9,7 +9,7 @@ from typing import Any, TYPE_CHECKING
 from sqlalchemy.orm.query import Query
 from sqlalchemy.sql import select
 from sqlalchemy.sql.expression import text, alias, join, func, and_
-from wickedjukebox.demon.dbmodel import (
+from wickedjukebox.model.database import (
     Song,
     channelSongs,
     Artist,

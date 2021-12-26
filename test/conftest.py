@@ -1,7 +1,7 @@
 # type: ignore
 import pytest
 
-import wickedjukebox.demon.dbmodel as db
+import wickedjukebox.model.database as db
 
 
 @pytest.fixture

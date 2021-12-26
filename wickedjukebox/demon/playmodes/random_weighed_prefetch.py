@@ -16,7 +16,7 @@ from sqlalchemy.sql import func
 import sqlalchemy.orm as orm
 from sqlalchemy.sql.elements import not_
 from sqlalchemy.sql.expression import and_, text
-from wickedjukebox.demon.dbmodel import Song, User, songTable
+from wickedjukebox.model.database import Song, User, songTable
 from wickedjukebox.config import Config, ConfigKeys
 from wickedjukebox.smartplaylist.dbbridge import parse_dynamic_playlists
 from . import queries
