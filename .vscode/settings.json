@@ -10,5 +10,11 @@
     "restructuredtext.confPath": "",
     "python.analysis.typeCheckingMode": "strict",
     "python.linting.pylintEnabled": true,
-    "editor.formatOnSave": false
+    "editor.formatOnSave": false,
+    "files.exclude": {
+        "**/__pycache__": true
+    },
+    "files.watcherExclude": {
+        "**/env/**": true
+    }
 }
