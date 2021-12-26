@@ -13,7 +13,7 @@
 import logging
 from base64 import b64encode
 from datetime import date, datetime
-from os import stat, urandom, path
+from os import path, stat, urandom
 from os.path import basename
 from typing import Optional
 
@@ -29,7 +29,8 @@ from sqlalchemy import (
     create_engine,
     func,
 )
-from sqlalchemy.orm import mapper, relation, scoped_session, sessionmaker, Session as TSession
+from sqlalchemy.orm import Session as TSession
+from sqlalchemy.orm import mapper, relation, scoped_session, sessionmaker
 from sqlalchemy.sql import insert, select, update
 
 from wickedjukebox.config import load_config
@@ -37,7 +38,7 @@ from wickedjukebox.model.audiometa import MetaFactory
 
 LOG = logging.getLogger(__name__)
 CFG = load_config()
-DBURI = CFG.get('database', 'dsn')
+DBURI = CFG.get("database", "dsn")
 
 #: sentinel object to mark settings with no explicit default
 NO_DEFAULT = object()
@@ -48,93 +49,94 @@ metadata.bind = engine
 session_factory = sessionmaker(bind=engine)
 Session = scoped_session(session_factory)
 
-stateTable = Table(
-    'state',
-    metadata,
-    autoload=True)
+stateTable = Table("state", metadata, autoload=True)
 channelTable = Table(
-    'channel',
+    "channel",
     metadata,
-    Column('name', Unicode(32)),
-    Column('backend', Unicode(64)),
-    Column('backend_params', Unicode()),
-    autoload=True)
+    Column("name", Unicode(32)),
+    Column("backend", Unicode(64)),
+    Column("backend_params", Unicode()),
+    autoload=True,
+)
 settingTable = Table(
-    'setting',
-    metadata,
-    Column('value', Unicode()),
-    autoload=True)
+    "setting", metadata, Column("value", Unicode()), autoload=True
+)
 settingTextTable = Table(
-    'setting_text',
-    metadata,
-    Column('comment', Unicode()),
-    autoload=True)
+    "setting_text", metadata, Column("comment", Unicode()), autoload=True
+)
 artistTable = Table(
-    'artist',
+    "artist",
     metadata,
-    Column('name', Unicode(128)),
-    Column('added', DateTime, nullable=False, default=datetime.now),
-    autoload=True)
+    Column("name", Unicode(128)),
+    Column("added", DateTime, nullable=False, default=datetime.now),
+    autoload=True,
+)
 albumTable = Table(
-    'album',
+    "album",
     metadata,
-    Column('name', Unicode(128)),
-    Column('type', Unicode(32)),
-    Column('added', DateTime, nullable=False, default=datetime.now),
-    autoload=True)
+    Column("name", Unicode(128)),
+    Column("type", Unicode(32)),
+    Column("added", DateTime, nullable=False, default=datetime.now),
+    autoload=True,
+)
 songTable = Table(
-    'song',
+    "song",
     metadata,
-    Column('title', Unicode(128)),
-    Column('localpath', Unicode(255)),
-    Column('lyrics', Unicode()),
-    Column('added', DateTime, nullable=False, default=datetime.now),
-    autoload=True)
+    Column("title", Unicode(128)),
+    Column("localpath", Unicode(255)),
+    Column("lyrics", Unicode()),
+    Column("added", DateTime, nullable=False, default=datetime.now),
+    autoload=True,
+)
 queueTable = Table(
-    'queue',
+    "queue",
     metadata,
-    Column('added', DateTime, nullable=False, default=datetime.now),
-    autoload=True)
-channelSongs = Table('channel_song_data', metadata, autoload=True)
-lastfmTable = Table('lastfm_queue', metadata, autoload=True)
+    Column("added", DateTime, nullable=False, default=datetime.now),
+    autoload=True,
+)
+channelSongs = Table("channel_song_data", metadata, autoload=True)
+lastfmTable = Table("lastfm_queue", metadata, autoload=True)
 usersTable = Table(
-    'users',
+    "users",
     metadata,
-    Column('added', DateTime, nullable=False, default=datetime.now),
+    Column("added", DateTime, nullable=False, default=datetime.now),
     extend_existing=True,
-    autoload=True)
+    autoload=True,
+)
 dynamicPLTable = Table(
-    'dynamicPlaylist',
+    "dynamicPlaylist",
     metadata,
-    Column('label', Unicode(64)),
-    Column('query', Unicode()),
-    autoload=True)
-song_has_genre = Table('song_has_genre', metadata, autoload=True)
+    Column("label", Unicode(64)),
+    Column("query", Unicode()),
+    autoload=True,
+)
+song_has_genre = Table("song_has_genre", metadata, autoload=True)
 genreTable = Table(
-    'genre',
+    "genre",
     metadata,
-    Column('added', DateTime, nullable=False, default=datetime.now),
+    Column("added", DateTime, nullable=False, default=datetime.now),
     extend_existing=True,
-    autoload=True)
-songStandingTable = Table('user_song_standing', metadata, autoload=True)
-songStatsTable = Table('user_song_stats', metadata, autoload=True)
-tagTable = Table('tag', metadata, autoload=True)
+    autoload=True,
+)
+songStandingTable = Table("user_song_standing", metadata, autoload=True)
+songStatsTable = Table("user_song_stats", metadata, autoload=True)
+tagTable = Table("tag", metadata, autoload=True)
 song_has_tag = Table(
-    'song_has_tag',
+    "song_has_tag",
     metadata,
-    Column('song_id', Integer, ForeignKey('song.id')),
-    Column('tag', String(32), ForeignKey('tag.label')),
+    Column("song_id", Integer, ForeignKey("song.id")),
+    Column("tag", String(32), ForeignKey("tag.label")),
 )
 shoutboxTable = Table(
-    'shoutbox',
+    "shoutbox",
     metadata,
-    Column('message', Unicode(255)),
+    Column("message", Unicode(255)),
 )
-groupsTable = Table('groups', metadata, autoload=True)
+groupsTable = Table("groups", metadata, autoload=True)
 
 
 def caller_source():
-    '''
+    """
     Returns the source line from the stack-frame *before* the call of
     *caller_source*.
 
@@ -146,8 +148,9 @@ def caller_source():
                     source = caller_source()
 
     Then *source* will point to ``myfunction``!
-    '''
+    """
     import traceback
+
     stack = traceback.extract_stack()
     source = stack[-2]
     return source
@@ -159,7 +162,6 @@ def caller_source():
 
 
 class Genre(object):
-
     def __init__(self, name):
         self.name = name
         self.added = datetime.now()
@@ -173,8 +175,8 @@ class Genre(object):
         query = session.query(Genre).filter_by(name=name)
         return query.one_or_none()
 
-class Tag(object):
 
+class Tag(object):
     def __init__(self, label):
         self.label = label
         self.inserted = datetime.now()
@@ -184,7 +186,6 @@ class Tag(object):
 
 
 class Channel(object):
-
     def __init__(self, name, backend, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = name
@@ -195,7 +196,6 @@ class Channel(object):
 
 
 class Artist(object):
-
     def __init__(self, name):
         self.name = name
         self.added = datetime.now()
@@ -204,13 +204,15 @@ class Artist(object):
         return "<Artist %s name=%s>" % (self.id, repr(self.name))
 
     @staticmethod
-    def by_name(name: str, session: Optional[TSession] = None) -> Optional["Artist"]:
+    def by_name(
+        name: str, session: Optional[TSession] = None
+    ) -> Optional["Artist"]:
         session = session or Session()
         query = session.query(Artist).filter_by(name=name)
         return query.one_or_none()
 
-class State(object):
 
+class State(object):
     @classmethod
     def set(cls, statename, value, channel_id=0):
         """
@@ -229,24 +231,28 @@ class State(object):
         if result and result.fetchone():
             # the state exists, we need to update it
             query = update(stateTable)
-            query = query.values({'value': value, 'channel_id': channel_id})
+            query = query.values({"value": value, "channel_id": channel_id})
             query = query.where(stateTable.c.state == statename)
             query = query.where(stateTable.c.channel_id == channel_id)
             query.execute()
         else:
             # unknown state, store it in the DB
             ins_q = insert(stateTable)
-            ins_q = ins_q.values({
-                'state': statename,
-                'value': value,
-                'channel_id': channel_id})
+            ins_q = ins_q.values(
+                {"state": statename, "value": value, "channel_id": channel_id}
+            )
             ins_q.execute()
 
         if LOG.isEnabledFor(logging.DEBUG):
             source = caller_source()
-            LOG.debug("State %r stored with value %r for channel %r "
-                      "(from %s:%d)", statename, value, channel_id,
-                      basename(source[0]), source[1])
+            LOG.debug(
+                "State %r stored with value %r for channel %r " "(from %s:%d)",
+                statename,
+                value,
+                channel_id,
+                basename(source[0]),
+                source[1],
+            )
 
     @classmethod
     def get(cls, statename, channel_id=0, default=None):
@@ -269,22 +275,25 @@ class State(object):
                 return row[0]
         if LOG.isEnabledFor(logging.WARNING):
             source = caller_source()
-            LOG.warning("State %r not found for channel %r. "
-                        "Returning %r (from %s:%d)",
-                        statename, channel_id, default,
-                        basename(source[0]), source[1])
+            LOG.warning(
+                "State %r not found for channel %r. "
+                "Returning %r (from %s:%d)",
+                statename,
+                channel_id,
+                default,
+                basename(source[0]),
+                source[1],
+            )
         ins_q = insert(stateTable)
-        ins_q = ins_q.values({
-            'channel_id': channel_id,
-            'state': statename,
-            'value': default})
+        ins_q = ins_q.values(
+            {"channel_id": channel_id, "state": statename, "value": default}
+        )
         ins_q.execute()
         LOG.debug("    Inserted default value into the database!")
         return default
 
 
 class Album(object):
-
     def __init__(self, name, artist, path):
         self.name = name
         self.artist = artist
@@ -295,22 +304,26 @@ class Album(object):
         return "<Album %s name=%s>" % (self.id, repr(self.name))
 
     @staticmethod
-    def by_name(name: str, session: Optional[TSession] = None) -> Optional["Album"]:
+    def by_name(
+        name: str, session: Optional[TSession] = None
+    ) -> Optional["Album"]:
         session: TSession = session or Session()
         album = session.query(Album).filter_by(name=name).one_or_none()
         return album
 
 
 class Song(object):
-
-
     def __init__(self, localpath: str) -> None:
         self.localpath = localpath
         self.added = datetime.now()
 
     def __repr__(self):
         return "<Song id=%r artist_id=%r title=%r path=%r>" % (
-            self.id, self.artist_id, self.title, self.localpath)
+            self.id,
+            self.artist_id,
+            self.title,
+            self.localpath,
+        )
 
     @staticmethod
     def by_filename(session: TSession, filename: str) -> Optional["Song"]:
@@ -336,7 +349,10 @@ class Song(object):
         listeners.
         """
         # TODO: Implement
-        from wickedjukebox.demon.playmodes.random_weighed_prefetch import find_song
+        from wickedjukebox.demon.playmodes.random_weighed_prefetch import (
+            find_song,
+        )
+
         song = find_song(session, channel_name)
         return song
 
@@ -367,7 +383,7 @@ class Song(object):
             )
         self.album = album
 
-        self.genres=  []
+        self.genres = []
         if audiometa["genres"] is not None:
             for genre_name in audiometa["genres"]:
                 genre = Genre.by_name(genre_name)
@@ -403,9 +419,7 @@ class Song(object):
         if row:
             return row[0]
 
-        insq = insert(genreTable).values({
-            'name': genre_name
-        })
+        insq = insert(genreTable).values({"name": genre_name})
         result = insq.execute()
         return result.inserted_primary_key[0]
 
@@ -426,9 +440,7 @@ class Song(object):
         if row:
             return row[0]
 
-        insq = insert(artistTable).values({
-            'name': artist_name
-        })
+        insq = insert(artistTable).values({"name": artist_name})
         result = insq.execute()
         return result.inserted_primary_key[0]
 
@@ -441,8 +453,10 @@ class Song(object):
         @return: The ID of the matching album
         """
         if not self.artist_id or not self.__albumName:
-            LOG.warning("Unable to determine the album ID without a valid "
-                        "artist_id and album-name!")
+            LOG.warning(
+                "Unable to determine the album ID without a valid "
+                "artist_id and album-name!"
+            )
 
         artist_id = self.artist_id
         album_name = self.__albumName
@@ -457,9 +471,9 @@ class Song(object):
 
         if not album_id:
             data = {
-                'name': album_name,
-                'artist_id': artist_id,
-                'path': dirname,
+                "name": album_name,
+                "artist_id": artist_id,
+                "path": dirname,
             }
             if self.year:
                 data["release_date"] = date(self.year, 1, 1)
@@ -471,26 +485,28 @@ class Song(object):
         # if this song's release date is newer than the album's release date,
         # we update the album release date
         if self.year and row:
-            if ((row["release_date"] and
-                 row["release_date"] < date(self.year, 1, 1)) or
-                    (not row["release_date"] and self.year)):
+            if (
+                row["release_date"]
+                and row["release_date"] < date(self.year, 1, 1)
+            ) or (not row["release_date"] and self.year):
 
                 updq = update(albumTable)
                 updq = updq.where(albumTable.c.path == dirname)
-                updq = updq.values({'release_date': date(self.year, 1, 1)})
+                updq = updq.values({"release_date": date(self.year, 1, 1)})
                 updq.execute()
 
         return album_id
 
 
 class QueueItem(object):
-
     def __init__(self):
         self.added = datetime.now()
 
     def __repr__(self):
         return "<QueueItem id=%r position=%r song_id=%r>" % (
-            self.id, self.position, self.song_id
+            self.id,
+            self.position,
+            self.song_id,
         )
 
 
@@ -509,70 +525,92 @@ class User:
     def __init__(self, username, group, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.username = username
-        self.cookie = ''
-        self.password = b64encode(urandom(20)).decode('ascii')
-        self.fullname = 'default user'
-        self.email = ''
+        self.cookie = ""
+        self.password = b64encode(urandom(20)).decode("ascii")
+        self.fullname = "default user"
+        self.email = ""
         self.proof_of_life = datetime.now()
         self.proof_of_listening = None
-        self.IP = ''
+        self.IP = ""
         self.credits = 0
         self.group = group
-        self.picture = ''
+        self.picture = ""
         self.lifetime = 0
 
     def __repr__(self):
-        return '<User %d %r>' % (self.id, self.username)
+        return "<User %d %r>" % (self.id, self.username)
 
 
 class Group:
-
     def __init__(self, title, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.title = title
 
     def __repr__(self):
-        return '<Group %d %r>' % (self.id, self.title)
+        return "<Group %d %r>" % (self.id, self.title)
 
 
 def setState(statename, value, channel_id=0):
     source = caller_source()
-    LOG.warning("DEPRECTAED: Please use State.set!\nSource: %s:%d --> %s",
-                source[0], source[1], source[3])
+    LOG.warning(
+        "DEPRECTAED: Please use State.set!\nSource: %s:%d --> %s",
+        source[0],
+        source[1],
+        source[3],
+    )
     return State.set(statename, value, channel_id)
 
 
 def getState(statename, channel_id=0):
     source = caller_source()
-    LOG.warning("DEPRECTAED: Please use State.get!\nSource: %s:%d --> %s",
-                source[0], source[1], source[3])
+    LOG.warning(
+        "DEPRECTAED: Please use State.get!\nSource: %s:%d --> %s",
+        source[0],
+        source[1],
+        source[3],
+    )
     return State.get(statename, channel_id)
 
 
-mapper(State, stateTable, properties={
-    # 'channel': relation(Channel)
-})
+mapper(
+    State,
+    stateTable,
+    properties={
+        # 'channel': relation(Channel)
+    },
+)
 mapper(Genre, genreTable)
 mapper(Tag, tagTable)
 mapper(ChannelStat, channelSongs)
 mapper(DynamicPlaylist, dynamicPLTable)
-mapper(QueueItem, queueTable, properties={
-    'song': relation(Song)
-})
+mapper(QueueItem, queueTable, properties={"song": relation(Song)})
 mapper(Channel, channelTable)
-mapper(Album, albumTable, properties=dict(
-    songs=relation(Song, backref='album')))
+mapper(
+    Album, albumTable, properties=dict(songs=relation(Song, backref="album"))
+)
 
-mapper(Artist, artistTable, properties=dict(
-    albums=relation(Album, backref='artist'),
-    songs=relation(Song, backref='artist')
-))
-mapper(Song, songTable, properties=dict(
-    channelstat=relation(ChannelStat, backref='song'),
-    genres=relation(Genre, secondary=song_has_genre, backref='songs'),
-    tags=relation(Tag, secondary=song_has_tag, backref='songs'),
-))
+mapper(
+    Artist,
+    artistTable,
+    properties=dict(
+        albums=relation(Album, backref="artist"),
+        songs=relation(Song, backref="artist"),
+    ),
+)
+mapper(
+    Song,
+    songTable,
+    properties=dict(
+        channelstat=relation(ChannelStat, backref="song"),
+        genres=relation(Genre, secondary=song_has_genre, backref="songs"),
+        tags=relation(Tag, secondary=song_has_tag, backref="songs"),
+    ),
+)
 mapper(Group, groupsTable)
-mapper(User, usersTable, properties={
-    'group': relation(Group, backref='users'),
-})
+mapper(
+    User,
+    usersTable,
+    properties={
+        "group": relation(Group, backref="users"),
+    },
+)
