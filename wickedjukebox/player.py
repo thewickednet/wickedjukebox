@@ -9,7 +9,6 @@ from typing import Any, Dict, List, NamedTuple, Set
 
 from mpd.base import CommandError, FailureResponseCode, MPDClient  # type: ignore
 
-from wickedjukebox.adt import Song
 from wickedjukebox.exc import ConfigError
 from wickedjukebox.logutil import qualname, qualname_repr
 
@@ -200,6 +199,7 @@ class MpdPlayer(AbstractPlayer):
         """
         Connect to MPD (if not yet connected)
         """
+        # pylint: disable=no-member
         if self.client is not None:
             return
         self._log.info("Connecting to MPD via %s:%s", self.host, self.port)
@@ -210,14 +210,17 @@ class MpdPlayer(AbstractPlayer):
         self.client = client
 
     def play(self) -> None:
+        # pylint: disable=no-member
         self.connect()
         self.client.play()  # type: ignore
 
     def skip(self) -> None:
+        # pylint: disable=no-member
         self.connect()
         self.client.next()  # type: ignore
 
-    def enqueue(self, filename: str, is_jingle: bool) -> None:
+    def enqueue(self, filename: str, is_jingle: bool = False) -> None:
+        # pylint: disable=no-member
         if not filename.strip():
             self._log.error("Trying to enqueue an empty filename. Ignoring.")
             return
@@ -232,7 +235,7 @@ class MpdPlayer(AbstractPlayer):
                     f"MPD backend did not find {mpd_filename!r}. Sneaky cause: "
                     "Different path inside docker-container than on host. "
                     "Use 'path_map' config-option in wicked-jukebox config!"
-                )
+                ) from exc
             raise
         if is_jingle:
             self.songs_since_last_jingle = 0
@@ -244,6 +247,7 @@ class MpdPlayer(AbstractPlayer):
 
     @property
     def remaining_seconds(self) -> int:
+        # pylint: disable=no-member
         self.connect()
         status: Dict[str, str] = self.client.status()  # type: ignore
         current_song = status.get("song")
@@ -262,6 +266,7 @@ class MpdPlayer(AbstractPlayer):
 
     @property
     def upcoming_songs(self) -> List[str]:
+        # pylint: disable=no-member
         self.connect()
         current_playlist_pos = 0
         status: Dict[str, str] = self.client.status()  # type: ignore
@@ -286,12 +291,14 @@ class MpdPlayer(AbstractPlayer):
 
     @property
     def is_playing(self) -> bool:
+        # pylint: disable=no-member
         self.connect()
         status: Dict[str, str] = self.client.status()  # type: ignore
         return status.get("state") == "play"
 
     @property
     def is_empty(self) -> bool:
+        # pylint: disable=no-member
         self.connect()
         playlist: List[MpdSong] = self.client.playlistinfo()  # type: ignore
         return playlist == []
