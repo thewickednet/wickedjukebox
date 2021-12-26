@@ -16,7 +16,6 @@ from wickedjukebox.config import (
     load_config,
     parse_param_string,
 )
-from wickedjukebox.demon import playmodes
 from wickedjukebox.demon.dbmodel import Album, Artist
 from wickedjukebox.demon.dbmodel import Channel as DbChannel
 from wickedjukebox.demon.dbmodel import (ChannelStat, Session, Song,
@@ -195,38 +194,6 @@ class Channel(object):
         self.__player.stop()
         return 'OK'
 
-    def enqueue(self, songID, userID=None):
-        # type: (int, Optional[int]) -> str
-
-        self.__queuestrategy = playmodes.create(
-            Config.get(
-                ConfigKeys.QUEUE_MODEL,
-                fallback=DEFAULT_QUEUE_MODE,
-                channel=self.name
-            )
-        )
-        session = Session()
-        self.__queuestrategy.enqueue(
-            session,
-            songID,
-            userID,
-            self.id)
-        session.commit()
-        session.close()
-        return 'OK: queued song <%d> for user <%d> on channel <%d>' % (
-            songID, userID, self.id)
-
-    def current_queue(self):
-        # type: () -> List[dict]
-        self.__queuestrategy = playmodes.create(
-            Config.get(
-                ConfigKeys.QUEUE_MODEL,
-                fallback=DEFAULT_QUEUE_MODE,
-                channel=self.name,
-            )
-        )
-        return self.__queuestrategy.list(self.id)
-
     def skipSong(self, current_song_entity):
         # type: (Song) -> str
         """
@@ -259,28 +226,6 @@ class Channel(object):
         self.queue_songs()
         self.__player.skip()
         return 'OK'
-
-    def moveup(self, qid, delta):
-        # type: (int, int) -> None
-        self.__queuestrategy = playmodes.create(
-            Config.get(
-                ConfigKeys.QUEUE_MODEL,
-                DEFAULT_QUEUE_MODE,
-                channel=self.name,
-            )
-        )
-        self.__queuestrategy.moveup(self.id, qid, delta)
-
-    def movedown(self, qid, delta):
-        # type: (int, int) -> None
-        self.__queuestrategy = playmodes.create(
-            Config.get(
-                ConfigKeys.QUEUE_MODEL,
-                DEFAULT_QUEUE_MODE,
-                channel=self.name,
-            )
-        )
-        self.__queuestrategy.movedown(self.id, qid, delta)
 
     def get_jingle(self):
         # type: () -> Optional[Song]
@@ -395,83 +340,6 @@ class Channel(object):
         State.set("upcoming_song", upcoming_id, self.id)
         session.commit()
         Session.close()
-
-    def getNextSongs(self):
-        # type: () -> List[Song]
-        LOG.info('Determining next song to play...')
-        self.__randomstrategy = playmodes.create(
-            Config.get(
-                ConfigKeys.RANDOM_MODEL,
-                DEFAULT_RANDOM_MODE,
-                channel=self.name,
-            )
-        )
-        self.__queuestrategy = playmodes.create(
-            Config.get(
-                ConfigKeys.QUEUE_MODEL,
-                DEFAULT_QUEUE_MODE,
-                channel=self.name,
-            )
-        )
-        self.__randomstrategy.bootstrap(self.id)
-
-        next_songs = []
-        jingle = self.get_jingle()
-        LOG.info('Jingle: %r', jingle)
-        if jingle:
-            next_songs.append(jingle)
-
-        while True:
-            # Some songs contain Unicode errors, and we need to handle this.
-            # If we do detect this, we retry up to 3 times to fetch stuff from
-            # the queue.
-            retries = 0
-            try:
-                song_from_queue = self.__queuestrategy.dequeue(self.id)
-                # If we have not run into an exception here, we will break out
-                # of the loop
-                break
-            except UnicodeDecodeError as exc:
-                LOG.warning('Unhandled error when getting song from queue: %s',
-                            exc, exc_info=True)
-                retries += 1
-                if retries >= 3:
-                    # Preventing endless loop
-                    raise
-
-        if song_from_queue:
-            next_songs.append(song_from_queue)
-        else:
-            song_from_random = self.__randomstrategy.get(self.id)
-            LOG.debug('Appending random song %r', song_from_random)
-            if song_from_random:
-                next_songs.append(song_from_random)
-
-        LOG.info('Queueing: %r', next_songs)
-
-        def fix_orphaned_song(song):
-            # type: (Song) -> Song
-            '''
-            If a song no longer has a local file, it should be marked as broken
-            and we'll get a new random song.
-            '''
-            if not song.localpath:
-                # If the *localpath* argument is empty it's probably a special
-                # song (jingle), and we'll assume it's not broken.
-                LOG.wraning('Song %r has no localpath, which should not '
-                            'happen', song)
-                return song
-
-            if not os.path.exists(song.localpath):
-                LOG.warning("%r not found!", song.localpath)
-                songTable.update(songTable.c.id == song.id,
-                                 values={'broken': True}).execute()
-                fixed_song = self.__randomstrategy.get(self.id)
-                return fixed_song
-            return song
-
-        next_songs = list(map(fix_orphaned_song, next_songs))
-        return next_songs
 
     def handle_song_change(self, session, last_known_song,
                            current_song_entity):
