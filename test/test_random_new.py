@@ -5,7 +5,7 @@ This module contains tests for the new (2021) random implementation
 from pathlib import Path
 from unittest.mock import patch
 
-import wickedjukebox.random as rnd
+import wickedjukebox.component.random as rnd
 
 
 def test_repr():
@@ -24,7 +24,7 @@ def test_null_random():
 def test_allfiles():
     obj = rnd.AllFilesRandom("channel-name")
     obj.root = "fakeroot"
-    with patch("wickedjukebox.random.Path") as MockPath:
+    with patch("wickedjukebox.component.random.Path") as MockPath:
         MockPath().glob.return_value = [Path("foo")]
         result = obj.pick()
     assert result is not None
@@ -34,7 +34,7 @@ def test_allfiles():
 def test_allfiles_empty():
     obj = rnd.AllFilesRandom("channel-name")
     obj.root = "fakeroot"
-    with patch("wickedjukebox.random.Path") as MockPath:
+    with patch("wickedjukebox.component.random.Path") as MockPath:
         MockPath().glob.return_value = []
         result = obj.pick()
     assert result == ""

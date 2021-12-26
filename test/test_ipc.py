@@ -3,12 +3,12 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-import wickedjukebox.ipc as ipc
+import wickedjukebox.component.ipc as ipc
 
 
 @pytest.fixture
 def fs():
-    with patch("wickedjukebox.ipc.Path") as pth:
+    with patch("wickedjukebox.component.ipc.Path") as pth:
         state = ipc.FSIPC("test-channel")
         state.configure({"path": "fakedir"})
         state.root = Mock()

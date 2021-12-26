@@ -8,8 +8,8 @@ from typing import Optional
 
 from wickedjukebox import __version__
 from wickedjukebox.channel import Channel
-from wickedjukebox.components import get_autoplay, get_ipc, get_player
-from wickedjukebox.jingle import FileBasedJingles
+from wickedjukebox.component import get_autoplay, get_ipc, get_player
+from wickedjukebox.component.jingle import FileBasedJingles
 from wickedjukebox.logutil import setup_logging
 
 LOG = logging.getLogger(__name__)

@@ -1,19 +1,21 @@
 """
-This module contains code to construct the appropriate components as defined in
-the application config-file
+This package contains the implementation for the modular components in
+wickedjukebox.
+
+Modular components define behaviour that can be changed via the config file.
 """
 import logging
 
-from wickedjukebox.config import Config, ConfigKeys
-from wickedjukebox.exc import ConfigError
-from wickedjukebox.ipc import DBIPC, FSIPC, AbstractIPC, NullIPC
-from wickedjukebox.player import AbstractPlayer, MpdPlayer, NullPlayer
-from wickedjukebox.random import (
+from wickedjukebox.component.ipc import DBIPC, FSIPC, AbstractIPC, NullIPC
+from wickedjukebox.component.player import AbstractPlayer, MpdPlayer, NullPlayer
+from wickedjukebox.component.random import (
     AbstractRandom,
     AllFilesRandom,
     NullRandom,
     SmartPrefetch,
 )
+from wickedjukebox.config import Config, ConfigKeys
+from wickedjukebox.exc import ConfigError
 
 LOG = logging.getLogger(__name__)
 

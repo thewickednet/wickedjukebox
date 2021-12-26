@@ -5,11 +5,11 @@ This module contains high-level tests for a new "channel" architecture (as of
 from unittest.mock import call, create_autospec
 
 from wickedjukebox.channel import Channel
-from wickedjukebox.ipc import AbstractIPC, Command
-from wickedjukebox.jingle import AbstractJingle
-from wickedjukebox.player import AbstractPlayer
-from wickedjukebox.queue import AbstractQueue
-from wickedjukebox.random import AbstractRandom
+from wickedjukebox.component.ipc import AbstractIPC, Command
+from wickedjukebox.component.jingle import AbstractJingle
+from wickedjukebox.component.player import AbstractPlayer
+from wickedjukebox.component.queue import AbstractQueue
+from wickedjukebox.component.random import AbstractRandom
 
 
 def test_channel_init():

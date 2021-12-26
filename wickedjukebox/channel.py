@@ -2,12 +2,12 @@ import logging
 from time import sleep
 from typing import Optional
 
-from wickedjukebox.ipc import AbstractIPC, Command, NullIPC
-from wickedjukebox.jingle import AbstractJingle, NullJingle
+from wickedjukebox.component.ipc import AbstractIPC, Command, NullIPC
+from wickedjukebox.component.jingle import AbstractJingle, NullJingle
+from wickedjukebox.component.player import AbstractPlayer, NullPlayer
+from wickedjukebox.component.queue import AbstractQueue, NullQueue
+from wickedjukebox.component.random import AbstractRandom, NullRandom
 from wickedjukebox.logutil import qualname
-from wickedjukebox.player import AbstractPlayer, NullPlayer
-from wickedjukebox.queue import AbstractQueue, NullQueue
-from wickedjukebox.random import AbstractRandom, NullRandom
 
 
 class Channel:

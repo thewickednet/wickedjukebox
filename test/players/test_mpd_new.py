@@ -8,12 +8,12 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-import wickedjukebox.player as p
+import wickedjukebox.component.player as p
 
 
 @pytest.fixture
 def mocked_player():
-    with patch("wickedjukebox.player.MPDClient") as MPDClient:
+    with patch("wickedjukebox.component.player.MPDClient") as MPDClient:
         player = p.MpdPlayer()
         player.configure(
             {

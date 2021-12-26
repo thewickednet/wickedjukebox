@@ -10,9 +10,13 @@ from unittest.mock import patch
 
 import pytest
 
-import wickedjukebox.components as comp
-from wickedjukebox.player import MpdPlayer, NullPlayer
-from wickedjukebox.random import AllFilesRandom, NullRandom, SmartPrefetch
+import wickedjukebox.component as comp
+from wickedjukebox.component.player import MpdPlayer, NullPlayer
+from wickedjukebox.component.random import (
+    AllFilesRandom,
+    NullRandom,
+    SmartPrefetch,
+)
 
 
 @pytest.fixture
@@ -69,7 +73,7 @@ def test_get_autoplay_smart(fake_config: ConfigParser):
         type = smart_prefetch
         """
     )
-    with patch("wickedjukebox.random.SmartPrefetchThread"):
+    with patch("wickedjukebox.component.random.SmartPrefetchThread"):
         player = comp.get_autoplay("test-channel")
     assert isinstance(player, SmartPrefetch)
 
