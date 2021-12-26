@@ -24,7 +24,6 @@ from wickedjukebox.demon.dbmodel import (ChannelStat, Session, Song,
 from wickedjukebox.demon.players import common
 
 LOG = logging.getLogger(__name__)
-DEFAULT_RANDOM_MODE = 'random_wr2'
 DEFAULT_QUEUE_MODE = 'queue_positioned'
 MAX_INTERNAL_PLAYLIST_SIZE = 3
 
