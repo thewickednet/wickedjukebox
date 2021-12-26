@@ -60,21 +60,6 @@ class ConfigOption(NamedTuple):
     "The subsection is defined as part of the section-name"
 
 
-def parse_param_string(value: str) -> Dict[str, str]:
-    """
-    Parse a "key=value" list into a dictionary.
-
-    >>> parse_param_string("a=2, b=20, c=hello")
-    {'a': '2', 'b': '20', 'c': 'hello'}
-    """
-    output: Dict[str, str] = {}
-    if value:
-        for param in value.split(","):
-            key, _, value = param.partition("=")
-            output[key.strip()] = value.strip()
-    return output
-
-
 def default_config():
     """
     Return a default config lookup-result
@@ -87,14 +72,6 @@ def default_config():
             "require_load": True,
         },
     )
-
-
-def get_config_files() -> List[str]:
-    """
-    Return a list of config-files which are used by this application
-    """
-    _, meta = default_config()
-    return meta.active_path
 
 
 def load_config() -> ConfigParser:

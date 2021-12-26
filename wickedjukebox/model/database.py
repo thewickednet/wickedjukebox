@@ -12,7 +12,7 @@
 
 import logging
 from base64 import b64encode
-from datetime import date, datetime
+from datetime import datetime
 from os import path, stat, urandom
 from os.path import basename
 from typing import Optional
@@ -62,9 +62,6 @@ channelTable = Table(
 settingTable = Table(
     "setting", metadata, Column("value", Unicode()), autoload=True
 )
-settingTextTable = Table(
-    "setting_text", metadata, Column("comment", Unicode()), autoload=True
-)
 artistTable = Table(
     "artist",
     metadata,
@@ -96,7 +93,6 @@ queueTable = Table(
     autoload=True,
 )
 channelSongs = Table("channel_song_data", metadata, autoload=True)
-lastfmTable = Table("lastfm_queue", metadata, autoload=True)
 usersTable = Table(
     "users",
     metadata,
@@ -120,18 +116,12 @@ genreTable = Table(
     autoload=True,
 )
 songStandingTable = Table("user_song_standing", metadata, autoload=True)
-songStatsTable = Table("user_song_stats", metadata, autoload=True)
 tagTable = Table("tag", metadata, autoload=True)
 song_has_tag = Table(
     "song_has_tag",
     metadata,
     Column("song_id", Integer, ForeignKey("song.id")),
     Column("tag", String(32), ForeignKey("tag.label")),
-)
-shoutboxTable = Table(
-    "shoutbox",
-    metadata,
-    Column("message", Unicode(255)),
 )
 groupsTable = Table("groups", metadata, autoload=True)
 
@@ -381,100 +371,6 @@ class Song(object):
 
         self.lastScanned = datetime.now()
 
-    def get_genre_id(self, genre_name):
-        """
-        If the genre already exists, return the ID of that genre, otherwise
-        create a new instance
-
-        @param genre_name: The name of the genre
-        @return: The ID of the matching genre
-        """
-
-        testsel = select([genreTable.c.id])
-        testsel = testsel.where(genreTable.c.name == genre_name)
-        res = testsel.execute()
-        row = res.fetchone()
-        if row:
-            return row[0]
-
-        insq = insert(genreTable).values({"name": genre_name})
-        result = insq.execute()
-        return result.inserted_primary_key[0]
-
-    def get_artist_id(self, artist_name):
-        """
-        If the artist already exists, return the ID of that artist, otherwise
-        create a new instance
-
-        @param artist_name: The name of the artist
-        @return: The ID of the matching artist
-        """
-
-        testsel = select([artistTable.c.id])
-        testsel = testsel.where(artistTable.c.name == artist_name)
-        res = testsel.execute()
-        row = res.fetchone()
-
-        if row:
-            return row[0]
-
-        insq = insert(artistTable).values({"name": artist_name})
-        result = insq.execute()
-        return result.inserted_primary_key[0]
-
-    def get_album_id(self, dirname):
-        """
-        If the album already exists, return the ID of that album, otherwise
-        create a new instance
-
-        @param dirname: The path where the files of this album are stored
-        @return: The ID of the matching album
-        """
-        if not self.artist_id or not self.__albumName:
-            LOG.warning(
-                "Unable to determine the album ID without a valid "
-                "artist_id and album-name!"
-            )
-
-        artist_id = self.artist_id
-        album_name = self.__albumName
-
-        testsel = select([albumTable.c.id, albumTable.c.release_date])
-        testsel = testsel.where(albumTable.c.path == dirname)
-        row = testsel.execute().fetchone()
-
-        album_id = None
-        if row:
-            album_id = row[0]
-
-        if not album_id:
-            data = {
-                "name": album_name,
-                "artist_id": artist_id,
-                "path": dirname,
-            }
-            if self.year:
-                data["release_date"] = date(self.year, 1, 1)
-
-            insq = insert(albumTable).values(data)
-            result = insq.execute()
-            album_id = result.inserted_primary_key[0]
-
-        # if this song's release date is newer than the album's release date,
-        # we update the album release date
-        if self.year and row:
-            if (
-                row["release_date"]
-                and row["release_date"] < date(self.year, 1, 1)
-            ) or (not row["release_date"] and self.year):
-
-                updq = update(albumTable)
-                updq = updq.where(albumTable.c.path == dirname)
-                updq = updq.values({"release_date": date(self.year, 1, 1)})
-                updq.execute()
-
-        return album_id
-
 
 class QueueItem(object):
     def __init__(self):
@@ -526,28 +422,6 @@ class Group:
 
     def __repr__(self):
         return "<Group %d %r>" % (self.id, self.title)
-
-
-def setState(statename, value, channel_id=0):
-    source = caller_source()
-    LOG.warning(
-        "DEPRECTAED: Please use State.set!\nSource: %s:%d --> %s",
-        source[0],
-        source[1],
-        source[3],
-    )
-    return State.set(statename, value, channel_id)
-
-
-def getState(statename, channel_id=0):
-    source = caller_source()
-    LOG.warning(
-        "DEPRECTAED: Please use State.get!\nSource: %s:%d --> %s",
-        source[0],
-        source[1],
-        source[3],
-    )
-    return State.get(statename, channel_id)
 
 
 mapper(

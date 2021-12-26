@@ -15,12 +15,6 @@ from wickedjukebox.logutil import setup_logging
 LOG = logging.getLogger(__name__)
 
 
-class UnknownPlayer(Exception):
-    """
-    Raised if we have an unknown player instance.
-    """
-
-
 def parse_args() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument(

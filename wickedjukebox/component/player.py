@@ -89,14 +89,6 @@ class AbstractPlayer(ABC):
 
     @property
     @abstractmethod
-    def upcoming_songs(self) -> List[str]:  # pragma: no cover
-        """
-        Which songs are left (after this one) on the internal queue
-        """
-        ...
-
-    @property
-    @abstractmethod
     def is_playing(self) -> bool:  # pragma: no cover
         """
         Whether the player is currently playing or not
@@ -138,11 +130,6 @@ class NullPlayer(AbstractPlayer):
     def remaining_seconds(self) -> int:
         self._log.debug("Returning remaining seconds")
         return 0
-
-    @property
-    def upcoming_songs(self) -> List[str]:
-        self._log.debug("Returning upcoming songs")
-        return []
 
     @property
     def is_playing(self) -> bool:
@@ -267,31 +254,6 @@ class MpdPlayer(AbstractPlayer):
                 remaining_playtime += float(row["duration"])
         self._log.debug("Remaining playtime: %3.2fs", remaining_playtime)
         return floor(remaining_playtime)
-
-    @property
-    def upcoming_songs(self) -> List[str]:
-        # pylint: disable=no-member
-        self.connect()
-        current_playlist_pos = 0
-        status: Dict[str, str] = self.client.status()  # type: ignore
-        current_song = status.get("song")
-
-        # If the player is stopped, the "current song" is technically "upcoming"
-        # so we need to include it in the output. In other cases only the
-        # following songs are "upcoming"
-        if status.get("state") == "stop":
-            offset = -1
-        else:
-            offset = 0
-        if current_song is not None:
-            current_playlist_pos = int(current_song)
-        first_upcoming = current_playlist_pos + offset
-
-        playlist: List[MpdSong] = self.client.playlistinfo()  # type: ignore
-        output = [
-            self.mpd2jukebox(item["file"]) for item in playlist[first_upcoming:]
-        ]
-        return output
 
     @property
     def is_playing(self) -> bool:

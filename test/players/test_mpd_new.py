@@ -35,7 +35,6 @@ def test_null_player():
     player.skip()
     player.enqueue("foo")
     assert player.remaining_seconds == 0
-    assert player.upcoming_songs == []
     assert player.is_playing is False
     assert player.is_empty is False
 
@@ -101,23 +100,6 @@ def test_remaining_seconds(mocked_player: Tuple[p.MpdPlayer, Mock]):
 
     result = player.remaining_seconds
     expected = 590
-    assert result == expected
-
-
-def test_upcoming_songs(mocked_player: Tuple[p.MpdPlayer, Mock]):
-    player, MPDClient = mocked_player
-    client = Mock()
-    MPDClient.return_value = client
-    client.status.return_value = {  # type: ignore
-        "song": "0",
-        "elapsed": "10.0",
-    }
-    client.playlistinfo.return_value = [  # type: ignore
-        {"file": "foo.mp3", "duration": "300.0"},
-        {"file": "bar.mp3", "duration": "300.0"},
-    ]
-    result = player.upcoming_songs
-    expected = ["/jukebox/root/foo.mp3", "/jukebox/root/bar.mp3"]
     assert result == expected
 
 
