@@ -1,3 +1,6 @@
+"""
+This module contains implementations for "random" queues.
+"""
 import logging
 import time
 from abc import ABC, abstractmethod
@@ -16,6 +19,10 @@ from wickedjukebox.logutil import qualname, qualname_repr
 
 @qualname_repr
 class AbstractRandom(ABC):
+    """
+    This class provides the interface for random implementations
+    """
+
     #: The names of the config-keys that this instance requires to be
     #: successfully configured.
     CONFIG_KEYS: Set[str] = set()
@@ -27,7 +34,9 @@ class AbstractRandom(ABC):
 
     @abstractmethod
     def pick(self) -> str:  # pragma: no cover
-        ...
+        """
+        Return the filename of a song to play next.
+        """
 
     @abstractmethod
     def configure(self, cfg: Dict[str, Any]) -> None:
@@ -100,6 +109,17 @@ class AllFilesRandom(AbstractRandom):
 
 
 class SmartPrefetchThread(Thread):
+    """
+    A daemon thread which runs the expensive "smart random" query in the
+    background, ensuring that a result is prefetched and readily available when
+    needed.
+
+    :param channel_name: The name of the channel that is used to fetch
+        statistics from
+    :param queue: A concurrency queue. This thread provides the prefetched
+        filename onto this queue. If the queue is full, the thread waits until
+        it becomes available again.
+    """
 
     daemon = True
 

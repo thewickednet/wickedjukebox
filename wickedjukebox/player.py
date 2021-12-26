@@ -153,6 +153,10 @@ class NullPlayer(AbstractPlayer):
 
 
 class MpdPlayer(AbstractPlayer):
+    """
+    A bridge to a MPD daemon
+    """
+
     CONFIG_KEYS = {"host", "port", "path_map"}
 
     def __init__(self) -> None:
