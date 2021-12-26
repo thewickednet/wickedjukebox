@@ -8,16 +8,14 @@ store the metadata in the jukebox database
 
 
 import logging
-from os import path
 from pathlib import Path
 from sys import stdout
 from typing import List, TextIO
 
 from progress.bar import ChargingBar
 from sqlalchemy.orm import Session as TSession
-from sqlalchemy.sql import select
 
-from wickedjukebox.demon.dbmodel import Session, Song, songTable
+from wickedjukebox.demon.dbmodel import Session, Song
 
 LOG = logging.getLogger(__name__)
 SUPPORTED_FILETYPES = {".mp3"}
