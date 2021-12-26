@@ -4,12 +4,7 @@ the application config-file
 """
 import logging
 
-from wickedjukebox.config import (
-    Config,
-    ConfigKeys,
-    get_config_files,
-    parse_param_string,
-)
+from wickedjukebox.config import Config, ConfigKeys
 from wickedjukebox.exc import ConfigError
 from wickedjukebox.ipc import DBIPC, FSIPC, AbstractIPC, NullIPC
 from wickedjukebox.player import AbstractPlayer, MpdPlayer, NullPlayer
