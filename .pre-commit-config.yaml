@@ -13,12 +13,8 @@ repos:
     rev: 21.7b0
     hooks:
     - id: black
-      args:
-        - "--check"
 
   - repo: https://github.com/pycqa/isort
     rev: 5.9.3
     hooks:
     - id: isort
-      args:
-        - "--check"
