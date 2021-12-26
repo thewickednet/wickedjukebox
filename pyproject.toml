@@ -4,7 +4,6 @@ line-length = 80
 [tool.coverage.run]
 omit = [
     # omit external code which we have no control over
-    "wickedjukebox/demon/lib/mpdclient.py",
     "wickedjukebox/remotes/*",
 ]
 
