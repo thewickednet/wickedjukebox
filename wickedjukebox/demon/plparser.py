@@ -117,7 +117,7 @@ def p_error(t):
     raise ParserSyntaxError("Syntax error at '%s'" % t.value)
 
 
-ply.yacc.yacc()
+ply.yacc.yacc(debug=False)
 
 # ----------------------------------------------------------------------
 
