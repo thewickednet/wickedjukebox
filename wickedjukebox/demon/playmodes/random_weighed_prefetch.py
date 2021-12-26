@@ -22,7 +22,7 @@ from sqlalchemy.sql.expression import and_, bindparam, text
 from wickedjukebox.demon.dbmodel import (Session, Song, User, channelTable,
                                          dynamicPLTable, engine, songTable,
                                          usersTable)
-from wickedjukebox.demon.plparser import ParserSyntaxError, parse_query
+from wickedjukebox.smartplaylist.parser import ParserSyntaxError, parse_query
 from wickedjukebox.config import Config, ConfigKeys
 from . import queries
 

@@ -10,7 +10,7 @@ from wickedjukebox.demon.dbmodel import (Session, Song, albumTable,
                                          dynamicPLTable, settingTable,
                                          songStandingTable, songTable,
                                          usersTable, Channel)
-from wickedjukebox.demon.plparser import ParserSyntaxError, parse_query
+from wickedjukebox.smartplaylist.parser import ParserSyntaxError, parse_query
 from wickedjukebox.config import Config, ConfigKeys
 
 from .interface import PlayMode, RandomItem

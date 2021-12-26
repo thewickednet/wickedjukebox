@@ -1,9 +1,12 @@
 import logging
 
 import pytest
-from ply.lex import LexToken
-from wickedjukebox.demon.plparser import (ParserSyntaxError, get_tokens,
-                                          parse_query)
+
+from wickedjukebox.smartplaylist.parser import (
+    ParserSyntaxError,
+    get_tokens,
+    parse_query,
+)
 
 
 def test_plparser_short_operators():
