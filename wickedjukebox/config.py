@@ -51,6 +51,7 @@ class ConfigOption(NamedTuple):
     with the name "test-channel" in subsection "player" is located in the
     ini-section: ``[channel:test-channel:player]``
     """
+
     scope: ConfigScope
     "How 'global' a value is"
     section: str

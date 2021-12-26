@@ -19,16 +19,19 @@ def test_plparser_short_operators():
         "(genre.name = 'rock' OR "
         "genre.name = 'Heavy Metal' OR "
         "genre.name = 'Industrial') "
-        "AND song.title LIKE 'wicked'")
+        "AND song.title LIKE 'wicked'"
+    )
     assert result == expected
 
 
 def test_plparser_long_operators():
-    query = ('artist is "Nine Inch Nails" or '
-             'artist is "Black Sabbath" or '
-             'artist is Clawfinger or '
-             'album contains "Nativity in Black" '
-             'or artist is Incubus')
+    query = (
+        'artist is "Nine Inch Nails" or '
+        'artist is "Black Sabbath" or '
+        'artist is Clawfinger or '
+        'album contains "Nativity in Black" '
+        'or artist is Incubus'
+    )
     result = parse_query(query)
     expected = (
         "artist.name = 'Nine Inch Nails' OR "
@@ -53,6 +56,7 @@ def test_plparser_song_title():
     expected = "song.title = 'Nine Inch Nails'"
     result = parse_query(query)
     assert result == expected
+
 
 def test_plparser_syntax_error():
     query = 'title is title'

@@ -28,7 +28,7 @@ tokens = (
     'VALUE',
     'LPAREN',
     'RPAREN',
-    'QUOTE'
+    'QUOTE',
 )
 
 # reserved words
@@ -80,9 +80,9 @@ ply.lex.lex()
 
 def p_statement(p):
     '''statement : expression
-                 | statement OR expression
-                 | statement AND expression
-                 | LPAREN statement RPAREN'''
+    | statement OR expression
+    | statement AND expression
+    | LPAREN statement RPAREN'''
     if len(p) == 2:
         p[0] = p[1]
     elif len(p) == 4 and p[2] in ['and', '&']:
@@ -96,7 +96,7 @@ def p_statement(p):
 
 def p_expression(p):
     '''expression : FIELD EQUALS VALUE
-                  | FIELD LIKE VALUE'''
+    | FIELD LIKE VALUE'''
     # map field names to correct db names (a=artist, s=song, b=album, g=genre)
     if p[1] == 'artist':
         p[1] = 'artist.name'

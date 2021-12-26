@@ -7,7 +7,11 @@ from math import floor
 from pathlib import Path
 from typing import Any, Dict, List, NamedTuple, Set
 
-from mpd.base import CommandError, FailureResponseCode, MPDClient  # type: ignore
+from mpd.base import (  # type: ignore
+    CommandError,
+    FailureResponseCode,
+    MPDClient,
+)
 
 from wickedjukebox.exc import ConfigError
 from wickedjukebox.logutil import qualname, qualname_repr
