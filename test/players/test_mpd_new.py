@@ -9,7 +9,6 @@ from unittest.mock import Mock, patch
 import pytest
 
 import wickedjukebox.player as p
-from wickedjukebox.adt import Song
 
 
 @pytest.fixture
