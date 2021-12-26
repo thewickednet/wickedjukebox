@@ -11,9 +11,7 @@ from random import choice
 from threading import Thread
 from typing import Any, Dict, Set
 
-from wickedjukebox.config import Config, ConfigKeys
 from wickedjukebox.demon.dbmodel import Session, Song
-from wickedjukebox.exc import ConfigError
 from wickedjukebox.logutil import qualname, qualname_repr
 
 
@@ -123,11 +121,10 @@ class SmartPrefetchThread(Thread):
 
     daemon = True
 
-    def __init__(self, dsn: str, channel_name: str, queue: Queue[str]) -> None:
+    def __init__(self, channel_name: str, queue: Queue[str]) -> None:
         super().__init__()
         self.channel_name = channel_name
         self.queue = queue
-        self.dsn = dsn
         self._log = logging.getLogger(qualname(self))
 
     def run(self) -> None:
@@ -179,10 +176,7 @@ class SmartPrefetch(AbstractRandom):
     def __init__(self, channel_name: str) -> None:
         super().__init__(channel_name)
         self.queue: Queue[str] = Queue(maxsize=1)
-        dsn = Config.get(ConfigKeys.DSN, "")
-        if not dsn:
-            raise ConfigError("No DSN available for smart-random")
-        self._prefetcher = SmartPrefetchThread(dsn, channel_name, self.queue)
+        self._prefetcher = SmartPrefetchThread(channel_name, self.queue)
 
     def configure(self, cfg: Dict[str, Any]) -> None:
         self._prefetcher.start()
