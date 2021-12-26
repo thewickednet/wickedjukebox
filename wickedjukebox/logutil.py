@@ -4,11 +4,31 @@ This module contains some helpers that come in handy during logging
 
 import logging
 import logging.config
+import traceback
 from typing import Any, Type, TypeVar
 
 import gouge.colourcli as gc
 
 _T = TypeVar("_T", bound=Type[Any])
+
+
+def caller_source():
+    """
+    Returns the source line from the stack-frame *before* the call of
+    *caller_source*.
+
+    For example, if the stack is something like this::
+
+        main()
+            myfunction()
+                my_inner_function()
+                    source = caller_source()
+
+    Then *source* will point to ``myfunction``!
+    """
+    stack = traceback.extract_stack()
+    source = stack[-2]
+    return source
 
 
 def qualname(instance: Any) -> str:

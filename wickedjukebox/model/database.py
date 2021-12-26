@@ -34,6 +34,7 @@ from sqlalchemy.orm import mapper, relation, scoped_session, sessionmaker
 from sqlalchemy.sql import insert, select, update
 
 from wickedjukebox.config import load_config
+from wickedjukebox.logutil import caller_source
 from wickedjukebox.model.audiometa import MetaFactory
 
 LOG = logging.getLogger(__name__)
@@ -133,27 +134,6 @@ shoutboxTable = Table(
     Column("message", Unicode(255)),
 )
 groupsTable = Table("groups", metadata, autoload=True)
-
-
-def caller_source():
-    """
-    Returns the source line from the stack-frame *before* the call of
-    *caller_source*.
-
-    For example, if the stack is something like this::
-
-        main()
-            myfunction()
-                my_inner_function()
-                    source = caller_source()
-
-    Then *source* will point to ``myfunction``!
-    """
-    import traceback
-
-    stack = traceback.extract_stack()
-    source = stack[-2]
-    return source
 
 
 # ----------------------------------------------------------------------------
