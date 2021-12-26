@@ -10,44 +10,19 @@ Weighed random. Different factors are considered when selecting a song at
 random. Like the time it was last played, how often it was skipped, and so on.
 """
 import logging
-import threading
-from typing import Generator, Optional
-from sqlalchemy.orm.strategy_options import load_only
+from typing import Optional
 
-from sqlalchemy.sql import func, select
-from sqlalchemy.sql import text as dbText
+from sqlalchemy.sql import func
 import sqlalchemy.orm as orm
-from sqlalchemy.sql.elements import literal_column, not_
-from sqlalchemy.sql.expression import and_, bindparam, text
-from wickedjukebox.demon.dbmodel import (Session, Song, User, channelTable,
-                                         songTable)
+from sqlalchemy.sql.elements import not_
+from sqlalchemy.sql.expression import and_, text
+from wickedjukebox.demon.dbmodel import Song, User, songTable
 from wickedjukebox.config import Config, ConfigKeys
 from wickedjukebox.smartplaylist.dbbridge import parse_dynamic_playlists
 from . import queries
 
 LOG = logging.getLogger(__name__)
 
-ALREADY_INITIALISED = False
-
-PREFETCH_STATE = {}
-
-
-def bootstrap(channel_id):
-    global ALREADY_INITIALISED
-
-    if ALREADY_INITIALISED:
-        return
-
-    # as the query can take fscking long, we prefetch one song as soon as this
-    # module is loaded!
-    LOG.info('prefetching initial random song for each channel ...')
-    query = select([channelTable.c.id, channelTable.c.name])
-    query = query.where(channelTable.c.id == channel_id)
-    row = query.execute().fetchone()
-    pref = Prefetcher(row[0])
-    pref.run()
-    LOG.debug('  Channel %r prefetched %r', row[1], PREFETCH_STATE[row[0]])
-    ALREADY_INITIALISED = True
 
 def find_song(session: orm.Session, channel_name: str) -> Optional[Song]:
     # pylint: disable=too-many-statements, too-many-locals
@@ -133,14 +108,10 @@ def find_song(session: orm.Session, channel_name: str) -> Optional[Song]:
             "SQLite support discontinued since revision 346. It may reappear in the future!")
 
     query = query.where(not_(text("s.broken")))  # type: ignore
-    if PREFETCH_STATE and PREFETCH_STATE[channel_id]:
-        LOG.info("Ignoring song %r from random selection as it was already "
-                 "prefetched!",
-                 PREFETCH_STATE[channel_id])
-        query = query.where(text("s.id != :excluded_song").bindparams(excluded_song=PREFETCH_STATE[channel_id].id))  # type: ignore
 
     # TODO: Add dynamic playlist clauses
     # TODO fix cross-product issue query = query.where(and_(*parse_dynamic_playlists()))
+    query = query.where(and_(*parse_dynamic_playlists()))
 
     LOG.debug(query)
     res = session.execute(query)
@@ -166,32 +137,3 @@ def find_song(session: orm.Session, channel_name: str) -> Optional[Song]:
                     exc_info=True)
         session.close()
         return None
-
-
-class Prefetcher(threading.Thread):
-
-    _channel_id = None
-
-    def __init__(self, channel_id):
-        threading.Thread.__init__(self)
-        self._channel_id = channel_id
-
-    def run(self):
-        global PREFETCH_STATE
-        LOG.debug("Background prefetching... ")
-        session = Session()
-        song = find_song(session, self._channel_id)
-        LOG.debug("  ... prefetched %r", song)
-        PREFETCH_STATE[self._channel_id] = song
-
-
-def get(channel_id):
-    pref = Prefetcher(channel_id)
-    pref.start()
-
-    # wait until a song is prefetched (in case two 'gets' are called quickly
-    # after another)
-    while not PREFETCH_STATE and not PREFETCH_STATE[channel_id]:
-        pass
-
-    return PREFETCH_STATE[channel_id]
