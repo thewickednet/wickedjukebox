@@ -11,12 +11,11 @@
 
 
 import logging
-import sys
 from base64 import b64encode
 from datetime import date, datetime
 from os import stat, urandom, path
 from os.path import basename
-from typing import Any, Optional
+from typing import Optional
 
 from sqlalchemy import (
     Column,
@@ -31,8 +30,6 @@ from sqlalchemy import (
     func,
 )
 from sqlalchemy.orm import mapper, relation, scoped_session, sessionmaker, Session as TSession
-from sqlalchemy.orm.query import Query
-from sqlalchemy.orm.session import object_session
 from sqlalchemy.sql import insert, select, update
 
 from wickedjukebox.config import load_config
