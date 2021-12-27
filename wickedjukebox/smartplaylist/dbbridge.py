@@ -18,7 +18,8 @@ def parse_dynamic_playlists() -> Generator[str, None, None]:
     """
     Convert a dynamic playlist into "WHERE" clauses
     """
-    # Retrieve dynamic playlists
+    # TODO An issue with table-aliasing causes cartesian products.
+    #      Investigate where this comes from.
     sel = select([DynamicPlaylist.query])
     sel = sel.where(DynamicPlaylist.group_id > 0)
     sel = sel.order_by("group_id")
