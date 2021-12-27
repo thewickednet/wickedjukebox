@@ -14,8 +14,8 @@
 import logging
 from base64 import b64encode
 from datetime import datetime
-from os import path, stat, urandom
-from os.path import basename
+from os import stat, urandom
+from os.path import basename, dirname
 from typing import Optional
 
 from sqlalchemy import (
@@ -335,7 +335,6 @@ class Song(Base):
         Retrieve a song using a smart guess based on play statistics and active
         listeners.
         """
-        # TODO: Implement
         from wickedjukebox.core.smartfind import find_song
 
         song = find_song(session, channel_name)
@@ -352,7 +351,7 @@ class Song(Base):
         LOG.debug("Extracting metadata from %r", localpath)
 
         audiometa = MetaFactory.create(localpath)
-        dirname = path.dirname(localpath)
+        dirname_ = dirname(localpath)
 
         artist = Artist.by_name(audiometa["artist"])
         if not artist:
@@ -364,7 +363,7 @@ class Song(Base):
             album = Album(
                 audiometa["album"],
                 artist,
-                dirname,
+                dirname_,
             )
         self.album = album
 
