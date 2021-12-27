@@ -36,13 +36,13 @@ from sqlalchemy.orm import Session as TSession
 from sqlalchemy.orm import relation, scoped_session, sessionmaker
 from sqlalchemy.sql import insert, select, update
 
-from wickedjukebox.config import load_config
+from wickedjukebox.config import Config, ConfigKeys
 from wickedjukebox.logutil import caller_source
 from wickedjukebox.model.audiometa import MetaFactory
 
 LOG = logging.getLogger(__name__)
-CFG = load_config()
-DBURI = CFG.get("database", "dsn")
+CFG = Config()
+DBURI = CFG.get(ConfigKeys.DSN)
 
 metadata = MetaData()
 engine = create_engine(DBURI, echo=False)
@@ -331,14 +331,16 @@ class Song(Base):
         return song
 
     @staticmethod
-    def smart_random(session: TSession, channel_name: str) -> Optional["Song"]:
+    def smart_random(
+        config: Config, session: TSession, channel_name: str
+    ) -> Optional["Song"]:
         """
         Retrieve a song using a smart guess based on play statistics and active
         listeners.
         """
         from wickedjukebox.core.smartfind import find_song
 
-        song = find_song(session, channel_name)
+        song = find_song(config, session, channel_name)
         return song
 
     def update_metadata(self) -> None:

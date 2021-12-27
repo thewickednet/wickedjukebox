@@ -5,7 +5,7 @@ import logging
 from abc import ABC, abstractmethod
 from math import floor
 from pathlib import Path
-from typing import Any, Dict, List, NamedTuple, Set
+from typing import Any, Dict, List, NamedTuple, Optional, Set
 
 from mpd.base import (  # type: ignore
     CommandError,
@@ -13,6 +13,7 @@ from mpd.base import (  # type: ignore
     MPDClient,
 )
 
+from wickedjukebox.config import Config
 from wickedjukebox.exc import ConfigError
 from wickedjukebox.logutil import qualname, qualname_repr
 
@@ -38,9 +39,10 @@ class AbstractPlayer(ABC):
     #: successfully configured.
     CONFIG_KEYS: Set[str] = set()
 
-    def __init__(self) -> None:
+    def __init__(self, config: Optional[Config]) -> None:
         self.songs_since_last_jingle = 0
         self._log = logging.getLogger(qualname(self))
+        self._config = config or Config()
 
     @abstractmethod
     def configure(self, cfg: Dict[str, Any]) -> None:
@@ -149,8 +151,8 @@ class MpdPlayer(AbstractPlayer):
 
     CONFIG_KEYS = {"host", "port", "path_map"}
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, config: Optional[Config]) -> None:
+        super().__init__(config)
         self.client = None
         self.path_map = PathMap(Path(""), Path(""))
         self.host = ""

@@ -3,8 +3,9 @@ This module contains implementations for user-based queuing systems.
 """
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Set
+from typing import Any, Dict, Optional, Set
 
+from wickedjukebox.config import Config
 from wickedjukebox.logutil import qualname, qualname_repr
 from wickedjukebox.model.database import QueueItem, Session
 
@@ -17,8 +18,9 @@ class AbstractQueue(ABC):
 
     CONFIG_KEYS: Set[str] = set()
 
-    def __init__(self, channel_name: str) -> None:
+    def __init__(self, config: Optional[Config], channel_name: str) -> None:
         self._channel_name = channel_name
+        self._config = config or Config()
         self._log = logging.getLogger(qualname(self))
 
     def configure(self, cfg: Dict[str, Any]) -> None:

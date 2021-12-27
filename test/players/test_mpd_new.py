@@ -14,7 +14,7 @@ import wickedjukebox.component.player as p
 @pytest.fixture
 def mocked_player():
     with patch("wickedjukebox.component.player.MPDClient") as MPDClient:
-        player = p.MpdPlayer()
+        player = p.MpdPlayer(None)
         player.configure(
             {
                 "host": "localhost",
@@ -31,7 +31,7 @@ def test_repr(mocked_player: Tuple[p.MpdPlayer, Mock]):
 
 
 def test_null_player():
-    player = p.NullPlayer()
+    player = p.NullPlayer(None)
     player.skip()
     player.enqueue("foo")
     assert player.remaining_seconds == 0

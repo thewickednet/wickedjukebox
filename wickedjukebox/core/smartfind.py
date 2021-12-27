@@ -237,7 +237,9 @@ def smart_random_with_users(
     return query  # type: ignore
 
 
-def find_song(session: orm.Session, channel_name: str) -> Optional[Song]:
+def find_song(
+    config: Config, session: orm.Session, channel_name: str
+) -> Optional[Song]:
     # pylint: disable=too-many-statements, too-many-locals
     #
     # This may be difficult to refactorl The high count of statements and
@@ -248,43 +250,43 @@ def find_song(session: orm.Session, channel_name: str) -> Optional[Song]:
     """
 
     # setup song scoring coefficients
-    user_rating = Config.get(
+    user_rating = config.get(
         ConfigKeys.SCORING_USERRATING,
         4,
         channel=channel_name,
         converter=int,
     )
-    last_played = Config.get(
+    last_played = config.get(
         ConfigKeys.SCORING_LASTPLAYED,
         10,
         channel=channel_name,
         converter=int,
     )
-    song_age = Config.get(
+    song_age = config.get(
         ConfigKeys.SCORING_SONGAGE,
         1,
         channel=channel_name,
         converter=int,
     )
-    never_played = Config.get(
+    never_played = config.get(
         ConfigKeys.SCORING_NEVERPLAYED,
         4,
         channel=channel_name,
         converter=int,
     )
-    randomness = Config.get(
+    randomness = config.get(
         ConfigKeys.SCORING_RANDOMNESS, 1, channel=channel_name, converter=int
     )
-    max_random_duration = Config.get(
+    max_random_duration = config.get(
         ConfigKeys.MAX_RANDOM_DURATION,
         600,
         channel=channel_name,
         converter=int,
     )
-    proofoflife_timeout = Config.get(
+    proofoflife_timeout = config.get(
         ConfigKeys.PROOFOFLIFE_TIMEOUT, 120, converter=int
     )
-    is_mysql = Config.get(ConfigKeys.DSN, "").lower().startswith("mysql")
+    is_mysql = config.get(ConfigKeys.DSN, "").lower().startswith("mysql")
 
     if is_mysql:
 

@@ -10,6 +10,7 @@ from wickedjukebox import __version__
 from wickedjukebox.channel import Channel
 from wickedjukebox.component import get_autoplay, get_ipc, get_player, get_queue
 from wickedjukebox.component.jingle import FileBasedJingles
+from wickedjukebox.config import Config
 from wickedjukebox.logutil import setup_logging
 
 LOG = logging.getLogger(__name__)
@@ -42,10 +43,11 @@ def parse_args() -> Namespace:
 
 def make_channel(channel_name: str) -> Optional[Channel]:
 
-    player = get_player(channel_name)
-    autoplay = get_autoplay(channel_name)
-    ipc = get_ipc(channel_name)
-    queue = get_queue(channel_name)
+    config = Config()
+    player = get_player(config, channel_name)
+    autoplay = get_autoplay(config, channel_name)
+    ipc = get_ipc(config, channel_name)
+    queue = get_queue(config, channel_name)
     channel = Channel(
         channel_name,
         random=autoplay,

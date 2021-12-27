@@ -5,9 +5,18 @@ This module contains helpers for application configuration
 import logging
 from configparser import ConfigParser
 from enum import Enum
-from typing import Any, Callable, Dict, List, NamedTuple, Set, TypeVar, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    NamedTuple,
+    Optional,
+    Set,
+    TypeVar,
+    Union,
+)
 
-from config_resolver import get_config
+from config_resolver.core import get_config
 
 from wickedjukebox.exc import ConfigError
 
@@ -74,14 +83,6 @@ def default_config():
     )
 
 
-def load_config() -> ConfigParser:
-    """
-    Loads the application config.
-    """
-    cfg, _ = default_config()
-    return cfg
-
-
 class ConfigKeys(Enum):
     """
     A well-defined list of config-values in the config-file with the sections
@@ -134,6 +135,9 @@ class Config:
     The Config class provides an abstraction around config-file values
     """
 
+    def __init__(self, config: Optional[ConfigParser] = None) -> None:
+        self.config = config
+
     @staticmethod
     def get_section(key: ConfigOption, channel: str):
         """
@@ -148,8 +152,16 @@ class Config:
             section = "core"
         return section
 
-    @staticmethod
+    def load_config(self) -> ConfigParser:
+        """
+        Loads the application config.
+        """
+        if self.config is None:
+            self.config, _ = default_config()
+        return self.config
+
     def get(
+        self,
         key: ConfigKeys,
         fallback: Union[TFallback, Sentinel] = NO_DEFAULT,
         channel: str = "",
@@ -158,7 +170,7 @@ class Config:
         """
         Retrieve a config-value for a given config-key
         """
-        config = load_config()
+        config = self.load_config()
         section = Config.get_section(key.value, channel)
         _, _, option = key.value
         if fallback is NO_DEFAULT:
@@ -167,8 +179,7 @@ class Config:
             value = str(config.get(section, option, fallback=fallback))
         return converter(value)
 
-    @staticmethod
-    def dictify(key: ConfigKeys, channel: str, keys: Set[str]):
+    def dictify(self, key: ConfigKeys, channel: str, keys: Set[str]):
         """
         Convert a given section to a simple Python dictionary.
 
@@ -177,7 +188,7 @@ class Config:
         :param keys: Expect exactly these keys in the options. If a difference
             is detectd, raise a ConfigError
         """
-        config = load_config()
+        config = self.load_config()
         section = Config.get_section(key.value, channel)
         output: Dict[str, str] = {}
         missing_keys: Set[str] = set()

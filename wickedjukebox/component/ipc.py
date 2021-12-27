@@ -57,9 +57,10 @@ class AbstractIPC(ABC):
     #: successfully configured.
     CONFIG_KEYS: Set[str] = set()
 
-    def __init__(self, channel_name: str) -> None:
+    def __init__(self, config: Optional[Config], channel_name: str) -> None:
         self._log = logging.getLogger(qualname(self))
         self._channel_name = channel_name
+        self._config = config
 
     def configure(self, cfg: Dict[str, Any]) -> None:
         """
@@ -112,8 +113,8 @@ class FSIPC(AbstractIPC):
     CONFIG_KEYS = {"path"}
     _root: Optional[Path]
 
-    def __init__(self, channel_name: str) -> None:
-        super().__init__(channel_name)
+    def __init__(self, config: Optional[Config], channel_name: str) -> None:
+        super().__init__(config, channel_name)
         self._root = None
 
     def __repr__(self) -> str:
@@ -172,9 +173,9 @@ class DBIPC(AbstractIPC):
     An IPC implementation using the underlying database as backend
     """
 
-    def __init__(self, channel_name: str) -> None:
-        super().__init__(channel_name)
-        dsn = Config.get(ConfigKeys.DSN, "")
+    def __init__(self, config: Optional[Config], channel_name: str) -> None:
+        super().__init__(config, channel_name)
+        dsn = self._config.get(ConfigKeys.DSN, "")
         if not dsn:
             raise ConfigError("No DSN available for DB-IPC")
 

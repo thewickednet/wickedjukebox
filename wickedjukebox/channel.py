@@ -17,17 +17,17 @@ class Channel:
         tick_interval_s: int = 5,
         jingle_interval: int = 5,
         autoplay: bool = True,
-        queue: AbstractQueue = NullQueue(""),
+        queue: AbstractQueue = NullQueue(None, ""),
         random: Optional[AbstractRandom] = None,
-        player: AbstractPlayer = NullPlayer(),
-        ipc: AbstractIPC = NullIPC(""),
+        player: AbstractPlayer = NullPlayer(None),
+        ipc: AbstractIPC = NullIPC(None, ""),
         jingle: AbstractJingle = NullJingle(),
     ):
         self.name = name
         self.player = player
         self.ipc = ipc
         self.queue = queue
-        self.random = random or NullRandom(name)
+        self.random = random or NullRandom(None, name)
         self.jingle = jingle
         self.tick_interval_s = tick_interval_s
         self.jingle_interval = jingle_interval

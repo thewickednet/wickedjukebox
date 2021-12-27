@@ -25,11 +25,11 @@ from wickedjukebox.exc import ConfigError
 LOG = logging.getLogger(__name__)
 
 
-def get_player(channel_name: str) -> AbstractPlayer:
+def get_player(config: Config, channel_name: str) -> AbstractPlayer:
     """
     Construct the configured player-backend using the channel-name
     """
-    player_type = Config.get(
+    player_type = config.get(
         ConfigKeys.PLAYER, channel=channel_name, fallback=""
     )
     if player_type.strip() == "":
@@ -43,8 +43,8 @@ def get_player(channel_name: str) -> AbstractPlayer:
     }
     cls = clsmap.get(player_type, None)
     if cls:
-        player = cls()
-        player_settings = Config.dictify(
+        player = cls(config)
+        player_settings = config.dictify(
             ConfigKeys.PLAYER, channel_name, cls.CONFIG_KEYS
         )
         player.configure(player_settings)
@@ -56,8 +56,8 @@ def get_player(channel_name: str) -> AbstractPlayer:
     )
 
 
-def get_autoplay(channel_name: str) -> AbstractRandom:
-    autoplay_type = Config.get(
+def get_autoplay(config: Config, channel_name: str) -> AbstractRandom:
+    autoplay_type = config.get(
         ConfigKeys.AUTOPLAY, channel=channel_name, fallback=""
     )
     # TODO: This function is very similar to get_player and can likely be merged
@@ -76,8 +76,8 @@ def get_autoplay(channel_name: str) -> AbstractRandom:
     }
     cls = clsmap.get(autoplay_type, None)
     if cls:
-        instance = cls(channel_name)
-        autoplay_settings = Config.dictify(
+        instance = cls(config, channel_name)
+        autoplay_settings = config.dictify(
             ConfigKeys.AUTOPLAY, channel_name, cls.CONFIG_KEYS
         )
         instance.configure(autoplay_settings)
@@ -89,8 +89,8 @@ def get_autoplay(channel_name: str) -> AbstractRandom:
     )
 
 
-def get_ipc(channel_name: str) -> AbstractIPC:
-    ipc_type = Config.get(ConfigKeys.IPC, channel=channel_name, fallback="")
+def get_ipc(config: Config, channel_name: str) -> AbstractIPC:
+    ipc_type = config.get(ConfigKeys.IPC, channel=channel_name, fallback="")
     # TODO: This function is very similar to get_player and can likely be merged
     if ipc_type.strip() == "":
         LOG.warning(
@@ -107,8 +107,8 @@ def get_ipc(channel_name: str) -> AbstractIPC:
     }
     cls = clsmap.get(ipc_type, None)
     if cls:
-        instance = cls(channel_name)
-        ipc_settings = Config.dictify(
+        instance = cls(config, channel_name)
+        ipc_settings = config.dictify(
             ConfigKeys.IPC, channel_name, cls.CONFIG_KEYS
         )
         instance.configure(ipc_settings)
@@ -120,8 +120,8 @@ def get_ipc(channel_name: str) -> AbstractIPC:
     )
 
 
-def get_queue(channel_name: str) -> AbstractQueue:
-    queue_type = Config.get(
+def get_queue(config: Config, channel_name: str) -> AbstractQueue:
+    queue_type = config.get(
         ConfigKeys.QUEUE_MODEL, channel=channel_name, fallback=""
     )
     # TODO: This function is very similar to get_player and can likely be merged
@@ -139,8 +139,8 @@ def get_queue(channel_name: str) -> AbstractQueue:
     }
     cls = clsmap.get(queue_type, None)
     if cls:
-        instance = cls(channel_name)
-        queue_settings = Config.dictify(
+        instance = cls(config, channel_name)
+        queue_settings = config.dictify(
             ConfigKeys.QUEUE_MODEL, channel_name, cls.CONFIG_KEYS
         )
         instance.configure(queue_settings)

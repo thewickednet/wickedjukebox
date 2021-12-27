@@ -9,20 +9,20 @@ import wickedjukebox.component.random as rnd
 
 
 def test_repr():
-    obj = rnd.NullRandom("none")
+    obj = rnd.NullRandom(None, "none")
     result = repr(obj)
     assert "NullRandom" in result
 
 
 def test_null_random():
-    obj = rnd.NullRandom("none")
+    obj = rnd.NullRandom(None, "none")
     result = obj.pick()
     assert result is not None
     assert result == ""
 
 
 def test_allfiles():
-    obj = rnd.AllFilesRandom("channel-name")
+    obj = rnd.AllFilesRandom(None, "channel-name")
     obj.root = "fakeroot"
     with patch("wickedjukebox.component.random.Path") as MockPath:
         MockPath().glob.return_value = [Path("foo")]
@@ -32,7 +32,7 @@ def test_allfiles():
 
 
 def test_allfiles_empty():
-    obj = rnd.AllFilesRandom("channel-name")
+    obj = rnd.AllFilesRandom(None, "channel-name")
     obj.root = "fakeroot"
     with patch("wickedjukebox.component.random.Path") as MockPath:
         MockPath().glob.return_value = []

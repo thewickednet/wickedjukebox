@@ -9,8 +9,9 @@ from pathlib import Path
 from queue import Queue
 from random import choice
 from threading import Thread
-from typing import Any, Dict, Set
+from typing import Any, Dict, Optional, Set
 
+from wickedjukebox.config import Config
 from wickedjukebox.logutil import qualname, qualname_repr
 from wickedjukebox.model.database import Session, Song
 
@@ -25,9 +26,10 @@ class AbstractRandom(ABC):
     #: successfully configured.
     CONFIG_KEYS: Set[str] = set()
 
-    def __init__(self, channel_name: str) -> None:
+    def __init__(self, config: Optional[Config], channel_name: str) -> None:
         super().__init__()
         self._log = logging.getLogger(qualname(self))
+        self._config = config or Config()
         self.channel_name = channel_name
 
     @abstractmethod
@@ -74,8 +76,8 @@ class AllFilesRandom(AbstractRandom):
 
     CONFIG_KEYS = {"root"}
 
-    def __init__(self, channel_name: str) -> None:
-        super().__init__(channel_name)
+    def __init__(self, config: Optional[Config], channel_name: str) -> None:
+        super().__init__(config, channel_name)
         self.root = ""
 
     def configure(self, cfg: Dict[str, Any]) -> None:
@@ -121,11 +123,14 @@ class SmartPrefetchThread(Thread):
 
     daemon = True
 
-    def __init__(self, channel_name: str, queue: Queue[str]) -> None:
+    def __init__(
+        self, config: Config, channel_name: str, queue: Queue[str]
+    ) -> None:
         super().__init__()
         self.channel_name = channel_name
         self.queue = queue
         self._log = logging.getLogger(qualname(self))
+        self._config = config
 
     def run(self) -> None:
         self._log.info("Smart random prefetcher started")
@@ -149,7 +154,7 @@ class SmartPrefetchThread(Thread):
         # waiting/prefetching only if needed.
         while True:
             self._log.debug("Prefetching next song via smart random...")
-            song = Song.smart_random(session, self.channel_name)  # type: ignore
+            song = Song.smart_random(self._config, session, self.channel_name)  # type: ignore
             if song is None:
                 self._log.error(
                     "Smart random did not find any songs. Is the DB empty?"
@@ -173,10 +178,12 @@ class SmartPrefetch(AbstractRandom):
     "play".
     """
 
-    def __init__(self, channel_name: str) -> None:
-        super().__init__(channel_name)
+    def __init__(self, config: Optional[Config], channel_name: str) -> None:
+        super().__init__(config, channel_name)
         self.queue: Queue[str] = Queue(maxsize=1)
-        self._prefetcher = SmartPrefetchThread(channel_name, self.queue)
+        self._prefetcher = SmartPrefetchThread(
+            self._config, channel_name, self.queue
+        )
 
     def configure(self, cfg: Dict[str, Any]) -> None:
         self._prefetcher.start()
