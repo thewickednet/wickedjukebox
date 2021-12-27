@@ -43,9 +43,6 @@ LOG = logging.getLogger(__name__)
 CFG = load_config()
 DBURI = CFG.get("database", "dsn")
 
-#: sentinel object to mark settings with no explicit default
-NO_DEFAULT = object()
-
 metadata = MetaData()
 engine = create_engine(DBURI, echo=False)
 metadata.bind = engine
