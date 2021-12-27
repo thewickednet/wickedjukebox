@@ -186,7 +186,7 @@ class DBIPC(AbstractIPC):
         with Session() as session:  # type: ignore
             query = session.query(Channel)  # type: ignore
             query = query.filter(Channel.name == self._channel_name)  # type: ignore
-            channel = Channel, query.one()  # type: ignore
+            channel = query.one()  # type: ignore
             if key == Command.SKIP:
                 skip_state = bool(
                     int(State.get("skipping", channel.id, default=False))  # type: ignore
