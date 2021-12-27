@@ -59,5 +59,5 @@ class DatabaseQueue(AbstractQueue):
                 return ""
             QueueItem.advance(session, self._channel_name)  # type: ignore
             session.commit()  # type: ignore
-            self._log.debug("Dequeued %r", queue_item.song)
-            return queue_item.song.localpath
+            self._log.debug("Dequeued %r", queue_item.song)  # type: ignore
+            return queue_item.song.localpath  # type: ignore
