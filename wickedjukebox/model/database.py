@@ -27,6 +27,7 @@ from sqlalchemy import (
     String,
     Table,
     Unicode,
+    and_,
     create_engine,
     func,
 )
@@ -406,6 +407,33 @@ class QueueItem(Base):
             self.position,
             self.song_id,
         )
+
+    @staticmethod
+    def next(session: TSession, channel_name: str) -> Optional["QueueItem"]:
+        """
+        Return the next song on the queue or None if the queue is empty
+        """
+        channel = (
+            session.query(Channel.id).filter(Channel.name == channel_name).one()
+        )
+        query = session.query(QueueItem).filter(
+            and_(QueueItem.position == 0, QueueItem.channel_id == channel.id)
+        )
+        output = query.one_or_none()
+        return output
+
+    @staticmethod
+    def advance(session: TSession, channel_name: str) -> None:
+        """
+        Advance the queue by one song. Keeps a "history" of 10 songs
+        """
+        channel = (
+            session.query(Channel.id).filter(Channel.name == channel_name).one()
+        )
+        session.query(QueueItem).filter(
+            QueueItem.channel_id == channel.id
+        ).update({QueueItem.position: QueueItem.position - 1})
+        session.query(QueueItem).filter(QueueItem.position < -10).delete()
 
 
 class DynamicPlaylist(Base):

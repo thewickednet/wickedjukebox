@@ -8,6 +8,11 @@ import logging
 
 from wickedjukebox.component.ipc import DBIPC, FSIPC, AbstractIPC, NullIPC
 from wickedjukebox.component.player import AbstractPlayer, MpdPlayer, NullPlayer
+from wickedjukebox.component.queue import (
+    AbstractQueue,
+    DatabaseQueue,
+    NullQueue,
+)
 from wickedjukebox.component.random import (
     AbstractRandom,
     AllFilesRandom,
@@ -111,5 +116,37 @@ def get_ipc(channel_name: str) -> AbstractIPC:
 
     raise ConfigError(
         f"Unknown player {ipc_type!r} defined in config for "
+        f"channel {channel_name!r}"
+    )
+
+
+def get_queue(channel_name: str) -> AbstractQueue:
+    queue_type = Config.get(
+        ConfigKeys.QUEUE_MODEL, channel=channel_name, fallback=""
+    )
+    # TODO: This function is very similar to get_player and can likely be merged
+    if queue_type.strip() == "":
+        LOG.warning(
+            "Config-value %r is missing. Disabling queue",
+            str(ConfigKeys.QUEUE_MODEL),
+        )
+        queue_type = "null"
+
+    instance = None
+    clsmap = {
+        "null": NullQueue,
+        "db": DatabaseQueue,
+    }
+    cls = clsmap.get(queue_type, None)
+    if cls:
+        instance = cls(channel_name)
+        queue_settings = Config.dictify(
+            ConfigKeys.QUEUE_MODEL, channel_name, cls.CONFIG_KEYS
+        )
+        instance.configure(queue_settings)
+        return instance
+
+    raise ConfigError(
+        f"Unknown queue {queue_type!r} defined in config for "
         f"channel {channel_name!r}"
     )

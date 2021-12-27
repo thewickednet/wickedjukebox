@@ -99,7 +99,7 @@ class ConfigKeys(Enum):
     PROOFOFLIFE_TIMEOUT = ConfigOption(
         ConfigScope.CORE, "proofoflife_timeout", ""
     )
-    QUEUE_MODEL = ConfigOption(ConfigScope.CORE, "queue_model", "")
+    QUEUE_MODEL = ConfigOption(ConfigScope.CHANNEL, "queue_model", "type")
     RANDOM_MODEL = ConfigOption(ConfigScope.CORE, "random_model", "")
     SCORING_LASTPLAYED = ConfigOption(
         ConfigScope.CORE, "scoring_lastplayed", ""

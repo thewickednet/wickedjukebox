@@ -8,7 +8,7 @@ from typing import Optional
 
 from wickedjukebox import __version__
 from wickedjukebox.channel import Channel
-from wickedjukebox.component import get_autoplay, get_ipc, get_player
+from wickedjukebox.component import get_autoplay, get_ipc, get_player, get_queue
 from wickedjukebox.component.jingle import FileBasedJingles
 from wickedjukebox.logutil import setup_logging
 
@@ -45,12 +45,14 @@ def make_channel(channel_name: str) -> Optional[Channel]:
     player = get_player(channel_name)
     autoplay = get_autoplay(channel_name)
     ipc = get_ipc(channel_name)
+    queue = get_queue(channel_name)
     channel = Channel(
         channel_name,
         random=autoplay,
         jingle=FileBasedJingles("mp3s/Jingles"),  # TODO
         player=player,
         ipc=ipc,
+        queue=queue,
         tick_interval_s=10,
     )
     return channel

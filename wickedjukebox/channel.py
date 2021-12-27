@@ -17,7 +17,7 @@ class Channel:
         tick_interval_s: int = 5,
         jingle_interval: int = 5,
         autoplay: bool = True,
-        queue: AbstractQueue = NullQueue(),
+        queue: AbstractQueue = NullQueue(""),
         random: Optional[AbstractRandom] = None,
         player: AbstractPlayer = NullPlayer(),
         ipc: AbstractIPC = NullIPC(""),
