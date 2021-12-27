@@ -322,7 +322,6 @@ def find_song(session: orm.Session, channel_name: str) -> Optional[Song]:
     # TODO fix cross-product issue query = query.where(and_(*parse_dynamic_playlists()))
     query = query.where(and_(*parse_dynamic_playlists()))
 
-    LOG.debug(query)
     res = session.execute(query)
     candidate = res.first()
 
