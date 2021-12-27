@@ -1,3 +1,4 @@
+# type: ignore
 # pylint: disable=no-member, attribute-defined-outside-init
 # pylint: disable=too-few-public-methods, invalid-name
 #
@@ -29,8 +30,9 @@ from sqlalchemy import (
     create_engine,
     func,
 )
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session as TSession
-from sqlalchemy.orm import mapper, relation, scoped_session, sessionmaker
+from sqlalchemy.orm import relation, scoped_session, sessionmaker
 from sqlalchemy.sql import insert, select, update
 
 from wickedjukebox.config import load_config
@@ -50,80 +52,19 @@ metadata.bind = engine
 session_factory = sessionmaker(bind=engine)
 Session = scoped_session(session_factory)
 
-stateTable = Table("state", metadata, autoload=True)
-channelTable = Table(
-    "channel",
-    metadata,
-    Column("name", Unicode(32)),
-    Column("backend", Unicode(64)),
-    Column("backend_params", Unicode()),
-    autoload=True,
-)
+Base = declarative_base(bind=engine)
+
 settingTable = Table(
     "setting", metadata, Column("value", Unicode()), autoload=True
 )
-artistTable = Table(
-    "artist",
-    metadata,
-    Column("name", Unicode(128)),
-    Column("added", DateTime, nullable=False, default=datetime.now),
-    autoload=True,
-)
-albumTable = Table(
-    "album",
-    metadata,
-    Column("name", Unicode(128)),
-    Column("type", Unicode(32)),
-    Column("added", DateTime, nullable=False, default=datetime.now),
-    autoload=True,
-)
-songTable = Table(
-    "song",
-    metadata,
-    Column("title", Unicode(128)),
-    Column("localpath", Unicode(255)),
-    Column("lyrics", Unicode()),
-    Column("added", DateTime, nullable=False, default=datetime.now),
-    autoload=True,
-)
-queueTable = Table(
-    "queue",
-    metadata,
-    Column("added", DateTime, nullable=False, default=datetime.now),
-    autoload=True,
-)
-channelSongs = Table("channel_song_data", metadata, autoload=True)
-usersTable = Table(
-    "users",
-    metadata,
-    Column("added", DateTime, nullable=False, default=datetime.now),
-    extend_existing=True,
-    autoload=True,
-)
-dynamicPLTable = Table(
-    "dynamicPlaylist",
-    metadata,
-    Column("label", Unicode(64)),
-    Column("query", Unicode()),
-    autoload=True,
-)
-song_has_genre = Table("song_has_genre", metadata, autoload=True)
-genreTable = Table(
-    "genre",
-    metadata,
-    Column("added", DateTime, nullable=False, default=datetime.now),
-    extend_existing=True,
-    autoload=True,
-)
-songStandingTable = Table("user_song_standing", metadata, autoload=True)
-tagTable = Table("tag", metadata, autoload=True)
+song_has_genre = Table("song_has_genre", Base.metadata, autoload=True)
+songStandingTable = Table("user_song_standing", Base.metadata, autoload=True)
 song_has_tag = Table(
     "song_has_tag",
-    metadata,
+    Base.metadata,
     Column("song_id", Integer, ForeignKey("song.id")),
     Column("tag", String(32), ForeignKey("tag.label")),
 )
-groupsTable = Table("groups", metadata, autoload=True)
 
 
 # ----------------------------------------------------------------------------
@@ -131,13 +72,20 @@ groupsTable = Table("groups", metadata, autoload=True)
 # ----------------------------------------------------------------------------
 
 
-class Genre(object):
+class Genre(Base):
+    __tablename__ = "genre"
+    __table_args__ = {
+        "extend_existing": True,
+        "autoload": True,
+    }
+    added = Column(DateTime, nullable=False, default=datetime.now)
+
     def __init__(self, name):
         self.name = name
         self.added = datetime.now()
 
     def __repr__(self):
-        return "<Genre %s name=%s>" % (self.id, repr(self.name))
+        return f"<Genre {self.id} name={repr(self.name)}>"
 
     @staticmethod
     def by_name(name: str) -> Optional["Genre"]:
@@ -146,7 +94,13 @@ class Genre(object):
         return query.one_or_none()
 
 
-class Tag(object):
+class Tag(Base):
+    __tablename__ = "tag"
+    __table_args__ = {
+        "extend_existing": True,
+        "autoload": True,
+    }
+
     def __init__(self, label):
         self.label = label
         self.inserted = datetime.now()
@@ -155,23 +109,42 @@ class Tag(object):
         return "<Tag label=%r>" % (self.label)
 
 
-class Channel(object):
+class Channel(Base):
+    __tablename__ = "channel"
+    __table_args__ = {
+        "extend_existing": True,
+        "autoload": True,
+    }
+    name = Column(Unicode(32))
+    backend = Column(Unicode(64))
+    backend_params = Column(Unicode())
+
     def __init__(self, name, backend, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = name
         self.backend = backend
 
     def __repr__(self):
-        return "<Channel %s name=%s>" % (self.id, repr(self.name))
+        return f"<Channel {self.id} name={repr(self.name)}>"
 
 
-class Artist(object):
+class Artist(Base):
+    __tablename__ = "artist"
+    __table_args__ = {
+        "extend_existing": True,
+        "autoload": True,
+    }
+    name = Column(Unicode(128))
+    added = Column(DateTime, nullable=False, default=datetime.now)
+    albums = relation("Album", backref="artist")
+    songs = relation("Song", backref="artist")
+
     def __init__(self, name):
         self.name = name
         self.added = datetime.now()
 
     def __repr__(self):
-        return "<Artist %s name=%s>" % (self.id, repr(self.name))
+        return f"<Artist {self.id} name={repr(self.name)}>"
 
     @staticmethod
     def by_name(
@@ -182,7 +155,22 @@ class Artist(object):
         return query.one_or_none()
 
 
-class State(object):
+class State(Base):
+    __tablename__ = "state"
+    __table_args__ = {
+        "extend_existing": True,
+        "autoload": True,
+    }
+
+    channel_id = Column(Integer, primary_key=True)
+    state = Column(Unicode(64), primary_key=True)
+
+    channel = relation(
+        Channel,
+        foreign_keys=[channel_id],
+        primaryjoin="State.channel_id == Channel.id",
+    )
+
     @classmethod
     def set(cls, statename, value, channel_id=0):
         """
@@ -194,20 +182,20 @@ class State(object):
                            the channel.
         """
 
-        query = select([stateTable.c.state])
-        query = query.where(stateTable.c.state == statename)
-        query = query.where(stateTable.c.channel_id == channel_id)
+        query = select([State.state])
+        query = query.where(State.state == statename)
+        query = query.where(State.channel_id == channel_id)
         result = query.execute()
         if result and result.fetchone():
             # the state exists, we need to update it
-            query = update(stateTable)
+            query = update(State)
             query = query.values({"value": value, "channel_id": channel_id})
-            query = query.where(stateTable.c.state == statename)
-            query = query.where(stateTable.c.channel_id == channel_id)
+            query = query.where(State.state == statename)
+            query = query.where(State.channel_id == channel_id)
             query.execute()
         else:
             # unknown state, store it in the DB
-            ins_q = insert(stateTable)
+            ins_q = insert(State)
             ins_q = ins_q.values(
                 {"state": statename, "value": value, "channel_id": channel_id}
             )
@@ -235,9 +223,9 @@ class State(object):
         @param default: Return this value is the state is not found in the DB.
         @return: The state value
         """
-        query = select([stateTable.c.value])
-        query = query.where(stateTable.c.state == statename)
-        query = query.where(stateTable.c.channel_id == channel_id)
+        query = select([State.value])
+        query = query.where(State.state == statename)
+        query = query.where(State.channel_id == channel_id)
         result = query.execute()
         if result:
             row = result.fetchone()
@@ -254,7 +242,7 @@ class State(object):
                 basename(source[0]),
                 source[1],
             )
-        ins_q = insert(stateTable)
+        ins_q = insert(State)
         ins_q = ins_q.values(
             {"channel_id": channel_id, "state": statename, "value": default}
         )
@@ -263,7 +251,17 @@ class State(object):
         return default
 
 
-class Album(object):
+class Album(Base):
+    __tablename__ = "album"
+    __table_args__ = {
+        "extend_existing": True,
+        "autoload": True,
+    }
+    name = Column(Unicode(128))
+    type = Column(Unicode(32))
+    added = Column(DateTime, nullable=False, default=datetime.now)
+    songs = relation("Song", backref="album")
+
     def __init__(self, name, artist, path):
         self.name = name
         self.artist = artist
@@ -271,7 +269,7 @@ class Album(object):
         self.added = datetime.now()
 
     def __repr__(self):
-        return "<Album %s name=%s>" % (self.id, repr(self.name))
+        return f"<Album {self.id} name={repr(self.name)}>"
 
     @staticmethod
     def by_name(
@@ -282,13 +280,35 @@ class Album(object):
         return album
 
 
-class Song(object):
+class Song(Base):
+    __tablename__ = "song"
+    __table_args__ = {
+        "extend_existing": True,
+        "autoload": True,
+    }
+
+    title = Column(Unicode(128))
+    localpath = Column(Unicode(255))
+    lyrics = Column(Unicode())
+    added = Column(DateTime, nullable=False, default=datetime.now)
+
+    channelstat = relation("ChannelStat", backref="song")
+    genres = relation(
+        Genre,
+        secondary=song_has_genre,
+        backref="songs",
+        primaryjoin="Song.id == song_has_genre.c.song_id",
+        secondaryjoin="song_has_genre.c.genre_id == Genre.id",
+    )
+
+    tags = relation(Tag, secondary=song_has_tag, backref="songs")
+
     def __init__(self, localpath: str) -> None:
         self.localpath = localpath
         self.added = datetime.now()
 
     def __repr__(self):
-        return "<Song id=%r artist_id=%r title=%r path=%r>" % (
+        return "<Song id={!r} artist_id={!r} title={!r} path={!r}>".format(
             self.id,
             self.artist_id,
             self.title,
@@ -372,30 +392,60 @@ class Song(object):
         self.lastScanned = datetime.now()
 
 
-class QueueItem(object):
+class QueueItem(Base):
+    __tablename__ = "queue"
+    __table_args__ = {
+        "extend_existing": True,
+        "autoload": True,
+    }
+    added = Column(DateTime, nullable=False, default=datetime.now)
+    song = relation(Song)
+
     def __init__(self):
         self.added = datetime.now()
 
     def __repr__(self):
-        return "<QueueItem id=%r position=%r song_id=%r>" % (
+        return "<QueueItem id={!r} position={!r} song_id={!r}>".format(
             self.id,
             self.position,
             self.song_id,
         )
 
 
-class DynamicPlaylist(object):
+class DynamicPlaylist(Base):
+    __tablename__ = "dynamicPlaylist"
+    __table_args__ = {
+        "extend_existing": True,
+        "autoload": True,
+    }
+    label = Column(Unicode(64))
+    query = Column(Unicode())
+
     def __repr__(self):
         return "<DynamicPlaylist %s>" % (self.id)
 
 
-class ChannelStat(object):
+class ChannelStat(Base):
+    __tablename__ = "channel_song_data"
+    __table_args__ = {
+        "extend_existing": True,
+        "autoload": True,
+    }
+
     def __init__(self, song_id, channel_id):
         self.song_id = song_id
         self.channel_id = channel_id
 
 
-class User:
+class User(Base):
+    __tablename__ = "users"
+    __table_args__ = {
+        "extend_existing": True,
+        "autoload": True,
+    }
+    added = Column(DateTime, nullable=False, default=datetime.now)
+    group = relation("Group", backref="users")
+
     def __init__(self, username, group, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.username = username
@@ -415,54 +465,16 @@ class User:
         return "<User %d %r>" % (self.id, self.username)
 
 
-class Group:
+class Group(Base):
+    __tablename__ = "groups"
+    __table_args__ = {
+        "extend_existing": True,
+        "autoload": True,
+    }
+
     def __init__(self, title, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.title = title
 
     def __repr__(self):
         return "<Group %d %r>" % (self.id, self.title)
-
-
-mapper(
-    State,
-    stateTable,
-    properties={
-        # 'channel': relation(Channel)
-    },
-)
-mapper(Genre, genreTable)
-mapper(Tag, tagTable)
-mapper(ChannelStat, channelSongs)
-mapper(DynamicPlaylist, dynamicPLTable)
-mapper(QueueItem, queueTable, properties={"song": relation(Song)})
-mapper(Channel, channelTable)
-mapper(
-    Album, albumTable, properties=dict(songs=relation(Song, backref="album"))
-)
-
-mapper(
-    Artist,
-    artistTable,
-    properties=dict(
-        albums=relation(Album, backref="artist"),
-        songs=relation(Song, backref="artist"),
-    ),
-)
-mapper(
-    Song,
-    songTable,
-    properties=dict(
-        channelstat=relation(ChannelStat, backref="song"),
-        genres=relation(Genre, secondary=song_has_genre, backref="songs"),
-        tags=relation(Tag, secondary=song_has_tag, backref="songs"),
-    ),
-)
-mapper(Group, groupsTable)
-mapper(
-    User,
-    usersTable,
-    properties={
-        "group": relation(Group, backref="users"),
-    },
-)

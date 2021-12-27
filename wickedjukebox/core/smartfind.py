@@ -15,13 +15,11 @@ from wickedjukebox.config import Config, ConfigKeys
 from wickedjukebox.model.database import (
     Album,
     Artist,
+    ChannelStat,
     Song,
     User,
-    channelSongs,
     settingTable,
     songStandingTable,
-    songTable,
-    usersTable,
 )
 from wickedjukebox.smartplaylist.dbbridge import parse_dynamic_playlists
 
@@ -52,11 +50,11 @@ def get_standing_query(
         select([Song.id, func.count().label("standing")])  # type: ignore
         .select_from(
             join(
-                join(songStandingTable, usersTable),
+                join(songStandingTable, User),
                 settingTable,
                 onclause=and_(
                     settingTable.c.var == setting_name,  # type: ignore
-                    usersTable.c.id == settingTable.c.user_id,  # type: ignore
+                    User.id == settingTable.c.user_id,  # type: ignore
                 ),
                 isouter=True,
             )
@@ -64,8 +62,7 @@ def get_standing_query(
         .where(
             songStandingTable.c.standing == standing,
             func.ifnull(settingTable.c.value, 1) == 1,  # type: ignore
-            func.unix_timestamp(usersTable.c.proof_of_listening)
-            + proofoflife_timeout
+            func.unix_timestamp(User.proof_of_listening) + proofoflife_timeout
             > func.unix_timestamp(func.now()),
         )
         .group_by(songStandingTable.c.song_id)
@@ -132,7 +129,7 @@ def smart_random_no_users(
             join(
                 join(
                     alias(Song, "s"),  # type: ignore
-                    alias(channelSongs, "c"),
+                    alias(ChannelStat, "c"),
                     isouter=True,
                     onclause=text("c.song_id = s.id"),
                 ),
@@ -216,7 +213,7 @@ def smart_random_with_users(
                     join(
                         join(
                             alias(Song, "s"),  # type: ignore
-                            channelSongs,
+                            ChannelStat,
                             isouter=True,
                         ),
                         alias(loves_query.subquery(), "ls"),  # type: ignore
@@ -339,9 +336,7 @@ def find_song(session: orm.Session, channel_name: str) -> Optional[Song]:
             return None
         out = (candidate.id, candidate.localpath, float(candidate.score))
         LOG.info("Selected song (%d, %s) via smartget. Score was %4.3f", *out)
-        selected_song = (
-            session.query(Song).filter(songTable.c.id == out[0]).first()
-        )
+        selected_song = session.query(Song).filter(Song.id == out[0]).first()
         session.close()
         return selected_song
     except IndexError:

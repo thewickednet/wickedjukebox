@@ -8,7 +8,7 @@ from typing import Generator
 
 from sqlalchemy.sql import select
 
-from wickedjukebox.model.database import dynamicPLTable
+from wickedjukebox.model.database import DynamicPlaylist
 from wickedjukebox.smartplaylist.parser import ParserSyntaxError, parse_query
 
 LOG = logging.getLogger(__name__)
@@ -19,8 +19,8 @@ def parse_dynamic_playlists() -> Generator[str, None, None]:
     Convert a dynamic playlist into "WHERE" clauses
     """
     # Retrieve dynamic playlists
-    sel = select([dynamicPLTable.c.query])
-    sel = sel.where(dynamicPLTable.c.group_id > 0)
+    sel = select([DynamicPlaylist.query])
+    sel = sel.where(DynamicPlaylist.group_id > 0)
     sel = sel.order_by("group_id")
     res = sel.execute().fetchall()
     for dpl in res:
