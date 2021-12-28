@@ -118,7 +118,7 @@ class FSIPC(AbstractIPC):
         self._root = None
 
     def __repr__(self) -> str:
-        pth = str(self._root.absolute()) if self._root else ""
+        pth = str(self._root.resolve()) if self._root else ""
         return f"{super().__repr__()[:-1]} path={pth!r}>"
 
     @property

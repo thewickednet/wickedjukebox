@@ -99,11 +99,11 @@ class AllFilesRandom(AbstractRandom):
             )
             return ""
         pick = choice(candidates)
-        output = str(pick.absolute())
+        output = str(pick.resolve())
         self._log.debug(
             "Picked %r as random file from all files in %r",
             output,
-            pth.absolute(),
+            pth.resolve(),
         )
         return output
 
