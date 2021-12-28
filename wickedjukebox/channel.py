@@ -15,7 +15,6 @@ class Channel:
         self,
         name: str = "",
         tick_interval_s: int = 5,
-        jingle_interval: int = 5,
         autoplay: bool = True,
         queue: AbstractQueue = NullQueue(None, ""),
         random: Optional[AbstractRandom] = None,
@@ -30,7 +29,6 @@ class Channel:
         self.random = random or NullRandom(None, name)
         self.jingle = jingle
         self.tick_interval_s = tick_interval_s
-        self.jingle_interval = jingle_interval
         self.autoplay = autoplay
         self.ticks = 0
         self.keep_running = True
@@ -59,7 +57,7 @@ class Channel:
 
         do_skip = self.ipc.get(Command.SKIP)
 
-        if self.player.songs_since_last_jingle > self.jingle_interval:
+        if self.player.songs_since_last_jingle > self.jingle.interval:
             self._log.debug("Jingle interval surpassed. Enqueueing new jingle.")
             jingle = self.jingle.pick()
             if jingle:
@@ -91,7 +89,6 @@ class Channel:
         self._log.info("Random type: %r", self.random)
         self._log.info("Jingle type: %r", self.jingle)
         self._log.info("Tick interval: %ss", self.tick_interval_s)
-        self._log.info("Jingle interval: %s songs", self.jingle_interval)
         while self.keep_running:
             try:
                 self.tick()

@@ -91,8 +91,6 @@ class ConfigKeys(Enum):
 
     DSN = ConfigOption(ConfigScope.DATABASE, "database", "dsn")
     CHANNEL_CYCLE = ConfigOption(ConfigScope.CHANNEL, "channel_cycle", "")
-    JINGLES_FOLDER = ConfigOption(ConfigScope.CHANNEL, "jingles_folder", "")
-    JINGLES_INTERVAL = ConfigOption(ConfigScope.CHANNEL, "jingles_interval", "")
     MAX_CREDITS = ConfigOption(ConfigScope.CORE, "max_credits", "")
     MAX_RANDOM_DURATION = ConfigOption(
         ConfigScope.CORE, "max_random_duration", ""
@@ -103,6 +101,9 @@ class ConfigKeys(Enum):
     QUEUE_MODEL = ConfigOption(ConfigScope.CHANNEL, "queue_model", "type")
     RANDOM_MODEL = ConfigOption(ConfigScope.CORE, "random_model", "")
     JINGLE_MODEL = ConfigOption(ConfigScope.CHANNEL, "jingle_model", "type")
+    JINGLES_INTERVAL = ConfigOption(
+        ConfigScope.CHANNEL, "jingles_model", "interval"
+    )
     SCORING_LASTPLAYED = ConfigOption(
         ConfigScope.CORE, "scoring_lastplayed", ""
     )

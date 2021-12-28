@@ -24,6 +24,7 @@ class AbstractJingle(ABC):
         self._log = logging.getLogger(qualname(self))
         self._config = config
         self._channel_name = channel_name
+        self.interval = 0
 
     @abstractmethod
     def configure(self, cfg: Dict[str, Any]) -> None:
@@ -65,18 +66,21 @@ class FileBasedJingles(AbstractJingle):
     random.
     """
 
-    CONFIG_KEYS = {"root"}
+    CONFIG_KEYS = {"root", "interval"}
 
     def __init__(self, config: Optional[Config], channel_name: str) -> None:
         super().__init__(config, channel_name)
-        self.root = ""
+        self.root = Path("")
 
     def configure(self, cfg: Dict[str, Any]) -> None:
-        self.root = cfg["root"]
+        self.root = Path(cfg["root"]).resolve()
+        self.interval = int(cfg.get("interval", "0"))
+        self._log.info(
+            "Playing jingles from %r every %d songs", self.root, self.interval
+        )
 
     def pick(self) -> str:
-        pth = Path(self.root)
-        candidates = list(pth.glob("**/*.mp3"))
+        candidates = list(self.root.glob("**/*.mp3"))
         if not candidates:
             self._log.info(
                 "Jingles configured using %r, but no jingles found in that "
@@ -84,11 +88,11 @@ class FileBasedJingles(AbstractJingle):
                 self.root,
             )
             return ""
-        pick = choice(candidates)
-        output = str(pick.absolute())
+        pick = str(choice(candidates))
+        # XXX output = str(pick.absolute())
         self._log.debug(
             "Picked %r as random file from all files in %r",
-            output,
-            pth.absolute(),
+            pick,
+            self.root,
         )
-        return output
+        return pick
