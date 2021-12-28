@@ -34,6 +34,7 @@ def test_tick():
     mock_queue.dequeue.return_value = None
     mock_jingle = create_autospec(AbstractJingle)
     mock_jingle.pick.return_value = "fake-jingle"
+    mock_jingle.interval = 10
     mock_player = create_autospec(AbstractPlayer)
     mock_player.remaining_seconds = 5
     mock_player.songs_since_last_jingle = 99

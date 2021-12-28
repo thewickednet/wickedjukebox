@@ -5,7 +5,9 @@ import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 from random import choice
+from typing import Any, Dict, Optional, Set
 
+from wickedjukebox.config import Config
 from wickedjukebox.logutil import qualname, qualname_repr
 
 
@@ -16,8 +18,22 @@ class AbstractJingle(ABC):
     implementations
     """
 
-    def __init__(self) -> None:
+    CONFIG_KEYS: Set[str] = set()
+
+    def __init__(self, config: Optional[Config], channel_name: str) -> None:
         self._log = logging.getLogger(qualname(self))
+        self._config = config
+        self._channel_name = channel_name
+
+    @abstractmethod
+    def configure(self, cfg: Dict[str, Any]) -> None:
+        """
+        Process configuration data from a configuration mapping. The
+        required keys depend on the specific component type.
+        """
+        # TODO: This can be implemented in the top-class (i.e. here) by defining
+        #       the expected keys as a class-variable and then "pulling them in"
+        #       using setattr
 
     @abstractmethod
     def pick(self) -> str:
@@ -37,6 +53,9 @@ class NullJingle(AbstractJingle):
         self._log.debug("Returning 'null' jingle")
         return ""
 
+    def configure(self, cfg: Dict[str, Any]) -> None:
+        self._log.debug("Would configure 'null' jingle")
+
 
 class FileBasedJingles(AbstractJingle):
     """
@@ -46,9 +65,14 @@ class FileBasedJingles(AbstractJingle):
     random.
     """
 
-    def __init__(self, root: str) -> None:
-        super().__init__()
-        self.root = root
+    CONFIG_KEYS = {"root"}
+
+    def __init__(self, config: Optional[Config], channel_name: str) -> None:
+        super().__init__(config, channel_name)
+        self.root = ""
+
+    def configure(self, cfg: Dict[str, Any]) -> None:
+        self.root = cfg["root"]
 
     def pick(self) -> str:
         pth = Path(self.root)

@@ -21,7 +21,7 @@ class Channel:
         random: Optional[AbstractRandom] = None,
         player: AbstractPlayer = NullPlayer(None, ""),
         ipc: AbstractIPC = NullIPC(None, ""),
-        jingle: AbstractJingle = NullJingle(),
+        jingle: AbstractJingle = NullJingle(None, ""),
     ):
         self.name = name
         self.player = player

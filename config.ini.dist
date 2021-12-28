@@ -37,5 +37,10 @@ path = ipc
 [channel:wicked:autoplay]
 type = smart_prefetch
 
+[channel:wicked:jingle]
+type = fs
+root = /path/to/jingles
+interval = 10
+
 
 ; vim: set filetype=cfg :

@@ -102,6 +102,7 @@ class ConfigKeys(Enum):
     )
     QUEUE_MODEL = ConfigOption(ConfigScope.CHANNEL, "queue_model", "type")
     RANDOM_MODEL = ConfigOption(ConfigScope.CORE, "random_model", "")
+    JINGLE_MODEL = ConfigOption(ConfigScope.CHANNEL, "jingle_model", "type")
     SCORING_LASTPLAYED = ConfigOption(
         ConfigScope.CORE, "scoring_lastplayed", ""
     )

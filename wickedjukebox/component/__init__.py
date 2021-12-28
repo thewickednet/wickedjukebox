@@ -8,6 +8,11 @@ import logging
 from typing import Any, Callable, Mapping, Type, TypeVar
 
 from wickedjukebox.component.ipc import DBIPC, FSIPC, AbstractIPC, NullIPC
+from wickedjukebox.component.jingle import (
+    AbstractJingle,
+    FileBasedJingles,
+    NullJingle,
+)
 from wickedjukebox.component.player import AbstractPlayer, MpdPlayer, NullPlayer
 from wickedjukebox.component.queue import (
     AbstractQueue,
@@ -112,4 +117,14 @@ get_queue = make_component_getter(
         "db": DatabaseQueue,
     },
     AbstractQueue,
+)
+
+
+get_jingle = make_component_getter(
+    ConfigKeys.JINGLE_MODEL,
+    {
+        "null": NullJingle,
+        "fs": FileBasedJingles,
+    },
+    AbstractJingle,
 )
