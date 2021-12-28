@@ -37,6 +37,9 @@ weight_randomness = 1
 weight_song_age = 1
 weight_user_rating = 4
 
+[channel:wicked:queue]
+type = db
+
 [channel:wicked:jingle]
 type = fs
 root = /path/to/jingles
