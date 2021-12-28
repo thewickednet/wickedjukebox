@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# This file runs a simple container for real database usage during development.
+# The container is not persistent and shouldn't be used for production.
+# -----------------------------------------------------------------------------
 
 echo WARNING: This is INSECURE! It is meant for development only!
 echo
@@ -14,9 +18,11 @@ echo
 echo Press any key to continue, CTRL+C to abort...
 read
 
+CONTAINER_NAME=jukeboxdb
+
 CONTAINER_ID=$(docker run \
     --rm \
-    --name jukeboxdb \
+    --name ${CONTAINER_NAME} \
     -e MARIADB_DATABASE=jukebox \
     -e MARIADB_USER=jukebox \
     -e MARIADB_PASSWORD=jukebox \
@@ -37,4 +43,4 @@ echo
 echo Stopping the container will nuke the data!
 echo
 echo To stop, run:
-echo "   docker stop ${CONTAINER_ID}"
+echo "   docker stop ${CONTAINER_NAME}"

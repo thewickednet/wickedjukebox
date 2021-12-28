@@ -1,5 +1,7 @@
+# type: ignore
 import pytest
-import wickedjukebox.demon.dbmodel as db
+
+import wickedjukebox.model.database as db
 
 
 @pytest.fixture
@@ -8,6 +10,8 @@ def default_data(dbsession, transaction):
     Create the minimal necessary data to get the system up and running.
     """
     dbsession.bind = transaction
+    dbsession.execute("DELETE FROM song")
+    dbsession.flush()
     default_channel = db.Channel("test-channel", "mpd")
 
     default_group = db.Group("test-group")
@@ -18,40 +22,15 @@ def default_data(dbsession, transaction):
     )
     default_song = db.Song(
         localpath="some.mp3",
-        artist=default_artist,
-        album=default_album,
     )
+    default_song.artist = default_artist
+    default_song.album = default_album
     default_song.title = "title"
+    default_song.duration = 300
 
     dbsession.add(default_channel)
     dbsession.add(default_song)
     dbsession.add(default_user)
-    dbsession.flush()
-
-    db.Setting.set(
-        dbsession, "recency_threshold", 120, default_channel.id, default_user.id
-    )
-    db.Setting.set(
-        dbsession,
-        "max_random_duration",
-        600,
-        default_channel.id,
-        default_user.id,
-    )
-    db.Setting.set(
-        dbsession, "scoring_userRating", 4, default_channel.id, default_user.id
-    )
-    db.Setting.set(
-        dbsession, "scoring_neverPlayed", 4, default_channel.id, default_user.id
-    )
-    db.Setting.set(
-        dbsession,
-        "proofoflife_timeout",
-        120,
-        default_channel.id,
-        default_user.id,
-    )
-
     dbsession.flush()
 
     dbsession.execute(

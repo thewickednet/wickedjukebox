@@ -1,28 +1,60 @@
 [core]
-allow_root_exec = 0
-debug = 0
-debug_sql = 0
+dsn=mysql+pymysql://jukebox:jukebox@127.0.0.1:{{db_port}}/jukebox?charset=utf8
 
-[demon]
-host            = localhost
-port            = 61111
-default_channel = exhuma
-open_channel    = 1
-auto_play       = 1
+; -----------------------------------------------------------------------------
+;    Component Configuration
+; -----------------------------------------------------------------------------
+;  The jukeox supports modular implementations for core behaviour. Each
+;  component is configured via a section
+;  [channel:<channel-name>:<component-name>]. See the documentation for
+;  configuration details of each component.
+;
+;  Each section has at least a "type" option. This option selects the
+;  underlying implementation of that component.
+;
+;  Each component supports a "null" type which disables that component
+;  completely. For example, setting the "jingle" type to "null" will not add
+;  any jingles to the queue and using a "null" type for the autoplay mode will
+;  only play music if something is queued.
+; -----------------------------------------------------------------------------
 
-[filesystem]
-;; If you have trouble with the filesystem encodings, you can tell the system to
-;; use this encoding instead of the one from the locale settings (LC_*)
-; force_encoding  = utf-8
+[channel:wicked:player]
+; The player back-end is the part which actually produces sound.
+type = mpd
+host = 127.0.0.1
+port = 6600
 
-[database]
-dsn=mysql://jukebox:jukebox@127.0.0.1:{{db_port}}/jukebox?charset=utf8
+; If the MPD library root path is different from the root path of the jukebox
+; (f.ex. when running MPD inside docker), set "path_map" to
+; <jukebox_path>:<mpd_path>
+path_map = /path/to/mp3s:/var/lib/mpd/music
 
-[pusher]
-app_id = 12345
-key = 1234567890abcdef
-secret = 1234567890abcdef
-cluster = eu
+[channel:wicked:ipc]
+; The Inter-Process Call mechanism used to communicate from the frontend to the
+; backend
+type = fs
+path = ipc
+
+[channel:wicked:autoplay]
+; The model used to select a new song when nothing is queued.
+type = smart_prefetch
+max_duration = 450
+proofoflife_timeout = 120
+weight_last_played = 10
+weight_never_played = 4
+weight_randomness = 1
+weight_song_age = 1
+weight_user_rating = 4
+
+[channel:wicked:queue]
+; The model used to pick songs from a queue
+type = db
+
+[channel:wicked:jingle]
+; The model used to select jingles
+type = fs
+root = /path/to/jingles
+interval = 10
 
 
 ; vim: set filetype=cfg :

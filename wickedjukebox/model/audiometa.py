@@ -15,8 +15,8 @@ specific file.
 import codecs
 import logging
 from datetime import date
-from typing import List, TextIO
 from sys import stdout
+from typing import List, TextIO
 
 from mutagen import File
 from mutagen.id3 import ID3TimeStamp
@@ -118,7 +118,6 @@ class AudioMeta(dict):
 
 
 class MP3Meta(AudioMeta):
-
     def decode_text(self, data):
 
         if isinstance(data.text[0], ID3TimeStamp):
@@ -133,8 +132,9 @@ class MP3Meta(AudioMeta):
         if data.encoding == 1 or data.encoding == 2:
             # utf16 or utf16be
             encoded = text.encode("utf_16_le")
-            if (encoded.startswith(codecs.BOM_UTF16_BE) or
-                    encoded.startswith(codecs.BOM_UTF16_LE)):
+            if encoded.startswith(codecs.BOM_UTF16_BE) or encoded.startswith(
+                codecs.BOM_UTF16_LE
+            ):
                 return encoded[2:].replace("\x00", "").decode("utf8")
             return text
 
@@ -143,7 +143,8 @@ class MP3Meta(AudioMeta):
             return text
 
         raise NotImplementedError(
-            "Unknown character encoding (enoding=%s)" % data.encoding)
+            "Unknown character encoding (enoding=%s)" % data.encoding
+        )
 
     def get_release_date(self):
         if "TDRC" not in self.meta:
@@ -159,7 +160,9 @@ class MP3Meta(AudioMeta):
             if len(elements) == 2:
                 return date(int(elements[0]), int(elements[1]), 1)
             if len(elements) == 3:
-                return date(int(elements[0]), int(elements[1]), int(elements[2]))
+                return date(
+                    int(elements[0]), int(elements[1]), int(elements[2])
+                )
         except ValueError as exc:
             LOG.warning("%s (datestring was %s)", exc, raw_string)
             return None
@@ -215,7 +218,8 @@ class MetaFactory(object):
             abstract_meta = MP3Meta(mutagen_meta)
             return abstract_meta
         raise NotImplementedError(
-            "This filetype (%s) is not yet implemented" % type(mutagen_meta))
+            "This filetype (%s) is not yet implemented" % type(mutagen_meta)
+        )
 
 
 def display_file(filename, stream: TextIO = stdout):
@@ -224,24 +228,30 @@ def display_file(filename, stream: TextIO = stdout):
     if metadata is None:
         return
 
-    print(79*"-", file=stream)
+    print(79 * "-", file=stream)
     print(filename, file=stream)
-    print(79*"-", file=stream)
+    print(79 * "-", file=stream)
     for key in metadata.keys():
         print("%-15s | %s" % (key, metadata[key]), file=stream)
-    print(79*"-", file=stream)
+    print(79 * "-", file=stream)
 
 
 def main(argv: List[str], stream=stdout) -> int:
     logging.basicConfig()
     if len(argv) != 2:
-        print("""Usage:
+        print(
+            """Usage:
          %s <filename>
-      """ % argv[0], file=stream)
+      """
+            % argv[0],
+            file=stream,
+        )
         return 9
     display_file(argv[1], stream=stream)
     return 0
 
+
 if __name__ == "__main__":
     import sys
+
     sys.exit(main())

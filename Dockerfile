@@ -26,5 +26,6 @@ RUN chown ${UNAME} /etc/mpd.conf && \
 
 USER $UNAME
 ENV HOME /home/${UNAME}
+EXPOSE 6600
 
-ENTRYPOINT ["mpd", "-v", "--stdout", "--no-daemon"]
+ENTRYPOINT ["mpd", "--stdout", "--no-daemon"]

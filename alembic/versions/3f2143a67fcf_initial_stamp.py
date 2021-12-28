@@ -11,8 +11,9 @@ from datetime import datetime
 revision = '3f2143a67fcf'
 down_revision = None
 
-from alembic import op
 import sqlalchemy as sa
+
+from alembic import op
 
 
 def upgrade():
@@ -29,7 +30,7 @@ def upgrade():
         sa.Column('lastfm_mbid', sa.Unicode(64)),
         sa.Column('added', sa.DateTime, nullable=False),
         sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('name')
+        sa.UniqueConstraint('name'),
     )
 
     op.create_table(
@@ -39,8 +40,7 @@ def upgrade():
         sa.Column('name', sa.Unicode(128)),
         sa.Column('release_date', sa.Date),
         sa.Column('added', sa.DateTime, nullable=False),
-        sa.Column('downloaded', sa.Integer, nullable=False,
-                  server_default='0'),
+        sa.Column('downloaded', sa.Integer, nullable=False, server_default='0'),
         sa.Column('type', sa.Unicode(32), server_default='album'),
         sa.Column('path', sa.Unicode(255), nullable=False),
         sa.PrimaryKeyConstraint('id'),
@@ -48,8 +48,9 @@ def upgrade():
         sa.Index('artistId', 'artist_id'),
         sa.Index('name', 'name'),
         sa.Index('type', 'type'),
-        sa.ForeignKeyConstraint(['artist_id'], ['artist.id'],
-                                ondelete='CASCADE', onupdate='CASCADE')
+        sa.ForeignKeyConstraint(
+            ['artist_id'], ['artist.id'], ondelete='CASCADE', onupdate='CASCADE'
+        ),
     )
 
     op.create_table(
@@ -78,42 +79,52 @@ def upgrade():
         sa.Index('albumId', 'album_id'),
         sa.Index('broken', 'broken'),
         sa.Index('title', 'title'),
-        sa.ForeignKeyConstraint(['artist_id'], ['artist.id'],
-                                ondelete='CASCADE', onupdate='CASCADE'),
-        sa.ForeignKeyConstraint(['album_id'], ['album.id'],
-                                ondelete='SET NULL', onupdate='CASCADE')
+        sa.ForeignKeyConstraint(
+            ['artist_id'], ['artist.id'], ondelete='CASCADE', onupdate='CASCADE'
+        ),
+        sa.ForeignKeyConstraint(
+            ['album_id'], ['album.id'], ondelete='SET NULL', onupdate='CASCADE'
+        ),
     )
 
     op.create_table(
         'channel',
         sa.Column('id', sa.Integer, primary_key=True, nullable=False),
         sa.Column('name', sa.Unicode(32), nullable=False),
-        sa.Column('public', sa.Boolean, nullable=False, server_default='1',
-                  default=True),
+        sa.Column(
+            'public',
+            sa.Boolean,
+            nullable=False,
+            server_default='1',
+            default=True,
+        ),
         sa.Column('backend', sa.Unicode(64), nullable=False),
         sa.Column('backend_params', sa.TEXT),
         sa.Column('ping', sa.DateTime),
         sa.Column('active', sa.Boolean, nullable=False, server_default='0'),
         sa.Column('status', sa.Integer),
         sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('name')
+        sa.UniqueConstraint('name'),
     )
 
     op.create_table(
         'groups',
         sa.Column('id', sa.Integer, primary_key=True, nullable=False),
         sa.Column('title', sa.Unicode(32), nullable=False),
-        sa.Column('admin', sa.Boolean, nullable=False, server_default='0',
-                  default=False),
-        sa.Column('nocredits', sa.Integer, nullable=False,
-                  server_default='0'),
-        sa.Column('queue_skip', sa.Integer, nullable=False,
-                  server_default='0'),
-        sa.Column('queue_remove', sa.Integer, nullable=False,
-                  server_default='0'),
-        sa.Column('queue_add', sa.Integer, nullable=False,
-                  server_default='0'),
-        sa.PrimaryKeyConstraint('id')
+        sa.Column(
+            'admin',
+            sa.Boolean,
+            nullable=False,
+            server_default='0',
+            default=False,
+        ),
+        sa.Column('nocredits', sa.Integer, nullable=False, server_default='0'),
+        sa.Column('queue_skip', sa.Integer, nullable=False, server_default='0'),
+        sa.Column(
+            'queue_remove', sa.Integer, nullable=False, server_default='0'
+        ),
+        sa.Column('queue_add', sa.Integer, nullable=False, server_default='0'),
+        sa.PrimaryKeyConstraint('id'),
     )
 
     op.create_table(
@@ -136,15 +147,15 @@ def upgrade():
         sa.Column('IP', sa.Unicode(32), nullable=False),
         sa.Column('picture', sa.Unicode(255), nullable=False),
         sa.Column('lifetime', sa.Integer, nullable=False),
-        sa.Column('channel_id', sa.Integer, nullable=False,
-                  server_default='1'),
+        sa.Column('channel_id', sa.Integer, nullable=False, server_default='1'),
         sa.Column('pinnedIp', sa.Unicode(32)),
         sa.PrimaryKeyConstraint('id'),
         sa.UniqueConstraint('username'),
         sa.UniqueConstraint('cookie'),
         sa.Index('groupId', 'group_id'),
-        sa.ForeignKeyConstraint(['group_id'], ['groups.id'],
-                                ondelete='CASCADE', onupdate='CASCADE')
+        sa.ForeignKeyConstraint(
+            ['group_id'], ['groups.id'], ondelete='CASCADE', onupdate='CASCADE'
+        ),
     )
 
     op.create_table(
@@ -159,12 +170,18 @@ def upgrade():
         sa.Index('songId', 'song_id'),
         sa.Index('userId', 'user_id'),
         sa.Index('channelId', 'channel_id'),
-        sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE',
-                                onupdate='CASCADE'),
-        sa.ForeignKeyConstraint(['song_id'], ['song.id'], ondelete='CASCADE',
-                                onupdate='CASCADE'),
-        sa.ForeignKeyConstraint(['channel_id'], ['channel.id'],
-                                ondelete='CASCADE', onupdate='CASCADE')
+        sa.ForeignKeyConstraint(
+            ['user_id'], ['users.id'], ondelete='CASCADE', onupdate='CASCADE'
+        ),
+        sa.ForeignKeyConstraint(
+            ['song_id'], ['song.id'], ondelete='CASCADE', onupdate='CASCADE'
+        ),
+        sa.ForeignKeyConstraint(
+            ['channel_id'],
+            ['channel.id'],
+            ondelete='CASCADE',
+            onupdate='CASCADE',
+        ),
     )
 
     op.create_table(
@@ -175,10 +192,15 @@ def upgrade():
         sa.Index('channelId', 'channel_id'),
         sa.Index('albumId', 'album_id'),
         sa.PrimaryKeyConstraint('channel_id', 'album_id'),
-        sa.ForeignKeyConstraint(['album_id'], ['album.id'],
-                                ondelete='CASCADE', onupdate='CASCADE'),
-        sa.ForeignKeyConstraint(['channel_id'], ['channel.id'],
-                                ondelete='CASCADE', onupdate='CASCADE')
+        sa.ForeignKeyConstraint(
+            ['album_id'], ['album.id'], ondelete='CASCADE', onupdate='CASCADE'
+        ),
+        sa.ForeignKeyConstraint(
+            ['channel_id'],
+            ['channel.id'],
+            ondelete='CASCADE',
+            onupdate='CASCADE',
+        ),
     )
 
     op.create_table(
@@ -188,15 +210,23 @@ def upgrade():
         sa.Column('played', sa.Integer, nullable=False, server_default='0'),
         sa.Column('voted', sa.Integer, nullable=False, server_default='0'),
         sa.Column('skipped', sa.Integer, nullable=False, server_default='0'),
-        sa.Column('lastPlayed', sa.DateTime,),
+        sa.Column(
+            'lastPlayed',
+            sa.DateTime,
+        ),
         sa.Column('cost', sa.Integer, server_default='5'),
         sa.PrimaryKeyConstraint('channel_id', 'song_id'),
         sa.Index('channelId', 'channel_id'),
         sa.Index('songId', 'song_id'),
-        sa.ForeignKeyConstraint(['song_id'], ['song.id'], ondelete='CASCADE',
-                                onupdate='CASCADE'),
-        sa.ForeignKeyConstraint(['channel_id'], ['channel.id'],
-                                ondelete='CASCADE', onupdate='CASCADE')
+        sa.ForeignKeyConstraint(
+            ['song_id'], ['song.id'], ondelete='CASCADE', onupdate='CASCADE'
+        ),
+        sa.ForeignKeyConstraint(
+            ['channel_id'],
+            ['channel.id'],
+            ondelete='CASCADE',
+            onupdate='CASCADE',
+        ),
     )
 
     op.create_table(
@@ -205,7 +235,7 @@ def upgrade():
         sa.Column('user_id', sa.Integer, nullable=False),
         sa.Column('name', sa.Unicode(32), nullable=False),
         sa.Column('is_active', sa.Boolean, nullable=False, server_default='0'),
-        sa.PrimaryKeyConstraint('id')
+        sa.PrimaryKeyConstraint('id'),
     )
 
     op.create_table(
@@ -214,16 +244,18 @@ def upgrade():
         sa.Column('song_id', sa.Integer, nullable=False),
         sa.Column('position', sa.Integer),
         sa.Column('last_played', sa.DateTime),
-        sa.PrimaryKeyConstraint('collectionid', 'song_id')
+        sa.PrimaryKeyConstraint('collectionid', 'song_id'),
     )
 
     op.create_table(
         'country',
-        sa.Column('country_code', sa.Unicode(16), nullable=False,
-                  server_default=''),
-        sa.Column('country_name', sa.Unicode(100), nullable=False,
-                  server_default=''),
-        sa.PrimaryKeyConstraint('country_code')
+        sa.Column(
+            'country_code', sa.Unicode(16), nullable=False, server_default=''
+        ),
+        sa.Column(
+            'country_name', sa.Unicode(100), nullable=False, server_default=''
+        ),
+        sa.PrimaryKeyConstraint('country_code'),
     )
 
     op.create_table(
@@ -231,12 +263,16 @@ def upgrade():
         sa.Column('id', sa.Integer, primary_key=True, nullable=False),
         sa.Column('channel_id', sa.Integer),
         sa.Column('group_id', sa.Integer, nullable=False),
-        sa.Column('probability', sa.Float, nullable=False,
-                  doc='Probability at which a song is picked from the '
-                  'playlist (0.0-1.0)'),
+        sa.Column(
+            'probability',
+            sa.Float,
+            nullable=False,
+            doc='Probability at which a song is picked from the '
+            'playlist (0.0-1.0)',
+        ),
         sa.Column('label', sa.Unicode(64)),
         sa.Column('query', sa.TEXT),
-        sa.PrimaryKeyConstraint('id')
+        sa.PrimaryKeyConstraint('id'),
     )
 
     op.create_table(
@@ -248,7 +284,7 @@ def upgrade():
         sa.Column('lat', sa.DECIMAL(precision=10, scale=2)),
         sa.Column('lon', sa.DECIMAL(precision=10, scale=2)),
         sa.PrimaryKeyConstraint('id'),
-        sa.Index('startdate', 'startdate', 'enddate')
+        sa.Index('startdate', 'startdate', 'enddate'),
     )
 
     op.create_table(
@@ -257,7 +293,7 @@ def upgrade():
         sa.Column('name', sa.Unicode(128)),
         sa.Column('added', sa.DateTime, nullable=False),
         sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('name')
+        sa.UniqueConstraint('name'),
     )
 
     op.create_table(
@@ -276,15 +312,16 @@ def upgrade():
         sa.Column('time_started', sa.DateTime, nullable=False),
         sa.PrimaryKeyConstraint('queue_id'),
         sa.Index('songId', 'song_id'),
-        sa.ForeignKeyConstraint(['song_id'], ['song.id'], ondelete='CASCADE',
-                                onupdate='CASCADE')
+        sa.ForeignKeyConstraint(
+            ['song_id'], ['song.id'], ondelete='CASCADE', onupdate='CASCADE'
+        ),
     )
 
     op.create_table(
         'log',
         sa.Column('priority', sa.Unicode(32), nullable=False),
         sa.Column('message', sa.TEXT, nullable=False),
-        sa.Column('date', sa.DateTime, nullable=False, default=datetime.now)
+        sa.Column('date', sa.DateTime, nullable=False, default=datetime.now),
     )
 
     op.create_table(
@@ -294,14 +331,14 @@ def upgrade():
         sa.Column('name', sa.Unicode(32), nullable=False),
         sa.Column('probability', sa.Float),
         sa.PrimaryKeyConstraint('id'),
-        sa.Index('userId', 'user_id', 'probability')
+        sa.Index('userId', 'user_id', 'probability'),
     )
 
     op.create_table(
         'playlist_has_song',
         sa.Column('playlist_id', sa.Integer, nullable=False),
         sa.Column('song_id', sa.Integer, nullable=False),
-        sa.PrimaryKeyConstraint('playlist_id', 'song_id')
+        sa.PrimaryKeyConstraint('playlist_id', 'song_id'),
     )
 
     op.create_table(
@@ -312,36 +349,43 @@ def upgrade():
         sa.Column('hmax', sa.Integer, nullable=False),
         sa.Column('wmax', sa.Integer, nullable=False),
         sa.Column('placeholder', sa.Unicode(64)),
-        sa.Column('noproportion', sa.Boolean, nullable=False,
-                  server_default='0'),
-        sa.Column('force_mime',
-                  sa.Enum('image/jpeg', 'image/gif', 'image/png'),
-                  nullable=False),
+        sa.Column(
+            'noproportion', sa.Boolean, nullable=False, server_default='0'
+        ),
+        sa.Column(
+            'force_mime',
+            sa.Enum('image/jpeg', 'image/gif', 'image/png'),
+            nullable=False,
+        ),
         sa.PrimaryKeyConstraint('id'),
-        sa.Index('category', 'category', 'preset')
+        sa.Index('category', 'category', 'preset'),
     )
 
     op.create_table(
         'setting',
         sa.Column('var', sa.Unicode(32), nullable=False),
         sa.Column('value', sa.TEXT),
-        sa.Column('channel_id', sa.Integer, nullable=False,
-                  server_default='0'),
+        sa.Column('channel_id', sa.Integer, nullable=False, server_default='0'),
         sa.Column('user_id', sa.Integer, nullable=False, server_default='0'),
         sa.PrimaryKeyConstraint('var', 'channel_id', 'user_id'),
         sa.Index('channelId', 'channel_id'),
         sa.Index('userId', 'user_id'),
-        sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE',
-                                onupdate='CASCADE'),
-        sa.ForeignKeyConstraint(['channel_id'], ['channel.id'],
-                                ondelete='CASCADE', onupdate='CASCADE')
+        sa.ForeignKeyConstraint(
+            ['user_id'], ['users.id'], ondelete='CASCADE', onupdate='CASCADE'
+        ),
+        sa.ForeignKeyConstraint(
+            ['channel_id'],
+            ['channel.id'],
+            ondelete='CASCADE',
+            onupdate='CASCADE',
+        ),
     )
 
     op.create_table(
         'setting_text',
         sa.Column('var', sa.Unicode(32), nullable=False),
         sa.Column('text_en', sa.TEXT, nullable=False),
-        sa.PrimaryKeyConstraint('var')
+        sa.PrimaryKeyConstraint('var'),
     )
 
     op.create_table(
@@ -353,8 +397,9 @@ def upgrade():
         sa.PrimaryKeyConstraint('id'),
         sa.Index('when', 'added'),
         sa.Index('userId', 'user_id'),
-        sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE',
-                                onupdate='CASCADE')
+        sa.ForeignKeyConstraint(
+            ['user_id'], ['users.id'], ondelete='CASCADE', onupdate='CASCADE'
+        ),
     )
 
     op.create_table(
@@ -364,34 +409,40 @@ def upgrade():
         sa.PrimaryKeyConstraint('song_id', 'genre_id'),
         sa.Index('songId', 'song_id'),
         sa.Index('genreId', 'genre_id'),
-        sa.ForeignKeyConstraint(['genre_id'], ['genre.id'],
-                                ondelete='CASCADE', onupdate='CASCADE'),
-        sa.ForeignKeyConstraint(['song_id'], ['song.id'], ondelete='CASCADE',
-                                onupdate='CASCADE')
+        sa.ForeignKeyConstraint(
+            ['genre_id'], ['genre.id'], ondelete='CASCADE', onupdate='CASCADE'
+        ),
+        sa.ForeignKeyConstraint(
+            ['song_id'], ['song.id'], ondelete='CASCADE', onupdate='CASCADE'
+        ),
     )
 
     op.create_table(
         'song_has_tag',
         sa.Column('song_id', sa.Integer, nullable=False),
         sa.Column('tag', sa.Unicode(32), nullable=False),
-        sa.PrimaryKeyConstraint('song_id', 'tag')
+        sa.PrimaryKeyConstraint('song_id', 'tag'),
     )
 
     op.create_table(
         'state',
         sa.Column('channel_id', sa.Integer, nullable=False),
         sa.Column('state', sa.Unicode(64), nullable=False),
-        sa.Column('value', sa.Unicode(255), ),
-        sa.PrimaryKeyConstraint('channel_id', 'state')
+        sa.Column(
+            'value',
+            sa.Unicode(255),
+        ),
+        sa.PrimaryKeyConstraint('channel_id', 'state'),
     )
 
     op.create_table(
         'tag',
         sa.Column('label', sa.Unicode(32), nullable=False),
-        sa.Column('inserted', sa.DateTime, nullable=False,
-                  default=datetime.now),
+        sa.Column(
+            'inserted', sa.DateTime, nullable=False, default=datetime.now
+        ),
         sa.Column('modified', sa.DateTime, nullable=False),
-        sa.PrimaryKeyConstraint('label')
+        sa.PrimaryKeyConstraint('label'),
     )
 
     op.create_table(
@@ -401,10 +452,12 @@ def upgrade():
         sa.Column('when', sa.DateTime, nullable=False),
         sa.Index('userId', 'user_id'),
         sa.Index('albumId', 'album_id'),
-        sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE',
-                                onupdate='CASCADE'),
-        sa.ForeignKeyConstraint(['album_id'], ['album.id'],
-                                ondelete='CASCADE', onupdate='CASCADE')
+        sa.ForeignKeyConstraint(
+            ['user_id'], ['users.id'], ondelete='CASCADE', onupdate='CASCADE'
+        ),
+        sa.ForeignKeyConstraint(
+            ['album_id'], ['album.id'], ondelete='CASCADE', onupdate='CASCADE'
+        ),
     )
 
     op.create_table(
@@ -416,10 +469,12 @@ def upgrade():
         sa.PrimaryKeyConstraint('user_id', 'song_id'),
         sa.Index('userId', 'user_id'),
         sa.Index('songId', 'song_id'),
-        sa.ForeignKeyConstraint(['song_id'], ['song.id'], ondelete='CASCADE',
-                                onupdate='CASCADE'),
-        sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE',
-                                onupdate='CASCADE')
+        sa.ForeignKeyConstraint(
+            ['song_id'], ['song.id'], ondelete='CASCADE', onupdate='CASCADE'
+        ),
+        sa.ForeignKeyConstraint(
+            ['user_id'], ['users.id'], ondelete='CASCADE', onupdate='CASCADE'
+        ),
     )
 
     op.create_table(
@@ -430,10 +485,12 @@ def upgrade():
         sa.PrimaryKeyConstraint('user_id', 'song_id', 'when'),
         sa.Index('userId', 'user_id'),
         sa.Index('songId', 'song_id'),
-        sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE',
-                                onupdate='CASCADE'),
-        sa.ForeignKeyConstraint(['song_id'], ['song.id'], ondelete='CASCADE',
-                                onupdate='CASCADE')
+        sa.ForeignKeyConstraint(
+            ['user_id'], ['users.id'], ondelete='CASCADE', onupdate='CASCADE'
+        ),
+        sa.ForeignKeyConstraint(
+            ['song_id'], ['song.id'], ondelete='CASCADE', onupdate='CASCADE'
+        ),
     )
 
 

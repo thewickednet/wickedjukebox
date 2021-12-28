@@ -8,6 +8,7 @@ import gobject
 import pygst
 pygst.require("0.10")
 import gst
+from wickedjukebox.config import Config
 
 LOG = logging.getLogger(__name__)
 
@@ -117,7 +118,7 @@ class GStreamer(object):
                     int(self.player.query_duration(gst.FORMAT_TIME, None)[0] * 1E-9),
                 )
                 LOG.debug("Current position: %r/%r " % self.position)
-            except Exception, exc:
+            except Exception as exc:
                 self.position = (0, 0)
                 LOG.error(exc)
             time.sleep(1)
@@ -150,9 +151,9 @@ def getSong():
     return None
 
 def queue(filename):
-   from wickedjukebox.demon.dbmodel import Setting
+   from wickedjukebox.model.database import Setting
    LOG.debug( "Received a queue (%s)" % filename )
-   if Setting.get('sys_utctime', 0) == 0:
+   if Config.get("system", "sys_utctime", fallback=0) == 0:
       STATE.song_started = datetime.utcnow()
    else:
       STATE.song_started = datetime.now()
@@ -180,7 +181,7 @@ def skipSong():
    startPlayback()
 
 def stopPlayback():
-   from wickedjukebox.demon.dbmodel import State
+   from wickedjukebox.model.database import State
 
    LOG.debug( "Stopping playback" )
    if STATE.streamer:
@@ -193,7 +194,7 @@ def pausePlayback():
    pass
 
 def startPlayback():
-   from wickedjukebox.demon.dbmodel import State
+   from wickedjukebox.model.database import State
 
    LOG.info( "Starting playback" )
    State.set("progress", 0, STATE.channel_id)
@@ -247,19 +248,20 @@ def current_listeners():
 
       listeners = [md5(x[0]).hexdigest() for x in p.findall(data)]
       return listeners
-   except urllib2.HTTPError, ex:
+   except urllib2.HTTPError as ex:
       LOG.error("Error opening %r: Caught %r" % (STATE.admin_url, str(ex)))
       return None
-   except urllib2.URLError, ex:
+   except urllib2.URLError as ex:
       LOG.error("Error opening %r: Caught %r" % (STATE.admin_url, str(ex)))
       return None
 
 STATE = PlayerState()
 
 if __name__ == "__main__":
+    import wickedjukebox.logutil as lu
     import sys
     from getpass import getpass
-    logging.basicConfig(level=logging.DEBUG)
+    lu.setup_logging(3)
     LOG.info("Streaming %r to icecast..." % sys.argv[1])
 
     params = {}

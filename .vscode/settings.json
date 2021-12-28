@@ -6,5 +6,15 @@
     "coverage-gutters.coverageFileNames": [
         "cov.xml",
         "coverage.xml"
-    ]
+    ],
+    "restructuredtext.confPath": "",
+    "python.analysis.typeCheckingMode": "strict",
+    "python.linting.pylintEnabled": true,
+    "editor.formatOnSave": true,
+    "files.exclude": {
+        "**/__pycache__": true
+    },
+    "files.watcherExclude": {
+        "**/env/**": true
+    }
 }
