@@ -37,7 +37,7 @@ def test_get_autoplay(fake_config: Config):
     fake_config.config.read_string(  # type: ignore
         """
         [channel:test-channel:autoplay]
-        backend = null
+        type = null
         """
     )
     player = comp.get_autoplay(fake_config, "test-channel")
@@ -85,7 +85,7 @@ def test_get_player(fake_config: Config):
     fake_config.config.read_string(  # type: ignore
         """
         [channel:test-channel:player]
-        backend = null
+        type = null
         """
     )
     player = comp.get_player(fake_config, "test-channel")
@@ -100,7 +100,7 @@ def test_get_player_mpd(fake_config: Config):
     fake_config.config.read_string(  # type: ignore
         """
         [channel:test-channel:player]
-        backend = mpd
+        type = mpd
         host = 127.0.0.1
         port = 6600
         path_map = local_path:container_path

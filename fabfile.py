@@ -125,7 +125,7 @@ def test(ctx, autorun=False, cover=False, lf=False):
 
     cfg = ConfigParser()
     cfg.read(".wicked/wickedjukebox/config.ini")
-    dsn = cfg.get("database", "dsn")
+    dsn = cfg.get("core", "dsn")
 
     if autorun:
         base_cmd = 'git ls-files | entr -c sh -c "%s"'

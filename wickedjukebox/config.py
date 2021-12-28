@@ -43,12 +43,6 @@ class ConfigScope(Enum):
     "Core values are in the [core] section"
     CHANNEL = "channel"
     "Channel values are in the [channel:<channel-name>...] section"
-    DATABASE = "database"
-    """
-    The DATABASE setting remains here (for now) due to backwards compatibility
-    during refactoring
-    """
-    # TODO: The DSN could be moved to "core"
 
 
 class ConfigOption(NamedTuple):
@@ -89,41 +83,33 @@ class ConfigKeys(Enum):
     they are expected to be in.
     """
 
-    DSN = ConfigOption(ConfigScope.DATABASE, "database", "dsn")
-    CHANNEL_CYCLE = ConfigOption(ConfigScope.CHANNEL, "channel_cycle", "")
-    MAX_CREDITS = ConfigOption(ConfigScope.CORE, "max_credits", "")
+    DSN = ConfigOption(ConfigScope.CORE, "", "dsn")
     MAX_RANDOM_DURATION = ConfigOption(
-        ConfigScope.CORE, "max_random_duration", ""
+        ConfigScope.CORE, "", "max_random_duration"
     )
     PROOFOFLIFE_TIMEOUT = ConfigOption(
-        ConfigScope.CORE, "proofoflife_timeout", ""
-    )
-    QUEUE_MODEL = ConfigOption(ConfigScope.CHANNEL, "queue_model", "type")
-    RANDOM_MODEL = ConfigOption(ConfigScope.CORE, "random_model", "")
-    JINGLE_MODEL = ConfigOption(ConfigScope.CHANNEL, "jingle_model", "type")
-    JINGLES_INTERVAL = ConfigOption(
-        ConfigScope.CHANNEL, "jingles_model", "interval"
+        ConfigScope.CORE, "", "proofoflife_timeout"
     )
     SCORING_LASTPLAYED = ConfigOption(
-        ConfigScope.CORE, "scoring_lastplayed", ""
+        ConfigScope.CORE, "", "scoring_lastplayed"
     )
     SCORING_NEVERPLAYED = ConfigOption(
-        ConfigScope.CORE, "scoring_neverplayed", ""
+        ConfigScope.CORE, "", "scoring_neverplayed"
     )
     SCORING_RANDOMNESS = ConfigOption(
-        ConfigScope.CORE, "scoring_randomness", ""
+        ConfigScope.CORE, "", "scoring_randomness"
     )
-    SCORING_SONGAGE = ConfigOption(ConfigScope.CORE, "scoring_songage", "")
+    SCORING_SONGAGE = ConfigOption(ConfigScope.CORE, "", "scoring_songage")
     SCORING_USERRATING = ConfigOption(
-        ConfigScope.CORE, "scoring_userrating", ""
+        ConfigScope.CORE, "", "scoring_userrating"
     )
-    SYS_UTCTIME = ConfigOption(ConfigScope.CORE, "sys_utctime", "")
-    RECENCY_THRESHOLD = ConfigOption(ConfigScope.CORE, "recency_threshold", "")
 
     # Modular components
-    PLAYER = ConfigOption(ConfigScope.CHANNEL, "player", "backend")
+    PLAYER = ConfigOption(ConfigScope.CHANNEL, "player", "type")
     AUTOPLAY = ConfigOption(ConfigScope.CHANNEL, "autoplay", "type")
     IPC = ConfigOption(ConfigScope.CHANNEL, "ipc", "type")
+    QUEUE = ConfigOption(ConfigScope.CHANNEL, "queue", "type")
+    JINGLE = ConfigOption(ConfigScope.CHANNEL, "jingle", "type")
 
     def __str__(self) -> str:
         return (
@@ -148,8 +134,6 @@ class Config:
         scope, section, _ = key
         if scope == ConfigScope.CHANNEL:
             section = f"channel:{channel}:{section}"
-        elif scope == ConfigScope.DATABASE:
-            section = "database"
         else:
             section = "core"
         return section

@@ -2,6 +2,7 @@
 allow_root_exec = 0
 debug = 0
 debug_sql = 0
+dsn=mysql+pymysql://jukebox:jukebox@127.0.0.1:{{db_port}}/jukebox?charset=utf8
 
 [demon]
 host            = localhost
@@ -10,14 +11,6 @@ default_channel = exhuma
 open_channel    = 1
 auto_play       = 1
 
-[filesystem]
-;; If you have trouble with the filesystem encodings, you can tell the system to
-;; use this encoding instead of the one from the locale settings (LC_*)
-; force_encoding  = utf-8
-
-[database]
-dsn=mysql+pymysql://jukebox:jukebox@127.0.0.1:{{db_port}}/jukebox?charset=utf8
-
 [pusher]
 app_id = 12345
 key = 1234567890abcdef
@@ -25,7 +18,7 @@ secret = 1234567890abcdef
 cluster = eu
 
 [channel:wicked:player]
-backend = mpd
+type = mpd
 host = 127.0.0.1
 port = 6600
 path_map = /path/to/mp3s:/var/lib/mpd/music

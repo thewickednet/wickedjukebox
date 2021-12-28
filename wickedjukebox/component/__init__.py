@@ -111,7 +111,7 @@ get_ipc = make_component_getter(
 )
 
 get_queue = make_component_getter(
-    ConfigKeys.QUEUE_MODEL,
+    ConfigKeys.QUEUE,
     {
         "null": NullQueue,
         "db": DatabaseQueue,
@@ -121,7 +121,7 @@ get_queue = make_component_getter(
 
 
 get_jingle = make_component_getter(
-    ConfigKeys.JINGLE_MODEL,
+    ConfigKeys.JINGLE,
     {
         "null": NullJingle,
         "fs": FileBasedJingles,

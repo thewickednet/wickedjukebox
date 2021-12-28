@@ -33,7 +33,7 @@ def get_url():
         group_name='wicked',
         lookup_options={"filename": 'config.ini', "require_load": True},
     ).config
-    return config.get('database', 'dsn')
+    return config.get('core', 'dsn')
 
 
 def run_migrations_offline():
