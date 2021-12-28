@@ -19,7 +19,7 @@ class Channel:
         autoplay: bool = True,
         queue: AbstractQueue = NullQueue(None, ""),
         random: Optional[AbstractRandom] = None,
-        player: AbstractPlayer = NullPlayer(None),
+        player: AbstractPlayer = NullPlayer(None, ""),
         ipc: AbstractIPC = NullIPC(None, ""),
         jingle: AbstractJingle = NullJingle(),
     ):

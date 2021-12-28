@@ -39,10 +39,11 @@ class AbstractPlayer(ABC):
     #: successfully configured.
     CONFIG_KEYS: Set[str] = set()
 
-    def __init__(self, config: Optional[Config]) -> None:
+    def __init__(self, config: Optional[Config], channel_name: str) -> None:
         self.songs_since_last_jingle = 0
         self._log = logging.getLogger(qualname(self))
         self._config = config or Config()
+        self._channel_name = channel_name
 
     @abstractmethod
     def configure(self, cfg: Dict[str, Any]) -> None:
@@ -151,8 +152,8 @@ class MpdPlayer(AbstractPlayer):
 
     CONFIG_KEYS = {"host", "port", "path_map"}
 
-    def __init__(self, config: Optional[Config]) -> None:
-        super().__init__(config)
+    def __init__(self, config: Optional[Config], channel_name: str) -> None:
+        super().__init__(config, channel_name)
         self.client = None
         self.path_map = PathMap(Path(""), Path(""))
         self.host = ""

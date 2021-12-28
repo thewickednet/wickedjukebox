@@ -5,6 +5,7 @@ wickedjukebox.
 Modular components define behaviour that can be changed via the config file.
 """
 import logging
+from typing import Any, Callable, Mapping, Type, TypeVar
 
 from wickedjukebox.component.ipc import DBIPC, FSIPC, AbstractIPC, NullIPC
 from wickedjukebox.component.player import AbstractPlayer, MpdPlayer, NullPlayer
@@ -23,130 +24,92 @@ from wickedjukebox.config import Config, ConfigKeys
 from wickedjukebox.exc import ConfigError
 
 LOG = logging.getLogger(__name__)
+_T = TypeVar(
+    "_T", bound=Any
+)  # TODO: Investigate how we could mark this up with covariance in mind
 
 
-def get_player(config: Config, channel_name: str) -> AbstractPlayer:
+def make_component_getter(
+    config_key: ConfigKeys,
+    clsmap: Mapping[str, Type[_T]],
+    return_type: Type[_T],
+) -> Callable[[Config, str], _T]:
     """
-    Construct the configured player-backend using the channel-name
-    """
-    player_type = config.get(
-        ConfigKeys.PLAYER, channel=channel_name, fallback=""
-    )
-    if player_type.strip() == "":
-        LOG.warning("Config-value 'player' is missing. Using NULL-player!")
-        player_type = "null"
+    Create a function that can be used to instantiate and configure a component
+    for the jukebox.
 
-    player = None
-    clsmap = {
+    :param config_key: The config section/option which contains the component
+        settings.
+    :param clsmap: A mapping from a "type" to a class for that type. The key
+        ("type") is a value from the config-file and the value must be a class
+        implementing a component of that type.
+    :param return_type: An indicator for the type-checker defining the
+        "interface" of the returned component.
+    """
+
+    def get_component(config: Config, channel_name: str) -> return_type:
+        component_type = config.get(
+            config_key, channel=channel_name, fallback=""
+        )
+        if component_type.strip() == "":
+            LOG.warning(
+                "Config-value %r is missing. Using 'null' as fallback",
+                str(config_key),
+            )
+            component_type = "null"
+
+        instance = None
+        cls = clsmap.get(component_type, None)
+        if cls:
+            instance = cls(config, channel_name)
+            component_settings = config.dictify(
+                config_key, channel_name, cls.CONFIG_KEYS
+            )
+            instance.configure(component_settings)
+            return instance
+
+        raise ConfigError(
+            f"Unknown component-type {component_type!r} defined in config for "
+            f"channel {channel_name!r}"
+        )
+
+    return get_component
+
+
+get_player = make_component_getter(
+    ConfigKeys.PLAYER,
+    {
         "mpd": MpdPlayer,
         "null": NullPlayer,
-    }
-    cls = clsmap.get(player_type, None)
-    if cls:
-        player = cls(config)
-        player_settings = config.dictify(
-            ConfigKeys.PLAYER, channel_name, cls.CONFIG_KEYS
-        )
-        player.configure(player_settings)
-        return player
+    },
+    AbstractPlayer,
+)
 
-    raise ConfigError(
-        f"Unknown player {player_type!r} defined in config for "
-        f"channel {channel_name!r}"
-    )
-
-
-def get_autoplay(config: Config, channel_name: str) -> AbstractRandom:
-    autoplay_type = config.get(
-        ConfigKeys.AUTOPLAY, channel=channel_name, fallback=""
-    )
-    # TODO: This function is very similar to get_player and can likely be merged
-    if autoplay_type.strip() == "":
-        LOG.warning(
-            "Config-value %r is missing. Disabling auto-play",
-            str(ConfigKeys.AUTOPLAY),
-        )
-        autoplay_type = "null"
-
-    instance = None
-    clsmap = {
+get_autoplay = make_component_getter(
+    ConfigKeys.AUTOPLAY,
+    {
         "allfiles_random": AllFilesRandom,
         "smart_prefetch": SmartPrefetch,
         "null": NullRandom,
-    }
-    cls = clsmap.get(autoplay_type, None)
-    if cls:
-        instance = cls(config, channel_name)
-        autoplay_settings = config.dictify(
-            ConfigKeys.AUTOPLAY, channel_name, cls.CONFIG_KEYS
-        )
-        instance.configure(autoplay_settings)
-        return instance
+    },
+    AbstractRandom,
+)
 
-    raise ConfigError(
-        f"Unknown autoplay-mode {autoplay_type!r} defined in config for "
-        f"channel {channel_name!r}"
-    )
-
-
-def get_ipc(config: Config, channel_name: str) -> AbstractIPC:
-    ipc_type = config.get(ConfigKeys.IPC, channel=channel_name, fallback="")
-    # TODO: This function is very similar to get_player and can likely be merged
-    if ipc_type.strip() == "":
-        LOG.warning(
-            "Config-value %r is missing. Disabling auto-play",
-            str(ConfigKeys.IPC),
-        )
-        ipc_type = "null"
-
-    instance = None
-    clsmap = {
+get_ipc = make_component_getter(
+    ConfigKeys.IPC,
+    {
         "null": NullIPC,
         "fs": FSIPC,
         "db": DBIPC,
-    }
-    cls = clsmap.get(ipc_type, None)
-    if cls:
-        instance = cls(config, channel_name)
-        ipc_settings = config.dictify(
-            ConfigKeys.IPC, channel_name, cls.CONFIG_KEYS
-        )
-        instance.configure(ipc_settings)
-        return instance
+    },
+    AbstractIPC,
+)
 
-    raise ConfigError(
-        f"Unknown player {ipc_type!r} defined in config for "
-        f"channel {channel_name!r}"
-    )
-
-
-def get_queue(config: Config, channel_name: str) -> AbstractQueue:
-    queue_type = config.get(
-        ConfigKeys.QUEUE_MODEL, channel=channel_name, fallback=""
-    )
-    # TODO: This function is very similar to get_player and can likely be merged
-    if queue_type.strip() == "":
-        LOG.warning(
-            "Config-value %r is missing. Disabling queue",
-            str(ConfigKeys.QUEUE_MODEL),
-        )
-        queue_type = "null"
-
-    instance = None
-    clsmap = {
+get_queue = make_component_getter(
+    ConfigKeys.QUEUE_MODEL,
+    {
         "null": NullQueue,
         "db": DatabaseQueue,
-    }
-    cls = clsmap.get(queue_type, None)
-    if cls:
-        instance = cls(config, channel_name)
-        queue_settings = config.dictify(
-            ConfigKeys.QUEUE_MODEL, channel_name, cls.CONFIG_KEYS
-        )
-        instance.configure(queue_settings)
-        return instance
-
-    raise ConfigError(
-        f"Unknown queue {queue_type!r} defined in config for "
-        f"channel {channel_name!r}"
-    )
+    },
+    AbstractQueue,
+)
