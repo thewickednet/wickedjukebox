@@ -51,9 +51,11 @@ def setup_logging(verbosity: int = 0) -> None:
         1: logging.INFO,
         2: logging.DEBUG,
     }
+    third_party_level = logging.DEBUG if verbosity >= 3 else logging.WARNING
     verbosity = max(0, min(verbosity, max(levelmap.keys())))
     gc.Simple.basicConfig(level=levelmap[verbosity])
-    logging.getLogger("requests").setLevel(logging.WARNING)
+    logging.getLogger("requests").setLevel(third_party_level)
+    logging.getLogger("mpd").setLevel(third_party_level)
 
 
 def qualname_repr(cls: _T) -> _T:
