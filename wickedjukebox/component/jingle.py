@@ -48,6 +48,12 @@ class NullJingle(AbstractJingle):
     """
     A no-op implementation that simply logging the fact that we *would* play a
     jingle next.
+
+    .. code-block:: ini
+        :caption: Configuration Example
+
+        [channel:example:jingle]
+        type = null
     """
 
     def pick(self) -> str:
@@ -64,6 +70,16 @@ class FileBasedJingles(AbstractJingle):
 
     It builds possible file-names recursively from a root and picks one file at
     random.
+
+    .. code-block:: ini
+        :caption: Configuration Example
+
+        [channel:example:jingle]
+        type = fs
+        root = /path/to/jingles
+
+        ; Play jingles after this many songs
+        interval = 10
     """
 
     CONFIG_KEYS = {"root", "interval"}

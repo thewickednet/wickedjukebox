@@ -39,6 +39,12 @@ class AbstractQueue(ABC):
 class NullQueue(AbstractQueue):
     """
     A queue which only logs operations, but always returns an empty filename.
+
+    .. code-block:: ini
+        :caption: Configuration Example
+
+        [channel:example:queue]
+        type = null
     """
 
     def dequeue(self) -> str:
@@ -48,7 +54,14 @@ class NullQueue(AbstractQueue):
 
 class DatabaseQueue(AbstractQueue):
     """
-    A queue which is backed by a database storage
+    A queue which is backed by a database storage. This uses the ``queue`` table
+    from the default DB-Schema.
+
+    .. code-block:: ini
+        :caption: Configuration Example
+
+        [channel:example:queue]
+        type = db
     """
 
     def dequeue(self) -> str:

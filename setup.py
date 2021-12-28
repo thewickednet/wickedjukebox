@@ -37,6 +37,7 @@ setup(
             "pytest-cache",
             "pytest-coverage",
             "pytest-sqlalchemy",
+            "sphinx",
         ]
     },
     include_package_data=True,

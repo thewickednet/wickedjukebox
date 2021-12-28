@@ -54,9 +54,15 @@ class NullRandom(AbstractRandom):
     """
     Dummy implementation resulting in no-ops.
 
-    This always returns a song with an ampty filename. This may very well lead
+    This always returns a song with an empty filename. This may very well lead
     to errors downstream. This implementation is primarily intended for use in a
     test-harness.
+
+    .. code-block:: ini
+        :caption: Configuration Example
+
+        [channel:example:autoplay]
+        type = null
     """
 
     def pick(self) -> str:
@@ -73,6 +79,13 @@ class AllFilesRandom(AbstractRandom):
 
     It builds possible file-names recursively from a root and picks one file at
     random.
+
+    .. code-block:: ini
+        :caption: Configuration Example
+
+        [channel:example:autoplay]
+        type = allfiles_random
+        root = /path/to/music/files
     """
 
     CONFIG_KEYS = {"root"}
@@ -191,6 +204,39 @@ class SmartPrefetch(AbstractRandom):
     As the query can take a long time to execute, one result will always be
     prefetched ahead of time. So the *exact* calculation is always off by one
     "play".
+
+    .. code-block:: ini
+        :caption: Configuration Example
+
+        [channel:example:autoplay]
+        type = smart_prefetch
+
+        ; No songs longer than this amount of seconds is returned
+        max_duration = 600
+
+        ; Consider users that have been offline since this amount of seconds to
+        ; be "inactive"
+        proofoflife_timeout = 120
+
+        ; The "weight_*" variables define how important a given score is. The
+        ; higher the value the more important it is. There is no upper bound. It
+        ; uses a simple weighing calculation based on the sum of all weights.
+
+        ; Negatively impacts song that have been played very recently
+        weight_last_played = 10
+
+        ; Positively impacts songs that have never been played
+        weight_never_played = 4
+
+        ; Positively affects songs that have been long in the DB
+        weight_song_age = 1
+
+        ; Positively affects songs that have been "liked" by users (only for
+        ; those users that are actively listening)
+        weight_user_rating = 4
+
+        ; Adds additional randomness
+        weight_randomness = 1
     """
 
     CONFIG_KEYS = {

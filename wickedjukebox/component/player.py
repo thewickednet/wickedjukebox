@@ -110,6 +110,12 @@ class AbstractPlayer(ABC):
 class NullPlayer(AbstractPlayer):
     """
     A player which only logs the underlying calls but does nothing.
+
+    .. code-block:: ini
+        :caption: Configuration Example
+
+        [channel:example:player]
+        type = null
     """
 
     CONFIG_KEYS: Set[str] = set()
@@ -147,7 +153,21 @@ class NullPlayer(AbstractPlayer):
 
 class MpdPlayer(AbstractPlayer):
     """
-    A bridge to a MPD daemon
+    A bridge to a MPD daemon.
+
+    .. warning::
+        If the MPD daemon runs on a different host than the jukebox, and if the
+        root file-path to the MP3 folder differs, the config-option ``path_map``
+        has to be used to translate these paths.
+
+    .. code-block:: ini
+        :caption: Configuration Example
+
+        [channel:example:player]
+        type = mpd
+        host = 127.0.0.1
+        port = 6600
+        path_map = /path/to/local/files:/path/to/mpd/files
     """
 
     CONFIG_KEYS = {"host", "port", "path_map"}

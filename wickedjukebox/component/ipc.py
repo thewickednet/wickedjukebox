@@ -90,6 +90,12 @@ class NullIPC(AbstractIPC):
     An IPC implementation where each command is a simple no-op.
 
     Commands are logged, no other action is taken.
+
+    .. code-block:: ini
+        :caption: Configuration Example
+
+        [channel:example:ipc]
+        type = null
     """
 
     def get(self, key: Command) -> Optional[Any]:
@@ -108,6 +114,20 @@ class FSIPC(AbstractIPC):
     Each command is represented as a single plain-text file in a given folder.
     If the command requires a value/argument it will use the content of the file
     as such.
+
+    .. code-block:: ini
+        :caption: Configuration Example
+
+        [channel:example:ipc]
+        type = fs
+        path = /path/to/ipc-files
+
+    Commands like "skip" can simply be executed by creating an empty file named
+    "skip" into the folder:
+
+    .. code-block:: bash
+
+        touch /path/to/ipc-files/skip
     """
 
     CONFIG_KEYS = {"path"}
@@ -170,7 +190,14 @@ class FSIPC(AbstractIPC):
 
 class DBIPC(AbstractIPC):
     """
-    An IPC implementation using the underlying database as backend
+    An IPC implementation using the underlying database as backend. This relies
+    on the ``state`` table defined in the default database schema.
+
+    .. code-block:: ini
+        :caption: Configuration Example
+
+        [channel:example:ipc]
+        type = db
     """
 
     def __init__(self, config: Optional[Config], channel_name: str) -> None:

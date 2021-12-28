@@ -65,11 +65,6 @@ song_has_tag = Table(
 )
 
 
-# ----------------------------------------------------------------------------
-# Mappers
-# ----------------------------------------------------------------------------
-
-
 class Genre(Base):
     __tablename__ = "genre"
     __table_args__ = {
@@ -174,10 +169,10 @@ class State(Base):
         """
         Saves a state variable into the database
 
-        @param statename: The variable name
-        @param value : The value of the state variable
-        @param channel_id: (optional) For channel based states, use this to set
-                           the channel.
+        :param statename: The variable name
+        :param value: The value of the state variable
+        :param channel_id: (optional) For channel based states, use this to set
+            the channel.
         """
 
         query = select([State.state])
@@ -215,11 +210,11 @@ class State(Base):
         """
         Retrieve a specific state.
 
-        @param: The variable name
-        @param: (optional) The channel id for states bound to a specific
-                channel
-        @param default: Return this value is the state is not found in the DB.
-        @return: The state value
+        :param: The variable name
+        :param: (optional) The channel id for states bound to a specific
+            channel
+        :param default: Return this value is the state is not found in the DB.
+        :return: The state value
         """
         query = select([State.value])
         query = query.where(State.state == statename)
