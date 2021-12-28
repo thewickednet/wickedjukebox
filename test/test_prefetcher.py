@@ -11,7 +11,18 @@ from typing import Any, Dict
 from sqlalchemy.orm.session import Session
 
 from wickedjukebox.config import Config
+from wickedjukebox.core.smartfind import ScoringConfig, find_song
 from wickedjukebox.model.database import Song, User
+
+SCORING_CONFIG = {
+    ScoringConfig.USER_RATING: 4,
+    ScoringConfig.LAST_PLAYED: 4,
+    ScoringConfig.SONG_AGE: 4,
+    ScoringConfig.NEVER_PLAYED: 4,
+    ScoringConfig.RANDOMNESS: 4,
+    ScoringConfig.MAX_DURATION: 600,
+    ScoringConfig.PROOF_OF_LIFE_TIMEOUT: 120,
+}
 
 
 def test_random(dbsession: Session, default_data: Dict[str, Any]):
@@ -28,9 +39,7 @@ def test_smart_random(dbsession: Session, default_data: Dict[str, Any]):
     We want to be able to execute a "smart" random which takes various
     statistics into account.
     """
-    song = Song.smart_random(
-        Config(), dbsession, default_data["default_channel"].name
-    )
+    song = find_song(dbsession, SCORING_CONFIG, True)
     assert song is not None
     assert song.title == default_data["default_song"].title
 
@@ -46,8 +55,6 @@ def test_smart_random_with_users(
     # Flag a user as "listening" so the user-query triggers
     user.proof_of_listening = datetime.now()
     dbsession.flush()
-    song = Song.smart_random(
-        Config(), dbsession, default_data["default_channel"].name
-    )
+    song = find_song(dbsession, SCORING_CONFIG, True)
     assert song is not None
     assert song.title == default_data["default_song"].title

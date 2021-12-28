@@ -9,9 +9,10 @@ from pathlib import Path
 from queue import Queue
 from random import choice
 from threading import Thread
-from typing import Any, Dict, Optional, Set
+from typing import Any, Dict, Mapping, Optional, Set
 
-from wickedjukebox.config import Config
+from wickedjukebox.config import Config, ConfigKeys
+from wickedjukebox.core.smartfind import ScoringConfig, find_song
 from wickedjukebox.logutil import qualname, qualname_repr
 from wickedjukebox.model.database import Session, Song
 
@@ -124,11 +125,16 @@ class SmartPrefetchThread(Thread):
     daemon = True
 
     def __init__(
-        self, config: Config, channel_name: str, queue: Queue[str]
+        self,
+        config: Config,
+        channel_name: str,
+        queue: Queue[str],
+        scoring_config: Mapping[ScoringConfig, int],
     ) -> None:
         super().__init__()
         self.channel_name = channel_name
         self.queue = queue
+        self.scoring_config = scoring_config
         self._log = logging.getLogger(qualname(self))
         self._config = config
 
@@ -147,6 +153,10 @@ class SmartPrefetchThread(Thread):
             self._log.debug("Quick prefetch found song %r", song)
             self.queue.put(abspath(song.localpath), block=True, timeout=None)
 
+        is_mysql = (
+            self._config.get(ConfigKeys.DSN, "").lower().startswith("mysql")
+        )
+
         # Now that we have something on the (threading) queue the player should
         # have picked this up and play that song. While that song is playing, we
         # can run the slow query to fetch the next song and put it on the queue.
@@ -154,7 +164,12 @@ class SmartPrefetchThread(Thread):
         # waiting/prefetching only if needed.
         while True:
             self._log.debug("Prefetching next song via smart random...")
-            song = Song.smart_random(self._config, session, self.channel_name)  # type: ignore
+            with Session() as session:  # type: ignore
+                song = find_song(
+                    session,  # type: ignore
+                    self.scoring_config,
+                    is_mysql,
+                )
             if song is None:
                 self._log.error(
                     "Smart random did not find any songs. Is the DB empty?"
@@ -178,14 +193,36 @@ class SmartPrefetch(AbstractRandom):
     "play".
     """
 
+    CONFIG_KEYS = {
+        "max_duration",
+        "proofoflife_timeout",
+        "weight_last_played",
+        "weight_never_played",
+        "weight_randomness",
+        "weight_song_age",
+        "weight_user_rating",
+    }
+
     def __init__(self, config: Optional[Config], channel_name: str) -> None:
         super().__init__(config, channel_name)
         self.queue: Queue[str] = Queue(maxsize=1)
-        self._prefetcher = SmartPrefetchThread(
-            self._config, channel_name, self.queue
-        )
+        self.scoring_config: Dict[ScoringConfig, int] = {}
 
     def configure(self, cfg: Dict[str, Any]) -> None:
+        self.scoring_config = {
+            ScoringConfig.MAX_DURATION: int(cfg["max_duration"]),
+            ScoringConfig.PROOF_OF_LIFE_TIMEOUT: int(
+                cfg["proofoflife_timeout"]
+            ),
+            ScoringConfig.LAST_PLAYED: int(cfg["weight_last_played"]),
+            ScoringConfig.NEVER_PLAYED: int(cfg["weight_never_played"]),
+            ScoringConfig.RANDOMNESS: int(cfg["weight_randomness"]),
+            ScoringConfig.SONG_AGE: int(cfg["weight_song_age"]),
+            ScoringConfig.USER_RATING: int(cfg["weight_user_rating"]),
+        }
+        self._prefetcher = SmartPrefetchThread(
+            self._config, self.channel_name, self.queue, self.scoring_config
+        )
         self._prefetcher.start()
 
     def pick(self) -> str:

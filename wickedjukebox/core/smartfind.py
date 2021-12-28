@@ -3,13 +3,14 @@ This module contains an entry point to run a "smart" query to find the next best
 song taking channel statistics into account.
 """
 import logging
-from typing import TYPE_CHECKING, Any, Optional
+from enum import Enum
+from typing import TYPE_CHECKING, Any, Mapping, Optional
 
 import sqlalchemy.orm as orm
 from sqlalchemy.orm.query import Query
 from sqlalchemy.sql import func, select
 from sqlalchemy.sql.elements import not_
-from sqlalchemy.sql.expression import alias, and_, func, join, text
+from sqlalchemy.sql.expression import alias, and_, join, text
 
 from wickedjukebox.config import Config, ConfigKeys
 from wickedjukebox.model.database import (
@@ -36,6 +37,20 @@ LAST_PLAYED_CUTOFF = 7 * 24 * 60 * 60
 #: is based on recency or primacy needs to be digested from the source-code and
 #: clarified.
 SONG_AGE_CUTOFF = 14 * 24 * 60 * 60
+
+
+class ScoringConfig(Enum):
+    """
+    Possible configuration values to influence the scoring query
+    """
+
+    USER_RATING = "user_rating"
+    LAST_PLAYED = "last_played"
+    SONG_AGE = "song_age"
+    NEVER_PLAYED = "never_played"
+    RANDOMNESS = "randomness"
+    MAX_DURATION = "max_duration"
+    PROOF_OF_LIFE_TIMEOUT = "proof_of_life"
 
 
 def get_standing_query(
@@ -238,7 +253,9 @@ def smart_random_with_users(
 
 
 def find_song(
-    config: Config, session: orm.Session, channel_name: str
+    session: orm.Session,
+    scoring_config: Mapping[ScoringConfig, int],
+    is_mysql: bool,
 ) -> Optional[Song]:
     # pylint: disable=too-many-statements, too-many-locals
     #
@@ -250,43 +267,13 @@ def find_song(
     """
 
     # setup song scoring coefficients
-    user_rating = config.get(
-        ConfigKeys.SCORING_USERRATING,
-        4,
-        channel=channel_name,
-        converter=int,
-    )
-    last_played = config.get(
-        ConfigKeys.SCORING_LASTPLAYED,
-        10,
-        channel=channel_name,
-        converter=int,
-    )
-    song_age = config.get(
-        ConfigKeys.SCORING_SONGAGE,
-        1,
-        channel=channel_name,
-        converter=int,
-    )
-    never_played = config.get(
-        ConfigKeys.SCORING_NEVERPLAYED,
-        4,
-        channel=channel_name,
-        converter=int,
-    )
-    randomness = config.get(
-        ConfigKeys.SCORING_RANDOMNESS, 1, channel=channel_name, converter=int
-    )
-    max_random_duration = config.get(
-        ConfigKeys.MAX_RANDOM_DURATION,
-        600,
-        channel=channel_name,
-        converter=int,
-    )
-    proofoflife_timeout = config.get(
-        ConfigKeys.PROOFOFLIFE_TIMEOUT, 120, converter=int
-    )
-    is_mysql = config.get(ConfigKeys.DSN, "").lower().startswith("mysql")
+    user_rating = scoring_config[ScoringConfig.USER_RATING]
+    last_played = scoring_config[ScoringConfig.LAST_PLAYED]
+    song_age = scoring_config[ScoringConfig.SONG_AGE]
+    never_played = scoring_config[ScoringConfig.NEVER_PLAYED]
+    randomness = scoring_config[ScoringConfig.RANDOMNESS]
+    max_random_duration = scoring_config[ScoringConfig.MAX_DURATION]
+    proofoflife_timeout = scoring_config[ScoringConfig.PROOF_OF_LIFE_TIMEOUT]
 
     if is_mysql:
 

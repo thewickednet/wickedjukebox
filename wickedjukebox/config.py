@@ -84,27 +84,6 @@ class ConfigKeys(Enum):
     """
 
     DSN = ConfigOption(ConfigScope.CORE, "", "dsn")
-    MAX_RANDOM_DURATION = ConfigOption(
-        ConfigScope.CORE, "", "max_random_duration"
-    )
-    PROOFOFLIFE_TIMEOUT = ConfigOption(
-        ConfigScope.CORE, "", "proofoflife_timeout"
-    )
-    SCORING_LASTPLAYED = ConfigOption(
-        ConfigScope.CORE, "", "scoring_lastplayed"
-    )
-    SCORING_NEVERPLAYED = ConfigOption(
-        ConfigScope.CORE, "", "scoring_neverplayed"
-    )
-    SCORING_RANDOMNESS = ConfigOption(
-        ConfigScope.CORE, "", "scoring_randomness"
-    )
-    SCORING_SONGAGE = ConfigOption(ConfigScope.CORE, "", "scoring_songage")
-    SCORING_USERRATING = ConfigOption(
-        ConfigScope.CORE, "", "scoring_userrating"
-    )
-
-    # Modular components
     PLAYER = ConfigOption(ConfigScope.CHANNEL, "player", "type")
     AUTOPLAY = ConfigOption(ConfigScope.CHANNEL, "autoplay", "type")
     IPC = ConfigOption(ConfigScope.CHANNEL, "ipc", "type")

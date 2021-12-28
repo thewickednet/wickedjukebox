@@ -330,19 +330,6 @@ class Song(Base):
         song = query.first()
         return song
 
-    @staticmethod
-    def smart_random(
-        config: Config, session: TSession, channel_name: str
-    ) -> Optional["Song"]:
-        """
-        Retrieve a song using a smart guess based on play statistics and active
-        listeners.
-        """
-        from wickedjukebox.core.smartfind import find_song
-
-        song = find_song(config, session, channel_name)
-        return song
-
     def update_metadata(self) -> None:
         """
         Scans a file on the disk and loads the metadata from that file

@@ -71,6 +71,13 @@ def test_get_autoplay_smart(fake_config: Config):
 
         [channel:test-channel:autoplay]
         type = smart_prefetch
+        max_duration = 450
+        proofoflife_timeout = 120
+        weight_last_played = 10
+        weight_never_played = 4
+        weight_randomness = 1
+        weight_song_age = 1
+        weight_user_rating = 4
         """
     )
     with patch("wickedjukebox.component.random.SmartPrefetchThread"):
