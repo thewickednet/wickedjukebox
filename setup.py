@@ -6,7 +6,7 @@ NAME = 'wickedjukebox'
 
 setup(
     name=NAME,
-    version="2.2.3",
+    version="3.0.0a1",
     packages=find_packages(exclude=["test"]),
     entry_points={
         'console_scripts': [
@@ -16,13 +16,11 @@ setup(
     },
     install_requires=[
         "alembic",
-        "blessings",
         "config-resolver",
         "gouge",
         "mutagen",
         "ply",
         "progress",
-        "pusher",
         "pymysql",
         "python-mpd2",
         "requests",

@@ -1,9 +1,11 @@
 import pygst
+
 pygst.require("0.10")
-import gst
-import gobject
-import glib
 import logging
+
+import glib
+import gobject
+import gst
 
 LOG = logging.getLogger(__name__)
 
@@ -24,23 +26,27 @@ def play(filename):
             LOG.debug("Debug info: %s" % debug)
             loop.quit()
 
-    pipeline = ('filesrc location="{filename}" ! '
-            'decodebin ! '
-            'audioconvert ! '
-            'vorbisenc ! '
-            'oggmux ! '
-            'shout2send '
-            'mount="{mount}" '
-            'port={port} '
-            'username={user} '
-            'password={passwd}')
-    player = gst.parse_launch(pipeline.format(
+    pipeline = (
+        'filesrc location="{filename}" ! '
+        'decodebin ! '
+        'audioconvert ! '
+        'vorbisenc ! '
+        'oggmux ! '
+        'shout2send '
+        'mount="{mount}" '
+        'port={port} '
+        'username={user} '
+        'password={passwd}'
+    )
+    player = gst.parse_launch(
+        pipeline.format(
             filename=filename,
             mount="/bla.ogg",
             port="8000",
             user="source",
-            passwd="test123"
-        ))
+            passwd="test123",
+        )
+    )
 
     bus = player.get_bus()
     bus.add_signal_watch()
