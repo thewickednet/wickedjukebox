@@ -51,10 +51,7 @@ jobs:
           sed -i -e "s#^sqlalchemy.url.*#sqlalchemy.url = mysql+pymysql://jukebox:jukebox@localhost:3306/jukebox?charset=utf8#" alembic.ini
           alembic upgrade head
       - name: Run unit-tests
-        run: >
-          pytest
-          --color=yes
-          --sqlalchemy-connect-url=mysql+pymysql://jukebox:jukebox@localhost:3306/jukebox?charset=utf8
+        run: pytest --color=yes
 
   publish-packages:
     needs:

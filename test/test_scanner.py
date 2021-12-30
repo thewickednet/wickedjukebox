@@ -55,7 +55,7 @@ def test_process_invalid_file():
         scanner.process(Path("/path/to/mp3s/file.txt"))
 
 
-def test_process_files(dbsession, transaction):
+def test_process_files(dbsession):
     stdout = StringIO()
     with patch("wickedjukebox.scanner.ChargingBar"), patch(
         "wickedjukebox.scanner.process"

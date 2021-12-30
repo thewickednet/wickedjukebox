@@ -1,15 +1,59 @@
 # type: ignore
+# pylint: disable=redefined-outer-name
 import pytest
+from sqlalchemy.engine import create_engine
+from sqlalchemy.orm.scoping import scoped_session
+from sqlalchemy.orm.session import sessionmaker
 
 import wickedjukebox.model.database as db
+from alembic import command
+from alembic.config import Config
+
+
+def run_migrations(script_location: str, dsn: str) -> None:
+    alembic_cfg = Config()
+    alembic_cfg.set_main_option('script_location', script_location)
+    alembic_cfg.set_main_option('sqlalchemy.url', dsn)
+    command.upgrade(alembic_cfg, 'head')
+
+
+@pytest.fixture(scope="session")
+def db_connection():
+    engine = create_engine(db.DBURI)
+    return engine.connect()
+
+
+def seed_database():
+    pass
+
+
+@pytest.fixture(scope="session")
+def setup_database(db_connection):
+    db.Base.metadata.bind = db_connection
+    # XXX db.Base.metadata.create_all()
+    run_migrations("alembic", db.DBURI)
+    seed_database()
+    yield
+    # XXX db.Base.metadata.drop_all()
 
 
 @pytest.fixture
-def default_data(dbsession, transaction):
+def dbsession(setup_database, db_connection):
+    # pylint: disable=unused-argument
+    transaction = db_connection.begin()
+    try:
+        yield scoped_session(
+            sessionmaker(autocommit=False, autoflush=False, bind=db_connection)
+        )
+    finally:
+        transaction.rollback()
+
+
+@pytest.fixture
+def default_data(dbsession):
     """
     Create the minimal necessary data to get the system up and running.
     """
-    dbsession.bind = transaction
     dbsession.execute("DELETE FROM song")
     dbsession.flush()
     default_channel = db.Channel("test-channel", "mpd")

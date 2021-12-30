@@ -34,7 +34,6 @@ setup(
             "pytest",
             "pytest-cache",
             "pytest-coverage",
-            "pytest-sqlalchemy",
             "sphinx",
         ]
     },
