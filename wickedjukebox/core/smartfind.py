@@ -13,15 +13,10 @@ from sqlalchemy.sql.elements import not_
 from sqlalchemy.sql.expression import alias, and_, join, text
 
 from wickedjukebox.config import Config, ConfigKeys
-from wickedjukebox.model.db import (
-    Album,
-    Artist,
-    ChannelStat,
-    Setting,
-    Song,
-    User,
-    UserSongStanding,
-)
+from wickedjukebox.model.db.auth import User
+from wickedjukebox.model.db.library import Album, Artist, Song, UserSongStanding
+from wickedjukebox.model.db.settings import Setting
+from wickedjukebox.model.db.stats import ChannelStat
 from wickedjukebox.smartplaylist.dbbridge import parse_dynamic_playlists
 
 if TYPE_CHECKING:

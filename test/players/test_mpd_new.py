@@ -2,7 +2,6 @@
 This module contains for the new (2021) MPD implementation
 """
 
-from pathlib import Path
 from typing import Tuple
 from unittest.mock import Mock, patch
 
