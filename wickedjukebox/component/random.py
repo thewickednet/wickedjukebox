@@ -14,7 +14,7 @@ from typing import Any, Dict, Mapping, Optional, Set
 from wickedjukebox.config import Config, ConfigKeys
 from wickedjukebox.core.smartfind import ScoringConfig, find_song
 from wickedjukebox.logutil import qualname, qualname_repr
-from wickedjukebox.model.database import Session, Song
+from wickedjukebox.model.db import Session, Song
 
 
 @qualname_repr

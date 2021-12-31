@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional, Set
 
 from wickedjukebox.config import Config
 from wickedjukebox.logutil import qualname, qualname_repr
-from wickedjukebox.model.database import QueueItem, Session
+from wickedjukebox.model.db import QueueItem, Session
 
 
 @qualname_repr

@@ -5,9 +5,11 @@ from sqlalchemy.engine import create_engine
 from sqlalchemy.orm.scoping import scoped_session
 from sqlalchemy.orm.session import sessionmaker
 
-import wickedjukebox.model.database as db
+import wickedjukebox.model.db as db
+import wickedjukebox.model.db.sameta as sameta
 from alembic import command
 from alembic.config import Config
+from wickedjukebox.model.db.library import UserSongStanding
 
 
 def run_migrations(script_location: str, dsn: str) -> None:
@@ -19,7 +21,7 @@ def run_migrations(script_location: str, dsn: str) -> None:
 
 @pytest.fixture(scope="session")
 def db_connection():
-    engine = create_engine(db.DBURI)
+    engine = create_engine(sameta.DBURI)
     return engine.connect()
 
 
@@ -29,12 +31,12 @@ def seed_database():
 
 @pytest.fixture(scope="session")
 def setup_database(db_connection):
-    db.Base.metadata.bind = db_connection
-    # XXX db.Base.metadata.create_all()
-    run_migrations("alembic", db.DBURI)
+    sameta.Base.metadata.bind = db_connection
+    # XXX sameta.Base.metadata.create_all()
+    run_migrations("alembic", sameta.DBURI)
     seed_database()
     yield
-    # XXX db.Base.metadata.drop_all()
+    # XXX sameta.Base.metadata.drop_all()
 
 
 @pytest.fixture
@@ -77,15 +79,10 @@ def default_data(dbsession):
     dbsession.add(default_user)
     dbsession.flush()
 
-    dbsession.execute(
-        db.songStandingTable.insert().values(
-            {
-                "user_id": default_user.id,
-                "song_id": default_song.id,
-                "standing": "love",
-            }
-        )
+    example_standing = UserSongStanding(
+        user_id=default_user.id, song_id=default_song.id, standing="love"
     )
+    dbsession.add(example_standing)
 
     yield {
         "default_artist": default_artist,

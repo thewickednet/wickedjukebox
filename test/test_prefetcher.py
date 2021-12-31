@@ -12,7 +12,7 @@ from sqlalchemy.orm.session import Session
 
 from wickedjukebox.config import Config
 from wickedjukebox.core.smartfind import ScoringConfig, find_song
-from wickedjukebox.model.database import Song, User
+from wickedjukebox.model.db import Song, User
 
 SCORING_CONFIG = {
     ScoringConfig.USER_RATING: 4,

@@ -13,7 +13,7 @@ from typing import Any, Dict, Optional, Set
 from wickedjukebox.config import Config, ConfigKeys
 from wickedjukebox.exc import ConfigError
 from wickedjukebox.logutil import qualname, qualname_repr
-from wickedjukebox.model.database import Channel, Session, State
+from wickedjukebox.model.db import Channel, Session, State
 
 LOG = logging.getLogger(__name__)
 "The module logger"

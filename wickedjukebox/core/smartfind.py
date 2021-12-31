@@ -13,14 +13,14 @@ from sqlalchemy.sql.elements import not_
 from sqlalchemy.sql.expression import alias, and_, join, text
 
 from wickedjukebox.config import Config, ConfigKeys
-from wickedjukebox.model.database import (
+from wickedjukebox.model.db import (
     Album,
     Artist,
     ChannelStat,
+    Setting,
     Song,
     User,
-    settingTable,
-    songStandingTable,
+    UserSongStanding,
 )
 from wickedjukebox.smartplaylist.dbbridge import parse_dynamic_playlists
 
@@ -65,22 +65,22 @@ def get_standing_query(
         select([Song.id, func.count().label("standing")])  # type: ignore
         .select_from(
             join(
-                join(songStandingTable, User),
-                settingTable,
+                join(UserSongStanding, User),
+                Setting,
                 onclause=and_(
-                    settingTable.c.var == setting_name,  # type: ignore
-                    User.id == settingTable.c.user_id,  # type: ignore
+                    Setting.var == setting_name,  # type: ignore
+                    User.id == Setting.user_id,  # type: ignore
                 ),
                 isouter=True,
             )
         )
         .where(
-            songStandingTable.c.standing == standing,
-            func.ifnull(settingTable.c.value, 1) == 1,  # type: ignore
+            UserSongStanding.standing == standing,
+            func.ifnull(Setting.value, 1) == 1,  # type: ignore
             func.unix_timestamp(User.proof_of_listening) + proofoflife_timeout
             > func.unix_timestamp(func.now()),
         )
-        .group_by(songStandingTable.c.song_id)
+        .group_by(UserSongStanding.song_id)
     )
     return query
 
