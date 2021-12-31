@@ -6,3 +6,5 @@
   (see "rich")
 - Add "pusher" events back
 - Review "queue" behaviour for "history" entries
+- Ensure each datetime field has a timezone
+- Ensure each foreign-key column has a proper type

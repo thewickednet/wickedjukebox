@@ -15,8 +15,9 @@ from wickedjukebox.component import (
     get_player,
     get_queue,
 )
-from wickedjukebox.config import Config
+from wickedjukebox.config import Config, ConfigKeys
 from wickedjukebox.logutil import setup_logging
+from wickedjukebox.model.db.sameta import connect
 
 LOG = logging.getLogger(__name__)
 
@@ -72,6 +73,9 @@ def main():
     """
     args = parse_args()
     setup_logging(args.verbosity)
+    config = Config()
+    dsn = config.get(ConfigKeys.DSN)
+    connect(dsn)
     LOG.info("Wicked Jukebox v%s ", __version__)
     channel = make_channel(args.channel_name)
     if not channel:

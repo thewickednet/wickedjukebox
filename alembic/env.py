@@ -21,9 +21,9 @@ except Exception as exc:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
-target_metadata = None
+from wickedjukebox.model.db import sameta
+
+target_metadata = sameta.Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -33,11 +33,11 @@ target_metadata = None
 
 def get_url():
     config = get_config(
-        'wickedjukebox',
-        group_name='wicked',
-        lookup_options={"filename": 'config.ini', "require_load": True},
+        "wickedjukebox",
+        group_name="wicked",
+        lookup_options={"filename": "config.ini", "require_load": True},
     ).config
-    return config.get('core', 'dsn')
+    return config.get("core", "dsn")
 
 
 def run_migrations_offline():

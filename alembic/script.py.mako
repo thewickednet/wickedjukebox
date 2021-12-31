@@ -1,4 +1,7 @@
-"""${message}
+# type: ignore
+# pylint: skip-file
+"""
+${message}
 
 Revision ID: ${up_revision}
 Revises: ${down_revision}
