@@ -146,10 +146,10 @@ class GStreamer(object):
 
 def config(params):
     LOG.info("connection to icecast server (params = %s)" % params)
-    STATE.port = int(params['port'])
-    STATE.mount = str(params['mount'])
-    STATE.password = str(params['pwd'])
-    STATE.channel_id = int(params['channel_id'])
+    STATE.port = int(params["port"])
+    STATE.mount = str(params["mount"])
+    STATE.password = str(params["pwd"])
+    STATE.channel_id = int(params["channel_id"])
 
     if "admin_url" in params:
         STATE.admin_url = (
@@ -272,7 +272,7 @@ def current_listeners():
     # Create an OpenerDirector with support for Basic HTTP Authentication...
     auth_handler = urllib2.HTTPBasicAuthHandler()
     auth_handler.add_password(
-        realm='Icecast2 Server',
+        realm="Icecast2 Server",
         uri=STATE.admin_url,
         user=STATE.admin_username,
         passwd=STATE.admin_password,
@@ -308,10 +308,10 @@ if __name__ == "__main__":
     LOG.info("Streaming %r to icecast..." % sys.argv[1])
 
     params = {}
-    params['port'] = int(raw_input("ICY port: "))
-    params['mount'] = raw_input("ICY Mount: ")
-    params['pwd'] = getpass("ICY Passwd: ")
-    params['channel_id'] = int(raw_input("Channel ID: "))
+    params["port"] = int(raw_input("ICY port: "))
+    params["mount"] = raw_input("ICY Mount: ")
+    params["pwd"] = getpass("ICY Passwd: ")
+    params["channel_id"] = int(raw_input("Channel ID: "))
     config(params)
     obj = GStreamer()
     obj.start_stop(sys.argv[1])

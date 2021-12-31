@@ -11,9 +11,9 @@ def similarity(s1, s2):
     same_rating_count = 0
     significant_length = 0
     for pos, char in enumerate(s1):
-        if s2[pos] == char and char != '0':
+        if s2[pos] == char and char != "0":
             same_rating_count += 1
-        if s2[pos] != '0' and char != '0':
+        if s2[pos] != "0" and char != "0":
             significant_length += 1
     if significant_length == 0:
         return 0

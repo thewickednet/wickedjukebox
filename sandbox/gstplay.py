@@ -28,15 +28,15 @@ def play(filename):
 
     pipeline = (
         'filesrc location="{filename}" ! '
-        'decodebin ! '
-        'audioconvert ! '
-        'vorbisenc ! '
-        'oggmux ! '
-        'shout2send '
+        "decodebin ! "
+        "audioconvert ! "
+        "vorbisenc ! "
+        "oggmux ! "
+        "shout2send "
         'mount="{mount}" '
-        'port={port} '
-        'username={user} '
-        'password={passwd}'
+        "port={port} "
+        "username={user} "
+        "password={passwd}"
     )
     player = gst.parse_launch(
         pipeline.format(

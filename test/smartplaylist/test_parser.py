@@ -12,7 +12,7 @@ from wickedjukebox.smartplaylist.parser import (
 def test_plparser_short_operators():
     query = (
         '(genre = rock | genre = "Heavy Metal" or genre = Industrial) & '
-        'title ~ wicked'
+        "title ~ wicked"
     )
     result = parse_query(query)
     expected = (
@@ -28,9 +28,9 @@ def test_plparser_long_operators():
     query = (
         'artist is "Nine Inch Nails" or '
         'artist is "Black Sabbath" or '
-        'artist is Clawfinger or '
+        "artist is Clawfinger or "
         'album contains "Nativity in Black" '
-        'or artist is Incubus'
+        "or artist is Incubus"
     )
     result = parse_query(query)
     expected = (
@@ -59,10 +59,10 @@ def test_plparser_song_title():
 
 
 def test_plparser_syntax_error():
-    query = 'title is title'
+    query = "title is title"
     with pytest.raises(ParserSyntaxError) as exc:
         result = parse_query(query)
-    exc.match('Syntax error.*title')
+    exc.match("Syntax error.*title")
 
 
 def test_tokenizer():
@@ -71,10 +71,10 @@ def test_tokenizer():
     for item in result:
         # The "lexer" item is an object and we don't know the exact instance at
         # time of testing. And we really only care about the other values.
-        item.pop('lexer')
+        item.pop("lexer")
     expected = [
-        {'lexpos': 0, 'lineno': 1, 'type': 'FIELD', 'value': 'title'},
-        {'lexpos': 6, 'lineno': 1, 'type': 'EQUALS', 'value': 'is'},
-        {'lexpos': 9, 'lineno': 1, 'type': 'VALUE', 'value': 'Nine Inch Nails'},
+        {"lexpos": 0, "lineno": 1, "type": "FIELD", "value": "title"},
+        {"lexpos": 6, "lineno": 1, "type": "EQUALS", "value": "is"},
+        {"lexpos": 9, "lineno": 1, "type": "VALUE", "value": "Nine Inch Nails"},
     ]
     assert result == expected
