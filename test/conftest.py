@@ -9,6 +9,8 @@ import wickedjukebox.model.db as db
 import wickedjukebox.model.db.sameta as sameta
 from alembic import command
 from alembic.config import Config
+from wickedjukebox.config import Config as WJConfig
+from wickedjukebox.config import ConfigKeys
 from wickedjukebox.model.db.library import UserSongStanding
 
 
@@ -21,7 +23,9 @@ def run_migrations(script_location: str, dsn: str) -> None:
 
 @pytest.fixture(scope="session")
 def db_connection():
-    engine = create_engine(sameta.DBURI)
+    config = WJConfig()
+    dsn = config.get(ConfigKeys.DSN)
+    engine = create_engine(dsn)
     return engine.connect()
 
 
@@ -32,11 +36,11 @@ def seed_database():
 @pytest.fixture(scope="session")
 def setup_database(db_connection):
     sameta.Base.metadata.bind = db_connection
-    # XXX sameta.Base.metadata.create_all()
-    run_migrations("alembic", sameta.DBURI)
+    config = WJConfig()
+    dsn = config.get(ConfigKeys.DSN)
+    run_migrations("alembic", dsn)
     seed_database()
     yield
-    # XXX sameta.Base.metadata.drop_all()
 
 
 @pytest.fixture
