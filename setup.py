@@ -30,6 +30,7 @@ setup(
         "dev": [
             "black",
             "coverage[toml]",
+            "furo",
             "pylint",
             "pytest",
             "pytest-cache",
