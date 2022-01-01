@@ -13,6 +13,7 @@ Welcome to wickedjukebox's documentation!
    installation
    configuration
    usage
+   maintenance
 
 .. toctree::
    :maxdepth: 2
