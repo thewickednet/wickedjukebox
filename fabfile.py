@@ -1,4 +1,5 @@
 import json
+import re
 from os import getuid
 from os.path import abspath
 from pathlib import Path
@@ -35,7 +36,9 @@ def reconfigure(
     for key, value in variables.items():
         template_str = template_str.replace("{{%s}}" % key, value)
 
-    with NamedTemporaryFile() as tmpfile:
+    with NamedTemporaryFile(
+        prefix=f"{template.name}-to-{target.name}-"
+    ) as tmpfile:
         tmpfile.write(template_str.encode("utf8"))
         tmpfile.flush()
 
@@ -65,6 +68,11 @@ def reconfigure(
                     hide="both",
                 )
                 if diff_check.failed:
+                    print(
+                        f"!! Local modifications to {target} detected. "
+                        "Opening difftool with template and local file"
+                    )
+                    input("(press Enter to continue)")
                     ctx.run(
                         f"vim -d {tmpfile.name} {target.absolute()}",
                         pty=True,
