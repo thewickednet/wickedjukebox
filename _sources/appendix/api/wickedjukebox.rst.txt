@@ -1,0 +1,65 @@
+wickedjukebox package
+=====================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   wickedjukebox.cli
+   wickedjukebox.component
+   wickedjukebox.core
+   wickedjukebox.model
+   wickedjukebox.smartplaylist
+
+Submodules
+----------
+
+wickedjukebox.channel module
+----------------------------
+
+.. automodule:: wickedjukebox.channel
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+wickedjukebox.config module
+---------------------------
+
+.. automodule:: wickedjukebox.config
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+wickedjukebox.exc module
+------------------------
+
+.. automodule:: wickedjukebox.exc
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+wickedjukebox.logutil module
+----------------------------
+
+.. automodule:: wickedjukebox.logutil
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+wickedjukebox.scanner module
+----------------------------
+
+.. automodule:: wickedjukebox.scanner
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: wickedjukebox
+   :members:
+   :undoc-members:
+   :show-inheritance:

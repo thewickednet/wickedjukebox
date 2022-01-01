@@ -1,0 +1,2017 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="#" /><link rel="search" title="Search" href="search.html" />
+
+    <meta name="generator" content="sphinx-4.3.2, furo 2021.11.23"/><title>Index - wickedjukebox documentation</title>
+<link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=7f0192ddeb2adecfbaa87ffbcf67d16358b30bc1" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=0af69da206d614734f649b27d4cdc2dd6c31f41d" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  body[data-theme="dark"] {
+    --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+  }
+  @media (prefers-color-scheme: dark) {
+    body:not([data-theme="light"]) {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+  }
+</style></head>
+  <body>
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" />
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="10" y1="12" x2="20" y2="12" />
+      <line x1="6" y1="18" x2="20" y2="18" />
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">wickedjukebox  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">wickedjukebox  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="configuration.html">Configuration</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/autoplay.html">Autoplay Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/ipc.html">IPC Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/jingle.html">Jingle Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/player.html">Player Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/queue.html">Queue Modules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maintenance.html">Maintenance</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Appendix:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix/mpd-in-docker.html">MPD Inside Docker</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="appendix/api/modules.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="appendix/api/wickedjukebox.html">wickedjukebox package</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="appendix/api/wickedjukebox.cli.html">wickedjukebox.cli package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="appendix/api/wickedjukebox.component.html">wickedjukebox.component package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="appendix/api/wickedjukebox.core.html">wickedjukebox.core package</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="appendix/api/wickedjukebox.model.html">wickedjukebox.model package</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="appendix/api/wickedjukebox.model.db.html">wickedjukebox.model.db package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="appendix/api/wickedjukebox.smartplaylist.html">wickedjukebox.smartplaylist package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          
+<section class="genindex-section">
+  <h1 id="index">Index</h1>
+  <div class="genindex-jumpbox"><a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#J"><strong>J</strong></a> | <a href="#K"><strong>K</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#Q"><strong>Q</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a> | <a href="#V"><strong>V</strong></a> | <a href="#W"><strong>W</strong></a> | <a href="#Y"><strong>Y</strong></a></div>
+</section>
+<section id="A" class="genindex-section">
+  <h2>A</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.ipc.AbstractIPC">AbstractIPC (class in wickedjukebox.component.ipc)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.jingle.AbstractJingle">AbstractJingle (class in wickedjukebox.component.jingle)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.AbstractPlayer">AbstractPlayer (class in wickedjukebox.component.player)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.queue.AbstractQueue">AbstractQueue (class in wickedjukebox.component.queue)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.random.AbstractRandom">AbstractRandom (class in wickedjukebox.component.random)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoAdminLog.action_flag">action_flag (wickedjukebox.model.db.webui.DjangoAdminLog attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoAdminLog.action_time">action_time (wickedjukebox.model.db.webui.DjangoAdminLog attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.Channel.active">active (wickedjukebox.model.db.playback.Channel attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.User.added">added (wickedjukebox.model.db.auth.User attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Album.added">(wickedjukebox.model.db.library.Album attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Artist.added">(wickedjukebox.model.db.library.Artist attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Genre.added">(wickedjukebox.model.db.library.Genre attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.added">(wickedjukebox.model.db.library.Song attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.QueueItem.added">(wickedjukebox.model.db.playback.QueueItem attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.Shoutbox.added">(wickedjukebox.model.db.webui.Shoutbox attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.Group.admin">admin (wickedjukebox.model.db.auth.Group attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.QueueItem.advance">advance() (wickedjukebox.model.db.playback.QueueItem static method)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Album">Album (class in wickedjukebox.model.db.library)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.album">album (wickedjukebox.model.db.library.Song attribute)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.album_id">album_id (wickedjukebox.model.db.library.Song attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.stats.ChannelAlbumDatum.album_id">(wickedjukebox.model.db.stats.ChannelAlbumDatum attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.random.AllFilesRandom">AllFilesRandom (class in wickedjukebox.component.random)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoMigration.app">app (wickedjukebox.model.db.webui.DjangoMigration attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoContentType.app_label">app_label (wickedjukebox.model.db.webui.DjangoContentType attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoMigration.applied">applied (wickedjukebox.model.db.webui.DjangoMigration attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Artist">Artist (class in wickedjukebox.model.db.library)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Album.artist">artist (wickedjukebox.model.db.library.Album attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.artist">(wickedjukebox.model.db.library.Song attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Album.artist_id">artist_id (wickedjukebox.model.db.library.Album attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.artist_id">(wickedjukebox.model.db.library.Song attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.AudioMeta">AudioMeta (class in wickedjukebox.model.audiometa)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthGroup">AuthGroup (class in wickedjukebox.model.db.auth)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthGroupPermission">AuthGroupPermission (class in wickedjukebox.model.db.auth)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthPermission">AuthPermission (class in wickedjukebox.model.db.auth)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthUser">AuthUser (class in wickedjukebox.model.db.auth)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthUserGroup">AuthUserGroup (class in wickedjukebox.model.db.auth)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthUserUserPermission">AuthUserUserPermission (class in wickedjukebox.model.db.auth)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.config.ConfigKeys.AUTOPLAY">AUTOPLAY (wickedjukebox.config.ConfigKeys attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.available">available (wickedjukebox.model.db.library.Song attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="B" class="genindex-section">
+  <h2>B</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.Channel.backend">backend (wickedjukebox.model.db.playback.Channel attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.Channel.backend_params">backend_params (wickedjukebox.model.db.playback.Channel attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Artist.bio">bio (wickedjukebox.model.db.library.Artist attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.bitrate">bitrate (wickedjukebox.model.db.library.Song attribute)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.broken">broken (wickedjukebox.model.db.library.Song attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.by_filename">by_filename() (wickedjukebox.model.db.library.Song static method)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Album.by_name">by_name() (wickedjukebox.model.db.library.Album static method)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Artist.by_name">(wickedjukebox.model.db.library.Artist static method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Genre.by_name">(wickedjukebox.model.db.library.Genre static method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="C" class="genindex-section">
+  <h2>C</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.logutil.caller_source">caller_source() (in module wickedjukebox.logutil)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RenderPreset.category">category (wickedjukebox.model.db.webui.RenderPreset attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoAdminLog.change_message">change_message (wickedjukebox.model.db.webui.DjangoAdminLog attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.channel.Channel">Channel (class in wickedjukebox.channel)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.Channel">(class in wickedjukebox.model.db.playback)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.config.ConfigScope.CHANNEL">CHANNEL (wickedjukebox.config.ConfigScope attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.QueueItem.channel">channel (wickedjukebox.model.db.playback.QueueItem attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.stats.ChannelStat.channel">(wickedjukebox.model.db.stats.ChannelStat attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.User.channel_id">channel_id (wickedjukebox.model.db.auth.User attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.DynamicPlaylist.channel_id">(wickedjukebox.model.db.playback.DynamicPlaylist attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.QueueItem.channel_id">(wickedjukebox.model.db.playback.QueueItem attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.State.channel_id">(wickedjukebox.model.db.playback.State attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.settings.Setting.channel_id">(wickedjukebox.model.db.settings.Setting attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.stats.ChannelAlbumDatum.channel_id">(wickedjukebox.model.db.stats.ChannelAlbumDatum attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.stats.ChannelStat.channel_id">(wickedjukebox.model.db.stats.ChannelStat attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.stats.ChannelAlbumDatum">ChannelAlbumDatum (class in wickedjukebox.model.db.stats)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.stats.ChannelStat">ChannelStat (class in wickedjukebox.model.db.stats)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.checksum">checksum (wickedjukebox.model.db.library.Song attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthPermission.codename">codename (wickedjukebox.model.db.auth.AuthPermission attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.scanner.collect_files">collect_files() (in module wickedjukebox.scanner)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Collection">Collection (class in wickedjukebox.model.db.library)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.CollectionhasSong.collection_id">collection_id (wickedjukebox.model.db.library.CollectionhasSong attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.CollectionhasSong">CollectionhasSong (class in wickedjukebox.model.db.library)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.ipc.Command">Command (class in wickedjukebox.component.ipc)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.config.Config">Config (class in wickedjukebox.config)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.ipc.AbstractIPC.CONFIG_KEYS">CONFIG_KEYS (wickedjukebox.component.ipc.AbstractIPC attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.ipc.FSIPC.CONFIG_KEYS">(wickedjukebox.component.ipc.FSIPC attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.jingle.AbstractJingle.CONFIG_KEYS">(wickedjukebox.component.jingle.AbstractJingle attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.jingle.FileBasedJingles.CONFIG_KEYS">(wickedjukebox.component.jingle.FileBasedJingles attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.AbstractPlayer.CONFIG_KEYS">(wickedjukebox.component.player.AbstractPlayer attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.MpdPlayer.CONFIG_KEYS">(wickedjukebox.component.player.MpdPlayer attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.NullPlayer.CONFIG_KEYS">(wickedjukebox.component.player.NullPlayer attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.queue.AbstractQueue.CONFIG_KEYS">(wickedjukebox.component.queue.AbstractQueue attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.random.AbstractRandom.CONFIG_KEYS">(wickedjukebox.component.random.AbstractRandom attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.random.AllFilesRandom.CONFIG_KEYS">(wickedjukebox.component.random.AllFilesRandom attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.random.SmartPrefetch.CONFIG_KEYS">(wickedjukebox.component.random.SmartPrefetch attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.exc.ConfigError">ConfigError</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.config.ConfigKeys">ConfigKeys (class in wickedjukebox.config)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.config.ConfigOption">ConfigOption (class in wickedjukebox.config)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.config.ConfigScope">ConfigScope (class in wickedjukebox.config)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.ipc.AbstractIPC.configure">configure() (wickedjukebox.component.ipc.AbstractIPC method)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.ipc.FSIPC.configure">(wickedjukebox.component.ipc.FSIPC method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.jingle.AbstractJingle.configure">(wickedjukebox.component.jingle.AbstractJingle method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.jingle.FileBasedJingles.configure">(wickedjukebox.component.jingle.FileBasedJingles method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.jingle.NullJingle.configure">(wickedjukebox.component.jingle.NullJingle method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.AbstractPlayer.configure">(wickedjukebox.component.player.AbstractPlayer method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.MpdPlayer.configure">(wickedjukebox.component.player.MpdPlayer method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.NullPlayer.configure">(wickedjukebox.component.player.NullPlayer method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.queue.AbstractQueue.configure">(wickedjukebox.component.queue.AbstractQueue method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.random.AbstractRandom.configure">(wickedjukebox.component.random.AbstractRandom method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.random.AllFilesRandom.configure">(wickedjukebox.component.random.AllFilesRandom method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.random.NullRandom.configure">(wickedjukebox.component.random.NullRandom method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.random.SmartPrefetch.configure">(wickedjukebox.component.random.SmartPrefetch method)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.sameta.connect">connect() (in module wickedjukebox.model.db.sameta)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.MpdPlayer.connect">(wickedjukebox.component.player.MpdPlayer method)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult.content_encoding">content_encoding (wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.content_encoding">(wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthPermission.content_type">content_type (wickedjukebox.model.db.auth.AuthPermission attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoAdminLog.content_type">(wickedjukebox.model.db.webui.DjangoAdminLog attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult.content_type">(wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.content_type">(wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthPermission.content_type_id">content_type_id (wickedjukebox.model.db.auth.AuthPermission attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoAdminLog.content_type_id">(wickedjukebox.model.db.webui.DjangoAdminLog attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.User.cookie">cookie (wickedjukebox.model.db.auth.User attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.config.ConfigScope.CORE">CORE (wickedjukebox.config.ConfigScope attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.stats.ChannelStat.cost">cost (wickedjukebox.model.db.stats.ChannelStat attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsChordcounter.count">count (wickedjukebox.model.db.webui.DjangoCeleryResultsChordcounter attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Country">Country (class in wickedjukebox.model.db.library)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Artist.country">country (wickedjukebox.model.db.library.Artist attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Country.country_code">country_code (wickedjukebox.model.db.library.Country attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Country.country_name">country_name (wickedjukebox.model.db.library.Country attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Album.coverart">coverart (wickedjukebox.model.db.library.Album attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.coverart">(wickedjukebox.model.db.library.Song attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.MetaFactory.create">create() (wickedjukebox.model.audiometa.MetaFactory static method)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.User.credits">credits (wickedjukebox.model.db.auth.User attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RenderPreset.crop">crop (wickedjukebox.model.db.webui.RenderPreset attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="D" class="genindex-section">
+  <h2>D</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.random.SmartPrefetchThread.daemon">daemon (wickedjukebox.component.random.SmartPrefetchThread attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.data">data (wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.queue.DatabaseQueue">DatabaseQueue (class in wickedjukebox.component.queue)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult.date_created">date_created (wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.date_created">(wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult.date_done">date_done (wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.date_done">(wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthUser.date_joined">date_joined (wickedjukebox.model.db.auth.AuthUser attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.ipc.DBIPC">DBIPC (class in wickedjukebox.component.ipc)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.MP3Meta.decode_text">decode_text() (wickedjukebox.model.audiometa.MP3Meta method)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.config.default_config">default_config() (in module wickedjukebox.config)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.queue.AbstractQueue.dequeue">dequeue() (wickedjukebox.component.queue.AbstractQueue method)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.queue.DatabaseQueue.dequeue">(wickedjukebox.component.queue.DatabaseQueue method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.queue.NullQueue.dequeue">(wickedjukebox.component.queue.NullQueue method)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RenderPreset.description">description (wickedjukebox.model.db.webui.RenderPreset attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.config.Config.dictify">dictify() (wickedjukebox.config.Config method)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.dirty">dirty (wickedjukebox.model.db.library.Song attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.display_file">display_file() (in module wickedjukebox.model.audiometa)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.User.django_user_id">django_user_id (wickedjukebox.model.db.auth.User attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoAdminLog">DjangoAdminLog (class in wickedjukebox.model.db.webui)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsChordcounter">DjangoCeleryResultsChordcounter (class in wickedjukebox.model.db.webui)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult">DjangoCeleryResultsGroupresult (class in wickedjukebox.model.db.webui)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult">DjangoCeleryResultsTaskresult (class in wickedjukebox.model.db.webui)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoContentType">DjangoContentType (class in wickedjukebox.model.db.webui)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoMigration">DjangoMigration (class in wickedjukebox.model.db.webui)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoSession">DjangoSession (class in wickedjukebox.model.db.webui)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Album.downloaded">downloaded (wickedjukebox.model.db.library.Album attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.downloaded">(wickedjukebox.model.db.library.Song attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.User.downloads">downloads (wickedjukebox.model.db.auth.User attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.config.ConfigKeys.DSN">DSN (wickedjukebox.config.ConfigKeys attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.duration">duration (wickedjukebox.model.db.library.Song attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.DynamicPlaylist">DynamicPlaylist (class in wickedjukebox.model.db.playback)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="E" class="genindex-section">
+  <h2>E</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthUser.email">email (wickedjukebox.model.db.auth.AuthUser attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.User.email">(wickedjukebox.model.db.auth.User attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.events.Event.enddate">enddate (wickedjukebox.model.db.events.Event attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.AbstractPlayer.enqueue">enqueue() (wickedjukebox.component.player.AbstractPlayer method)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.MpdPlayer.enqueue">(wickedjukebox.component.player.MpdPlayer method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.NullPlayer.enqueue">(wickedjukebox.component.player.NullPlayer method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.errors">errors (wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.events.Event">Event (class in wickedjukebox.model.db.events)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoSession.expire_date">expire_date (wickedjukebox.model.db.webui.DjangoSession attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="F" class="genindex-section">
+  <h2>F</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.jingle.FileBasedJingles">FileBasedJingles (class in wickedjukebox.component.jingle)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.filesize">filesize (wickedjukebox.model.db.library.Song attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.core.html#wickedjukebox.core.smartfind.find_song">find_song() (in module wickedjukebox.core.smartfind)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthUser.first_name">first_name (wickedjukebox.model.db.auth.AuthUser attribute)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RenderPreset.force_mime">force_mime (wickedjukebox.model.db.webui.RenderPreset attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.ipc.FSIPC">FSIPC (class in wickedjukebox.component.ipc)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.ipc.FSStateFiles">FSStateFiles (class in wickedjukebox.component.ipc)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.User.fullname">fullname (wickedjukebox.model.db.auth.User attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="G" class="genindex-section">
+  <h2>G</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Genre">Genre (class in wickedjukebox.model.db.library)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.SongHasGenre.genre">genre (wickedjukebox.model.db.library.SongHasGenre attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.SongHasGenre.genre_id">genre_id (wickedjukebox.model.db.library.SongHasGenre attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.ipc.AbstractIPC.get">get() (wickedjukebox.component.ipc.AbstractIPC method)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.ipc.DBIPC.get">(wickedjukebox.component.ipc.DBIPC method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.ipc.FSIPC.get">(wickedjukebox.component.ipc.FSIPC method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.ipc.NullIPC.get">(wickedjukebox.component.ipc.NullIPC method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.config.Config.get">(wickedjukebox.config.Config method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.State.get">(wickedjukebox.model.db.playback.State class method)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.AudioMeta.get_album">get_album() (wickedjukebox.model.audiometa.AudioMeta method)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.MP3Meta.get_album">(wickedjukebox.model.audiometa.MP3Meta method)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.AudioMeta.get_artist">get_artist() (wickedjukebox.model.audiometa.AudioMeta method)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.MP3Meta.get_artist">(wickedjukebox.model.audiometa.MP3Meta method)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.get_autoplay">get_autoplay() (in module wickedjukebox.component)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.AudioMeta.get_bitrate">get_bitrate() (wickedjukebox.model.audiometa.AudioMeta method)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.MP3Meta.get_bitrate">(wickedjukebox.model.audiometa.MP3Meta method)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.AudioMeta.get_comment">get_comment() (wickedjukebox.model.audiometa.AudioMeta method)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.AudioMeta.get_duration">get_duration() (wickedjukebox.model.audiometa.AudioMeta method)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.MP3Meta.get_duration">(wickedjukebox.model.audiometa.MP3Meta method)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.AudioMeta.get_genres">get_genres() (wickedjukebox.model.audiometa.AudioMeta method)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.MP3Meta.get_genres">(wickedjukebox.model.audiometa.MP3Meta method)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.get_ipc">get_ipc() (in module wickedjukebox.component)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.get_jingle">get_jingle() (in module wickedjukebox.component)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.get_player">get_player() (in module wickedjukebox.component)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.get_queue">get_queue() (in module wickedjukebox.component)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.AudioMeta.get_release_date">get_release_date() (wickedjukebox.model.audiometa.AudioMeta method)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.MP3Meta.get_release_date">(wickedjukebox.model.audiometa.MP3Meta method)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.config.Config.get_section">get_section() (wickedjukebox.config.Config static method)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.core.html#wickedjukebox.core.smartfind.get_standing_query">get_standing_query() (in module wickedjukebox.core.smartfind)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.AudioMeta.get_title">get_title() (wickedjukebox.model.audiometa.AudioMeta method)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.MP3Meta.get_title">(wickedjukebox.model.audiometa.MP3Meta method)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.smartplaylist.html#wickedjukebox.smartplaylist.parser.get_tokens">get_tokens() (in module wickedjukebox.smartplaylist.parser)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.AudioMeta.get_total_tracks">get_total_tracks() (wickedjukebox.model.audiometa.AudioMeta method)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.MP3Meta.get_total_tracks">(wickedjukebox.model.audiometa.MP3Meta method)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.AudioMeta.get_track_no">get_track_no() (wickedjukebox.model.audiometa.AudioMeta method)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.MP3Meta.get_track_no">(wickedjukebox.model.audiometa.MP3Meta method)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.ImageEnum.GIF">GIF (wickedjukebox.model.db.webui.ImageEnum attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.Group">Group (class in wickedjukebox.model.db.auth)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthGroupPermission.group">group (wickedjukebox.model.db.auth.AuthGroupPermission attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthUserGroup.group">(wickedjukebox.model.db.auth.AuthUserGroup attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.User.group">(wickedjukebox.model.db.auth.User attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthGroupPermission.group_id">group_id (wickedjukebox.model.db.auth.AuthGroupPermission attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthUserGroup.group_id">(wickedjukebox.model.db.auth.AuthUserGroup attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.User.group_id">(wickedjukebox.model.db.auth.User attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.DynamicPlaylist.group_id">(wickedjukebox.model.db.playback.DynamicPlaylist attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsChordcounter.group_id">(wickedjukebox.model.db.webui.DjangoCeleryResultsChordcounter attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult.group_id">(wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult attribute)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="H" class="genindex-section">
+  <h2>H</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.StandingEnum.HATE">HATE (wickedjukebox.model.db.library.StandingEnum attribute)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RenderPreset.hmax">hmax (wickedjukebox.model.db.webui.RenderPreset attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.host">host (wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="I" class="genindex-section">
+  <h2>I</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthGroup.id">id (wickedjukebox.model.db.auth.AuthGroup attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthGroupPermission.id">(wickedjukebox.model.db.auth.AuthGroupPermission attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthPermission.id">(wickedjukebox.model.db.auth.AuthPermission attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthUser.id">(wickedjukebox.model.db.auth.AuthUser attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthUserGroup.id">(wickedjukebox.model.db.auth.AuthUserGroup attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthUserUserPermission.id">(wickedjukebox.model.db.auth.AuthUserUserPermission attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.Group.id">(wickedjukebox.model.db.auth.Group attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.User.id">(wickedjukebox.model.db.auth.User attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.events.Event.id">(wickedjukebox.model.db.events.Event attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Album.id">(wickedjukebox.model.db.library.Album attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Artist.id">(wickedjukebox.model.db.library.Artist attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Collection.id">(wickedjukebox.model.db.library.Collection attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.CollectionhasSong.id">(wickedjukebox.model.db.library.CollectionhasSong attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Genre.id">(wickedjukebox.model.db.library.Genre attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Playlist.id">(wickedjukebox.model.db.library.Playlist attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.id">(wickedjukebox.model.db.library.Song attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.SongHasGenre.id">(wickedjukebox.model.db.library.SongHasGenre attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.SongHasTag.id">(wickedjukebox.model.db.library.SongHasTag attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Tag.id">(wickedjukebox.model.db.library.Tag attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.UserSongStanding.id">(wickedjukebox.model.db.library.UserSongStanding attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.Channel.id">(wickedjukebox.model.db.playback.Channel attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.DynamicPlaylist.id">(wickedjukebox.model.db.playback.DynamicPlaylist attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.QueueItem.id">(wickedjukebox.model.db.playback.QueueItem attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.RandomSongsToUse.id">(wickedjukebox.model.db.playback.RandomSongsToUse attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.State.id">(wickedjukebox.model.db.playback.State attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.settings.Setting.id">(wickedjukebox.model.db.settings.Setting attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.stats.ChannelAlbumDatum.id">(wickedjukebox.model.db.stats.ChannelAlbumDatum attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.stats.ChannelStat.id">(wickedjukebox.model.db.stats.ChannelStat attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoAdminLog.id">(wickedjukebox.model.db.webui.DjangoAdminLog attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsChordcounter.id">(wickedjukebox.model.db.webui.DjangoCeleryResultsChordcounter attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult.id">(wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.id">(wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoContentType.id">(wickedjukebox.model.db.webui.DjangoContentType attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoMigration.id">(wickedjukebox.model.db.webui.DjangoMigration attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RenderPreset.id">(wickedjukebox.model.db.webui.RenderPreset attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.id">(wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.Shoutbox.id">(wickedjukebox.model.db.webui.Shoutbox attribute)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.ImageEnum">ImageEnum (class in wickedjukebox.model.db.webui)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.RandomSongsToUse.in_string">in_string (wickedjukebox.model.db.playback.RandomSongsToUse attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Tag.inserted">inserted (wickedjukebox.model.db.library.Tag attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.UserSongStanding.inserted">(wickedjukebox.model.db.library.UserSongStanding attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.ipc.InvalidCommand">InvalidCommand</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.User.IP">IP (wickedjukebox.model.db.auth.User attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.config.ConfigKeys.IPC">IPC (wickedjukebox.config.ConfigKeys attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthUser.is_active">is_active (wickedjukebox.model.db.auth.AuthUser attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Collection.is_active">(wickedjukebox.model.db.library.Collection attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.AbstractPlayer.is_empty">is_empty (wickedjukebox.component.player.AbstractPlayer property)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.MpdPlayer.is_empty">(wickedjukebox.component.player.MpdPlayer property)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.NullPlayer.is_empty">(wickedjukebox.component.player.NullPlayer property)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.AbstractPlayer.is_playing">is_playing (wickedjukebox.component.player.AbstractPlayer property)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.MpdPlayer.is_playing">(wickedjukebox.component.player.MpdPlayer property)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.NullPlayer.is_playing">(wickedjukebox.component.player.NullPlayer property)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthUser.is_staff">is_staff (wickedjukebox.model.db.auth.AuthUser attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthUser.is_superuser">is_superuser (wickedjukebox.model.db.auth.AuthUser attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.scanner.is_valid_audio_file">is_valid_audio_file() (in module wickedjukebox.scanner)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.AudioMeta.items">items() (wickedjukebox.model.audiometa.AudioMeta method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="J" class="genindex-section">
+  <h2>J</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.config.ConfigKeys.JINGLE">JINGLE (wickedjukebox.config.ConfigKeys attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.ImageEnum.JPEG">JPEG (wickedjukebox.model.db.webui.ImageEnum attribute)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.MpdPlayer.jukebox2mpd">jukebox2mpd() (wickedjukebox.component.player.MpdPlayer method)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.PathMap.jukebox_path">jukebox_path (wickedjukebox.component.player.PathMap attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="K" class="genindex-section">
+  <h2>K</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.ThumbnailKvstore.key">key (wickedjukebox.model.db.webui.ThumbnailKvstore attribute)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.AudioMeta.keys">keys() (wickedjukebox.model.audiometa.AudioMeta method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="L" class="genindex-section">
+  <h2>L</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Tag.label">label (wickedjukebox.model.db.library.Tag attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.DynamicPlaylist.label">(wickedjukebox.model.db.playback.DynamicPlaylist attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthUser.last_login">last_login (wickedjukebox.model.db.auth.AuthUser attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthUser.last_name">last_name (wickedjukebox.model.db.auth.AuthUser attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.core.html#wickedjukebox.core.smartfind.ScoringConfig.LAST_PLAYED">LAST_PLAYED (wickedjukebox.core.smartfind.ScoringConfig attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.CollectionhasSong.last_played">last_played (wickedjukebox.model.db.library.CollectionhasSong attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.core.html#wickedjukebox.core.smartfind.LAST_PLAYED_CUTOFF">LAST_PLAYED_CUTOFF (in module wickedjukebox.core.smartfind)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Album.lastfm_mbid">lastfm_mbid (wickedjukebox.model.db.library.Album attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Artist.lastfm_mbid">(wickedjukebox.model.db.library.Artist attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.lastfm_mbid">(wickedjukebox.model.db.library.Song attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Album.lastfm_url">lastfm_url (wickedjukebox.model.db.library.Album attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Artist.lastfm_url">(wickedjukebox.model.db.library.Artist attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.lastfm_url">(wickedjukebox.model.db.library.Song attribute)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.lastfm.LastfmQueue">LastfmQueue (class in wickedjukebox.model.db.lastfm)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.stats.ChannelStat.lastPlayed">lastPlayed (wickedjukebox.model.db.stats.ChannelStat attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.lastScanned">lastScanned (wickedjukebox.model.db.library.Song attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.events.Event.lat">lat (wickedjukebox.model.db.events.Event attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.User.lifetime">lifetime (wickedjukebox.model.db.auth.User attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.config.Config.load_config">load_config() (wickedjukebox.config.Config method)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.localpath">localpath (wickedjukebox.model.db.library.Song attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.ipc.LOG">LOG (in module wickedjukebox.component.ipc)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.events.Event.lon">lon (wickedjukebox.model.db.events.Event attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.StandingEnum.LOVE">LOVE (wickedjukebox.model.db.library.StandingEnum attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.lyrics">lyrics (wickedjukebox.model.db.library.Song attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="M" class="genindex-section">
+  <h2>M</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.cli.html#wickedjukebox.cli.jukebox_admin.main">main() (in module wickedjukebox.cli.jukebox_admin)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.cli.html#wickedjukebox.cli.run_channel.main">(in module wickedjukebox.cli.run_channel)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.main">(in module wickedjukebox.model.audiometa)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.cli.html#wickedjukebox.cli.run_channel.make_channel">make_channel() (in module wickedjukebox.cli.run_channel)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.make_component_getter">make_component_getter() (in module wickedjukebox.component)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.core.html#wickedjukebox.core.smartfind.ScoringConfig.MAX_DURATION">MAX_DURATION (wickedjukebox.core.smartfind.ScoringConfig attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.Shoutbox.message">message (wickedjukebox.model.db.webui.Shoutbox attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.meta">meta (wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.MetaFactory">MetaFactory (class in wickedjukebox.model.audiometa)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.method">method (wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoContentType.model">model (wickedjukebox.model.db.webui.DjangoContentType attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Tag.modified">modified (wickedjukebox.model.db.library.Tag attribute)</a>
+</li>
+        <li>
+    module
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.html#module-wickedjukebox">wickedjukebox</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.html#module-wickedjukebox.channel">wickedjukebox.channel</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.cli.html#module-wickedjukebox.cli">wickedjukebox.cli</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.cli.html#module-wickedjukebox.cli.jukebox_admin">wickedjukebox.cli.jukebox_admin</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.cli.html#module-wickedjukebox.cli.run_channel">wickedjukebox.cli.run_channel</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#module-wickedjukebox.component">wickedjukebox.component</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#module-wickedjukebox.component.ipc">wickedjukebox.component.ipc</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#module-wickedjukebox.component.jingle">wickedjukebox.component.jingle</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#module-wickedjukebox.component.player">wickedjukebox.component.player</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#module-wickedjukebox.component.queue">wickedjukebox.component.queue</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#module-wickedjukebox.component.random">wickedjukebox.component.random</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.html#module-wickedjukebox.config">wickedjukebox.config</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.core.html#module-wickedjukebox.core">wickedjukebox.core</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.core.html#module-wickedjukebox.core.smartfind">wickedjukebox.core.smartfind</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.html#module-wickedjukebox.exc">wickedjukebox.exc</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.html#module-wickedjukebox.logutil">wickedjukebox.logutil</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.html#module-wickedjukebox.model">wickedjukebox.model</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.html#module-wickedjukebox.model.audiometa">wickedjukebox.model.audiometa</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#module-wickedjukebox.model.db">wickedjukebox.model.db</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#module-wickedjukebox.model.db.auth">wickedjukebox.model.db.auth</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#module-wickedjukebox.model.db.events">wickedjukebox.model.db.events</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#module-wickedjukebox.model.db.lastfm">wickedjukebox.model.db.lastfm</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#module-wickedjukebox.model.db.library">wickedjukebox.model.db.library</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#module-wickedjukebox.model.db.logging">wickedjukebox.model.db.logging</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#module-wickedjukebox.model.db.playback">wickedjukebox.model.db.playback</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#module-wickedjukebox.model.db.sameta">wickedjukebox.model.db.sameta</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#module-wickedjukebox.model.db.settings">wickedjukebox.model.db.settings</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#module-wickedjukebox.model.db.stats">wickedjukebox.model.db.stats</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#module-wickedjukebox.model.db.webui">wickedjukebox.model.db.webui</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.html#module-wickedjukebox.scanner">wickedjukebox.scanner</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.smartplaylist.html#module-wickedjukebox.smartplaylist">wickedjukebox.smartplaylist</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.smartplaylist.html#module-wickedjukebox.smartplaylist.dbbridge">wickedjukebox.smartplaylist.dbbridge</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.smartplaylist.html#module-wickedjukebox.smartplaylist.parser">wickedjukebox.smartplaylist.parser</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.MP3Meta">MP3Meta (class in wickedjukebox.model.audiometa)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.MpdPlayer.mpd2jukebox">mpd2jukebox() (wickedjukebox.component.player.MpdPlayer method)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.PathMap.mpd_path">mpd_path (wickedjukebox.component.player.PathMap attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.MpdPlayer">MpdPlayer (class in wickedjukebox.component.player)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="N" class="genindex-section">
+  <h2>N</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthGroup.name">name (wickedjukebox.model.db.auth.AuthGroup attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthPermission.name">(wickedjukebox.model.db.auth.AuthPermission attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Album.name">(wickedjukebox.model.db.library.Album attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Artist.name">(wickedjukebox.model.db.library.Artist attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Collection.name">(wickedjukebox.model.db.library.Collection attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Genre.name">(wickedjukebox.model.db.library.Genre attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Playlist.name">(wickedjukebox.model.db.library.Playlist attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.Channel.name">(wickedjukebox.model.db.playback.Channel attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoMigration.name">(wickedjukebox.model.db.webui.DjangoMigration attribute)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.core.html#wickedjukebox.core.smartfind.ScoringConfig.NEVER_PLAYED">NEVER_PLAYED (wickedjukebox.core.smartfind.ScoringConfig attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.QueueItem.next">next() (wickedjukebox.model.db.playback.QueueItem static method)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.Group.nocredits">nocredits (wickedjukebox.model.db.auth.Group attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RenderPreset.noproportion">noproportion (wickedjukebox.model.db.webui.RenderPreset attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.ipc.NullIPC">NullIPC (class in wickedjukebox.component.ipc)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.jingle.NullJingle">NullJingle (class in wickedjukebox.component.jingle)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.NullPlayer">NullPlayer (class in wickedjukebox.component.player)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.queue.NullQueue">NullQueue (class in wickedjukebox.component.queue)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.random.NullRandom">NullRandom (class in wickedjukebox.component.random)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="O" class="genindex-section">
+  <h2>O</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoAdminLog.object_id">object_id (wickedjukebox.model.db.webui.DjangoAdminLog attribute)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoAdminLog.object_repr">object_repr (wickedjukebox.model.db.webui.DjangoAdminLog attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="P" class="genindex-section">
+  <h2>P</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.smartplaylist.html#wickedjukebox.smartplaylist.parser.p_error">p_error() (in module wickedjukebox.smartplaylist.parser)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.smartplaylist.html#wickedjukebox.smartplaylist.parser.p_expression">p_expression() (in module wickedjukebox.smartplaylist.parser)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.smartplaylist.html#wickedjukebox.smartplaylist.parser.p_statement">p_statement() (in module wickedjukebox.smartplaylist.parser)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.cli.html#wickedjukebox.cli.jukebox_admin.parse_args">parse_args() (in module wickedjukebox.cli.jukebox_admin)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.cli.html#wickedjukebox.cli.run_channel.parse_args">(in module wickedjukebox.cli.run_channel)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.smartplaylist.html#wickedjukebox.smartplaylist.dbbridge.parse_dynamic_playlists">parse_dynamic_playlists() (in module wickedjukebox.smartplaylist.dbbridge)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.smartplaylist.html#wickedjukebox.smartplaylist.parser.parse_query">parse_query() (in module wickedjukebox.smartplaylist.parser)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.smartplaylist.html#wickedjukebox.smartplaylist.parser.ParserSyntaxError">ParserSyntaxError</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthUser.password">password (wickedjukebox.model.db.auth.AuthUser attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.User.password">(wickedjukebox.model.db.auth.User attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Album.path">path (wickedjukebox.model.db.library.Album attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.path">(wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.PathMap">PathMap (class in wickedjukebox.component.player)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthGroupPermission.permission">permission (wickedjukebox.model.db.auth.AuthGroupPermission attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthUserUserPermission.permission">(wickedjukebox.model.db.auth.AuthUserUserPermission attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthGroupPermission.permission_id">permission_id (wickedjukebox.model.db.auth.AuthGroupPermission attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthUserUserPermission.permission_id">(wickedjukebox.model.db.auth.AuthUserUserPermission attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Artist.photo">photo (wickedjukebox.model.db.library.Artist attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.jingle.AbstractJingle.pick">pick() (wickedjukebox.component.jingle.AbstractJingle method)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.jingle.FileBasedJingles.pick">(wickedjukebox.component.jingle.FileBasedJingles method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.jingle.NullJingle.pick">(wickedjukebox.component.jingle.NullJingle method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.random.AbstractRandom.pick">(wickedjukebox.component.random.AbstractRandom method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.random.AllFilesRandom.pick">(wickedjukebox.component.random.AllFilesRandom method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.random.NullRandom.pick">(wickedjukebox.component.random.NullRandom method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.random.SmartPrefetch.pick">(wickedjukebox.component.random.SmartPrefetch method)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.User.picture">picture (wickedjukebox.model.db.auth.User attribute)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.Channel.ping">ping (wickedjukebox.model.db.playback.Channel attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.User.pinnedIp">pinnedIp (wickedjukebox.model.db.auth.User attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RenderPreset.placeholder">placeholder (wickedjukebox.model.db.webui.RenderPreset attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RenderPreset.placeholder_image">placeholder_image (wickedjukebox.model.db.webui.RenderPreset attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.AbstractPlayer.play">play() (wickedjukebox.component.player.AbstractPlayer method)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.MpdPlayer.play">(wickedjukebox.component.player.MpdPlayer method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.NullPlayer.play">(wickedjukebox.component.player.NullPlayer method)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.stats.ChannelAlbumDatum.played">played (wickedjukebox.model.db.stats.ChannelAlbumDatum attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.stats.ChannelStat.played">(wickedjukebox.model.db.stats.ChannelStat attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.config.ConfigKeys.PLAYER">PLAYER (wickedjukebox.config.ConfigKeys attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Playlist">Playlist (class in wickedjukebox.model.db.library)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.PlaylistHasSong.playlist_id">playlist_id (wickedjukebox.model.db.library.PlaylistHasSong attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.PlaylistHasSong">PlaylistHasSong (class in wickedjukebox.model.db.library)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.ImageEnum.PNG">PNG (wickedjukebox.model.db.webui.ImageEnum attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.CollectionhasSong.position">position (wickedjukebox.model.db.library.CollectionhasSong attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.QueueItem.position">(wickedjukebox.model.db.playback.QueueItem attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RenderPreset.preset">preset (wickedjukebox.model.db.webui.RenderPreset attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Playlist.probability">probability (wickedjukebox.model.db.library.Playlist attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.DynamicPlaylist.probability">(wickedjukebox.model.db.playback.DynamicPlaylist attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.scanner.process">process() (in module wickedjukebox.scanner)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.scanner.process_files">process_files() (in module wickedjukebox.scanner)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.cli.html#wickedjukebox.cli.jukebox_admin.process_rescan">process_rescan() (in module wickedjukebox.cli.jukebox_admin)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.User.proof_of_life">proof_of_life (wickedjukebox.model.db.auth.User attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.core.html#wickedjukebox.core.smartfind.ScoringConfig.PROOF_OF_LIFE_TIMEOUT">PROOF_OF_LIFE_TIMEOUT (wickedjukebox.core.smartfind.ScoringConfig attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.User.proof_of_listening">proof_of_listening (wickedjukebox.model.db.auth.User attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.Channel.public">public (wickedjukebox.model.db.playback.Channel attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="Q" class="genindex-section">
+  <h2>Q</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.logutil.qualname">qualname() (in module wickedjukebox.logutil)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.logutil.qualname_repr">qualname_repr() (in module wickedjukebox.logutil)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.DynamicPlaylist.query">query (wickedjukebox.model.db.playback.DynamicPlaylist attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.query_params">query_params (wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.config.ConfigKeys.QUEUE">QUEUE (wickedjukebox.config.ConfigKeys attribute)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.Group.queue_add">queue_add (wickedjukebox.model.db.auth.Group attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.lastfm.LastfmQueue.queue_id">queue_id (wickedjukebox.model.db.lastfm.LastfmQueue attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.Group.queue_remove">queue_remove (wickedjukebox.model.db.auth.Group attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.Group.queue_skip">queue_skip (wickedjukebox.model.db.auth.Group attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.QueueItem">QueueItem (class in wickedjukebox.model.db.playback)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="R" class="genindex-section">
+  <h2>R</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.random">random() (wickedjukebox.model.db.library.Song static method)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.core.html#wickedjukebox.core.smartfind.ScoringConfig.RANDOMNESS">RANDOMNESS (wickedjukebox.core.smartfind.ScoringConfig attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.RandomSongsToUse">RandomSongsToUse (class in wickedjukebox.model.db.playback)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Album.release_date">release_date (wickedjukebox.model.db.library.Album attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.AbstractPlayer.remaining_seconds">remaining_seconds (wickedjukebox.component.player.AbstractPlayer property)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.MpdPlayer.remaining_seconds">(wickedjukebox.component.player.MpdPlayer property)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.NullPlayer.remaining_seconds">(wickedjukebox.component.player.NullPlayer property)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.remote_addr">remote_addr (wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RenderPreset">RenderPreset (class in wickedjukebox.model.db.webui)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.requested_at">requested_at (wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.response">response (wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.response_ms">response_ms (wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog">RestFrameworkTrackingApirequestlog (class in wickedjukebox.model.db.webui)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult.result">result (wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.result">(wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.ipc.FSIPC.root">root (wickedjukebox.component.ipc.FSIPC property)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.channel.Channel.run">run() (wickedjukebox.channel.Channel method)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.random.SmartPrefetchThread.run">(wickedjukebox.component.random.SmartPrefetchThread method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="S" class="genindex-section">
+  <h2>S</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.scanner.scan">scan() (in module wickedjukebox.scanner)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.config.ConfigOption.scope">scope (wickedjukebox.config.ConfigOption attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.core.html#wickedjukebox.core.smartfind.ScoringConfig">ScoringConfig (class in wickedjukebox.core.smartfind)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.config.ConfigOption.section">section (wickedjukebox.config.ConfigOption attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.User.selects">selects (wickedjukebox.model.db.auth.User attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.config.Sentinel">Sentinel (class in wickedjukebox.config)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoSession.session_data">session_data (wickedjukebox.model.db.webui.DjangoSession attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoSession.session_key">session_key (wickedjukebox.model.db.webui.DjangoSession attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.ipc.AbstractIPC.set">set() (wickedjukebox.component.ipc.AbstractIPC method)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.ipc.DBIPC.set">(wickedjukebox.component.ipc.DBIPC method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.ipc.FSIPC.set">(wickedjukebox.component.ipc.FSIPC method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.ipc.NullIPC.set">(wickedjukebox.component.ipc.NullIPC method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.State.set">(wickedjukebox.model.db.playback.State class method)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.settings.Setting">Setting (class in wickedjukebox.model.db.settings)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.settings.SettingText">SettingText (class in wickedjukebox.model.db.settings)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.logutil.setup_logging">setup_logging() (in module wickedjukebox.logutil)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.Shoutbox">Shoutbox (class in wickedjukebox.model.db.webui)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.ipc.Command.SKIP">SKIP (wickedjukebox.component.ipc.Command attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.AbstractPlayer.skip">skip() (wickedjukebox.component.player.AbstractPlayer method)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.MpdPlayer.skip">(wickedjukebox.component.player.MpdPlayer method)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.player.NullPlayer.skip">(wickedjukebox.component.player.NullPlayer method)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.ipc.FSStateFiles.SKIP_REQUESTED">SKIP_REQUESTED (wickedjukebox.component.ipc.FSStateFiles attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.stats.ChannelStat.skipped">skipped (wickedjukebox.model.db.stats.ChannelStat attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.User.skips">skips (wickedjukebox.model.db.auth.User attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.core.html#wickedjukebox.core.smartfind.smart_random_no_users">smart_random_no_users() (in module wickedjukebox.core.smartfind)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.core.html#wickedjukebox.core.smartfind.smart_random_with_users">smart_random_with_users() (in module wickedjukebox.core.smartfind)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.random.SmartPrefetch">SmartPrefetch (class in wickedjukebox.component.random)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.component.html#wickedjukebox.component.random.SmartPrefetchThread">SmartPrefetchThread (class in wickedjukebox.component.random)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song">Song (class in wickedjukebox.model.db.library)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.lastfm.LastfmQueue.song">song (wickedjukebox.model.db.lastfm.LastfmQueue attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.SongHasGenre.song">(wickedjukebox.model.db.library.SongHasGenre attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.QueueItem.song">(wickedjukebox.model.db.playback.QueueItem attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.stats.ChannelStat.song">(wickedjukebox.model.db.stats.ChannelStat attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.stats.UserSongStat.song">(wickedjukebox.model.db.stats.UserSongStat attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.core.html#wickedjukebox.core.smartfind.ScoringConfig.SONG_AGE">SONG_AGE (wickedjukebox.core.smartfind.ScoringConfig attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.core.html#wickedjukebox.core.smartfind.SONG_AGE_CUTOFF">SONG_AGE_CUTOFF (in module wickedjukebox.core.smartfind)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.lastfm.LastfmQueue.song_id">song_id (wickedjukebox.model.db.lastfm.LastfmQueue attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.CollectionhasSong.song_id">(wickedjukebox.model.db.library.CollectionhasSong attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.PlaylistHasSong.song_id">(wickedjukebox.model.db.library.PlaylistHasSong attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.SongHasGenre.song_id">(wickedjukebox.model.db.library.SongHasGenre attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.SongHasTag.song_id">(wickedjukebox.model.db.library.SongHasTag attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.UserSongStanding.song_id">(wickedjukebox.model.db.library.UserSongStanding attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.QueueItem.song_id">(wickedjukebox.model.db.playback.QueueItem attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.stats.ChannelStat.song_id">(wickedjukebox.model.db.stats.ChannelStat attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.stats.UserSongStat.song_id">(wickedjukebox.model.db.stats.UserSongStat attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.SongHasGenre">SongHasGenre (class in wickedjukebox.model.db.library)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.SongHasTag">SongHasTag (class in wickedjukebox.model.db.library)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.UserSongStanding.standing">standing (wickedjukebox.model.db.library.UserSongStanding attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.StandingEnum">StandingEnum (class in wickedjukebox.model.db.library)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.events.Event.startdate">startdate (wickedjukebox.model.db.events.Event attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.State">State (class in wickedjukebox.model.db.playback)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.State.state">state (wickedjukebox.model.db.playback.State attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.Channel.status">status (wickedjukebox.model.db.playback.Channel attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.status">(wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.status_code">status_code (wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsChordcounter.sub_tasks">sub_tasks (wickedjukebox.model.db.webui.DjangoCeleryResultsChordcounter attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.config.ConfigOption.subsection">subsection (wickedjukebox.config.ConfigOption attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Artist.summary">summary (wickedjukebox.model.db.library.Artist attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="T" class="genindex-section">
+  <h2>T</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.smartplaylist.html#wickedjukebox.smartplaylist.parser.t_error">t_error() (in module wickedjukebox.smartplaylist.parser)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.smartplaylist.html#wickedjukebox.smartplaylist.parser.t_ID">t_ID() (in module wickedjukebox.smartplaylist.parser)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.smartplaylist.html#wickedjukebox.smartplaylist.parser.t_value">t_value() (in module wickedjukebox.smartplaylist.parser)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Tag">Tag (class in wickedjukebox.model.db.library)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.SongHasTag.tag_id">tag_id (wickedjukebox.model.db.library.SongHasTag attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.tags">tags (wickedjukebox.model.db.library.Song attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.task_args">task_args (wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.task_id">task_id (wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.task_kwargs">task_kwargs (wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.task_name">task_name (wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult attribute)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.settings.SettingText.text_en">text_en (wickedjukebox.model.db.settings.SettingText attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.ThumbnailKvstore">ThumbnailKvstore (class in wickedjukebox.model.db.webui)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.channel.Channel.tick">tick() (wickedjukebox.channel.Channel method)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.lastfm.LastfmQueue.time_played">time_played (wickedjukebox.model.db.lastfm.LastfmQueue attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.lastfm.LastfmQueue.time_started">time_started (wickedjukebox.model.db.lastfm.LastfmQueue attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.Group.title">title (wickedjukebox.model.db.auth.Group attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.events.Event.title">(wickedjukebox.model.db.events.Event attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.title">(wickedjukebox.model.db.library.Song attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.traceback">traceback (wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.track_no">track_no (wickedjukebox.model.db.library.Song attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Album.type">type (wickedjukebox.model.db.library.Album attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="U" class="genindex-section">
+  <h2>U</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.update_metadata">update_metadata() (wickedjukebox.model.db.library.Song method)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.RandomSongsToUse.used">used (wickedjukebox.model.db.playback.RandomSongsToUse attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.User">User (class in wickedjukebox.model.db.auth)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthUserGroup.user">user (wickedjukebox.model.db.auth.AuthUserGroup attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthUserUserPermission.user">(wickedjukebox.model.db.auth.AuthUserUserPermission attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.QueueItem.user">(wickedjukebox.model.db.playback.QueueItem attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.stats.UserSongStat.user">(wickedjukebox.model.db.stats.UserSongStat attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoAdminLog.user">(wickedjukebox.model.db.webui.DjangoAdminLog attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.user">(wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.Shoutbox.user">(wickedjukebox.model.db.webui.Shoutbox attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthUserGroup.user_id">user_id (wickedjukebox.model.db.auth.AuthUserGroup attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthUserUserPermission.user_id">(wickedjukebox.model.db.auth.AuthUserUserPermission attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Collection.user_id">(wickedjukebox.model.db.library.Collection attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Playlist.user_id">(wickedjukebox.model.db.library.Playlist attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.UserSongStanding.user_id">(wickedjukebox.model.db.library.UserSongStanding attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.QueueItem.user_id">(wickedjukebox.model.db.playback.QueueItem attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.settings.Setting.user_id">(wickedjukebox.model.db.settings.Setting attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.stats.UserSongStat.user_id">(wickedjukebox.model.db.stats.UserSongStat attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoAdminLog.user_id">(wickedjukebox.model.db.webui.DjangoAdminLog attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.user_id">(wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.Shoutbox.user_id">(wickedjukebox.model.db.webui.Shoutbox attribute)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.core.html#wickedjukebox.core.smartfind.ScoringConfig.USER_RATING">USER_RATING (wickedjukebox.core.smartfind.ScoringConfig attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.AuthUser.username">username (wickedjukebox.model.db.auth.AuthUser attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.User.username">(wickedjukebox.model.db.auth.User attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.username_persistent">username_persistent (wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.UserSongStanding">UserSongStanding (class in wickedjukebox.model.db.library)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.stats.UserSongStat">UserSongStat (class in wickedjukebox.model.db.stats)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="V" class="genindex-section">
+  <h2>V</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.playback.State.value">value (wickedjukebox.model.db.playback.State attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.settings.Setting.value">(wickedjukebox.model.db.settings.Setting attribute)</a>
+</li>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.ThumbnailKvstore.value">(wickedjukebox.model.db.webui.ThumbnailKvstore attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.model.html#wickedjukebox.model.audiometa.AudioMeta.values">values() (wickedjukebox.model.audiometa.AudioMeta method)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.settings.Setting.var">var (wickedjukebox.model.db.settings.Setting attribute)</a>
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.settings.SettingText.var">(wickedjukebox.model.db.settings.SettingText attribute)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.view">view (wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.view_method">view_method (wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.stats.ChannelStat.voted">voted (wickedjukebox.model.db.stats.ChannelStat attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.auth.User.votes">votes (wickedjukebox.model.db.auth.User attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="W" class="genindex-section">
+  <h2>W</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Artist.website">website (wickedjukebox.model.db.library.Artist attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.stats.UserSongStat.when">when (wickedjukebox.model.db.stats.UserSongStat attribute)</a>
+</li>
+        <li>
+    wickedjukebox
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.html#module-wickedjukebox">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.channel
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.html#module-wickedjukebox.channel">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.cli
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.cli.html#module-wickedjukebox.cli">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.cli.jukebox_admin
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.cli.html#module-wickedjukebox.cli.jukebox_admin">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.cli.run_channel
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.cli.html#module-wickedjukebox.cli.run_channel">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.component
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.component.html#module-wickedjukebox.component">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.component.ipc
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.component.html#module-wickedjukebox.component.ipc">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.component.jingle
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.component.html#module-wickedjukebox.component.jingle">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.component.player
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.component.html#module-wickedjukebox.component.player">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.component.queue
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.component.html#module-wickedjukebox.component.queue">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.component.random
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.component.html#module-wickedjukebox.component.random">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.config
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.html#module-wickedjukebox.config">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.core
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.core.html#module-wickedjukebox.core">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.core.smartfind
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.core.html#module-wickedjukebox.core.smartfind">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.exc
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.html#module-wickedjukebox.exc">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.logutil
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.html#module-wickedjukebox.logutil">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.model
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.html#module-wickedjukebox.model">module</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li>
+    wickedjukebox.model.audiometa
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.html#module-wickedjukebox.model.audiometa">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.model.db
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#module-wickedjukebox.model.db">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.model.db.auth
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#module-wickedjukebox.model.db.auth">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.model.db.events
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#module-wickedjukebox.model.db.events">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.model.db.lastfm
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#module-wickedjukebox.model.db.lastfm">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.model.db.library
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#module-wickedjukebox.model.db.library">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.model.db.logging
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#module-wickedjukebox.model.db.logging">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.model.db.playback
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#module-wickedjukebox.model.db.playback">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.model.db.sameta
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#module-wickedjukebox.model.db.sameta">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.model.db.settings
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#module-wickedjukebox.model.db.settings">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.model.db.stats
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#module-wickedjukebox.model.db.stats">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.model.db.webui
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.model.db.html#module-wickedjukebox.model.db.webui">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.scanner
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.html#module-wickedjukebox.scanner">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.smartplaylist
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.smartplaylist.html#module-wickedjukebox.smartplaylist">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.smartplaylist.dbbridge
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.smartplaylist.html#module-wickedjukebox.smartplaylist.dbbridge">module</a>
+</li>
+        </ul></li>
+        <li>
+    wickedjukebox.smartplaylist.parser
+
+        <ul>
+          <li><a href="appendix/api/wickedjukebox.smartplaylist.html#module-wickedjukebox.smartplaylist.parser">module</a>
+</li>
+        </ul></li>
+        <li><a href="appendix/api/wickedjukebox.html#wickedjukebox.exc.WickedJukeboxException">WickedJukeboxException</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Artist.wikipage">wikipage (wickedjukebox.model.db.library.Artist attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.RenderPreset.wmax">wmax (wickedjukebox.model.db.webui.RenderPreset attribute)</a>
+</li>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.worker">worker (wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="Y" class="genindex-section">
+  <h2>Y</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="appendix/api/wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song.year">year (wickedjukebox.model.db.library.Song attribute)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+
+        <div class="related-information">
+              Copyright &#169; 2021, Michel Albert |
+          Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+          <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/scripts/furo.js"></script>
+    </body>
+</html>

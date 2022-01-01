@@ -1,0 +1,7 @@
+wickedjukebox
+=============
+
+.. toctree::
+   :maxdepth: 4
+
+   wickedjukebox
