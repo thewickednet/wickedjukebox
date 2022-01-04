@@ -12,7 +12,7 @@ from pathlib import Path
 from sys import stdout
 from typing import List, TextIO
 
-from tqdm import tqdm
+from progress.bar import ChargingBar
 from sqlalchemy.orm import Session as TSession
 
 from wickedjukebox.model.db.library import Song
@@ -43,11 +43,16 @@ def process(pth: Path) -> None:
 
 
 def process_files(files: List[Path], stream: TextIO = stdout) -> None:
-    for file in tqdm(files, total=len(files), unit="files"):
+    pbar = ChargingBar(
+        "Scanning: ", max=len(files)
+    )  # TODO use something more moden
+    for file in files:
         try:
             process(file)
         except TypeError as exc:
             LOG.error("Unable to scan %s (%s)", file, exc, exc_info=True)
+        pbar.next()
+    pbar.finish()
     stream.write("\n")
 
 
