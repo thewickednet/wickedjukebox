@@ -31,9 +31,9 @@ def process(pth: Path) -> None:
     if not is_valid_audio_file(pth):
         return
     session: TSession = Session()
-    song = Song.by_filename(session, str(pth))
+    song = Song.by_filename(session, str(pth.absolute()))
     if not song:
-        song = Song(str(pth))
+        song = Song(str(pth.absolute()))
     song.update_metadata()
     session.merge(song)
     LOG.info(repr(song))
