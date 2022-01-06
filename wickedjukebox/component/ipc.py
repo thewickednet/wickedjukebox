@@ -44,6 +44,8 @@ class Command(Enum):
 
     SKIP = "skip"
     "Skip the current song as soon as possible"
+    CURRENT_SONG = "current_song"
+    PROGRESS = "progress"
 
 
 @qualname_repr
@@ -214,9 +216,8 @@ class DBIPC(AbstractIPC):
             query = query.filter(Channel.name == self._channel_name)  # type: ignore
             channel = query.one()  # type: ignore
             if key == Command.SKIP:
-                skip_state = bool(
-                    int(State.get("skipping", channel.id, default=False))  # type: ignore
-                )
+                result = State.get("skipping", channel.id, default=False) or "0"
+                skip_state = bool(int(result))  # type: ignore
             else:
                 LOG.error("Unknown IPC command: %r", key)
         return skip_state
@@ -231,10 +232,19 @@ class DBIPC(AbstractIPC):
             query = query.filter(Channel.name == self._channel_name)  # type: ignore
             channel = query.one()  # type: ignore
             if key == Command.SKIP:
-                skip_state = State.set(  # type: ignore
+                output = State.set(  # type: ignore
                     "skipping", value, channel.id  # type: ignore
+                )
+                output = "0"
+            elif key == Command.CURRENT_SONG:
+                output = State.set(  # type: ignore
+                    "current_song", value, channel.id  # type: ignore
+                )
+            elif key == Command.PROGRESS:
+                output = State.set(  # type: ignore
+                    "progress", value, channel.id  # type: ignore
                 )
             else:
                 LOG.error("Unknown IPC command: %r", key)
             session.commit()  # type: ignore
-        return skip_state
+        return output

@@ -56,6 +56,8 @@ class Channel:
                 self.player.play()
 
         do_skip = self.ipc.get(Command.SKIP)
+        self.ipc.set(Command.CURRENT_SONG, self.player.current_song)
+        self.ipc.set(Command.PROGRESS, self.player.progress)
 
         if self.player.songs_since_last_jingle > self.jingle.interval:
             self._log.debug("Jingle interval surpassed. Enqueueing new jingle.")

@@ -291,3 +291,16 @@ class MpdPlayer(AbstractPlayer):
         self.connect()
         playlist: List[MpdSong] = self.client.playlistinfo()  # type: ignore
         return playlist == []
+
+    @property
+    def current_song(self) -> str:
+        self.connect()
+        current = self.client.currentsong()
+        return self.mpd2jukebox(current.get("file", ""))
+
+    @property
+    def progress(self) -> int:
+        self.connect()
+        status: Dict[str, str] = self.client.status()  # type: ignore
+        a, _, b = status.get("time", "0:0").partition(":")
+        return int(a)
