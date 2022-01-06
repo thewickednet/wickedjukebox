@@ -195,7 +195,8 @@ class MpdPlayer(AbstractPlayer):
         root.
         """
         jukebox_root = str(self.path_map.jukebox_path)
-        mpd_path = filename[len(jukebox_root) + 1 :]
+        if filename.startswith(jukebox_root):
+            mpd_path = filename[len(jukebox_root) + 1 :]
         return str(mpd_path)
 
     def mpd2jukebox(self, filename: str) -> str:
