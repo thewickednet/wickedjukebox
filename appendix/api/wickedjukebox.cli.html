@@ -176,10 +176,7 @@
 <li class="toctree-l3 current current-page"><a class="current reference internal" href="#">wickedjukebox.cli package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="wickedjukebox.component.html">wickedjukebox.component package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="wickedjukebox.core.html">wickedjukebox.core package</a></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="wickedjukebox.model.html">wickedjukebox.model package</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l4"><a class="reference internal" href="wickedjukebox.model.db.html">wickedjukebox.model.db package</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="wickedjukebox.model.html">wickedjukebox.model package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="wickedjukebox.smartplaylist.html">wickedjukebox.smartplaylist package</a></li>
 </ul>
 </li>
@@ -216,38 +213,11 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </section>
-<section id="module-wickedjukebox.cli.jukebox_admin">
-<span id="wickedjukebox-cli-jukebox-admin-module"></span><h2>wickedjukebox.cli.jukebox_admin module<a class="headerlink" href="#module-wickedjukebox.cli.jukebox_admin" title="Permalink to this headline">¶</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="wickedjukebox.cli.jukebox_admin.main">
-<span class="sig-prename descclassname"><span class="pre">wickedjukebox.cli.jukebox_admin.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#wickedjukebox.cli.jukebox_admin.main" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="wickedjukebox.cli.jukebox_admin.parse_args">
-<span class="sig-prename descclassname"><span class="pre">wickedjukebox.cli.jukebox_admin.</span></span><span class="sig-name descname"><span class="pre">parse_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">argparse.Namespace</span></span></span><a class="headerlink" href="#wickedjukebox.cli.jukebox_admin.parse_args" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parses the command-line arguments</p>
-</dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="wickedjukebox.cli.jukebox_admin.process_rescan">
-<span class="sig-prename descclassname"><span class="pre">wickedjukebox.cli.jukebox_admin.</span></span><span class="sig-name descname"><span class="pre">process_rescan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">argparse.Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#wickedjukebox.cli.jukebox_admin.process_rescan" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<section id="wickedjukebox-cli-jukebox-admin-module">
+<h2>wickedjukebox.cli.jukebox_admin module<a class="headerlink" href="#wickedjukebox-cli-jukebox-admin-module" title="Permalink to this headline">¶</a></h2>
 </section>
-<section id="module-wickedjukebox.cli.run_channel">
-<span id="wickedjukebox-cli-run-channel-module"></span><h2>wickedjukebox.cli.run_channel module<a class="headerlink" href="#module-wickedjukebox.cli.run_channel" title="Permalink to this headline">¶</a></h2>
-<p>Entry points, and helpers for the command line interface.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="wickedjukebox.cli.run_channel.main">
-<span class="sig-prename descclassname"><span class="pre">wickedjukebox.cli.run_channel.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.cli.run_channel.main" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse command line options, bootstrap the app and run the channel</p>
-</dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="wickedjukebox.cli.run_channel.make_channel">
-<span class="sig-prename descclassname"><span class="pre">wickedjukebox.cli.run_channel.</span></span><span class="sig-name descname"><span class="pre">make_channel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="wickedjukebox.html#wickedjukebox.channel.Channel" title="wickedjukebox.channel.Channel"><span class="pre">wickedjukebox.channel.Channel</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#wickedjukebox.cli.run_channel.make_channel" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="wickedjukebox.cli.run_channel.parse_args">
-<span class="sig-prename descclassname"><span class="pre">wickedjukebox.cli.run_channel.</span></span><span class="sig-name descname"><span class="pre">parse_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">argparse.Namespace</span></span></span><a class="headerlink" href="#wickedjukebox.cli.run_channel.parse_args" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<section id="wickedjukebox-cli-run-channel-module">
+<h2>wickedjukebox.cli.run_channel module<a class="headerlink" href="#wickedjukebox-cli-run-channel-module" title="Permalink to this headline">¶</a></h2>
 </section>
 <section id="module-wickedjukebox.cli">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-wickedjukebox.cli" title="Permalink to this headline">¶</a></h2>
@@ -307,8 +277,8 @@
             <ul>
 <li><a class="reference internal" href="#">wickedjukebox.cli package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-wickedjukebox.cli.jukebox_admin">wickedjukebox.cli.jukebox_admin module</a></li>
-<li><a class="reference internal" href="#module-wickedjukebox.cli.run_channel">wickedjukebox.cli.run_channel module</a></li>
+<li><a class="reference internal" href="#wickedjukebox-cli-jukebox-admin-module">wickedjukebox.cli.jukebox_admin module</a></li>
+<li><a class="reference internal" href="#wickedjukebox-cli-run-channel-module">wickedjukebox.cli.run_channel module</a></li>
 <li><a class="reference internal" href="#module-wickedjukebox.cli">Module contents</a></li>
 </ul>
 </li>

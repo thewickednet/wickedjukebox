@@ -1,14 +1,6 @@
 wickedjukebox.model package
 ===========================
 
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 4
-
-   wickedjukebox.model.db
-
 Submodules
 ----------
 
@@ -16,6 +8,14 @@ wickedjukebox.model.audiometa module
 ------------------------------------
 
 .. automodule:: wickedjukebox.model.audiometa
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+wickedjukebox.model.database module
+-----------------------------------
+
+.. automodule:: wickedjukebox.model.database
    :members:
    :undoc-members:
    :show-inheritance:
