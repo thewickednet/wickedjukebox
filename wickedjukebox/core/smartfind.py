@@ -309,7 +309,7 @@ def find_song(
 
     # TODO: Add dynamic playlist clauses
     # TODO fix cross-product issue query = query.where(and_(*parse_dynamic_playlists()))
-    query = query.where(and_(*parse_dynamic_playlists()))
+    # XXX query = query.where(and_(*parse_dynamic_playlists()))
 
     res = session.execute(query)
     candidate = res.first()
