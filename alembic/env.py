@@ -33,11 +33,11 @@ target_metadata = None
 
 def get_url():
     config = get_config(
-        'wickedjukebox',
-        group_name='wicked',
-        lookup_options={"filename": 'config.ini', "require_load": True},
+        "wickedjukebox",
+        group_name="wicked",
+        lookup_options={"filename": "config.ini", "require_load": True},
     ).config
-    return config.get('core', 'dsn')
+    return config.get("core", "dsn")
 
 
 def run_migrations_offline():
