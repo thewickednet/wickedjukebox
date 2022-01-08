@@ -1,0 +1,53 @@
+wickedjukebox.component package
+===============================
+
+Submodules
+----------
+
+wickedjukebox.component.ipc module
+----------------------------------
+
+.. automodule:: wickedjukebox.component.ipc
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+wickedjukebox.component.jingle module
+-------------------------------------
+
+.. automodule:: wickedjukebox.component.jingle
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+wickedjukebox.component.player module
+-------------------------------------
+
+.. automodule:: wickedjukebox.component.player
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+wickedjukebox.component.queue module
+------------------------------------
+
+.. automodule:: wickedjukebox.component.queue
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+wickedjukebox.component.random module
+-------------------------------------
+
+.. automodule:: wickedjukebox.component.random
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: wickedjukebox.component
+   :members:
+   :undoc-members:
+   :show-inheritance:

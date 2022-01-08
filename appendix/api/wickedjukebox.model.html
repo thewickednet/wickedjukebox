@@ -1,0 +1,453 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="wickedjukebox.model.db package" href="wickedjukebox.model.db.html" /><link rel="prev" title="wickedjukebox.core package" href="wickedjukebox.core.html" />
+
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.01.02"/>
+        <title>wickedjukebox.model package - wickedjukebox documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=df49af52631e7917044a9c21a57f7b83170a6dd0" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=fade93df149f7c5fedb3ff897f799dc7d283b420" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  body[data-theme="dark"] {
+    --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+  }
+  @media (prefers-color-scheme: dark) {
+    body:not([data-theme="light"]) {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+  }
+</style></head>
+  <body>
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" />
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="10" y1="12" x2="20" y2="12" />
+      <line x1="6" y1="18" x2="20" y2="18" />
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">wickedjukebox  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  
+  <span class="sidebar-brand-text">wickedjukebox  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../configuration.html">Configuration</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../modules/autoplay.html">Autoplay Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../modules/ipc.html">IPC Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../modules/jingle.html">Jingle Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../modules/player.html">Player Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../modules/queue.html">Queue Modules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../maintenance.html">Maintenance</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Appendix:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../mpd-in-docker.html">MPD Inside Docker</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="modules.html">API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 current has-children"><a class="reference internal" href="wickedjukebox.html">wickedjukebox package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="wickedjukebox.cli.html">wickedjukebox.cli package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wickedjukebox.component.html">wickedjukebox.component package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wickedjukebox.core.html">wickedjukebox.core package</a></li>
+<li class="toctree-l3 current has-children current-page"><a class="current reference internal" href="#">wickedjukebox.model package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="wickedjukebox.model.db.html">wickedjukebox.model.db package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="wickedjukebox.smartplaylist.html">wickedjukebox.smartplaylist package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="wickedjukebox-model-package">
+<h1>wickedjukebox.model package<a class="headerlink" href="#wickedjukebox-model-package" title="Permalink to this headline">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="wickedjukebox.model.db.html">wickedjukebox.model.db package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="wickedjukebox.model.db.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wickedjukebox.model.db.html#module-wickedjukebox.model.db.auth">wickedjukebox.model.db.auth module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wickedjukebox.model.db.html#module-wickedjukebox.model.db.events">wickedjukebox.model.db.events module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wickedjukebox.model.db.html#module-wickedjukebox.model.db.lastfm">wickedjukebox.model.db.lastfm module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wickedjukebox.model.db.html#module-wickedjukebox.model.db.library">wickedjukebox.model.db.library module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wickedjukebox.model.db.html#module-wickedjukebox.model.db.logging">wickedjukebox.model.db.logging module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wickedjukebox.model.db.html#module-wickedjukebox.model.db.playback">wickedjukebox.model.db.playback module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wickedjukebox.model.db.html#module-wickedjukebox.model.db.sameta">wickedjukebox.model.db.sameta module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wickedjukebox.model.db.html#module-wickedjukebox.model.db.settings">wickedjukebox.model.db.settings module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wickedjukebox.model.db.html#module-wickedjukebox.model.db.stats">wickedjukebox.model.db.stats module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wickedjukebox.model.db.html#module-wickedjukebox.model.db.webui">wickedjukebox.model.db.webui module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wickedjukebox.model.db.html#module-wickedjukebox.model.db">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-wickedjukebox.model.audiometa">
+<span id="wickedjukebox-model-audiometa-module"></span><h2>wickedjukebox.model.audiometa module<a class="headerlink" href="#module-wickedjukebox.model.audiometa" title="Permalink to this headline">¶</a></h2>
+<p>Abstraction Layer for mutagen</p>
+<p>Mutagen exposed the internal metadata as stored in the original file. This
+causes an inconsistent external interface (f. ex. the “title” field is not
+accessed in the same way for MP3 files as for FLAC files).</p>
+<p>This module provides the necessary abstraction to handle all files identically</p>
+<p>This modul is also executable and can be used to display meta information of a
+specific file.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.AudioMeta">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.audiometa.</span></span><span class="sig-name descname"><span class="pre">AudioMeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mutagen_meta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.AudioMeta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+<p>Wraps Mutagen metadata and exposes it as a standardised dictionary</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.AudioMeta.get_album">
+<span class="sig-name descname"><span class="pre">get_album</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.AudioMeta.get_album" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.AudioMeta.get_artist">
+<span class="sig-name descname"><span class="pre">get_artist</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.AudioMeta.get_artist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.AudioMeta.get_bitrate">
+<span class="sig-name descname"><span class="pre">get_bitrate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.AudioMeta.get_bitrate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.AudioMeta.get_comment">
+<span class="sig-name descname"><span class="pre">get_comment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.AudioMeta.get_comment" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.AudioMeta.get_duration">
+<span class="sig-name descname"><span class="pre">get_duration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.AudioMeta.get_duration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.AudioMeta.get_genres">
+<span class="sig-name descname"><span class="pre">get_genres</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.AudioMeta.get_genres" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.AudioMeta.get_release_date">
+<span class="sig-name descname"><span class="pre">get_release_date</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.AudioMeta.get_release_date" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.AudioMeta.get_title">
+<span class="sig-name descname"><span class="pre">get_title</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.AudioMeta.get_title" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.AudioMeta.get_total_tracks">
+<span class="sig-name descname"><span class="pre">get_total_tracks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.AudioMeta.get_total_tracks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.AudioMeta.get_track_no">
+<span class="sig-name descname"><span class="pre">get_track_no</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.AudioMeta.get_track_no" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.AudioMeta.items">
+<span class="sig-name descname"><span class="pre">items</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.AudioMeta.items" title="Permalink to this definition">¶</a></dt>
+<dd><p>@overrides dict.items</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.AudioMeta.keys">
+<span class="sig-name descname"><span class="pre">keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.AudioMeta.keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>@overrides dict.keys</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.AudioMeta.values">
+<span class="sig-name descname"><span class="pre">values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.AudioMeta.values" title="Permalink to this definition">¶</a></dt>
+<dd><p>@overrides dict.values</p>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.MP3Meta">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.audiometa.</span></span><span class="sig-name descname"><span class="pre">MP3Meta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mutagen_meta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.MP3Meta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wickedjukebox.model.audiometa.AudioMeta" title="wickedjukebox.model.audiometa.AudioMeta"><code class="xref py py-class docutils literal notranslate"><span class="pre">wickedjukebox.model.audiometa.AudioMeta</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.MP3Meta.decode_text">
+<span class="sig-name descname"><span class="pre">decode_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.MP3Meta.decode_text" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.MP3Meta.get_album">
+<span class="sig-name descname"><span class="pre">get_album</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.MP3Meta.get_album" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.MP3Meta.get_artist">
+<span class="sig-name descname"><span class="pre">get_artist</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.MP3Meta.get_artist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.MP3Meta.get_bitrate">
+<span class="sig-name descname"><span class="pre">get_bitrate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.MP3Meta.get_bitrate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.MP3Meta.get_duration">
+<span class="sig-name descname"><span class="pre">get_duration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.MP3Meta.get_duration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.MP3Meta.get_genres">
+<span class="sig-name descname"><span class="pre">get_genres</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.MP3Meta.get_genres" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.MP3Meta.get_release_date">
+<span class="sig-name descname"><span class="pre">get_release_date</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.MP3Meta.get_release_date" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.MP3Meta.get_title">
+<span class="sig-name descname"><span class="pre">get_title</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.MP3Meta.get_title" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.MP3Meta.get_total_tracks">
+<span class="sig-name descname"><span class="pre">get_total_tracks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.MP3Meta.get_total_tracks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.MP3Meta.get_track_no">
+<span class="sig-name descname"><span class="pre">get_track_no</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.MP3Meta.get_track_no" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.MetaFactory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.audiometa.</span></span><span class="sig-name descname"><span class="pre">MetaFactory</span></span><a class="headerlink" href="#wickedjukebox.model.audiometa.MetaFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Factory to create the proper AudioMeta instance depending on filetype</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.MetaFactory.create">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.MetaFactory.create" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.display_file">
+<span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.audiometa.</span></span><span class="sig-name descname"><span class="pre">display_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">TextIO</span> <span class="pre">=</span> <span class="pre">&lt;_io.TextIOWrapper</span> <span class="pre">name='&lt;stdout&gt;'</span> <span class="pre">mode='w'</span> <span class="pre">encoding='utf-8'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.audiometa.display_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="wickedjukebox.model.audiometa.main">
+<span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.audiometa.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">argv:</span> <span class="pre">List[str],</span> <span class="pre">stream=&lt;_io.TextIOWrapper</span> <span class="pre">name='&lt;stdout&gt;'</span> <span class="pre">mode='w'</span> <span class="pre">encoding='utf-8'&gt;</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#wickedjukebox.model.audiometa.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</section>
+<section id="module-wickedjukebox.model">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-wickedjukebox.model" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="wickedjukebox.model.db.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">wickedjukebox.model.db package</div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="wickedjukebox.core.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">wickedjukebox.core package</div>
+                
+              </div>
+            </a>
+        </div>
+
+        <div class="related-information">
+              Copyright &#169; 2021, Michel Albert |
+          Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+          <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+            | <a class="muted-link" href="../../_sources/appendix/api/wickedjukebox.model.rst.txt"
+               rel="nofollow">
+              Show Source
+            </a>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">wickedjukebox.model package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-wickedjukebox.model.audiometa">wickedjukebox.model.audiometa module</a></li>
+<li><a class="reference internal" href="#module-wickedjukebox.model">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/scripts/furo.js"></script>
+    </body>
+</html>

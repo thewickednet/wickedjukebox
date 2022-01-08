@@ -1,0 +1,21 @@
+wickedjukebox.core package
+==========================
+
+Submodules
+----------
+
+wickedjukebox.core.smartfind module
+-----------------------------------
+
+.. automodule:: wickedjukebox.core.smartfind
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: wickedjukebox.core
+   :members:
+   :undoc-members:
+   :show-inheritance:
