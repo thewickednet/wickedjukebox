@@ -93,7 +93,10 @@ class Channel:
         self._log.info("Tick interval: %ss", self.tick_interval_s)
         while self.keep_running:
             try:
-                self.tick()
+                try:
+                    self.tick()
+                except Exception:  # pylint: disable=broad-except
+                    self._log.exception("Unhandled exception")
                 sleep(self.tick_interval_s)
             except KeyboardInterrupt:
                 self._log.info("Caught SIGINT. Bye!")
