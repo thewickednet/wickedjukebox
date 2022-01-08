@@ -2,7 +2,7 @@
 This module contains implementations for the underlying player backends
 """
 import logging
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractproperty
 from math import floor
 from pathlib import Path
 from typing import Any, Dict, List, NamedTuple, Optional, Set
@@ -68,6 +68,14 @@ class AbstractPlayer(ABC):
         Start/Resume playing
         """
         ...
+
+    @abstractproperty
+    def current_song(self) -> str:
+        ...
+
+    @abstractproperty
+    def progress(self) -> int:
+        return 0
 
     @abstractmethod
     def enqueue(
@@ -149,6 +157,14 @@ class NullPlayer(AbstractPlayer):
     def is_empty(self) -> bool:
         self._log.debug("Returning current empty-state")
         return False
+
+    @property
+    def current_song(self) -> str:
+        return ""
+
+    @property
+    def progress(self) -> str:
+        return 0
 
 
 class MpdPlayer(AbstractPlayer):
