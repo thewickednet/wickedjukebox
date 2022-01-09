@@ -8,13 +8,12 @@ from typing import TYPE_CHECKING, Any, Mapping, Optional
 
 import sqlalchemy.orm as orm
 from sqlalchemy.orm.query import Query
-from sqlalchemy.sql import func, select
+from sqlalchemy.sql import func
 from sqlalchemy.sql.elements import not_
-from sqlalchemy.sql.expression import alias, and_, join, text
+from sqlalchemy.sql.expression import and_, text
 
-from wickedjukebox.config import Config, ConfigKeys
 from wickedjukebox.model.db.auth import User
-from wickedjukebox.model.db.library import Album, Artist, Song, UserSongStanding
+from wickedjukebox.model.db.library import Song, UserSongStanding
 from wickedjukebox.model.db.settings import Setting
 from wickedjukebox.model.db.stats import ChannelStat
 from wickedjukebox.smartplaylist.dbbridge import parse_dynamic_playlists
@@ -49,38 +48,65 @@ class ScoringConfig(Enum):
 
 
 def get_standing_query(
-    standing: str, setting_name: str, proofoflife_timeout: int
+    session,
+    standing: str,
+    setting_name: str,
+    proofoflife_timeout: int,
 ) -> "Query[Any]":
     """
     Return a query retrieving the number of users that either "hate" or "love" a
     given song. Only users that have been listening within the last
     *proofoflife_timeout* seconds will be taken into account.
     """
-    query: Query[Any] = (
-        select([Song.id, func.count().label("standing")])  # type: ignore
-        .select_from(
-            join(
-                join(UserSongStanding, User),
-                Setting,
-                onclause=and_(
-                    Setting.var == setting_name,  # type: ignore
-                    User.id == Setting.user_id,  # type: ignore
-                ),
-                isouter=True,
-            )
-        )
-        .where(
-            UserSongStanding.standing == standing,
-            func.ifnull(Setting.value, 1) == 1,  # type: ignore
-            func.unix_timestamp(User.proof_of_listening) + proofoflife_timeout
-            > func.unix_timestamp(func.now()),
-        )
-        .group_by(UserSongStanding.song_id)
+    query = session.query(Song.id, func.count().label("count"))
+    query = query.join(UserSongStanding)
+    query = query.join(User)
+    query = query.join(
+        Setting,
+        and_(
+            Setting.var == setting_name,  # type: ignore
+            User.id == Setting.user_id,  # type: ignore
+        ),
+        isouter=True,
     )
+    query = query.filter(UserSongStanding.standing == standing)
+    query = query.filter(func.ifnull(Setting.value, 1) == 1)  # type: ignore
+    query = query.filter(
+        func.unix_timestamp(User.proof_of_listening) + proofoflife_timeout
+        > func.unix_timestamp(func.now())
+    )
+    query = query.group_by(UserSongStanding.song_id)
     return query
 
 
+def score_expression(
+    last_played: int, never_played: int, song_age: int, randomness: float
+):
+    """
+    Generates a column-expression that calculates the scoring for a song without
+    taking into account user-statistics.
+    """
+    return (
+        0
+        - func.ifnull(
+            ChannelStat.last_played_parametric(LAST_PLAYED_CUTOFF, last_played),
+            LAST_PLAYED_CUTOFF,
+        )
+        + func.if_(ChannelStat.lastPlayed is None, never_played, 0)
+        + func.ifnull(
+            func.if_(
+                (func.now() - Song.added) < SONG_AGE_CUTOFF,
+                (func.now() - Song.added) / SONG_AGE_CUTOFF * song_age,
+                0,
+            ),
+            0,
+        )
+        + ((func.rand() * randomness * 2) - randomness)
+    )
+
+
 def smart_random_no_users(
+    session,
     never_played: int,
     last_played: int,
     song_age: int,
@@ -103,63 +129,25 @@ def smart_random_no_users(
         value (in seconds).
     """
 
-    select_object = text(
-        """
-        s.id,
-        s.localpath,
-        (
-            (
-                IFNULL(least(:lp_cutoff, (NOW()-lastPlayed)), :lp_cutoff)
-                - :lp_cutoff
-            ) / :lp_cutoff * :last_played
+    query = (
+        session.query(
+            Song.id,
+            Song.localpath,
+            score_expression(
+                last_played, never_played, song_age, randomness
+            ).label("score"),
         )
-        + IF(lastPlayed IS NULL, :never_played, 0)
-        + IFNULL(
-            IF(
-                (NOW()-s.added)<:sa_cutoff,
-                (NOW()-s.added)/:sa_cutoff * :song_age,
-                0
-            ),
-            0
-            )
-        + ((RAND()*:randomness*2)-:randomness)
-        AS score
-        """
-    ).bindparams(
-        never_played=never_played,
-        last_played=last_played,
-        randomness=randomness,
-        song_age=song_age,
-        lp_cutoff=LAST_PLAYED_CUTOFF,
-        sa_cutoff=SONG_AGE_CUTOFF,
+        .select_from(Song)
+        .join(ChannelStat, isouter=True)
     )
-    query = select(select_object)  # type: ignore
-    query = query.select_from(
-        join(
-            join(
-                join(
-                    alias(Song, "s"),  # type: ignore
-                    alias(ChannelStat, "c"),
-                    isouter=True,
-                    onclause=text("c.song_id = s.id"),
-                ),
-                alias(Artist, "a"),  # type: ignore
-                onclause=text("s.artist_id = s.artist_id"),
-            ),
-            alias(Album, "b"),  # type: ignore
-            onclause=text("s.album_id = b.id"),
-        )
-    )
-
-    query = query.where(text("s.duration < :max_duration").bindparams(max_duration=max_random_duration))  # type: ignore
-    query = query.order_by(text("score DESC"))
-    query = query.limit(10)
-    query = query.offset(0)
-
-    return query
+    query = query.filter(Song.duration < max_random_duration)
+    query = query.filter(Song.duration < max_random_duration)
+    query = query.order_by(text("score DESC"))  # type: ignore
+    return query  # type: ignore
 
 
 def smart_random_with_users(
+    session,
     never_played: int,
     user_rating: int,
     last_played: int,
@@ -167,83 +155,44 @@ def smart_random_with_users(
     randomness: float,
     song_age: int,
     max_random_duration: int,
+    num_active_users: int,
 ) -> "Query[Tuple[int, str, float]]":
-    select_object = text(
-        """
-        s.id,
-        s.localpath,
-        (
-            (
-                IFNULL(least(:lp_cutoff, (NOW()-lastPlayed)), :lp_cutoff)
-                - :lp_cutoff
-            ) / :lp_cutoff * :last_played
-        )
-        + (
-            (
-                IFNULL(ls.standing, 0)
-            )
-            / (
-                SELECT COUNT(*) FROM users
-                WHERE UNIX_TIMESTAMP(proof_of_listening) + :proof_of_life > UNIX_TIMESTAMP(NOW())
-              ) * :user_rating
-          )
-        + IF(lastPlayed IS NULL, :never_played, 0)
-        + IFNULL(
-            IF(
-                (NOW()-s.added)<:sa_cutoff,
-                (NOW()-s.added)/:sa_cutoff * :song_age,
-                0
-            ),
-            0
-            )
-        + ((RAND()*:randomness*2)-:randomness)
-        AS score
-        """
-    ).bindparams(
-        never_played=never_played,
-        last_played=last_played,
-        randomness=randomness,
-        song_age=song_age,
-        user_rating=user_rating,
-        proof_of_life=proofoflife_timeout,
-        lp_cutoff=LAST_PLAYED_CUTOFF,
-        sa_cutoff=SONG_AGE_CUTOFF,
-    )
-    query = select(select_object)  # type: ignore
+
+    """
+    song.id
+    song.localpath
+    score =
+        - seconds since last played (capped of at lp_cutoff) divided by lp_cutoff multiplied by "last-played" scoring weight
+    """
+
     loves_query = get_standing_query(
-        "love", "loves_affect_random", proofoflife_timeout
-    )
+        session, "love", "loves_affect_random", proofoflife_timeout
+    ).cte()
     hates_query = get_standing_query(
-        "hate", "hates_affect_random", proofoflife_timeout
+        session, "hate", "hates_affect_random", proofoflife_timeout
+    ).cte()
+
+    score = (
+        score_expression(
+            last_played,
+            never_played,
+            song_age,
+            randomness,
+        )
+        + (func.ifnull(loves_query.c.count, 0) / num_active_users * user_rating)
     )
-    query = query.select_from(
-        join(
-            join(
-                join(
-                    join(
-                        join(
-                            alias(Song, "s"),  # type: ignore
-                            ChannelStat,
-                            isouter=True,
-                        ),
-                        alias(loves_query.subquery(), "ls"),  # type: ignore
-                        isouter=True,
-                    ),
-                    alias(hates_query.subquery(), "hs"),  # type: ignore
-                    isouter=True,
-                ),
-                Artist,  # type: ignore
-            ),
-            Album,  # type: ignore
-        ),
+
+    query = (
+        session.query(Song.id, Song.localpath, score.label("score"))
+        .select_from(Song)
+        .join(ChannelStat, isouter=True)
+        .join(loves_query, isouter=True)
+        .join(hates_query, isouter=True)
     )
-    query = query.where(  # type: ignore
-        Song.duration < max_random_duration,  # type: ignore
-        func.ifnull(text("hs.standing"), 0) == 0,  # type: ignore
-    )
+    query = query.filter(Song.duration < max_random_duration)
+    query = query.filter(func.ifnull(hates_query.c.count, 0) == 0)
+    query = query.filter(Song.duration < max_random_duration)
     query = query.order_by(text("score DESC"))  # type: ignore
-    query = query.limit(10)  # type: ignore
-    query = query.offset(0)  # type: ignore
     return query  # type: ignore
 
 
@@ -272,13 +221,19 @@ def find_song(
 
     if is_mysql:
 
-        query = session.query(User.id).filter(
-            func.unix_timestamp(User.proof_of_listening) + proofoflife_timeout
-            > func.unix_timestamp(func.now())
+        num_active_users = (
+            session.query(User.id)
+            .filter(
+                func.unix_timestamp(User.proof_of_listening)
+                + proofoflife_timeout
+                > func.unix_timestamp(func.now())
+            )
+            .count()
         )
-        if query.count() == 0:
+        if num_active_users == 0:
             # no users online
             query = smart_random_no_users(
+                session,
                 never_played,
                 last_played,
                 song_age,
@@ -287,6 +242,7 @@ def find_song(
             )
         else:
             query = smart_random_with_users(
+                session,
                 never_played,
                 user_rating,
                 last_played,
@@ -294,18 +250,21 @@ def find_song(
                 randomness,
                 song_age,
                 max_random_duration,
+                num_active_users,
             )
     else:
         raise Exception(
             "SQLite support discontinued since revision 346. It may reappear in the future!"
         )
 
-    query = query.where(not_(text("s.broken")))  # type: ignore
+    query = query.filter(not_(Song.broken))  # type: ignore
 
     # TODO: Add dynamic playlist clauses
     # TODO fix cross-product issue query = query.where(and_(*parse_dynamic_playlists()))
     query = query.where(and_(*parse_dynamic_playlists()))
 
+    query = query.limit(10)  # type: ignore
+    query = query.offset(0)  # type: ignore
     res = session.execute(query)
     candidate = res.first()
 

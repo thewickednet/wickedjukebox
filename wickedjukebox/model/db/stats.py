@@ -30,6 +30,7 @@ from sqlalchemy import (
     Text,
     text,
 )
+from sqlalchemy.ext.hybrid import hybrid_method, hybrid_property
 from sqlalchemy.orm import Session as TSession
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import ForeignKeyConstraint
@@ -139,3 +140,27 @@ class ChannelStat(Base):
     def __init__(self, song_id, channel_id):
         self.song_id = song_id
         self.channel_id = channel_id
+
+    @hybrid_method
+    def last_played_parametric(self, lp_cutoff, weight) -> float:
+        if self.lastPlayed is None:
+            return 1.0
+        from datetime import datetime
+
+        return (
+            min(lp_cutoff, (datetime.now() - self.lastPlayed).total_seconds)
+            / lp_cutoff
+            * weight
+        )
+
+    @last_played_parametric.expression
+    def last_played_parametric(cls, lp_cutoff, weight):
+        from sqlalchemy import func
+
+        return (
+            func.ifnull(
+                func.least(lp_cutoff, (func.now() - cls.lastPlayed)), lp_cutoff
+            )
+            / lp_cutoff
+            * cls.lastPlayed
+        )
