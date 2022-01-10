@@ -260,7 +260,7 @@ def find_song(
     query = query.filter(not_(Song.broken))  # type: ignore
 
     # TODO: Add dynamic playlist clauses
-    query = query.where(and_(True, *parse_dynamic_playlists()))
+    query = parse_dynamic_playlists(query)
 
     query = query.limit(10)  # type: ignore
     query = query.offset(0)  # type: ignore
