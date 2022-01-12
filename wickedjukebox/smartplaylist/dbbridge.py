@@ -34,11 +34,11 @@ def parse_dynamic_playlists(query: Query) -> Query:
             # as it triggers an unexpected behaviour (bug). i.e.: Why the
             # heck does it only activate one playlist?!?
         except ParserSyntaxError as ex:
-            import traceback
-
-            traceback.print_exc()
-            LOG.error(str(ex))
-            LOG.error("Query was: %s", dpl.query)
+            LOG.error(
+                "Unable to process dynamic playlist %r",
+                dpl.query,
+                exc_info=True,
+            )
         except Exception:  # pylint: disable=broad-except
             # catchall for graceful degradation
             LOG.exception("Unhandled exception")
