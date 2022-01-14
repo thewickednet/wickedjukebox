@@ -14,6 +14,7 @@
 """
 This module contains DB definitions for tables used to steer the music playback
 """
+import logging
 from typing import Optional
 
 from sqlalchemy import (
@@ -27,13 +28,19 @@ from sqlalchemy import (
     String,
     Text,
     and_,
+    select,
     text,
 )
 from sqlalchemy.orm import Session as TSession
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm.query import Query
 from sqlalchemy.sql.schema import ForeignKeyConstraint
 
+from wickedjukebox.smartplaylist.parser import ParserSyntaxError, parse_query
+
 from .sameta import Base
+
+LOG = logging.getLogger(__name__)
 
 
 class Channel(Base):
@@ -244,6 +251,38 @@ class DynamicPlaylist(Base):
 
     def __repr__(self):
         return "<DynamicPlaylist %s>" % (self.id)
+
+    @staticmethod
+    def apply_to(query: Query) -> Query:
+        """
+        Modify *query* by applying additional filters based on a "dynamic
+        playlist"
+        """
+        # TODO An issue with table-aliasing causes cartesian products.
+        #      Investigate where this comes from.
+        sel = select([DynamicPlaylist.query])
+        sel = sel.where(DynamicPlaylist.group_id > 0)
+        sel = sel.order_by("group_id")
+        res = sel.execute().fetchall()
+        for dpl in res:
+            try:
+                if parse_query(dpl["query"]):
+                    # TODO: prevent SQL injections (already somewhat safe due to
+                    # lexx/yacc parsing)
+                    query = query.where("(" + parse_query(dpl["query"]) + ")")
+                break  # only one query will be parsed. for now.... this is a big TODO
+                # as it triggers an unexpected behaviour (bug). i.e.: Why the
+                # heck does it only activate one playlist?!?
+            except ParserSyntaxError:
+                LOG.error(
+                    "Unable to process dynamic playlist %r",
+                    dpl.query,
+                    exc_info=True,
+                )
+            except Exception:  # pylint: disable=broad-except
+                # catchall for graceful degradation
+                LOG.exception("Unhandled exception")
+        return query
 
 
 class RandomSongsToUse(Base):

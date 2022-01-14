@@ -14,9 +14,9 @@ from sqlalchemy.sql.expression import and_, text
 
 from wickedjukebox.model.db.auth import User
 from wickedjukebox.model.db.library import Song, UserSongStanding
+from wickedjukebox.model.db.playback import DynamicPlaylist
 from wickedjukebox.model.db.settings import Setting
 from wickedjukebox.model.db.stats import ChannelStat
-from wickedjukebox.smartplaylist.dbbridge import parse_dynamic_playlists
 
 if TYPE_CHECKING:
     from typing import Tuple
@@ -258,10 +258,7 @@ def find_song(
         )
 
     query = query.filter(not_(Song.broken))  # type: ignore
-
-    # TODO: Add dynamic playlist clauses
-    query = parse_dynamic_playlists(query)
-
+    query = DynamicPlaylist.apply_to(query)  # type: ignore
     query = query.limit(10)  # type: ignore
     query = query.offset(0)  # type: ignore
     candidate = query.first()
