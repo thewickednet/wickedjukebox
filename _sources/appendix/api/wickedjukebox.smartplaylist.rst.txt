@@ -4,14 +4,6 @@ wickedjukebox.smartplaylist package
 Submodules
 ----------
 
-wickedjukebox.smartplaylist.dbbridge module
--------------------------------------------
-
-.. automodule:: wickedjukebox.smartplaylist.dbbridge
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 wickedjukebox.smartplaylist.parser module
 -----------------------------------------
 

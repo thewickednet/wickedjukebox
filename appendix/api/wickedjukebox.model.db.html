@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="wickedjukebox.smartplaylist package" href="wickedjukebox.smartplaylist.html" /><link rel="prev" title="wickedjukebox.model package" href="wickedjukebox.model.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.01.02"/>
+    <meta name="generator" content="sphinx-4.4.0, furo 2022.01.02"/>
         <title>wickedjukebox.model.db package - wickedjukebox documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=df49af52631e7917044a9c21a57f7b83170a6dd0" />
@@ -1073,6 +1073,12 @@ gathering of people with start- and end-date).</p>
 <dt class="sig sig-object py" id="wickedjukebox.model.db.playback.DynamicPlaylist">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.playback.</span></span><span class="sig-name descname"><span class="pre">DynamicPlaylist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.playback.DynamicPlaylist" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.orm.decl_api.Base</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.DynamicPlaylist.apply_to">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">apply_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">sqlalchemy.orm.query.Query</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">sqlalchemy.orm.query.Query</span></span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.DynamicPlaylist.apply_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify <em>query</em> by applying additional filters based on a “dynamic
+playlist”</p>
+</dd></dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wickedjukebox.model.db.playback.DynamicPlaylist.channel_id">
 <span class="sig-name descname"><span class="pre">channel_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.DynamicPlaylist.channel_id" title="Permalink to this definition">¶</a></dt>
