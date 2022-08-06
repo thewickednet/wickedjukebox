@@ -35,6 +35,8 @@ from sqlalchemy.orm import Session as TSession
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import ForeignKeyConstraint
 
+from .library import Song
+from .playback import Channel
 from .sameta import Base
 
 t_user_album_stats = Table(
@@ -164,3 +166,20 @@ class ChannelStat(Base):
             / lp_cutoff
             * cls.lastPlayed
         )
+
+    @staticmethod
+    def by_song(
+        session: TSession, song: Song, channel: Channel
+    ) -> "ChannelStat":
+        stat = (  # type: ignore
+            session.query(ChannelStat)  # type: ignore
+            .filter(
+                ChannelStat.song_id == song.id,
+                ChannelStat.channel_id == channel.id,
+            )
+            .one_or_none()
+        )
+        if stat is None:
+            stat = ChannelStat(song_id=song.id, channel_id=channel.id)
+            session.add(stat)
+        return stat

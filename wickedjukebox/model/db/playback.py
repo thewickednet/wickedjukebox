@@ -62,6 +62,11 @@ class Channel(Base):
     def __repr__(self):
         return f"<Channel {self.id} name={repr(self.name)}>"
 
+    @staticmethod
+    def by_name(session: TSession, name: str) -> Optional["Channel"]:
+        channel = session.query(Channel).filter_by(name=name).one_or_none()
+        return channel
+
 
 class State(Base):
     __tablename__ = "state"
