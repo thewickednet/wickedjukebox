@@ -102,6 +102,7 @@ class Channel:
                 )
             stat = ChannelStat.by_song(session, song, channel)
             stat.lastPlayed = datetime.now()
+            stat.played = (stat.played + 1) if stat.played else 1  # type: ignore
             session.commit()
 
     def _enqueue(self) -> None:
