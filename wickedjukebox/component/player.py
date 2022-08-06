@@ -4,6 +4,7 @@ This module contains implementations for the underlying player backends
 import logging
 from abc import ABC, abstractmethod
 from math import floor
+from os.path import exists
 from pathlib import Path
 from typing import Any, Dict, List, NamedTuple, Optional, Set
 
@@ -84,6 +85,15 @@ class AbstractPlayer(ABC):
 
     @property
     @abstractmethod
+    def current_song(self) -> str:  # pragma: no cover
+        """
+        Returns the filename of the currently running song, or an empty string
+        if we're not playing anything.
+        """
+        ...
+
+    @property
+    @abstractmethod
     def remaining_seconds(self) -> int:  # pragma: no cover
         """
         How many seconds until we arrive at the end of the queue
@@ -136,6 +146,11 @@ class NullPlayer(AbstractPlayer):
         return None
 
     @property
+    def current_song(self) -> str:
+        self._log.debug("Returning the currently running song")
+        return ""
+
+    @property
     def remaining_seconds(self) -> int:
         self._log.debug("Returning remaining seconds")
         return 0
@@ -183,6 +198,11 @@ class MpdPlayer(AbstractPlayer):
         self.host = cfg["host"].strip()
         self.port = int(cfg["port"])
         outer_path, _, inner_path = cfg["path_map"].partition(":")
+        if not exists(outer_path):
+            raise ConfigError(
+                f"The path {outer_path} in the MPD path-map config does not "
+                "exist."
+            )
         self.path_map = PathMap(Path(outer_path), Path(inner_path))
 
     def jukebox2mpd(self, filename: str) -> str:
@@ -206,6 +226,8 @@ class MpdPlayer(AbstractPlayer):
         systems (or containers). This maps a "mpd-filename" to a
         "jukebox-filename"
         """
+        if filename == "":
+            return ""
         jb_path = self.path_map.jukebox_path / filename
         return str(jb_path)
 
@@ -259,9 +281,29 @@ class MpdPlayer(AbstractPlayer):
             "Songs since last jingle: %d", self.songs_since_last_jingle
         )
 
+    def _current_song_info(self) -> Dict[str, Any]:
+        # TODO: self.remaining_seconds has some code that might benefit from
+        # this
+        self.connect()
+        status: Dict[str, str] = self.client.status()  # type: ignore
+        current_song = status.get("song")
+        playlist: List[MpdSong] = self.client.playlistinfo()  # type: ignore
+        if current_song is None:
+            return {}
+        current_playlist_pos = int(current_song)
+        songinfo = playlist[current_playlist_pos]
+        return songinfo
+
+    @property
+    def current_song(self) -> str:
+        songinfo = self._current_song_info()
+        filename = songinfo.get("file", "")
+        return self.mpd2jukebox(filename)
+
     @property
     def remaining_seconds(self) -> int:
         # pylint: disable=no-member
+        # TODO: self._current_song_info has some code that could be useful here
         self.connect()
         status: Dict[str, str] = self.client.status()  # type: ignore
         current_song = status.get("song")

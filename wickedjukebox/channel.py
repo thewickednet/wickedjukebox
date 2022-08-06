@@ -1,13 +1,23 @@
 import logging
+from datetime import datetime
 from time import sleep
 from typing import Optional
+
+from sqlalchemy.orm import Session as TSession
 
 from wickedjukebox.component.ipc import AbstractIPC, Command, NullIPC
 from wickedjukebox.component.jingle import AbstractJingle, NullJingle
 from wickedjukebox.component.player import AbstractPlayer, NullPlayer
 from wickedjukebox.component.queue import AbstractQueue, NullQueue
 from wickedjukebox.component.random import AbstractRandom, NullRandom
+from wickedjukebox.exc import WickedJukeboxException
 from wickedjukebox.logutil import qualname
+from wickedjukebox.model.db.library import Song
+from wickedjukebox.model.db.playback import Channel as DbChannel
+from wickedjukebox.model.db.sameta import Session
+from wickedjukebox.model.db.stats import ChannelStat
+
+LOG = logging.getLogger(__name__)
 
 
 class Channel:
@@ -33,6 +43,37 @@ class Channel:
         self.ticks = 0
         self.keep_running = True
         self._log = logging.getLogger(qualname(self))
+
+    def _commit_song_to_history(self) -> None:
+        filename = self.player.current_song
+        if filename == "":
+            LOG.debug(
+                "Nothing is currently playing. Nothing committed to history"
+            )
+            return
+
+        with Session() as session:  # type: ignore
+            session: TSession
+            song = Song.by_filename(session, filename)
+            if song is None:
+                LOG.warning(
+                    (
+                        "No song found with filename %r in database. "
+                        "Not committing it to history."
+                    ),
+                    filename,
+                )
+                return
+            channel = DbChannel.by_name(session, self.name)
+            if song is None:
+                LOG.error("No song with filename %r found in DB", filename)
+            if channel is None:
+                raise WickedJukeboxException(
+                    f"No channel with name {self.name!r} found!"
+                )
+            stat = ChannelStat.by_song(session, song, channel)
+            stat.lastPlayed = datetime.now()
+            session.commit()
 
     def _enqueue(self) -> None:
         next_song = self.queue.dequeue() or self.random.pick()
@@ -71,6 +112,7 @@ class Channel:
                 "Enqueueing new song.",
                 self.player.remaining_seconds,
             )
+            self._commit_song_to_history()
             self._enqueue()
 
         if do_skip:
