@@ -172,15 +172,12 @@ def smart_random_with_users(
         session, "hate", "hates_affect_random", proofoflife_timeout
     ).cte()
 
-    score = (
-        score_expression(
-            last_played,
-            never_played,
-            song_age,
-            randomness,
-        )
-        + (func.ifnull(loves_query.c.count, 0) / num_active_users * user_rating)
-    )
+    score = score_expression(
+        last_played,
+        never_played,
+        song_age,
+        randomness,
+    ) + (func.ifnull(loves_query.c.count, 0) / num_active_users * user_rating)
 
     query = (
         session.query(Song.id, Song.localpath, score.label("score"))
