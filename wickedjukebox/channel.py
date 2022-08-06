@@ -44,6 +44,35 @@ class Channel:
         self.keep_running = True
         self._log = logging.getLogger(qualname(self))
 
+    def _log_skip_stats(self) -> None:
+        filename = self.player.current_song
+        if filename == "":
+            LOG.debug(
+                "Nothing is currently playing. Nothing committed to history"
+            )
+            return
+
+        with Session() as session:  # type: ignore
+            session: TSession
+            song = Song.by_filename(session, filename)
+            if song is None:
+                LOG.warning(
+                    (
+                        "No song found with filename %r in database. "
+                        "Not committing it to history."
+                    ),
+                    filename,
+                )
+                return
+            channel = DbChannel.by_name(session, self.name)
+            if channel is None:
+                raise WickedJukeboxException(
+                    f"No channel with name {self.name!r} found!"
+                )
+            stat = ChannelStat.by_song(session, song, channel)
+            stat.skipped = (stat.skipped + 1) if stat.skipped else 1  # type: ignore
+            session.commit()
+
     def _commit_song_to_history(self) -> None:
         filename = self.player.current_song
         if filename == "":
@@ -119,6 +148,7 @@ class Channel:
             self._log.info("Skipping (via external request)")
             self._enqueue()
             self.player.skip()
+            self._log_skip_stats()
             self.ipc.set(Command.SKIP, False)
 
         self.ticks += 1
