@@ -94,8 +94,6 @@ class Channel:
                 )
                 return
             channel = DbChannel.by_name(session, self.name)
-            if song is None:
-                LOG.error("No song with filename %r found in DB", filename)
             if channel is None:
                 raise WickedJukeboxException(
                     f"No channel with name {self.name!r} found!"
