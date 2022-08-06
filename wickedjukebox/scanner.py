@@ -49,7 +49,7 @@ def process_files(files: List[Path], stream: TextIO = stdout) -> None:
     for file in files:
         try:
             process(file)
-        except TypeError as exc:
+        except (KeyError, TypeError) as exc:
             LOG.error("Unable to scan %s (%s)", file, exc, exc_info=True)
         pbar.next()
     pbar.finish()
