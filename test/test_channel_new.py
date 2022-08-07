@@ -37,6 +37,7 @@ def test_tick():
     mock_jingle.interval = 10
     mock_player = create_autospec(AbstractPlayer)
     mock_player.remaining_seconds = 5
+    mock_player.progress = 0
     mock_player.songs_since_last_jingle = 99
     mock_player.is_empty = False
     channel = Channel(
@@ -65,6 +66,7 @@ def test_queue_needed():
     mock_player = create_autospec(AbstractPlayer)
     mock_player.songs_since_last_jingle = 0
     mock_player.remaining_seconds = 5
+    mock_player.progress = 0
     mock_player.is_empty = False
     mock_queue = create_autospec(AbstractQueue)
     channel = Channel(tick_interval_s=5, queue=mock_queue, player=mock_player)
@@ -80,6 +82,7 @@ def test_queue_needed_empty():
     mock_player = create_autospec(AbstractPlayer)
     mock_player.songs_since_last_jingle = 0
     mock_player.remaining_seconds = 0
+    mock_player.progress = 0
     mock_player.is_empty = False
     mock_queue = create_autospec(AbstractQueue)
     sentinel = object()
@@ -96,6 +99,7 @@ def test_random_needed():
     mock_player = create_autospec(AbstractPlayer)
     mock_player.songs_since_last_jingle = 0
     mock_player.remaining_seconds = 0
+    mock_player.progress = 0
     mock_player.is_empty = False
     mock_queue = create_autospec(AbstractQueue)
     mock_queue.dequeue.return_value = None
@@ -114,6 +118,7 @@ def test_skip_requested():
     mock_player = create_autospec(AbstractPlayer)
     mock_player.songs_since_last_jingle = 0
     mock_player.remaining_seconds = 99
+    mock_player.progress = 0
     mock_ipc = create_autospec(AbstractIPC)
     fake_state = {
         Command.SKIP: 1,
@@ -132,6 +137,7 @@ def test_skip_ensure_queue():
     mock_player = create_autospec(AbstractPlayer)
     mock_player.songs_since_last_jingle = 0
     mock_player.remaining_seconds = 0
+    mock_player.progress = 0
     mock_ipc = create_autospec(AbstractIPC)
     fake_state = {
         Command.SKIP: 1,
