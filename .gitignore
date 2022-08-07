@@ -3,6 +3,7 @@
 *.pyo
 *~
 .*.swp
+/.coverage
 /.mypy_cache/
 /.pylintrc
 /.pytest_cache
@@ -12,10 +13,10 @@ build
 config.ini
 coverage.xml
 dist
+doc/_build
+doc/appendix/api
 env
 httpd_data/users/
 logs/
 parser.out
 parsetab.py
-doc/_build
-doc/appendix/api

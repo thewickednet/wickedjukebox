@@ -2,6 +2,7 @@
 
 import argparse
 import logging
+from typing import List, Optional
 
 from wickedjukebox import __version__
 from wickedjukebox.logutil import setup_logging
@@ -16,7 +17,7 @@ def process_rescan(args: argparse.Namespace) -> int:
     return 0
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
     """
     Parses the command-line arguments
     """
@@ -25,7 +26,7 @@ def parse_args() -> argparse.Namespace:
     rescan_parser = subparsers.add_parser("rescan")
     rescan_parser.add_argument("path", nargs=1)
     rescan_parser.set_defaults(func=process_rescan)
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 def main() -> int:
