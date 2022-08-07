@@ -183,12 +183,16 @@ class FSIPC(AbstractIPC):
     def get(self, key: Command) -> Optional[Any]:
         if key == Command.SKIP:
             return self._exists(FSStateFiles.SKIP_REQUESTED)
-        raise InvalidCommand("Command {key} is not (yet) supported by {self!r}")
+        raise InvalidCommand(
+            f"Command {key} is not (yet) supported by {self!r}"
+        )
 
     def set(self, key: Command, value: Any) -> Optional[Any]:
         if key == Command.SKIP:
             return self._set_boolfile(FSStateFiles.SKIP_REQUESTED, value)
-        raise InvalidCommand("Command {key} is not (yet) supported by {self!r}")
+        raise InvalidCommand(
+            f"Command {key} is not (yet) supported by {self!r}"
+        )
 
 
 class DBIPC(AbstractIPC):
