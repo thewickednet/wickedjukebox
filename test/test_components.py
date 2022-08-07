@@ -110,12 +110,13 @@ def test_get_player_mpd(fake_config: Config):
         type = mpd
         host = 127.0.0.1
         port = 6600
-        path_map = local_path:container_path
+        path_map = test/data/local_path:container_path
         """
     )
     player = comp.get_player(fake_config, "test-channel")
     assert isinstance(player, MpdPlayer)
+
     assert player.host == "127.0.0.1"
     assert player.port == 6600
-    assert player.path_map.jukebox_path == Path("local_path")
+    assert player.path_map.jukebox_path == Path("test/data/local_path")
     assert player.path_map.mpd_path == Path("container_path")

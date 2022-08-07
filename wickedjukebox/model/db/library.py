@@ -248,6 +248,9 @@ class Song(Base):
         """
         Retrieve a song from the database using the local filename as key
         """
+        if session.bind is None:
+            LOG.debug("No DB is bound to this session. Returning None!")
+            return None
         song = session.query(Song).filter_by(localpath=filename).one_or_none()
         return song
 

@@ -18,7 +18,7 @@ def mocked_player():
             {
                 "host": "localhost",
                 "port": "6600",
-                "path_map": "/jukebox/root:/mpd/root",
+                "path_map": "test/data/local_path:/mpd/root",
             }
         )
         yield player, MPDClient
@@ -40,14 +40,14 @@ def test_null_player():
 
 def test_path_jukebox2mpd(mocked_player: Tuple[p.MpdPlayer, Mock]):
     player, _ = mocked_player
-    result = player.jukebox2mpd("/jukebox/root/artist/album/track.mp3")
+    result = player.jukebox2mpd("test/data/local_path/artist/album/track.mp3")
     expected = "artist/album/track.mp3"
     assert result == expected
 
 
 def test_path_conversion_invariance(mocked_player: Tuple[p.MpdPlayer, Mock]):
     player, _ = mocked_player
-    filename = "/jukebox/root/artist/album/track.mp3"
+    filename = "test/data/local_path/artist/album/track.mp3"
     result = player.mpd2jukebox(player.jukebox2mpd(filename))
     assert result == filename
 
@@ -68,7 +68,7 @@ def test_enqueue(mocked_player: Tuple[p.MpdPlayer, Mock]):
     client = Mock()
     MPDClient.return_value = client
     assert player.songs_since_last_jingle == 0
-    player.enqueue("/jukebox/root/foo.mp3", is_jingle=False)
+    player.enqueue("test/data/local_path/foo.mp3", is_jingle=False)
     assert player.songs_since_last_jingle == 1
     client.add.assert_called_with("foo.mp3")  # type: ignore
 
@@ -77,9 +77,9 @@ def test_enqueue_jingle(mocked_player: Tuple[p.MpdPlayer, Mock]):
     player, MPDClient = mocked_player
     client = Mock()
     MPDClient.return_value = client
-    player.enqueue("/jukebox/root/foo.mp3", is_jingle=False)
+    player.enqueue("test/data/local_path/foo.mp3", is_jingle=False)
     assert player.songs_since_last_jingle == 1
-    player.enqueue("/jukebox/root/foo.mp3", is_jingle=True)
+    player.enqueue("test/data/local_path/foo.mp3", is_jingle=True)
     assert player.songs_since_last_jingle == 0
     client.add.assert_called_with("foo.mp3")  # type: ignore
 
