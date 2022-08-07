@@ -15,6 +15,8 @@
 This module contains DB definitions for tables used to steer the music playback
 """
 import logging
+from datetime import datetime
+from os.path import basename
 from typing import Optional
 
 from sqlalchemy import (
@@ -22,20 +24,22 @@ from sqlalchemy import (
     Column,
     DateTime,
     Float,
-    ForeignKey,
     Index,
     Integer,
     String,
     Text,
     and_,
+    insert,
     select,
     text,
+    update,
 )
 from sqlalchemy.orm import Session as TSession
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.query import Query
 from sqlalchemy.sql.schema import ForeignKeyConstraint
 
+from wickedjukebox.logutil import caller_source
 from wickedjukebox.smartplaylist.parser import ParserSyntaxError, parse_query
 
 from .sameta import Base
