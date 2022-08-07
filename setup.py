@@ -6,7 +6,7 @@ NAME = "wickedjukebox"
 
 setup(
     name=NAME,
-    version="3.0.0a5",
+    version="3.0.0a6",
     packages=find_packages(exclude=["test"]),
     entry_points={
         "console_scripts": [
