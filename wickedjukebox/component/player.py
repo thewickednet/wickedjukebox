@@ -200,7 +200,7 @@ class MpdPlayer(AbstractPlayer):
         outer_path, _, inner_path = cfg["path_map"].partition(":")
         if not exists(outer_path):
             raise ConfigError(
-                f"The path {outer_path} in the MPD path-map config does not "
+                f"The path {outer_path!r} in the MPD path-map config does not "
                 "exist."
             )
         self.path_map = PathMap(Path(outer_path), Path(inner_path))
