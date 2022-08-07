@@ -268,6 +268,16 @@ required keys depend on the specific random type.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
 <p>Possible commands that can be interpreted</p>
 <dl class="py attribute">
+<dt class="sig sig-object py" id="wickedjukebox.component.ipc.Command.CURRENT_SONG">
+<span class="sig-name descname"><span class="pre">CURRENT_SONG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'current_song'</span></em><a class="headerlink" href="#wickedjukebox.component.ipc.Command.CURRENT_SONG" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wickedjukebox.component.ipc.Command.PROGRESS">
+<span class="sig-name descname"><span class="pre">PROGRESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'progress'</span></em><a class="headerlink" href="#wickedjukebox.component.ipc.Command.PROGRESS" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="wickedjukebox.component.ipc.Command.SKIP">
 <span class="sig-name descname"><span class="pre">SKIP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'skip'</span></em><a class="headerlink" href="#wickedjukebox.component.ipc.Command.SKIP" title="Permalink to this definition">#</a></dt>
 <dd><p>Skip the current song as soon as possible</p>
@@ -683,6 +693,11 @@ systems (or containers). This maps a “mpd-filename” to a
 <span class="sig-name descname"><span class="pre">play</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wickedjukebox.component.player.MpdPlayer.play" title="Permalink to this definition">#</a></dt>
 <dd><p>Start/Resume playing</p>
 </dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="wickedjukebox.component.player.MpdPlayer.progress">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">progress</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#wickedjukebox.component.player.MpdPlayer.progress" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="wickedjukebox.component.player.MpdPlayer.remaining_seconds">
