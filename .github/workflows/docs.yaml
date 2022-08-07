@@ -1,9 +1,6 @@
 ---
 name: Documentation
-on:
-  push:
-    branches:
-      - refs/tags/*
+on: [push]
 jobs:
   build-docs:
     runs-on: ubuntu-latest

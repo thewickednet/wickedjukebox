@@ -15,27 +15,15 @@ from wickedjukebox.component import (
     get_player,
     get_queue,
 )
-from wickedjukebox.config import Config
+from wickedjukebox.config import Config, ConfigKeys
 from wickedjukebox.logutil import setup_logging
+from wickedjukebox.model.db.sameta import connect
 
 LOG = logging.getLogger(__name__)
 
 
 def parse_args() -> Namespace:
     parser = ArgumentParser()
-    parser.add_argument(
-        "--log-file",
-        dest="log_file",
-        default="",
-        help="A log-file to record errors and tracebacks",
-    )
-    parser.add_argument(
-        "--log-file-level",
-        dest="log_file_level",
-        default="ERROR",
-        help="The log-level to include in the log-file",
-        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-    )
     parser.add_argument(
         "-c",
         "--channel",
@@ -84,11 +72,10 @@ def main():
     Parse command line options, bootstrap the app and run the channel
     """
     args = parse_args()
-    setup_logging(
-        args.verbosity,
-        log_file=args.log_file,
-        log_file_level=logging.getLevelName(args.log_file_level),
-    )
+    setup_logging(args.verbosity)
+    config = Config()
+    dsn = config.get(ConfigKeys.DSN)
+    connect(dsn)
     LOG.info("Wicked Jukebox v%s ", __version__)
     channel = make_channel(args.channel_name)
     if not channel:

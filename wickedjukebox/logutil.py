@@ -4,16 +4,12 @@ This module contains some helpers that come in handy during logging
 
 import logging
 import logging.config
-import pathlib
 import traceback
-from logging.handlers import RotatingFileHandler
 from typing import Any, Type, TypeVar
 
 import gouge.colourcli as gc
 
 _T = TypeVar("_T", bound=Type[Any])
-
-LOG = logging.getLogger(__name__)
 
 
 def caller_source():
@@ -46,14 +42,9 @@ def qualname(instance: Any) -> str:
     return ".".join([module, cls.__name__])
 
 
-def setup_logging(
-    verbosity: int = 0, log_file: str = "", log_file_level: int = logging.ERROR
-) -> None:
+def setup_logging(verbosity: int = 0) -> None:
     """
     Configure logging for the application for a given verbosity level
-
-    :param log_file: An optional filename to use to store logs
-    :param log_file_level: The level of log-messages to store in the log-file
     """
     levelmap = {
         0: logging.WARNING,
@@ -65,20 +56,6 @@ def setup_logging(
     gc.Simple.basicConfig(level=levelmap[verbosity])
     logging.getLogger("requests").setLevel(third_party_level)
     logging.getLogger("mpd").setLevel(third_party_level)
-    if log_file:
-        pth = pathlib.Path(log_file)
-        pth.parent.mkdir(parents=True, exist_ok=True)
-        handler = RotatingFileHandler(
-            str(pth), maxBytes=10 * 1024 * 1024, backupCount=5
-        )
-        handler.setLevel(log_file_level)
-        handler.setFormatter(
-            logging.Formatter(
-                fmt="%(asctime)s | %(levelname)s | %(name)s | %(message)s"
-            )
-        )
-        logging.getLogger().addHandler(handler)
-        LOG.info("Error logs enabled in %s", log_file)
 
 
 def qualname_repr(cls: _T) -> _T:

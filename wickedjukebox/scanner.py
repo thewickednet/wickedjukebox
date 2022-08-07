@@ -15,7 +15,8 @@ from typing import List, TextIO
 from progress.bar import ChargingBar
 from sqlalchemy.orm import Session as TSession
 
-from wickedjukebox.model.database import Session, Song
+from wickedjukebox.model.db.library import Song
+from wickedjukebox.model.db.sameta import Session
 
 LOG = logging.getLogger(__name__)
 SUPPORTED_FILETYPES = {".mp3"}

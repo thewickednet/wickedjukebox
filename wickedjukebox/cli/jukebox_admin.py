@@ -5,7 +5,9 @@ import logging
 from typing import List, Optional
 
 from wickedjukebox import __version__
+from wickedjukebox.config import Config, ConfigKeys
 from wickedjukebox.logutil import setup_logging
+from wickedjukebox.model.db.sameta import connect
 from wickedjukebox.scanner import scan
 
 LOG = logging.getLogger(__name__)
@@ -32,4 +34,7 @@ def parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
 def main() -> int:
     setup_logging(1)
     args = parse_args()
+    config = Config()
+    dsn = config.get(ConfigKeys.DSN)
+    connect(dsn)
     return args.func(args)

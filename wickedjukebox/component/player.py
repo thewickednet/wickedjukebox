@@ -2,7 +2,7 @@
 This module contains implementations for the underlying player backends
 """
 import logging
-from abc import ABC, abstractmethod, abstractproperty
+from abc import ABC, abstractmethod
 from math import floor
 from os.path import exists
 from pathlib import Path
@@ -69,14 +69,6 @@ class AbstractPlayer(ABC):
         Start/Resume playing
         """
         ...
-
-    @abstractproperty
-    def current_song(self) -> str:
-        ...
-
-    @abstractproperty
-    def progress(self) -> int:
-        return 0
 
     @abstractmethod
     def enqueue(
@@ -173,14 +165,6 @@ class NullPlayer(AbstractPlayer):
         self._log.debug("Returning current empty-state")
         return False
 
-    @property
-    def current_song(self) -> str:
-        return ""
-
-    @property
-    def progress(self) -> str:
-        return 0
-
 
 class MpdPlayer(AbstractPlayer):
     """
@@ -231,8 +215,7 @@ class MpdPlayer(AbstractPlayer):
         root.
         """
         jukebox_root = str(self.path_map.jukebox_path)
-        if filename.startswith(jukebox_root):
-            mpd_path = filename[len(jukebox_root) + 1 :]
+        mpd_path = filename[len(jukebox_root) + 1 :]
         return str(mpd_path)
 
     def mpd2jukebox(self, filename: str) -> str:
@@ -350,16 +333,3 @@ class MpdPlayer(AbstractPlayer):
         self.connect()
         playlist: List[MpdSong] = self.client.playlistinfo()  # type: ignore
         return playlist == []
-
-    @property
-    def current_song(self) -> str:
-        self.connect()
-        current = self.client.currentsong()
-        return self.mpd2jukebox(current.get("file", ""))
-
-    @property
-    def progress(self) -> int:
-        self.connect()
-        status: Dict[str, str] = self.client.status()  # type: ignore
-        a, _, b = status.get("time", "0:0").partition(":")
-        return int(a)

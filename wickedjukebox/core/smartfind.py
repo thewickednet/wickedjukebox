@@ -12,22 +12,11 @@ from sqlalchemy.sql import func
 from sqlalchemy.sql.elements import not_
 from sqlalchemy.sql.expression import and_, text
 
-from wickedjukebox.config import Config, ConfigKeys
-from wickedjukebox.model.database import (
-    Album,
-    Artist,
-    ChannelStat,
-    Song,
-    User,
-    settingTable,
-    songStandingTable,
-)
 from wickedjukebox.model.db.auth import User
-from wickedjukebox.model.db.library import Album, Artist, Song, UserSongStanding
+from wickedjukebox.model.db.library import Song, UserSongStanding
 from wickedjukebox.model.db.playback import DynamicPlaylist
 from wickedjukebox.model.db.settings import Setting
 from wickedjukebox.model.db.stats import ChannelStat
-from wickedjukebox.smartplaylist.dbbridge import parse_dynamic_playlists
 
 if TYPE_CHECKING:
     from typing import Tuple

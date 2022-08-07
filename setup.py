@@ -19,6 +19,7 @@ setup(
         "config-resolver",
         "gouge",
         "mutagen",
+        "tqdm",
         "ply",
         "progress",
         "pymysql",

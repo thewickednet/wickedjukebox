@@ -125,8 +125,6 @@ class Channel:
                 self.player.play()
 
         do_skip = self.ipc.get(Command.SKIP)
-        self.ipc.set(Command.CURRENT_SONG, self.player.current_song)
-        self.ipc.set(Command.PROGRESS, self.player.progress)
 
         if self.player.songs_since_last_jingle > self.jingle.interval:
             self._log.debug("Jingle interval surpassed. Enqueueing new jingle.")
@@ -164,10 +162,7 @@ class Channel:
         self._log.info("Tick interval: %ss", self.tick_interval_s)
         while self.keep_running:
             try:
-                try:
-                    self.tick()
-                except Exception:  # pylint: disable=broad-except
-                    self._log.exception("Unhandled exception")
+                self.tick()
                 sleep(self.tick_interval_s)
             except KeyboardInterrupt:
                 self._log.info("Caught SIGINT. Bye!")

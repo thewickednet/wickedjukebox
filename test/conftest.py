@@ -5,9 +5,14 @@ from sqlalchemy.engine import create_engine
 from sqlalchemy.orm.scoping import scoped_session
 from sqlalchemy.orm.session import sessionmaker
 
-import wickedjukebox.model.database as db
+import wickedjukebox.model.db.sameta as sameta
 from alembic import command
 from alembic.config import Config
+from wickedjukebox.config import Config as WJConfig
+from wickedjukebox.config import ConfigKeys
+from wickedjukebox.model.db.auth import Group, User
+from wickedjukebox.model.db.library import Album, Artist, Song, UserSongStanding
+from wickedjukebox.model.db.playback import Channel
 
 
 def run_migrations(script_location: str, dsn: str) -> None:
@@ -19,7 +24,9 @@ def run_migrations(script_location: str, dsn: str) -> None:
 
 @pytest.fixture(scope="session")
 def db_connection():
-    engine = create_engine(db.DBURI)
+    config = WJConfig()
+    dsn = config.get(ConfigKeys.DSN)
+    engine = create_engine(dsn)
     return engine.connect()
 
 
@@ -29,12 +36,12 @@ def seed_database():
 
 @pytest.fixture(scope="session")
 def setup_database(db_connection):
-    db.Base.metadata.bind = db_connection
-    # XXX db.Base.metadata.create_all()
-    run_migrations("alembic", db.DBURI)
+    sameta.Base.metadata.bind = db_connection
+    config = WJConfig()
+    dsn = config.get(ConfigKeys.DSN)
+    run_migrations("alembic", dsn)
     seed_database()
     yield
-    # XXX db.Base.metadata.drop_all()
 
 
 @pytest.fixture
@@ -56,17 +63,15 @@ def default_data(dbsession):
     """
     dbsession.execute("DELETE FROM song")
     dbsession.flush()
-    default_channel = db.Channel("test-channel", "mpd")
+    default_channel = Channel("test-channel", "mpd")
 
-    default_group = db.Group("test-group")
-    default_user = db.User("test-user", default_group)
-    default_artist = db.Artist(name="Tool")
-    default_album = db.Album(
+    default_group = Group("test-group")
+    default_user = User("test-user", default_group)
+    default_artist = Artist(name="Tool")
+    default_album = Album(
         name="Lateralus", artist=default_artist, path="/path/to/song"
     )
-    default_song = db.Song(
-        localpath="some.mp3",
-    )
+    default_song = Song(localpath="some.mp3")
     default_song.artist = default_artist
     default_song.album = default_album
     default_song.title = "title"
@@ -77,15 +82,10 @@ def default_data(dbsession):
     dbsession.add(default_user)
     dbsession.flush()
 
-    dbsession.execute(
-        db.songStandingTable.insert().values(
-            {
-                "user_id": default_user.id,
-                "song_id": default_song.id,
-                "standing": "love",
-            }
-        )
+    example_standing = UserSongStanding(
+        user_id=default_user.id, song_id=default_song.id, standing="love"
     )
+    dbsession.add(example_standing)
 
     yield {
         "default_artist": default_artist,

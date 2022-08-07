@@ -13,7 +13,8 @@ from typing import Any, Dict, Optional, Set
 from wickedjukebox.config import Config, ConfigKeys
 from wickedjukebox.exc import ConfigError
 from wickedjukebox.logutil import qualname, qualname_repr
-from wickedjukebox.model.database import Channel, Session, State
+from wickedjukebox.model.db.playback import Channel, State
+from wickedjukebox.model.db.sameta import Session
 
 LOG = logging.getLogger(__name__)
 "The module logger"
@@ -44,8 +45,6 @@ class Command(Enum):
 
     SKIP = "skip"
     "Skip the current song as soon as possible"
-    CURRENT_SONG = "current_song"
-    PROGRESS = "progress"
 
 
 @qualname_repr
@@ -216,8 +215,9 @@ class DBIPC(AbstractIPC):
             query = query.filter(Channel.name == self._channel_name)  # type: ignore
             channel = query.one()  # type: ignore
             if key == Command.SKIP:
-                result = State.get("skipping", channel.id, default=False) or "0"
-                skip_state = bool(int(result))  # type: ignore
+                skip_state = bool(
+                    int(State.get("skipping", channel.id, default=False))  # type: ignore
+                )
             else:
                 LOG.error("Unknown IPC command: %r", key)
         return skip_state
@@ -232,19 +232,10 @@ class DBIPC(AbstractIPC):
             query = query.filter(Channel.name == self._channel_name)  # type: ignore
             channel = query.one()  # type: ignore
             if key == Command.SKIP:
-                output = State.set(  # type: ignore
+                skip_state = State.set(  # type: ignore
                     "skipping", value, channel.id  # type: ignore
-                )
-                output = "0"
-            elif key == Command.CURRENT_SONG:
-                output = State.set(  # type: ignore
-                    "current_song", value, channel.id  # type: ignore
-                )
-            elif key == Command.PROGRESS:
-                output = State.set(  # type: ignore
-                    "progress", value, channel.id  # type: ignore
                 )
             else:
                 LOG.error("Unknown IPC command: %r", key)
             session.commit()  # type: ignore
-        return output
+        return skip_state
