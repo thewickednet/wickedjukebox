@@ -19,3 +19,4 @@ def connect(dsn: str) -> None:
     """
     engine = create_engine(dsn, echo=False)
     Base.metadata.bind = engine
+    Session.bind = engine
