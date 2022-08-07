@@ -10,6 +10,12 @@ USAGE
 See doc/usage.rst
 
 
+Documentation
+=============
+
+See https://thewickednet.github.io/wickedjukebox/
+
+
 Development
 ===========
 
