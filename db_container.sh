@@ -27,6 +27,7 @@ CONTAINER_ID=$(docker run \
     -e MARIADB_USER=jukebox \
     -e MARIADB_PASSWORD=jukebox \
     -e MARIADB_ROOT_PASSWORD=rootpw \
+    -v $(pwd)/docker-resources/dev-init.sql:/dev-init.sql:ro \
     -P \
     -d \
     mariadb:10

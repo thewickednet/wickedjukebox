@@ -11,7 +11,6 @@ from invoke import task
 
 
 def get_db_port(json_doc: str) -> int:
-
     data = json.loads(json_doc)
     ports = data[0]["NetworkSettings"]["Ports"]["3306/tcp"]
     port_numbers = {int(info["HostPort"]) for info in ports}
@@ -122,6 +121,10 @@ def develop(ctx):
     ctx.run("./env/bin/pip install -U pip")
     ctx.run("./env/bin/pip install -e .[dev,test]")
     run_db_container(ctx)
+    ctx.run(
+        "docker exec jukeboxdb sh -c 'cat /dev-init.sql | "
+        "/usr/bin/mysql -ujukebox -pjukebox jukebox'"
+    )
     ctx.run("pre-commit install")
 
 
