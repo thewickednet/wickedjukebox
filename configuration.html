@@ -5,10 +5,10 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Autoplay Modules" href="modules/autoplay.html" /><link rel="prev" title="Installation" href="installation.html" />
 
-    <meta name="generator" content="sphinx-5.1.1, furo 2022.06.21"/>
+    <!-- Generated with Sphinx 6.2.1 and Furo 2023.03.27 -->
         <title>Configuration - wickedjukebox documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
     
@@ -149,7 +149,7 @@
   <span class="sidebar-brand-text">wickedjukebox  documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
-  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
 </form>
@@ -204,7 +204,8 @@
           <span>Back to top</span>
         </a>
         <div class="content-icon-container">
-          <div class="theme-toggle-container theme-toggle-content">
+          
+<div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -249,66 +250,66 @@ the jukebox will not play anything.</p>
 <h2>Example Configuration<a class="headerlink" href="#example-configuration" title="Permalink to this heading">#</a></h2>
 <div class="literal-block-wrapper docutils container" id="id2">
 <div class="code-block-caption"><span class="caption-text">Example Configuration</span><a class="headerlink" href="#id2" title="Permalink to this code">#</a></div>
-<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[core]</span><span class="w"></span>
-<span class="na">dsn</span><span class="o">=</span><span class="s">mysql+pymysql://jukebox:jukebox@127.0.0.1:{{db_port}}/jukebox?charset=utf8</span><span class="w"></span>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[core]</span>
+<span class="na">dsn</span><span class="o">=</span><span class="s">mysql+pymysql://jukebox:jukebox@127.0.0.1:{{db_port}}/jukebox?charset=utf8</span>
 
-<span class="c1">; -----------------------------------------------------------------------------</span><span class="w"></span>
-<span class="c1">;    Component Configuration</span><span class="w"></span>
-<span class="c1">; -----------------------------------------------------------------------------</span><span class="w"></span>
-<span class="c1">;  The jukeox supports modular implementations for core behaviour. Each</span><span class="w"></span>
-<span class="c1">;  component is configured via a section</span><span class="w"></span>
-<span class="c1">;  [channel:&lt;channel-name&gt;:&lt;component-name&gt;]. See the documentation for</span><span class="w"></span>
-<span class="c1">;  configuration details of each component.</span><span class="w"></span>
-<span class="c1">;</span><span class="w"></span>
-<span class="c1">;  Each section has at least a &quot;type&quot; option. This option selects the</span><span class="w"></span>
-<span class="c1">;  underlying implementation of that component.</span><span class="w"></span>
-<span class="c1">;</span><span class="w"></span>
-<span class="c1">;  Each component supports a &quot;null&quot; type which disables that component</span><span class="w"></span>
-<span class="c1">;  completely. For example, setting the &quot;jingle&quot; type to &quot;null&quot; will not add</span><span class="w"></span>
-<span class="c1">;  any jingles to the queue and using a &quot;null&quot; type for the autoplay mode will</span><span class="w"></span>
-<span class="c1">;  only play music if something is queued.</span><span class="w"></span>
-<span class="c1">; -----------------------------------------------------------------------------</span><span class="w"></span>
+<span class="c1">; -----------------------------------------------------------------------------</span>
+<span class="c1">;    Component Configuration</span>
+<span class="c1">; -----------------------------------------------------------------------------</span>
+<span class="c1">;  The jukeox supports modular implementations for core behaviour. Each</span>
+<span class="c1">;  component is configured via a section</span>
+<span class="c1">;  [channel:&lt;channel-name&gt;:&lt;component-name&gt;]. See the documentation for</span>
+<span class="c1">;  configuration details of each component.</span>
+<span class="c1">;</span>
+<span class="c1">;  Each section has at least a &quot;type&quot; option. This option selects the</span>
+<span class="c1">;  underlying implementation of that component.</span>
+<span class="c1">;</span>
+<span class="c1">;  Each component supports a &quot;null&quot; type which disables that component</span>
+<span class="c1">;  completely. For example, setting the &quot;jingle&quot; type to &quot;null&quot; will not add</span>
+<span class="c1">;  any jingles to the queue and using a &quot;null&quot; type for the autoplay mode will</span>
+<span class="c1">;  only play music if something is queued.</span>
+<span class="c1">; -----------------------------------------------------------------------------</span>
 
-<span class="k">[channel:wicked:player]</span><span class="w"></span>
-<span class="c1">; The player back-end is the part which actually produces sound.</span><span class="w"></span>
-<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mpd</span><span class="w"></span>
-<span class="na">host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">127.0.0.1</span><span class="w"></span>
-<span class="na">port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">6600</span><span class="w"></span>
+<span class="k">[channel:wicked:player]</span>
+<span class="c1">; The player back-end is the part which actually produces sound.</span>
+<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">mpd</span>
+<span class="na">host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">127.0.0.1</span>
+<span class="na">port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">6600</span>
 
-<span class="c1">; If the MPD library root path is different from the root path of the jukebox</span><span class="w"></span>
-<span class="c1">; (f.ex. when running MPD inside docker), set &quot;path_map&quot; to</span><span class="w"></span>
-<span class="c1">; &lt;jukebox_path&gt;:&lt;mpd_path&gt;</span><span class="w"></span>
-<span class="na">path_map</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/path/to/mp3s:/var/lib/mpd/music</span><span class="w"></span>
+<span class="c1">; If the MPD library root path is different from the root path of the jukebox</span>
+<span class="c1">; (f.ex. when running MPD inside docker), set &quot;path_map&quot; to</span>
+<span class="c1">; &lt;jukebox_path&gt;:&lt;mpd_path&gt;</span>
+<span class="na">path_map</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/path/to/mp3s:/var/lib/mpd/music</span>
 
-<span class="k">[channel:wicked:ipc]</span><span class="w"></span>
-<span class="c1">; The Inter-Process Call mechanism used to communicate from the frontend to the</span><span class="w"></span>
-<span class="c1">; backend</span><span class="w"></span>
-<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">fs</span><span class="w"></span>
-<span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">ipc</span><span class="w"></span>
+<span class="k">[channel:wicked:ipc]</span>
+<span class="c1">; The Inter-Process Call mechanism used to communicate from the frontend to the</span>
+<span class="c1">; backend</span>
+<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">fs</span>
+<span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">ipc</span>
 
-<span class="k">[channel:wicked:autoplay]</span><span class="w"></span>
-<span class="c1">; The model used to select a new song when nothing is queued.</span><span class="w"></span>
-<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">smart_prefetch</span><span class="w"></span>
-<span class="na">max_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">450</span><span class="w"></span>
-<span class="na">proofoflife_timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">120</span><span class="w"></span>
-<span class="na">weight_last_played</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10</span><span class="w"></span>
-<span class="na">weight_never_played</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4</span><span class="w"></span>
-<span class="na">weight_randomness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span><span class="w"></span>
-<span class="na">weight_song_age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span><span class="w"></span>
-<span class="na">weight_user_rating</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4</span><span class="w"></span>
+<span class="k">[channel:wicked:autoplay]</span>
+<span class="c1">; The model used to select a new song when nothing is queued.</span>
+<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">smart_prefetch</span>
+<span class="na">max_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">450</span>
+<span class="na">proofoflife_timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">120</span>
+<span class="na">weight_last_played</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10</span>
+<span class="na">weight_never_played</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4</span>
+<span class="na">weight_randomness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+<span class="na">weight_song_age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+<span class="na">weight_user_rating</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4</span>
 
-<span class="k">[channel:wicked:queue]</span><span class="w"></span>
-<span class="c1">; The model used to pick songs from a queue</span><span class="w"></span>
-<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">db</span><span class="w"></span>
+<span class="k">[channel:wicked:queue]</span>
+<span class="c1">; The model used to pick songs from a queue</span>
+<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">db</span>
 
-<span class="k">[channel:wicked:jingle]</span><span class="w"></span>
-<span class="c1">; The model used to select jingles</span><span class="w"></span>
-<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">fs</span><span class="w"></span>
-<span class="na">root</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/path/to/jingles</span><span class="w"></span>
-<span class="na">interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10</span><span class="w"></span>
+<span class="k">[channel:wicked:jingle]</span>
+<span class="c1">; The model used to select jingles</span>
+<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">fs</span>
+<span class="na">root</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/path/to/jingles</span>
+<span class="na">interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10</span>
 
 
-<span class="c1">; vim: set filetype=cfg :</span><span class="w"></span>
+<span class="c1">; vim: set filetype=cfg :</span>
 </pre></div>
 </div>
 </div>
@@ -327,10 +328,10 @@ the jukebox will not play anything.</p>
                 </div>
                 <div class="title">Autoplay Modules</div>
               </div>
-              <svg><use href="#svg-arrow-right"></use></svg>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
           <a class="prev-page" href="installation.html">
-              <svg><use href="#svg-arrow-right"></use></svg>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
@@ -352,9 +353,7 @@ the jukebox will not play anything.</p>
             
           </div>
           <div class="right-details">
-            <div class="icons">
-              
-            </div>
+            
           </div>
         </div>
         
@@ -366,7 +365,7 @@ the jukebox will not play anything.</p>
       <div class="toc-sticky toc-scroll">
         <div class="toc-title-container">
           <span class="toc-title">
-            Contents
+            On this page
           </span>
         </div>
         <div class="toc-tree-container">
@@ -388,10 +387,8 @@ the jukebox will not play anything.</p>
     </aside>
   </div>
 </div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/scripts/furo.js"></script>
     </body>
 </html>

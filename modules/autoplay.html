@@ -5,10 +5,10 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="IPC Modules" href="ipc.html" /><link rel="prev" title="Configuration" href="../configuration.html" />
 
-    <meta name="generator" content="sphinx-5.1.1, furo 2022.06.21"/>
+    <!-- Generated with Sphinx 6.2.1 and Furo 2023.03.27 -->
         <title>Autoplay Modules - wickedjukebox documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
     
@@ -149,7 +149,7 @@
   <span class="sidebar-brand-text">wickedjukebox  documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
-  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
 </form>
@@ -204,7 +204,8 @@
           <span>Back to top</span>
         </a>
         <div class="content-icon-container">
-          <div class="theme-toggle-container theme-toggle-content">
+          
+<div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -220,98 +221,6 @@
         <article role="main">
           <section id="autoplay-modules">
 <h1>Autoplay Modules<a class="headerlink" href="#autoplay-modules" title="Permalink to this heading">#</a></h1>
-<p>This module contains implementations for “random” queues.</p>
-<dl class="py class">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.component.random.</span></span><span class="sig-name descname"><span class="pre">AllFilesRandom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../appendix/api/wickedjukebox.html#wickedjukebox.config.Config" title="wickedjukebox.config.Config"><span class="pre">Config</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>An implementation of random picking based on a file-tree.</p>
-<p>It builds possible file-names recursively from a root and picks one file at
-random.</p>
-<div class="literal-block-wrapper docutils container" id="id1">
-<div class="code-block-caption"><span class="caption-text">Configuration Example</span><a class="headerlink" href="#id1" title="Permalink to this code">#</a></div>
-<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[channel:example:autoplay]</span><span class="w"></span>
-<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">allfiles_random</span><span class="w"></span>
-<span class="na">root</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/path/to/music/files</span><span class="w"></span>
-</pre></div>
-</div>
-</div>
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">CONFIG_KEYS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'root'}</span></em></dt>
-<dd><p>The names of the config-keys that this instance requires to be
-successfully configured.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.component.random.</span></span><span class="sig-name descname"><span class="pre">NullRandom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../appendix/api/wickedjukebox.html#wickedjukebox.config.Config" title="wickedjukebox.config.Config"><span class="pre">Config</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>Dummy implementation resulting in no-ops.</p>
-<p>This always returns a song with an empty filename. This may very well lead
-to errors downstream. This implementation is primarily intended for use in a
-test-harness.</p>
-<div class="literal-block-wrapper docutils container" id="id2">
-<div class="code-block-caption"><span class="caption-text">Configuration Example</span><a class="headerlink" href="#id2" title="Permalink to this code">#</a></div>
-<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[channel:example:autoplay]</span><span class="w"></span>
-<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">null</span><span class="w"></span>
-</pre></div>
-</div>
-</div>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.component.random.</span></span><span class="sig-name descname"><span class="pre">SmartPrefetch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../appendix/api/wickedjukebox.html#wickedjukebox.config.Config" title="wickedjukebox.config.Config"><span class="pre">Config</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>An implementation which queries the database for a song that make “the most
-sense” to play next according to currently connected listeners and
-persistent state of songs.</p>
-<p>As the query can take a long time to execute, one result will always be
-prefetched ahead of time. So the <em>exact</em> calculation is always off by one
-“play”.</p>
-<div class="literal-block-wrapper docutils container" id="id3">
-<div class="code-block-caption"><span class="caption-text">Configuration Example</span><a class="headerlink" href="#id3" title="Permalink to this code">#</a></div>
-<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[channel:example:autoplay]</span><span class="w"></span>
-<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">smart_prefetch</span><span class="w"></span>
-
-<span class="c1">; No songs longer than this amount of seconds is returned</span><span class="w"></span>
-<span class="na">max_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">600</span><span class="w"></span>
-
-<span class="c1">; Consider users that have been offline since this amount of seconds to</span><span class="w"></span>
-<span class="c1">; be &quot;inactive&quot;</span><span class="w"></span>
-<span class="na">proofoflife_timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">120</span><span class="w"></span>
-
-<span class="c1">; The &quot;weight_*&quot; variables define how important a given score is. The</span><span class="w"></span>
-<span class="c1">; higher the value the more important it is. There is no upper bound. It</span><span class="w"></span>
-<span class="c1">; uses a simple weighing calculation based on the sum of all weights.</span><span class="w"></span>
-
-<span class="c1">; Negatively impacts song that have been played very recently</span><span class="w"></span>
-<span class="na">weight_last_played</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10</span><span class="w"></span>
-
-<span class="c1">; Positively impacts songs that have never been played</span><span class="w"></span>
-<span class="na">weight_never_played</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4</span><span class="w"></span>
-
-<span class="c1">; Positively affects songs that have been long in the DB</span><span class="w"></span>
-<span class="na">weight_song_age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span><span class="w"></span>
-
-<span class="c1">; Positively affects songs that have been &quot;liked&quot; by users (only for</span><span class="w"></span>
-<span class="c1">; those users that are actively listening)</span><span class="w"></span>
-<span class="na">weight_user_rating</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4</span><span class="w"></span>
-
-<span class="c1">; Adds additional randomness</span><span class="w"></span>
-<span class="na">weight_randomness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span><span class="w"></span>
-</pre></div>
-</div>
-</div>
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">CONFIG_KEYS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'max_duration',</span> <span class="pre">'proofoflife_timeout',</span> <span class="pre">'weight_last_played',</span> <span class="pre">'weight_never_played',</span> <span class="pre">'weight_randomness',</span> <span class="pre">'weight_song_age',</span> <span class="pre">'weight_user_rating'}</span></em></dt>
-<dd><p>The names of the config-keys that this instance requires to be
-successfully configured.</p>
-</dd></dl>
-
-</dd></dl>
-
 </section>
 
         </article>
@@ -326,10 +235,10 @@ successfully configured.</p>
                 </div>
                 <div class="title">IPC Modules</div>
               </div>
-              <svg><use href="#svg-arrow-right"></use></svg>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
           <a class="prev-page" href="../configuration.html">
-              <svg><use href="#svg-arrow-right"></use></svg>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
@@ -351,9 +260,7 @@ successfully configured.</p>
             
           </div>
           <div class="right-details">
-            <div class="icons">
-              
-            </div>
+            
           </div>
         </div>
         
@@ -366,10 +273,8 @@ successfully configured.</p>
     </aside>
   </div>
 </div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/scripts/furo.js"></script>
     </body>
 </html>

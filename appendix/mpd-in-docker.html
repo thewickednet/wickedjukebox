@@ -5,10 +5,10 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="wickedjukebox" href="api/modules.html" /><link rel="prev" title="Maintenance" href="../maintenance.html" />
 
-    <meta name="generator" content="sphinx-5.1.1, furo 2022.06.21"/>
+    <!-- Generated with Sphinx 6.2.1 and Furo 2023.03.27 -->
         <title>MPD Inside Docker - wickedjukebox documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
     
@@ -149,7 +149,7 @@
   <span class="sidebar-brand-text">wickedjukebox  documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
-  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
 </form>
@@ -204,7 +204,8 @@
           <span>Back to top</span>
         </a>
         <div class="content-icon-container">
-          <div class="theme-toggle-container theme-toggle-content">
+          
+<div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -227,31 +228,31 @@ with Pulse Audio and MPD. Here are example files:</p>
 <div class="highlight-Docker notranslate"><div class="highlight"><pre><span></span><span class="k">FROM</span><span class="w"> </span><span class="s">alpine:3.14</span>
 <span class="k">MAINTAINER</span><span class="w"> </span><span class="s">Michel Albert &lt;michel@albert.lu&gt;</span>
 
-<span class="k">ENV</span><span class="w"> </span>UNAME mpduser
+<span class="k">ENV</span><span class="w"> </span>UNAME<span class="w"> </span>mpduser
 
 <span class="c"># Install everything needed for MPD via Pulse (and a client for convenience)</span>
-<span class="k">RUN</span><span class="w"> </span><span class="nb">set</span> -xe <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    apk add --no-cache <span class="se">\</span>
-    pulseaudio-utils <span class="se">\</span>
-    mpd <span class="se">\</span>
-    ncmpcpp <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    setcap -r /usr/bin/mpd
+<span class="k">RUN</span><span class="w"> </span><span class="nb">set</span><span class="w"> </span>-xe<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>apk<span class="w"> </span>add<span class="w"> </span>--no-cache<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>pulseaudio-utils<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>mpd<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>ncmpcpp<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>setcap<span class="w"> </span>-r<span class="w"> </span>/usr/bin/mpd
 
 <span class="c"># Add a separate user to be able to run the process in user-space and set up</span>
 <span class="c"># required folders</span>
-<span class="k">RUN</span><span class="w"> </span>adduser --disabled-password --uid <span class="m">1000</span> <span class="si">${</span><span class="nv">UNAME</span><span class="si">}</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    addgroup <span class="si">${</span><span class="nv">UNAME</span><span class="si">}</span> audio <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    install -o <span class="si">${</span><span class="nv">UNAME</span><span class="si">}</span> -d /var/lib/mpd <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    install -o <span class="si">${</span><span class="nv">UNAME</span><span class="si">}</span> -d /run/mpd
+<span class="k">RUN</span><span class="w"> </span>adduser<span class="w"> </span>--disabled-password<span class="w"> </span>--uid<span class="w"> </span><span class="m">1000</span><span class="w"> </span><span class="si">${</span><span class="nv">UNAME</span><span class="si">}</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>addgroup<span class="w"> </span><span class="si">${</span><span class="nv">UNAME</span><span class="si">}</span><span class="w"> </span>audio<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>install<span class="w"> </span>-o<span class="w"> </span><span class="si">${</span><span class="nv">UNAME</span><span class="si">}</span><span class="w"> </span>-d<span class="w"> </span>/var/lib/mpd<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>install<span class="w"> </span>-o<span class="w"> </span><span class="si">${</span><span class="nv">UNAME</span><span class="si">}</span><span class="w"> </span>-d<span class="w"> </span>/run/mpd
 
 <span class="c"># Inject the config files needed for pulse and mpd</span>
-<span class="k">COPY</span><span class="w"> </span>docker-resources/pulse-client.conf /etc/pulse/client.conf
-<span class="k">COPY</span><span class="w"> </span>docker-resources/mpd.conf /etc/mpd.conf
-<span class="k">RUN</span><span class="w"> </span>chown <span class="si">${</span><span class="nv">UNAME</span><span class="si">}</span> /etc/mpd.conf <span class="o">&amp;&amp;</span> <span class="se">\</span>
-    chown -R <span class="si">${</span><span class="nv">UNAME</span><span class="si">}</span> /var/log/mpd
+<span class="k">COPY</span><span class="w"> </span>docker-resources/pulse-client.conf<span class="w"> </span>/etc/pulse/client.conf
+<span class="k">COPY</span><span class="w"> </span>docker-resources/mpd.conf<span class="w"> </span>/etc/mpd.conf
+<span class="k">RUN</span><span class="w"> </span>chown<span class="w"> </span><span class="si">${</span><span class="nv">UNAME</span><span class="si">}</span><span class="w"> </span>/etc/mpd.conf<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>chown<span class="w"> </span>-R<span class="w"> </span><span class="si">${</span><span class="nv">UNAME</span><span class="si">}</span><span class="w"> </span>/var/log/mpd
 
 <span class="k">USER</span><span class="w"> </span><span class="s">$UNAME</span>
-<span class="k">ENV</span><span class="w"> </span>HOME /home/<span class="si">${</span><span class="nv">UNAME</span><span class="si">}</span>
+<span class="k">ENV</span><span class="w"> </span>HOME<span class="w"> </span>/home/<span class="si">${</span><span class="nv">UNAME</span><span class="si">}</span>
 <span class="k">EXPOSE</span><span class="w"> </span><span class="s">6600</span>
 
 <span class="k">ENTRYPOINT</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;mpd&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--stdout&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--no-daemon&quot;</span><span class="p">]</span>
@@ -260,47 +261,47 @@ with Pulse Audio and MPD. Here are example files:</p>
 </div>
 <div class="literal-block-wrapper docutils container" id="id3">
 <div class="code-block-caption"><span class="caption-text">pulse-client.conf</span><a class="headerlink" href="#id3" title="Permalink to this code">#</a></div>
-<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Connect to the host&#39;s server using the mounted UNIX socket</span><span class="w"></span>
-<span class="na">default-server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">unix:/run/user/1000/pulse/native</span><span class="w"></span>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># Connect to the host&#39;s server using the mounted UNIX socket</span>
+<span class="na">default-server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">unix:/run/user/1000/pulse/native</span>
 
-<span class="c1"># Prevent a server running in the container</span><span class="w"></span>
-<span class="na">autospawn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">no</span><span class="w"></span>
-<span class="na">daemon-binary</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/bin/true</span><span class="w"></span>
+<span class="c1"># Prevent a server running in the container</span>
+<span class="na">autospawn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">no</span>
+<span class="na">daemon-binary</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/bin/true</span>
 
-<span class="c1"># Prevent the use of shared memory</span><span class="w"></span>
-<span class="na">enable-shm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span><span class="w"></span>
+<span class="c1"># Prevent the use of shared memory</span>
+<span class="na">enable-shm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span>
 </pre></div>
 </div>
 </div>
 <div class="literal-block-wrapper docutils container" id="id4">
 <div class="code-block-caption"><span class="caption-text">mpd.conf</span><a class="headerlink" href="#id4" title="Permalink to this code">#</a></div>
-<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="na">music_directory     &quot;/var/lib/mpd/music&quot;</span><span class="w"></span>
-<span class="na">playlist_directory  &quot;/var/lib/mpd/playlists&quot;</span><span class="w"></span>
-<span class="na">db_file             &quot;/var/lib/mpd/tag_cache&quot;</span><span class="w"></span>
-<span class="na">log_file            &quot;/var/log/mpd/mpd.log&quot;</span><span class="w"></span>
-<span class="na">pid_file            &quot;/run/mpd/pid&quot;</span><span class="w"></span>
-<span class="na">state_file          &quot;/var/lib/mpd/state&quot;</span><span class="w"></span>
-<span class="na">sticker_file        &quot;/var/lib/mpd/sticker.sql&quot;</span><span class="w"></span>
-<span class="na">bind_to_address     &quot;0.0.0.0&quot;</span><span class="w"></span>
-<span class="na">input {</span><span class="w"></span>
-<span class="w">    </span><span class="na">plugin &quot;curl&quot;</span><span class="w"></span>
-<span class="na">}</span><span class="w"></span>
-<span class="na">audio_output {</span><span class="w"></span>
-<span class="w">    </span><span class="na">type &quot;pulse&quot;</span><span class="w"></span>
-<span class="w">    </span><span class="na">name &quot;Wicked Jukebox&quot;</span><span class="w"></span>
-<span class="na">}</span><span class="w"></span>
-<span class="na">filesystem_charset      &quot;UTF-8&quot;</span><span class="w"></span>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="na">music_directory     &quot;/var/lib/mpd/music&quot;</span>
+<span class="na">playlist_directory  &quot;/var/lib/mpd/playlists&quot;</span>
+<span class="na">db_file             &quot;/var/lib/mpd/tag_cache&quot;</span>
+<span class="na">log_file            &quot;/var/log/mpd/mpd.log&quot;</span>
+<span class="na">pid_file            &quot;/run/mpd/pid&quot;</span>
+<span class="na">state_file          &quot;/var/lib/mpd/state&quot;</span>
+<span class="na">sticker_file        &quot;/var/lib/mpd/sticker.sql&quot;</span>
+<span class="na">bind_to_address     &quot;0.0.0.0&quot;</span>
+<span class="na">input {</span>
+<span class="w">    </span><span class="na">plugin &quot;curl&quot;</span>
+<span class="na">}</span>
+<span class="na">audio_output {</span>
+<span class="w">    </span><span class="na">type &quot;pulse&quot;</span>
+<span class="w">    </span><span class="na">name &quot;Wicked Jukebox&quot;</span>
+<span class="na">}</span>
+<span class="na">filesystem_charset      &quot;UTF-8&quot;</span>
 </pre></div>
 </div>
 </div>
 <p>Assuming the docker-image has been run with the tag <code class="docutils literal notranslate"><span class="pre">wickedjukebox/mpd</span></code>, the
 container can then be run using:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --rm <span class="se">\</span>
-    --volume<span class="o">=</span>/run/user/<span class="si">${</span><span class="nv">UID</span><span class="si">}</span>/pulse:/run/user/<span class="si">${</span><span class="nv">UID</span><span class="si">}</span>/pulse <span class="se">\</span>
-    --volume<span class="o">=</span>/path/to/local/mp3s:/var/lib/mpd/music:ro <span class="se">\</span>
-    --name wickedjukebox_mpd  <span class="se">\</span>
-    -p <span class="m">6600</span>:6600  <span class="se">\</span>
-    wickedjukebox/mpd
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--volume<span class="o">=</span>/run/user/<span class="si">${</span><span class="nv">UID</span><span class="si">}</span>/pulse:/run/user/<span class="si">${</span><span class="nv">UID</span><span class="si">}</span>/pulse<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--volume<span class="o">=</span>/path/to/local/mp3s:/var/lib/mpd/music:ro<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--name<span class="w"> </span>wickedjukebox_mpd<span class="w">  </span><span class="se">\</span>
+<span class="w">    </span>-p<span class="w"> </span><span class="m">6600</span>:6600<span class="w">  </span><span class="se">\</span>
+<span class="w">    </span>wickedjukebox/mpd
 </pre></div>
 </div>
 </section>
@@ -317,10 +318,10 @@ container can then be run using:</p>
                 </div>
                 <div class="title">wickedjukebox</div>
               </div>
-              <svg><use href="#svg-arrow-right"></use></svg>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
           <a class="prev-page" href="../maintenance.html">
-              <svg><use href="#svg-arrow-right"></use></svg>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
@@ -342,9 +343,7 @@ container can then be run using:</p>
             
           </div>
           <div class="right-details">
-            <div class="icons">
-              
-            </div>
+            
           </div>
         </div>
         
@@ -357,10 +356,8 @@ container can then be run using:</p>
     </aside>
   </div>
 </div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/scripts/furo.js"></script>
     </body>
 </html>

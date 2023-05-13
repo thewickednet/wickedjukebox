@@ -5,10 +5,10 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="wickedjukebox.smartplaylist package" href="wickedjukebox.smartplaylist.html" /><link rel="prev" title="wickedjukebox.model package" href="wickedjukebox.model.html" />
 
-    <meta name="generator" content="sphinx-5.1.1, furo 2022.06.21"/>
+    <!-- Generated with Sphinx 6.2.1 and Furo 2023.03.27 -->
         <title>wickedjukebox.model.db package - wickedjukebox documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
     
@@ -149,7 +149,7 @@
   <span class="sidebar-brand-text">wickedjukebox  documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
-  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
 </form>
@@ -204,7 +204,8 @@
           <span>Back to top</span>
         </a>
         <div class="content-icon-container">
-          <div class="theme-toggle-container theme-toggle-content">
+          
+<div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -661,814 +662,14 @@ gathering of people with start- and end-date).</p>
 </dd></dl>
 
 </section>
-<section id="module-wickedjukebox.model.db.library">
-<span id="wickedjukebox-model-db-library-module"></span><h2>wickedjukebox.model.db.library module<a class="headerlink" href="#module-wickedjukebox.model.db.library" title="Permalink to this heading">#</a></h2>
-<p>This module contains DB definitions for table related to the song library</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Album">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.library.</span></span><span class="sig-name descname"><span class="pre">Album</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.library.Album" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Album.added">
-<span class="sig-name descname"><span class="pre">added</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Album.added" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Album.artist">
-<span class="sig-name descname"><span class="pre">artist</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Album.artist" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Album.artist_id">
-<span class="sig-name descname"><span class="pre">artist_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Album.artist_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Album.by_name">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Session</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#wickedjukebox.model.db.library.Album" title="wickedjukebox.model.db.library.Album"><span class="pre">Album</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Album.by_name" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Album.coverart">
-<span class="sig-name descname"><span class="pre">coverart</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Album.coverart" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Album.downloaded">
-<span class="sig-name descname"><span class="pre">downloaded</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Album.downloaded" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Album.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Album.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Album.lastfm_mbid">
-<span class="sig-name descname"><span class="pre">lastfm_mbid</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Album.lastfm_mbid" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Album.lastfm_url">
-<span class="sig-name descname"><span class="pre">lastfm_url</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Album.lastfm_url" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Album.name">
-<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Album.name" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Album.path">
-<span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Album.path" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Album.release_date">
-<span class="sig-name descname"><span class="pre">release_date</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Album.release_date" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Album.type">
-<span class="sig-name descname"><span class="pre">type</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Album.type" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Artist">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.library.</span></span><span class="sig-name descname"><span class="pre">Artist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.library.Artist" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Artist.added">
-<span class="sig-name descname"><span class="pre">added</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Artist.added" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Artist.bio">
-<span class="sig-name descname"><span class="pre">bio</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Artist.bio" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Artist.by_name">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Session</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#wickedjukebox.model.db.library.Artist" title="wickedjukebox.model.db.library.Artist"><span class="pre">Artist</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Artist.by_name" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Artist.country">
-<span class="sig-name descname"><span class="pre">country</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Artist.country" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Artist.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Artist.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Artist.lastfm_mbid">
-<span class="sig-name descname"><span class="pre">lastfm_mbid</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Artist.lastfm_mbid" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Artist.lastfm_url">
-<span class="sig-name descname"><span class="pre">lastfm_url</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Artist.lastfm_url" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Artist.name">
-<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Artist.name" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Artist.photo">
-<span class="sig-name descname"><span class="pre">photo</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Artist.photo" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Artist.summary">
-<span class="sig-name descname"><span class="pre">summary</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Artist.summary" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Artist.website">
-<span class="sig-name descname"><span class="pre">website</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Artist.website" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Artist.wikipage">
-<span class="sig-name descname"><span class="pre">wikipage</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Artist.wikipage" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Collection">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.library.</span></span><span class="sig-name descname"><span class="pre">Collection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.library.Collection" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Collection.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Collection.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Collection.is_active">
-<span class="sig-name descname"><span class="pre">is_active</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Collection.is_active" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Collection.name">
-<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Collection.name" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Collection.user_id">
-<span class="sig-name descname"><span class="pre">user_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Collection.user_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.CollectionhasSong">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.library.</span></span><span class="sig-name descname"><span class="pre">CollectionhasSong</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.library.CollectionhasSong" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.CollectionhasSong.collection_id">
-<span class="sig-name descname"><span class="pre">collection_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.CollectionhasSong.collection_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.CollectionhasSong.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.CollectionhasSong.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.CollectionhasSong.last_played">
-<span class="sig-name descname"><span class="pre">last_played</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.CollectionhasSong.last_played" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.CollectionhasSong.position">
-<span class="sig-name descname"><span class="pre">position</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.CollectionhasSong.position" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.CollectionhasSong.song_id">
-<span class="sig-name descname"><span class="pre">song_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.CollectionhasSong.song_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Country">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.library.</span></span><span class="sig-name descname"><span class="pre">Country</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.library.Country" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Country.country_code">
-<span class="sig-name descname"><span class="pre">country_code</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Country.country_code" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Country.country_name">
-<span class="sig-name descname"><span class="pre">country_name</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Country.country_name" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Genre">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.library.</span></span><span class="sig-name descname"><span class="pre">Genre</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.library.Genre" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Genre.added">
-<span class="sig-name descname"><span class="pre">added</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Genre.added" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Genre.by_name">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#wickedjukebox.model.db.library.Genre" title="wickedjukebox.model.db.library.Genre"><span class="pre">Genre</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Genre.by_name" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Genre.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Genre.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Genre.name">
-<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Genre.name" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Playlist">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.library.</span></span><span class="sig-name descname"><span class="pre">Playlist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.library.Playlist" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Playlist.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Playlist.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Playlist.name">
-<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Playlist.name" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Playlist.probability">
-<span class="sig-name descname"><span class="pre">probability</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Playlist.probability" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Playlist.user_id">
-<span class="sig-name descname"><span class="pre">user_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Playlist.user_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.PlaylistHasSong">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.library.</span></span><span class="sig-name descname"><span class="pre">PlaylistHasSong</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.library.PlaylistHasSong" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.PlaylistHasSong.playlist_id">
-<span class="sig-name descname"><span class="pre">playlist_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.PlaylistHasSong.playlist_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.PlaylistHasSong.song_id">
-<span class="sig-name descname"><span class="pre">song_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.PlaylistHasSong.song_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.library.</span></span><span class="sig-name descname"><span class="pre">Song</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">localpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.library.Song" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.added">
-<span class="sig-name descname"><span class="pre">added</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.added" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.album">
-<span class="sig-name descname"><span class="pre">album</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.album" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.album_id">
-<span class="sig-name descname"><span class="pre">album_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.album_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.artist">
-<span class="sig-name descname"><span class="pre">artist</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.artist" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.artist_id">
-<span class="sig-name descname"><span class="pre">artist_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.artist_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.available">
-<span class="sig-name descname"><span class="pre">available</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.available" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.bitrate">
-<span class="sig-name descname"><span class="pre">bitrate</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.bitrate" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.broken">
-<span class="sig-name descname"><span class="pre">broken</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.broken" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.by_filename">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">by_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#wickedjukebox.model.db.library.Song" title="wickedjukebox.model.db.library.Song"><span class="pre">Song</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.by_filename" title="Permalink to this definition">#</a></dt>
-<dd><p>Retrieve a song from the database using the local filename as key</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.checksum">
-<span class="sig-name descname"><span class="pre">checksum</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.checksum" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.coverart">
-<span class="sig-name descname"><span class="pre">coverart</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.coverart" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.dirty">
-<span class="sig-name descname"><span class="pre">dirty</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.dirty" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.downloaded">
-<span class="sig-name descname"><span class="pre">downloaded</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.downloaded" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.duration">
-<span class="sig-name descname"><span class="pre">duration</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.duration" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.filesize">
-<span class="sig-name descname"><span class="pre">filesize</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.filesize" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.lastScanned">
-<span class="sig-name descname"><span class="pre">lastScanned</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.lastScanned" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.lastfm_mbid">
-<span class="sig-name descname"><span class="pre">lastfm_mbid</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.lastfm_mbid" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.lastfm_url">
-<span class="sig-name descname"><span class="pre">lastfm_url</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.lastfm_url" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.localpath">
-<span class="sig-name descname"><span class="pre">localpath</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.localpath" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.lyrics">
-<span class="sig-name descname"><span class="pre">lyrics</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.lyrics" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.random">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">random</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#wickedjukebox.model.db.library.Song" title="wickedjukebox.model.db.library.Song"><span class="pre">Song</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.random" title="Permalink to this definition">#</a></dt>
-<dd><p>Retrieve a song from the database using the local filename as key</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.tags">
-<span class="sig-name descname"><span class="pre">tags</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.tags" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.title">
-<span class="sig-name descname"><span class="pre">title</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.title" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.track_no">
-<span class="sig-name descname"><span class="pre">track_no</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.track_no" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.update_metadata">
-<span class="sig-name descname"><span class="pre">update_metadata</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.update_metadata" title="Permalink to this definition">#</a></dt>
-<dd><p>Scans a file on the disk and loads the metadata from that file</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>localpath</strong> – The absolute path to the file</p></li>
-<li><p><strong>encoding</strong> – The file system encoding</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.year">
-<span class="sig-name descname"><span class="pre">year</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.year" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.SongHasGenre">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.library.</span></span><span class="sig-name descname"><span class="pre">SongHasGenre</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.library.SongHasGenre" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.SongHasGenre.genre">
-<span class="sig-name descname"><span class="pre">genre</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.SongHasGenre.genre" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.SongHasGenre.genre_id">
-<span class="sig-name descname"><span class="pre">genre_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.SongHasGenre.genre_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.SongHasGenre.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.SongHasGenre.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.SongHasGenre.song">
-<span class="sig-name descname"><span class="pre">song</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.SongHasGenre.song" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.SongHasGenre.song_id">
-<span class="sig-name descname"><span class="pre">song_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.SongHasGenre.song_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.SongHasTag">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.library.</span></span><span class="sig-name descname"><span class="pre">SongHasTag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.library.SongHasTag" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.SongHasTag.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.SongHasTag.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.SongHasTag.song_id">
-<span class="sig-name descname"><span class="pre">song_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.SongHasTag.song_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.SongHasTag.tag_id">
-<span class="sig-name descname"><span class="pre">tag_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.SongHasTag.tag_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.StandingEnum">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.library.</span></span><span class="sig-name descname"><span class="pre">StandingEnum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.library.StandingEnum" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
-<p>An enumeration.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.StandingEnum.HATE">
-<span class="sig-name descname"><span class="pre">HATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'hate'</span></em><a class="headerlink" href="#wickedjukebox.model.db.library.StandingEnum.HATE" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.StandingEnum.LOVE">
-<span class="sig-name descname"><span class="pre">LOVE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'love'</span></em><a class="headerlink" href="#wickedjukebox.model.db.library.StandingEnum.LOVE" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Tag">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.library.</span></span><span class="sig-name descname"><span class="pre">Tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.library.Tag" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Tag.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Tag.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Tag.inserted">
-<span class="sig-name descname"><span class="pre">inserted</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Tag.inserted" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Tag.label">
-<span class="sig-name descname"><span class="pre">label</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Tag.label" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Tag.modified">
-<span class="sig-name descname"><span class="pre">modified</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Tag.modified" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.UserSongStanding">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.library.</span></span><span class="sig-name descname"><span class="pre">UserSongStanding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.library.UserSongStanding" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.UserSongStanding.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.UserSongStanding.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.UserSongStanding.inserted">
-<span class="sig-name descname"><span class="pre">inserted</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.UserSongStanding.inserted" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.UserSongStanding.song_id">
-<span class="sig-name descname"><span class="pre">song_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.UserSongStanding.song_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.UserSongStanding.standing">
-<span class="sig-name descname"><span class="pre">standing</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.UserSongStanding.standing" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.UserSongStanding.user_id">
-<span class="sig-name descname"><span class="pre">user_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.UserSongStanding.user_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+<section id="wickedjukebox-model-db-library-module">
+<h2>wickedjukebox.model.db.library module<a class="headerlink" href="#wickedjukebox-model-db-library-module" title="Permalink to this heading">#</a></h2>
 </section>
-<section id="module-wickedjukebox.model.db.logging">
-<span id="wickedjukebox-model-db-logging-module"></span><h2>wickedjukebox.model.db.logging module<a class="headerlink" href="#module-wickedjukebox.model.db.logging" title="Permalink to this heading">#</a></h2>
-<p>This module contains DB definitions for tables used in application logging</p>
+<section id="wickedjukebox-model-db-logging-module">
+<h2>wickedjukebox.model.db.logging module<a class="headerlink" href="#wickedjukebox-model-db-logging-module" title="Permalink to this heading">#</a></h2>
 </section>
-<section id="module-wickedjukebox.model.db.playback">
-<span id="wickedjukebox-model-db-playback-module"></span><h2>wickedjukebox.model.db.playback module<a class="headerlink" href="#module-wickedjukebox.model.db.playback" title="Permalink to this heading">#</a></h2>
-<p>This module contains DB definitions for tables used to steer the music playback</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.Channel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.playback.</span></span><span class="sig-name descname"><span class="pre">Channel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.playback.Channel" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.Channel.active">
-<span class="sig-name descname"><span class="pre">active</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.Channel.active" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.Channel.backend">
-<span class="sig-name descname"><span class="pre">backend</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.Channel.backend" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.Channel.backend_params">
-<span class="sig-name descname"><span class="pre">backend_params</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.Channel.backend_params" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.Channel.by_name">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#wickedjukebox.model.db.playback.Channel" title="wickedjukebox.model.db.playback.Channel"><span class="pre">Channel</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.Channel.by_name" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.Channel.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.Channel.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.Channel.name">
-<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.Channel.name" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.Channel.ping">
-<span class="sig-name descname"><span class="pre">ping</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.Channel.ping" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.Channel.public">
-<span class="sig-name descname"><span class="pre">public</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.Channel.public" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.Channel.status">
-<span class="sig-name descname"><span class="pre">status</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.Channel.status" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.DynamicPlaylist">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.playback.</span></span><span class="sig-name descname"><span class="pre">DynamicPlaylist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.playback.DynamicPlaylist" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.DynamicPlaylist.apply_to">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">apply_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Query</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Query</span></span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.DynamicPlaylist.apply_to" title="Permalink to this definition">#</a></dt>
-<dd><p>Modify <em>query</em> by applying additional filters based on a “dynamic
-playlist”</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.DynamicPlaylist.channel_id">
-<span class="sig-name descname"><span class="pre">channel_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.DynamicPlaylist.channel_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.DynamicPlaylist.group_id">
-<span class="sig-name descname"><span class="pre">group_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.DynamicPlaylist.group_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.DynamicPlaylist.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.DynamicPlaylist.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.DynamicPlaylist.label">
-<span class="sig-name descname"><span class="pre">label</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.DynamicPlaylist.label" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.DynamicPlaylist.probability">
-<span class="sig-name descname"><span class="pre">probability</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.DynamicPlaylist.probability" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.DynamicPlaylist.query">
-<span class="sig-name descname"><span class="pre">query</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.DynamicPlaylist.query" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.QueueItem">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.playback.</span></span><span class="sig-name descname"><span class="pre">QueueItem</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.QueueItem" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.QueueItem.added">
-<span class="sig-name descname"><span class="pre">added</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.QueueItem.added" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.QueueItem.advance">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">advance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.QueueItem.advance" title="Permalink to this definition">#</a></dt>
-<dd><p>Advance the queue by one song. Keeps a “history” of 10 songs</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.QueueItem.channel">
-<span class="sig-name descname"><span class="pre">channel</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.QueueItem.channel" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.QueueItem.channel_id">
-<span class="sig-name descname"><span class="pre">channel_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.QueueItem.channel_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.QueueItem.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.QueueItem.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.QueueItem.next">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">next</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#wickedjukebox.model.db.playback.QueueItem" title="wickedjukebox.model.db.playback.QueueItem"><span class="pre">QueueItem</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.QueueItem.next" title="Permalink to this definition">#</a></dt>
-<dd><p>Return the next song on the queue or None if the queue is empty</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.QueueItem.position">
-<span class="sig-name descname"><span class="pre">position</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.QueueItem.position" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.QueueItem.song">
-<span class="sig-name descname"><span class="pre">song</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.QueueItem.song" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.QueueItem.song_id">
-<span class="sig-name descname"><span class="pre">song_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.QueueItem.song_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.QueueItem.user">
-<span class="sig-name descname"><span class="pre">user</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.QueueItem.user" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.QueueItem.user_id">
-<span class="sig-name descname"><span class="pre">user_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.QueueItem.user_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.RandomSongsToUse">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.playback.</span></span><span class="sig-name descname"><span class="pre">RandomSongsToUse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.playback.RandomSongsToUse" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.RandomSongsToUse.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.RandomSongsToUse.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.RandomSongsToUse.in_string">
-<span class="sig-name descname"><span class="pre">in_string</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.RandomSongsToUse.in_string" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.RandomSongsToUse.used">
-<span class="sig-name descname"><span class="pre">used</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.RandomSongsToUse.used" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.State">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.playback.</span></span><span class="sig-name descname"><span class="pre">State</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.playback.State" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.State.channel_id">
-<span class="sig-name descname"><span class="pre">channel_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.State.channel_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.State.get">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">statename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.playback.State.get" title="Permalink to this definition">#</a></dt>
-<dd><p>Retrieve a specific state.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Param<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The variable name</p>
-</dd>
-<dt class="field-even">Param<span class="colon">:</span></dt>
-<dd class="field-even"><p>(optional) The channel id for states bound to a specific
-channel</p>
-</dd>
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>default</strong> – Return this value is the state is not found in the DB.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The state value</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.State.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.State.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.State.set">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">statename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.playback.State.set" title="Permalink to this definition">#</a></dt>
-<dd><p>Saves a state variable into the database</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>statename</strong> – The variable name</p></li>
-<li><p><strong>value</strong> – The value of the state variable</p></li>
-<li><p><strong>channel_id</strong> – (optional) For channel based states, use this to set
-the channel.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.State.state">
-<span class="sig-name descname"><span class="pre">state</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.State.state" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.State.value">
-<span class="sig-name descname"><span class="pre">value</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.State.value" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+<section id="wickedjukebox-model-db-playback-module">
+<h2>wickedjukebox.model.db.playback module<a class="headerlink" href="#wickedjukebox-model-db-playback-module" title="Permalink to this heading">#</a></h2>
 </section>
 <section id="module-wickedjukebox.model.db.sameta">
 <span id="wickedjukebox-model-db-sameta-module"></span><h2>wickedjukebox.model.db.sameta module<a class="headerlink" href="#module-wickedjukebox.model.db.sameta" title="Permalink to this heading">#</a></h2>
@@ -1480,680 +681,17 @@ the channel.</p></li>
 </dd></dl>
 
 </section>
-<section id="module-wickedjukebox.model.db.settings">
-<span id="wickedjukebox-model-db-settings-module"></span><h2>wickedjukebox.model.db.settings module<a class="headerlink" href="#module-wickedjukebox.model.db.settings" title="Permalink to this heading">#</a></h2>
-<p>This module contains DB definitions for tables related to core application
-settings.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.settings.Setting">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.settings.</span></span><span class="sig-name descname"><span class="pre">Setting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.settings.Setting" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.settings.Setting.channel_id">
-<span class="sig-name descname"><span class="pre">channel_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.settings.Setting.channel_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.settings.Setting.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.settings.Setting.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.settings.Setting.user_id">
-<span class="sig-name descname"><span class="pre">user_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.settings.Setting.user_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.settings.Setting.value">
-<span class="sig-name descname"><span class="pre">value</span></span><a class="headerlink" href="#wickedjukebox.model.db.settings.Setting.value" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.settings.Setting.var">
-<span class="sig-name descname"><span class="pre">var</span></span><a class="headerlink" href="#wickedjukebox.model.db.settings.Setting.var" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.settings.SettingText">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.settings.</span></span><span class="sig-name descname"><span class="pre">SettingText</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.settings.SettingText" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.settings.SettingText.text_en">
-<span class="sig-name descname"><span class="pre">text_en</span></span><a class="headerlink" href="#wickedjukebox.model.db.settings.SettingText.text_en" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.settings.SettingText.var">
-<span class="sig-name descname"><span class="pre">var</span></span><a class="headerlink" href="#wickedjukebox.model.db.settings.SettingText.var" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+<section id="wickedjukebox-model-db-settings-module">
+<h2>wickedjukebox.model.db.settings module<a class="headerlink" href="#wickedjukebox-model-db-settings-module" title="Permalink to this heading">#</a></h2>
 </section>
-<section id="module-wickedjukebox.model.db.stats">
-<span id="wickedjukebox-model-db-stats-module"></span><h2>wickedjukebox.model.db.stats module<a class="headerlink" href="#module-wickedjukebox.model.db.stats" title="Permalink to this heading">#</a></h2>
-<p>This module contains DB definitions for statistics</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.stats.ChannelAlbumDatum">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.stats.</span></span><span class="sig-name descname"><span class="pre">ChannelAlbumDatum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.stats.ChannelAlbumDatum" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.stats.ChannelAlbumDatum.album_id">
-<span class="sig-name descname"><span class="pre">album_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.stats.ChannelAlbumDatum.album_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.stats.ChannelAlbumDatum.channel_id">
-<span class="sig-name descname"><span class="pre">channel_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.stats.ChannelAlbumDatum.channel_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.stats.ChannelAlbumDatum.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.stats.ChannelAlbumDatum.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.stats.ChannelAlbumDatum.played">
-<span class="sig-name descname"><span class="pre">played</span></span><a class="headerlink" href="#wickedjukebox.model.db.stats.ChannelAlbumDatum.played" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.stats.ChannelStat">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.stats.</span></span><span class="sig-name descname"><span class="pre">ChannelStat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">song_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.stats.ChannelStat" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.stats.ChannelStat.by_song">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">by_song</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">song</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#wickedjukebox.model.db.library.Song" title="wickedjukebox.model.db.library.Song"><span class="pre">Song</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#wickedjukebox.model.db.playback.Channel" title="wickedjukebox.model.db.playback.Channel"><span class="pre">Channel</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#wickedjukebox.model.db.stats.ChannelStat" title="wickedjukebox.model.db.stats.ChannelStat"><span class="pre">ChannelStat</span></a></span></span><a class="headerlink" href="#wickedjukebox.model.db.stats.ChannelStat.by_song" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.stats.ChannelStat.channel">
-<span class="sig-name descname"><span class="pre">channel</span></span><a class="headerlink" href="#wickedjukebox.model.db.stats.ChannelStat.channel" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.stats.ChannelStat.channel_id">
-<span class="sig-name descname"><span class="pre">channel_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.stats.ChannelStat.channel_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.stats.ChannelStat.cost">
-<span class="sig-name descname"><span class="pre">cost</span></span><a class="headerlink" href="#wickedjukebox.model.db.stats.ChannelStat.cost" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.stats.ChannelStat.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.stats.ChannelStat.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.stats.ChannelStat.lastPlayed">
-<span class="sig-name descname"><span class="pre">lastPlayed</span></span><a class="headerlink" href="#wickedjukebox.model.db.stats.ChannelStat.lastPlayed" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.stats.ChannelStat.last_played_parametric">
-<span class="sig-name descname"><span class="pre">last_played_parametric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lp_cutoff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.stats.ChannelStat.last_played_parametric" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.stats.ChannelStat.played">
-<span class="sig-name descname"><span class="pre">played</span></span><a class="headerlink" href="#wickedjukebox.model.db.stats.ChannelStat.played" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.stats.ChannelStat.skipped">
-<span class="sig-name descname"><span class="pre">skipped</span></span><a class="headerlink" href="#wickedjukebox.model.db.stats.ChannelStat.skipped" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.stats.ChannelStat.song">
-<span class="sig-name descname"><span class="pre">song</span></span><a class="headerlink" href="#wickedjukebox.model.db.stats.ChannelStat.song" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.stats.ChannelStat.song_id">
-<span class="sig-name descname"><span class="pre">song_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.stats.ChannelStat.song_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.stats.ChannelStat.voted">
-<span class="sig-name descname"><span class="pre">voted</span></span><a class="headerlink" href="#wickedjukebox.model.db.stats.ChannelStat.voted" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.stats.UserSongStat">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.stats.</span></span><span class="sig-name descname"><span class="pre">UserSongStat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.stats.UserSongStat" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.stats.UserSongStat.song">
-<span class="sig-name descname"><span class="pre">song</span></span><a class="headerlink" href="#wickedjukebox.model.db.stats.UserSongStat.song" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.stats.UserSongStat.song_id">
-<span class="sig-name descname"><span class="pre">song_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.stats.UserSongStat.song_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.stats.UserSongStat.user">
-<span class="sig-name descname"><span class="pre">user</span></span><a class="headerlink" href="#wickedjukebox.model.db.stats.UserSongStat.user" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.stats.UserSongStat.user_id">
-<span class="sig-name descname"><span class="pre">user_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.stats.UserSongStat.user_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.stats.UserSongStat.when">
-<span class="sig-name descname"><span class="pre">when</span></span><a class="headerlink" href="#wickedjukebox.model.db.stats.UserSongStat.when" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+<section id="wickedjukebox-model-db-stats-module">
+<h2>wickedjukebox.model.db.stats module<a class="headerlink" href="#wickedjukebox-model-db-stats-module" title="Permalink to this heading">#</a></h2>
 </section>
-<section id="module-wickedjukebox.model.db.webui">
-<span id="wickedjukebox-model-db-webui-module"></span><h2>wickedjukebox.model.db.webui module<a class="headerlink" href="#module-wickedjukebox.model.db.webui" title="Permalink to this heading">#</a></h2>
-<p>This module contains Table definitions primarily used for the web UI</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoAdminLog">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.webui.</span></span><span class="sig-name descname"><span class="pre">DjangoAdminLog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoAdminLog" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoAdminLog.action_flag">
-<span class="sig-name descname"><span class="pre">action_flag</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoAdminLog.action_flag" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoAdminLog.action_time">
-<span class="sig-name descname"><span class="pre">action_time</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoAdminLog.action_time" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoAdminLog.change_message">
-<span class="sig-name descname"><span class="pre">change_message</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoAdminLog.change_message" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoAdminLog.content_type">
-<span class="sig-name descname"><span class="pre">content_type</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoAdminLog.content_type" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoAdminLog.content_type_id">
-<span class="sig-name descname"><span class="pre">content_type_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoAdminLog.content_type_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoAdminLog.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoAdminLog.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoAdminLog.object_id">
-<span class="sig-name descname"><span class="pre">object_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoAdminLog.object_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoAdminLog.object_repr">
-<span class="sig-name descname"><span class="pre">object_repr</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoAdminLog.object_repr" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoAdminLog.user">
-<span class="sig-name descname"><span class="pre">user</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoAdminLog.user" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoAdminLog.user_id">
-<span class="sig-name descname"><span class="pre">user_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoAdminLog.user_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsChordcounter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.webui.</span></span><span class="sig-name descname"><span class="pre">DjangoCeleryResultsChordcounter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsChordcounter" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsChordcounter.count">
-<span class="sig-name descname"><span class="pre">count</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsChordcounter.count" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsChordcounter.group_id">
-<span class="sig-name descname"><span class="pre">group_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsChordcounter.group_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsChordcounter.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsChordcounter.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsChordcounter.sub_tasks">
-<span class="sig-name descname"><span class="pre">sub_tasks</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsChordcounter.sub_tasks" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.webui.</span></span><span class="sig-name descname"><span class="pre">DjangoCeleryResultsGroupresult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult.content_encoding">
-<span class="sig-name descname"><span class="pre">content_encoding</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult.content_encoding" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult.content_type">
-<span class="sig-name descname"><span class="pre">content_type</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult.content_type" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult.date_created">
-<span class="sig-name descname"><span class="pre">date_created</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult.date_created" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult.date_done">
-<span class="sig-name descname"><span class="pre">date_done</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult.date_done" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult.group_id">
-<span class="sig-name descname"><span class="pre">group_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult.group_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult.result">
-<span class="sig-name descname"><span class="pre">result</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsGroupresult.result" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.webui.</span></span><span class="sig-name descname"><span class="pre">DjangoCeleryResultsTaskresult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.content_encoding">
-<span class="sig-name descname"><span class="pre">content_encoding</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.content_encoding" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.content_type">
-<span class="sig-name descname"><span class="pre">content_type</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.content_type" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.date_created">
-<span class="sig-name descname"><span class="pre">date_created</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.date_created" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.date_done">
-<span class="sig-name descname"><span class="pre">date_done</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.date_done" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.meta">
-<span class="sig-name descname"><span class="pre">meta</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.meta" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.result">
-<span class="sig-name descname"><span class="pre">result</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.result" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.status">
-<span class="sig-name descname"><span class="pre">status</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.status" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.task_args">
-<span class="sig-name descname"><span class="pre">task_args</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.task_args" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.task_id">
-<span class="sig-name descname"><span class="pre">task_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.task_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.task_kwargs">
-<span class="sig-name descname"><span class="pre">task_kwargs</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.task_kwargs" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.task_name">
-<span class="sig-name descname"><span class="pre">task_name</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.task_name" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.traceback">
-<span class="sig-name descname"><span class="pre">traceback</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.traceback" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.worker">
-<span class="sig-name descname"><span class="pre">worker</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoCeleryResultsTaskresult.worker" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoContentType">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.webui.</span></span><span class="sig-name descname"><span class="pre">DjangoContentType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoContentType" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoContentType.app_label">
-<span class="sig-name descname"><span class="pre">app_label</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoContentType.app_label" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoContentType.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoContentType.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoContentType.model">
-<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoContentType.model" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoMigration">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.webui.</span></span><span class="sig-name descname"><span class="pre">DjangoMigration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoMigration" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoMigration.app">
-<span class="sig-name descname"><span class="pre">app</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoMigration.app" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoMigration.applied">
-<span class="sig-name descname"><span class="pre">applied</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoMigration.applied" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoMigration.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoMigration.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoMigration.name">
-<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoMigration.name" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoSession">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.webui.</span></span><span class="sig-name descname"><span class="pre">DjangoSession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoSession" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoSession.expire_date">
-<span class="sig-name descname"><span class="pre">expire_date</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoSession.expire_date" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoSession.session_data">
-<span class="sig-name descname"><span class="pre">session_data</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoSession.session_data" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.DjangoSession.session_key">
-<span class="sig-name descname"><span class="pre">session_key</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.DjangoSession.session_key" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.ImageEnum">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.webui.</span></span><span class="sig-name descname"><span class="pre">ImageEnum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.webui.ImageEnum" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
-<p>An enumeration.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.ImageEnum.GIF">
-<span class="sig-name descname"><span class="pre">GIF</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'image/gif'</span></em><a class="headerlink" href="#wickedjukebox.model.db.webui.ImageEnum.GIF" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.ImageEnum.JPEG">
-<span class="sig-name descname"><span class="pre">JPEG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'image/jpeg'</span></em><a class="headerlink" href="#wickedjukebox.model.db.webui.ImageEnum.JPEG" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.ImageEnum.PNG">
-<span class="sig-name descname"><span class="pre">PNG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'image/png'</span></em><a class="headerlink" href="#wickedjukebox.model.db.webui.ImageEnum.PNG" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RenderPreset">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.webui.</span></span><span class="sig-name descname"><span class="pre">RenderPreset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.webui.RenderPreset" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RenderPreset.category">
-<span class="sig-name descname"><span class="pre">category</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RenderPreset.category" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RenderPreset.crop">
-<span class="sig-name descname"><span class="pre">crop</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RenderPreset.crop" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RenderPreset.description">
-<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RenderPreset.description" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RenderPreset.force_mime">
-<span class="sig-name descname"><span class="pre">force_mime</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RenderPreset.force_mime" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RenderPreset.hmax">
-<span class="sig-name descname"><span class="pre">hmax</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RenderPreset.hmax" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RenderPreset.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RenderPreset.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RenderPreset.noproportion">
-<span class="sig-name descname"><span class="pre">noproportion</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RenderPreset.noproportion" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RenderPreset.placeholder">
-<span class="sig-name descname"><span class="pre">placeholder</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RenderPreset.placeholder" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RenderPreset.placeholder_image">
-<span class="sig-name descname"><span class="pre">placeholder_image</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RenderPreset.placeholder_image" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RenderPreset.preset">
-<span class="sig-name descname"><span class="pre">preset</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RenderPreset.preset" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RenderPreset.wmax">
-<span class="sig-name descname"><span class="pre">wmax</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RenderPreset.wmax" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.webui.</span></span><span class="sig-name descname"><span class="pre">RestFrameworkTrackingApirequestlog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.data">
-<span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.data" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.errors">
-<span class="sig-name descname"><span class="pre">errors</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.errors" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.host">
-<span class="sig-name descname"><span class="pre">host</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.host" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.method">
-<span class="sig-name descname"><span class="pre">method</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.method" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.path">
-<span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.path" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.query_params">
-<span class="sig-name descname"><span class="pre">query_params</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.query_params" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.remote_addr">
-<span class="sig-name descname"><span class="pre">remote_addr</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.remote_addr" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.requested_at">
-<span class="sig-name descname"><span class="pre">requested_at</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.requested_at" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.response">
-<span class="sig-name descname"><span class="pre">response</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.response" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.response_ms">
-<span class="sig-name descname"><span class="pre">response_ms</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.response_ms" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.status_code">
-<span class="sig-name descname"><span class="pre">status_code</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.status_code" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.user">
-<span class="sig-name descname"><span class="pre">user</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.user" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.user_id">
-<span class="sig-name descname"><span class="pre">user_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.user_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.username_persistent">
-<span class="sig-name descname"><span class="pre">username_persistent</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.username_persistent" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.view">
-<span class="sig-name descname"><span class="pre">view</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.view" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.view_method">
-<span class="sig-name descname"><span class="pre">view_method</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.RestFrameworkTrackingApirequestlog.view_method" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.Shoutbox">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.webui.</span></span><span class="sig-name descname"><span class="pre">Shoutbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.webui.Shoutbox" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.Shoutbox.added">
-<span class="sig-name descname"><span class="pre">added</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.Shoutbox.added" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.Shoutbox.id">
-<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.Shoutbox.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.Shoutbox.message">
-<span class="sig-name descname"><span class="pre">message</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.Shoutbox.message" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.Shoutbox.user">
-<span class="sig-name descname"><span class="pre">user</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.Shoutbox.user" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.Shoutbox.user_id">
-<span class="sig-name descname"><span class="pre">user_id</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.Shoutbox.user_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.ThumbnailKvstore">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.model.db.webui.</span></span><span class="sig-name descname"><span class="pre">ThumbnailKvstore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.model.db.webui.ThumbnailKvstore" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.ThumbnailKvstore.key">
-<span class="sig-name descname"><span class="pre">key</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.ThumbnailKvstore.key" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.webui.ThumbnailKvstore.value">
-<span class="sig-name descname"><span class="pre">value</span></span><a class="headerlink" href="#wickedjukebox.model.db.webui.ThumbnailKvstore.value" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+<section id="wickedjukebox-model-db-webui-module">
+<h2>wickedjukebox.model.db.webui module<a class="headerlink" href="#wickedjukebox-model-db-webui-module" title="Permalink to this heading">#</a></h2>
 </section>
-<section id="module-wickedjukebox.model.db">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-wickedjukebox.model.db" title="Permalink to this heading">#</a></h2>
-<p>This sub-package contains the database model for the application.</p>
+<section id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this heading">#</a></h2>
 </section>
 </section>
 
@@ -2169,10 +707,10 @@ settings.</p>
                 </div>
                 <div class="title">wickedjukebox.smartplaylist package</div>
               </div>
-              <svg><use href="#svg-arrow-right"></use></svg>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
           <a class="prev-page" href="wickedjukebox.model.html">
-              <svg><use href="#svg-arrow-right"></use></svg>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
@@ -2194,9 +732,7 @@ settings.</p>
             
           </div>
           <div class="right-details">
-            <div class="icons">
-              
-            </div>
+            
           </div>
         </div>
         
@@ -2208,7 +744,7 @@ settings.</p>
       <div class="toc-sticky toc-scroll">
         <div class="toc-title-container">
           <span class="toc-title">
-            Contents
+            On this page
           </span>
         </div>
         <div class="toc-tree-container">
@@ -2216,17 +752,129 @@ settings.</p>
             <ul>
 <li><a class="reference internal" href="#">wickedjukebox.model.db package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-wickedjukebox.model.db.auth">wickedjukebox.model.db.auth module</a></li>
-<li><a class="reference internal" href="#module-wickedjukebox.model.db.events">wickedjukebox.model.db.events module</a></li>
-<li><a class="reference internal" href="#module-wickedjukebox.model.db.lastfm">wickedjukebox.model.db.lastfm module</a></li>
-<li><a class="reference internal" href="#module-wickedjukebox.model.db.library">wickedjukebox.model.db.library module</a></li>
-<li><a class="reference internal" href="#module-wickedjukebox.model.db.logging">wickedjukebox.model.db.logging module</a></li>
-<li><a class="reference internal" href="#module-wickedjukebox.model.db.playback">wickedjukebox.model.db.playback module</a></li>
-<li><a class="reference internal" href="#module-wickedjukebox.model.db.sameta">wickedjukebox.model.db.sameta module</a></li>
-<li><a class="reference internal" href="#module-wickedjukebox.model.db.settings">wickedjukebox.model.db.settings module</a></li>
-<li><a class="reference internal" href="#module-wickedjukebox.model.db.stats">wickedjukebox.model.db.stats module</a></li>
-<li><a class="reference internal" href="#module-wickedjukebox.model.db.webui">wickedjukebox.model.db.webui module</a></li>
-<li><a class="reference internal" href="#module-wickedjukebox.model.db">Module contents</a></li>
+<li><a class="reference internal" href="#module-wickedjukebox.model.db.auth">wickedjukebox.model.db.auth module</a><ul>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthGroup"><code class="docutils literal notranslate"><span class="pre">AuthGroup</span></code></a><ul>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthGroup.id"><code class="docutils literal notranslate"><span class="pre">AuthGroup.id</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthGroup.name"><code class="docutils literal notranslate"><span class="pre">AuthGroup.name</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthGroupPermission"><code class="docutils literal notranslate"><span class="pre">AuthGroupPermission</span></code></a><ul>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthGroupPermission.group"><code class="docutils literal notranslate"><span class="pre">AuthGroupPermission.group</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthGroupPermission.group_id"><code class="docutils literal notranslate"><span class="pre">AuthGroupPermission.group_id</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthGroupPermission.id"><code class="docutils literal notranslate"><span class="pre">AuthGroupPermission.id</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthGroupPermission.permission"><code class="docutils literal notranslate"><span class="pre">AuthGroupPermission.permission</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthGroupPermission.permission_id"><code class="docutils literal notranslate"><span class="pre">AuthGroupPermission.permission_id</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthPermission"><code class="docutils literal notranslate"><span class="pre">AuthPermission</span></code></a><ul>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthPermission.codename"><code class="docutils literal notranslate"><span class="pre">AuthPermission.codename</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthPermission.content_type"><code class="docutils literal notranslate"><span class="pre">AuthPermission.content_type</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthPermission.content_type_id"><code class="docutils literal notranslate"><span class="pre">AuthPermission.content_type_id</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthPermission.id"><code class="docutils literal notranslate"><span class="pre">AuthPermission.id</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthPermission.name"><code class="docutils literal notranslate"><span class="pre">AuthPermission.name</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthUser"><code class="docutils literal notranslate"><span class="pre">AuthUser</span></code></a><ul>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthUser.date_joined"><code class="docutils literal notranslate"><span class="pre">AuthUser.date_joined</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthUser.email"><code class="docutils literal notranslate"><span class="pre">AuthUser.email</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthUser.first_name"><code class="docutils literal notranslate"><span class="pre">AuthUser.first_name</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthUser.id"><code class="docutils literal notranslate"><span class="pre">AuthUser.id</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthUser.is_active"><code class="docutils literal notranslate"><span class="pre">AuthUser.is_active</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthUser.is_staff"><code class="docutils literal notranslate"><span class="pre">AuthUser.is_staff</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthUser.is_superuser"><code class="docutils literal notranslate"><span class="pre">AuthUser.is_superuser</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthUser.last_login"><code class="docutils literal notranslate"><span class="pre">AuthUser.last_login</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthUser.last_name"><code class="docutils literal notranslate"><span class="pre">AuthUser.last_name</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthUser.password"><code class="docutils literal notranslate"><span class="pre">AuthUser.password</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthUser.username"><code class="docutils literal notranslate"><span class="pre">AuthUser.username</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthUserGroup"><code class="docutils literal notranslate"><span class="pre">AuthUserGroup</span></code></a><ul>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthUserGroup.group"><code class="docutils literal notranslate"><span class="pre">AuthUserGroup.group</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthUserGroup.group_id"><code class="docutils literal notranslate"><span class="pre">AuthUserGroup.group_id</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthUserGroup.id"><code class="docutils literal notranslate"><span class="pre">AuthUserGroup.id</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthUserGroup.user"><code class="docutils literal notranslate"><span class="pre">AuthUserGroup.user</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthUserGroup.user_id"><code class="docutils literal notranslate"><span class="pre">AuthUserGroup.user_id</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthUserUserPermission"><code class="docutils literal notranslate"><span class="pre">AuthUserUserPermission</span></code></a><ul>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthUserUserPermission.id"><code class="docutils literal notranslate"><span class="pre">AuthUserUserPermission.id</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthUserUserPermission.permission"><code class="docutils literal notranslate"><span class="pre">AuthUserUserPermission.permission</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthUserUserPermission.permission_id"><code class="docutils literal notranslate"><span class="pre">AuthUserUserPermission.permission_id</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthUserUserPermission.user"><code class="docutils literal notranslate"><span class="pre">AuthUserUserPermission.user</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.AuthUserUserPermission.user_id"><code class="docutils literal notranslate"><span class="pre">AuthUserUserPermission.user_id</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.Group"><code class="docutils literal notranslate"><span class="pre">Group</span></code></a><ul>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.Group.admin"><code class="docutils literal notranslate"><span class="pre">Group.admin</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.Group.id"><code class="docutils literal notranslate"><span class="pre">Group.id</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.Group.nocredits"><code class="docutils literal notranslate"><span class="pre">Group.nocredits</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.Group.queue_add"><code class="docutils literal notranslate"><span class="pre">Group.queue_add</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.Group.queue_remove"><code class="docutils literal notranslate"><span class="pre">Group.queue_remove</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.Group.queue_skip"><code class="docutils literal notranslate"><span class="pre">Group.queue_skip</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.Group.title"><code class="docutils literal notranslate"><span class="pre">Group.title</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.User"><code class="docutils literal notranslate"><span class="pre">User</span></code></a><ul>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.User.IP"><code class="docutils literal notranslate"><span class="pre">User.IP</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.User.added"><code class="docutils literal notranslate"><span class="pre">User.added</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.User.channel_id"><code class="docutils literal notranslate"><span class="pre">User.channel_id</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.User.cookie"><code class="docutils literal notranslate"><span class="pre">User.cookie</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.User.credits"><code class="docutils literal notranslate"><span class="pre">User.credits</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.User.django_user_id"><code class="docutils literal notranslate"><span class="pre">User.django_user_id</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.User.downloads"><code class="docutils literal notranslate"><span class="pre">User.downloads</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.User.email"><code class="docutils literal notranslate"><span class="pre">User.email</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.User.fullname"><code class="docutils literal notranslate"><span class="pre">User.fullname</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.User.group"><code class="docutils literal notranslate"><span class="pre">User.group</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.User.group_id"><code class="docutils literal notranslate"><span class="pre">User.group_id</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.User.id"><code class="docutils literal notranslate"><span class="pre">User.id</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.User.lifetime"><code class="docutils literal notranslate"><span class="pre">User.lifetime</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.User.password"><code class="docutils literal notranslate"><span class="pre">User.password</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.User.picture"><code class="docutils literal notranslate"><span class="pre">User.picture</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.User.pinnedIp"><code class="docutils literal notranslate"><span class="pre">User.pinnedIp</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.User.proof_of_life"><code class="docutils literal notranslate"><span class="pre">User.proof_of_life</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.User.proof_of_listening"><code class="docutils literal notranslate"><span class="pre">User.proof_of_listening</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.User.selects"><code class="docutils literal notranslate"><span class="pre">User.selects</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.User.skips"><code class="docutils literal notranslate"><span class="pre">User.skips</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.User.username"><code class="docutils literal notranslate"><span class="pre">User.username</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.auth.User.votes"><code class="docutils literal notranslate"><span class="pre">User.votes</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-wickedjukebox.model.db.events">wickedjukebox.model.db.events module</a><ul>
+<li><a class="reference internal" href="#wickedjukebox.model.db.events.Event"><code class="docutils literal notranslate"><span class="pre">Event</span></code></a><ul>
+<li><a class="reference internal" href="#wickedjukebox.model.db.events.Event.enddate"><code class="docutils literal notranslate"><span class="pre">Event.enddate</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.events.Event.id"><code class="docutils literal notranslate"><span class="pre">Event.id</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.events.Event.lat"><code class="docutils literal notranslate"><span class="pre">Event.lat</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.events.Event.lon"><code class="docutils literal notranslate"><span class="pre">Event.lon</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.events.Event.startdate"><code class="docutils literal notranslate"><span class="pre">Event.startdate</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.events.Event.title"><code class="docutils literal notranslate"><span class="pre">Event.title</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-wickedjukebox.model.db.lastfm">wickedjukebox.model.db.lastfm module</a><ul>
+<li><a class="reference internal" href="#wickedjukebox.model.db.lastfm.LastfmQueue"><code class="docutils literal notranslate"><span class="pre">LastfmQueue</span></code></a><ul>
+<li><a class="reference internal" href="#wickedjukebox.model.db.lastfm.LastfmQueue.queue_id"><code class="docutils literal notranslate"><span class="pre">LastfmQueue.queue_id</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.lastfm.LastfmQueue.song"><code class="docutils literal notranslate"><span class="pre">LastfmQueue.song</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.lastfm.LastfmQueue.song_id"><code class="docutils literal notranslate"><span class="pre">LastfmQueue.song_id</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.lastfm.LastfmQueue.time_played"><code class="docutils literal notranslate"><span class="pre">LastfmQueue.time_played</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.lastfm.LastfmQueue.time_started"><code class="docutils literal notranslate"><span class="pre">LastfmQueue.time_started</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#wickedjukebox-model-db-library-module">wickedjukebox.model.db.library module</a></li>
+<li><a class="reference internal" href="#wickedjukebox-model-db-logging-module">wickedjukebox.model.db.logging module</a></li>
+<li><a class="reference internal" href="#wickedjukebox-model-db-playback-module">wickedjukebox.model.db.playback module</a></li>
+<li><a class="reference internal" href="#module-wickedjukebox.model.db.sameta">wickedjukebox.model.db.sameta module</a><ul>
+<li><a class="reference internal" href="#wickedjukebox.model.db.sameta.connect"><code class="docutils literal notranslate"><span class="pre">connect()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#wickedjukebox-model-db-settings-module">wickedjukebox.model.db.settings module</a></li>
+<li><a class="reference internal" href="#wickedjukebox-model-db-stats-module">wickedjukebox.model.db.stats module</a></li>
+<li><a class="reference internal" href="#wickedjukebox-model-db-webui-module">wickedjukebox.model.db.webui module</a></li>
+<li><a class="reference internal" href="#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -2239,10 +887,8 @@ settings.</p>
     </aside>
   </div>
 </div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/scripts/furo.js"></script>
     </body>
 </html>

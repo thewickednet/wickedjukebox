@@ -5,10 +5,10 @@
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Jingle Modules" href="jingle.html" /><link rel="prev" title="Autoplay Modules" href="autoplay.html" />
 
-    <meta name="generator" content="sphinx-5.1.1, furo 2022.06.21"/>
+    <!-- Generated with Sphinx 6.2.1 and Furo 2023.03.27 -->
         <title>IPC Modules - wickedjukebox documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
     
@@ -149,7 +149,7 @@
   <span class="sidebar-brand-text">wickedjukebox  documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
-  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
 </form>
@@ -204,7 +204,8 @@
           <span>Back to top</span>
         </a>
         <div class="content-icon-container">
-          <div class="theme-toggle-container theme-toggle-content">
+          
+<div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -220,66 +221,6 @@
         <article role="main">
           <section id="ipc-modules">
 <h1>IPC Modules<a class="headerlink" href="#ipc-modules" title="Permalink to this heading">#</a></h1>
-<p>This module contains implementations for inter-process calls.</p>
-<p>IPC modules allow external applications to trigger certain behaviour in the
-jukebox like skipping the currently running song for example.</p>
-<dl class="py class">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.component.ipc.</span></span><span class="sig-name descname"><span class="pre">DBIPC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../appendix/api/wickedjukebox.html#wickedjukebox.config.Config" title="wickedjukebox.config.Config"><span class="pre">Config</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>An IPC implementation using the underlying database as backend. This relies
-on the <code class="docutils literal notranslate"><span class="pre">state</span></code> table defined in the default database schema.</p>
-<div class="literal-block-wrapper docutils container" id="id1">
-<div class="code-block-caption"><span class="caption-text">Configuration Example</span><a class="headerlink" href="#id1" title="Permalink to this code">#</a></div>
-<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[channel:example:ipc]</span><span class="w"></span>
-<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">db</span><span class="w"></span>
-</pre></div>
-</div>
-</div>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.component.ipc.</span></span><span class="sig-name descname"><span class="pre">FSIPC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../appendix/api/wickedjukebox.html#wickedjukebox.config.Config" title="wickedjukebox.config.Config"><span class="pre">Config</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>A no-db solution for IPC using simple files on disk.</p>
-<p>Each command is represented as a single plain-text file in a given folder.
-If the command requires a value/argument it will use the content of the file
-as such.</p>
-<div class="literal-block-wrapper docutils container" id="id2">
-<div class="code-block-caption"><span class="caption-text">Configuration Example</span><a class="headerlink" href="#id2" title="Permalink to this code">#</a></div>
-<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[channel:example:ipc]</span><span class="w"></span>
-<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">fs</span><span class="w"></span>
-<span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/path/to/ipc-files</span><span class="w"></span>
-</pre></div>
-</div>
-</div>
-<p>Commands like “skip” can simply be executed by creating an empty file named
-“skip” into the folder:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>touch /path/to/ipc-files/skip
-</pre></div>
-</div>
-<dl class="py attribute">
-<dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">CONFIG_KEYS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'path'}</span></em></dt>
-<dd><p>The names of the config-keys that this instance requires to be
-successfully configured.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.component.ipc.</span></span><span class="sig-name descname"><span class="pre">NullIPC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../appendix/api/wickedjukebox.html#wickedjukebox.config.Config" title="wickedjukebox.config.Config"><span class="pre">Config</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span></dt>
-<dd><p>An IPC implementation where each command is a simple no-op.</p>
-<p>Commands are logged, no other action is taken.</p>
-<div class="literal-block-wrapper docutils container" id="id3">
-<div class="code-block-caption"><span class="caption-text">Configuration Example</span><a class="headerlink" href="#id3" title="Permalink to this code">#</a></div>
-<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[channel:example:ipc]</span><span class="w"></span>
-<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">null</span><span class="w"></span>
-</pre></div>
-</div>
-</div>
-</dd></dl>
-
 </section>
 
         </article>
@@ -294,10 +235,10 @@ successfully configured.</p>
                 </div>
                 <div class="title">Jingle Modules</div>
               </div>
-              <svg><use href="#svg-arrow-right"></use></svg>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
           <a class="prev-page" href="autoplay.html">
-              <svg><use href="#svg-arrow-right"></use></svg>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
@@ -319,9 +260,7 @@ successfully configured.</p>
             
           </div>
           <div class="right-details">
-            <div class="icons">
-              
-            </div>
+            
           </div>
         </div>
         
@@ -334,10 +273,8 @@ successfully configured.</p>
     </aside>
   </div>
 </div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/scripts/furo.js"></script>
     </body>
 </html>
