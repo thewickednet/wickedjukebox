@@ -27,13 +27,12 @@ port = 6600
 ; If the MPD library root path is different from the root path of the jukebox
 ; (f.ex. when running MPD inside docker), set "path_map" to
 ; <jukebox_path>:<mpd_path>
-path_map = /path/to/mp3s:/var/lib/mpd/music
+path_map = {{sample_data_folder}}:/var/lib/mpd/music
 
 [channel:wicked:ipc]
 ; The Inter-Process Call mechanism used to communicate from the frontend to the
 ; backend
-type = fs
-path = ipc
+type = db
 
 [channel:wicked:autoplay]
 ; The model used to select a new song when nothing is queued.

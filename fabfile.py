@@ -109,7 +109,10 @@ def run_db_container(ctx):
         ctx,
         Path("config.ini.dist"),
         Path(".wicked/wickedjukebox/config.ini"),
-        variables={"db_port": str(db_port)},
+        variables={
+            "db_port": str(db_port),
+            "sample_data_folder": str((Path() / "sampledata").absolute()),
+        },
         unattended=False,
     )
     ctx.run("./env/bin/alembic upgrade head")
@@ -126,6 +129,7 @@ def develop(ctx):
         "/usr/bin/mysql -ujukebox -pjukebox jukebox'"
     )
     ctx.run("pre-commit install")
+    ctx.run("[ -d sampledata ] || bash makemusic.bash")
 
 
 @task
