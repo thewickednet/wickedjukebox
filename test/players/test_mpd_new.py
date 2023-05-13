@@ -1,6 +1,7 @@
 """
 This module contains for the new (2021) MPD implementation
 """
+# pylint: disable=redefined-outer-name
 
 from typing import Tuple
 from unittest.mock import Mock, patch
@@ -12,6 +13,9 @@ import wickedjukebox.component.player as p
 
 @pytest.fixture
 def mocked_player():
+    """
+    Provide a player instance with a mocked interface to MPD.
+    """
     with patch("wickedjukebox.component.player.MPDClient") as MPDClient:
         player = p.MpdPlayer(None, "")
         player.configure(
@@ -25,11 +29,17 @@ def mocked_player():
 
 
 def test_repr(mocked_player: Tuple[p.MpdPlayer, Mock]):
+    """
+    Ensure that calling a "repr" of the instance does not crash
+    """
     result = repr(mocked_player[0])
     assert "MpdPlayer" in result
 
 
 def test_null_player():
+    """
+    Ensure that we have a working "null-object" for the player class.
+    """
     player = p.NullPlayer(None, "")
     player.skip()
     player.enqueue("foo")
@@ -39,6 +49,10 @@ def test_null_player():
 
 
 def test_path_jukebox2mpd(mocked_player: Tuple[p.MpdPlayer, Mock]):
+    """
+    Ensure that we correctly map filenames from the local file-system to
+    filenames relative to the MPD internal DB.
+    """
     player, _ = mocked_player
     result = player.jukebox2mpd("test/data/local_path/artist/album/track.mp3")
     expected = "artist/album/track.mp3"
@@ -46,6 +60,9 @@ def test_path_jukebox2mpd(mocked_player: Tuple[p.MpdPlayer, Mock]):
 
 
 def test_path_conversion_invariance(mocked_player: Tuple[p.MpdPlayer, Mock]):
+    """
+    Ensure that path-mapping "from" and "to" MPD is a proper inverse function
+    """
     player, _ = mocked_player
     filename = "test/data/local_path/artist/album/track.mp3"
     result = player.mpd2jukebox(player.jukebox2mpd(filename))
