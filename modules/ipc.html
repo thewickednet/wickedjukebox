@@ -221,6 +221,66 @@
         <article role="main">
           <section id="ipc-modules">
 <h1>IPC Modules<a class="headerlink" href="#ipc-modules" title="Permalink to this heading">#</a></h1>
+<p>This module contains implementations for inter-process calls.</p>
+<p>IPC modules allow external applications to trigger certain behaviour in the
+jukebox like skipping the currently running song for example.</p>
+<dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.component.ipc.</span></span><span class="sig-name descname"><span class="pre">DBIPC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../appendix/api/wickedjukebox.html#wickedjukebox.config.Config" title="wickedjukebox.config.Config"><span class="pre">Config</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>An IPC implementation using the underlying database as backend. This relies
+on the <code class="docutils literal notranslate"><span class="pre">state</span></code> table defined in the default database schema.</p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">Configuration Example</span><a class="headerlink" href="#id1" title="Permalink to this code">#</a></div>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[channel:example:ipc]</span>
+<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">db</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.component.ipc.</span></span><span class="sig-name descname"><span class="pre">FSIPC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../appendix/api/wickedjukebox.html#wickedjukebox.config.Config" title="wickedjukebox.config.Config"><span class="pre">Config</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>A no-db solution for IPC using simple files on disk.</p>
+<p>Each command is represented as a single plain-text file in a given folder.
+If the command requires a value/argument it will use the content of the file
+as such.</p>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">Configuration Example</span><a class="headerlink" href="#id2" title="Permalink to this code">#</a></div>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[channel:example:ipc]</span>
+<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">fs</span>
+<span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/path/to/ipc-files</span>
+</pre></div>
+</div>
+</div>
+<p>Commands like “skip” can simply be executed by creating an empty file named
+“skip” into the folder:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>touch<span class="w"> </span>/path/to/ipc-files/skip
+</pre></div>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">CONFIG_KEYS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'path'}</span></em></dt>
+<dd><p>The names of the config-keys that this instance requires to be
+successfully configured.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.component.ipc.</span></span><span class="sig-name descname"><span class="pre">NullIPC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../appendix/api/wickedjukebox.html#wickedjukebox.config.Config" title="wickedjukebox.config.Config"><span class="pre">Config</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>An IPC implementation where each command is a simple no-op.</p>
+<p>Commands are logged, no other action is taken.</p>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">Configuration Example</span><a class="headerlink" href="#id3" title="Permalink to this code">#</a></div>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[channel:example:ipc]</span>
+<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">null</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
 </section>
 
         </article>

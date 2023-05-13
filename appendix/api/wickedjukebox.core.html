@@ -224,8 +224,128 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">#</a></h2>
 </section>
-<section id="wickedjukebox-core-smartfind-module">
-<h2>wickedjukebox.core.smartfind module<a class="headerlink" href="#wickedjukebox-core-smartfind-module" title="Permalink to this heading">#</a></h2>
+<section id="module-wickedjukebox.core.smartfind">
+<span id="wickedjukebox-core-smartfind-module"></span><h2>wickedjukebox.core.smartfind module<a class="headerlink" href="#module-wickedjukebox.core.smartfind" title="Permalink to this heading">#</a></h2>
+<p>This module contains an entry point to run a “smart” query to find the next best
+song taking channel statistics into account.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="wickedjukebox.core.smartfind.LAST_PLAYED_CUTOFF">
+<span class="sig-prename descclassname"><span class="pre">wickedjukebox.core.smartfind.</span></span><span class="sig-name descname"><span class="pre">LAST_PLAYED_CUTOFF</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">604800</span></em><a class="headerlink" href="#wickedjukebox.core.smartfind.LAST_PLAYED_CUTOFF" title="Permalink to this definition">#</a></dt>
+<dd><p>A song gains the maximum “last-played” score boost after this many seconds</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="wickedjukebox.core.smartfind.SONG_AGE_CUTOFF">
+<span class="sig-prename descclassname"><span class="pre">wickedjukebox.core.smartfind.</span></span><span class="sig-name descname"><span class="pre">SONG_AGE_CUTOFF</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1209600</span></em><a class="headerlink" href="#wickedjukebox.core.smartfind.SONG_AGE_CUTOFF" title="Permalink to this definition">#</a></dt>
+<dd><p>A song gains a boost related to its age in the DB. This value defines a
+relative point in time when it received the maximum value. TODO: Whether this
+is based on recency or primacy needs to be digested from the source-code and
+clarified.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wickedjukebox.core.smartfind.ScoringConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.core.smartfind.</span></span><span class="sig-name descname"><span class="pre">ScoringConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Possible configuration values to influence the scoring query</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wickedjukebox.core.smartfind.ScoringConfig.LAST_PLAYED">
+<span class="sig-name descname"><span class="pre">LAST_PLAYED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'last_played'</span></em><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig.LAST_PLAYED" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wickedjukebox.core.smartfind.ScoringConfig.MAX_DURATION">
+<span class="sig-name descname"><span class="pre">MAX_DURATION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'max_duration'</span></em><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig.MAX_DURATION" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wickedjukebox.core.smartfind.ScoringConfig.NEVER_PLAYED">
+<span class="sig-name descname"><span class="pre">NEVER_PLAYED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'never_played'</span></em><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig.NEVER_PLAYED" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wickedjukebox.core.smartfind.ScoringConfig.PROOF_OF_LIFE_TIMEOUT">
+<span class="sig-name descname"><span class="pre">PROOF_OF_LIFE_TIMEOUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'proof_of_life'</span></em><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig.PROOF_OF_LIFE_TIMEOUT" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wickedjukebox.core.smartfind.ScoringConfig.RANDOMNESS">
+<span class="sig-name descname"><span class="pre">RANDOMNESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'randomness'</span></em><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig.RANDOMNESS" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wickedjukebox.core.smartfind.ScoringConfig.SONG_AGE">
+<span class="sig-name descname"><span class="pre">SONG_AGE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'song_age'</span></em><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig.SONG_AGE" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wickedjukebox.core.smartfind.ScoringConfig.USER_RATING">
+<span class="sig-name descname"><span class="pre">USER_RATING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'user_rating'</span></em><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig.USER_RATING" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="wickedjukebox.core.smartfind.find_song">
+<span class="sig-prename descclassname"><span class="pre">wickedjukebox.core.smartfind.</span></span><span class="sig-name descname"><span class="pre">find_song</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scoring_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#wickedjukebox.core.smartfind.ScoringConfig" title="wickedjukebox.core.smartfind.ScoringConfig"><span class="pre">ScoringConfig</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_mysql</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="wickedjukebox.model.db.html#wickedjukebox.model.db.library.Song" title="wickedjukebox.model.db.library.Song"><span class="pre">Song</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#wickedjukebox.core.smartfind.find_song" title="Permalink to this definition">#</a></dt>
+<dd><p>determine a song that would be best to play next and return it</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="wickedjukebox.core.smartfind.get_standing_query">
+<span class="sig-prename descclassname"><span class="pre">wickedjukebox.core.smartfind.</span></span><span class="sig-name descname"><span class="pre">get_standing_query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">standing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">setting_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proofoflife_timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Query</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#wickedjukebox.core.smartfind.get_standing_query" title="Permalink to this definition">#</a></dt>
+<dd><p>Return a query retrieving the number of users that either “hate” or “love” a
+given song. Only users that have been listening within the last
+<em>proofoflife_timeout</em> seconds will be taken into account.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="wickedjukebox.core.smartfind.score_expression">
+<span class="sig-prename descclassname"><span class="pre">wickedjukebox.core.smartfind.</span></span><span class="sig-name descname"><span class="pre">score_expression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">last_played</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">never_played</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">song_age</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.core.smartfind.score_expression" title="Permalink to this definition">#</a></dt>
+<dd><p>Generates a column-expression that calculates the scoring for a song without
+taking into account user-statistics.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="wickedjukebox.core.smartfind.smart_random_no_users">
+<span class="sig-prename descclassname"><span class="pre">wickedjukebox.core.smartfind.</span></span><span class="sig-name descname"><span class="pre">smart_random_no_users</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">never_played</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_played</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">song_age</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_random_duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.core.smartfind.smart_random_no_users" title="Permalink to this definition">#</a></dt>
+<dd><p>Fetch a random song without taking any user-statistics into account. Only
+consider channel statistics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>never_played</strong> – A score bonus for songs that have never been played.</p></li>
+<li><p><strong>last_played</strong> – The maximum score boost for songs that have not been
+played in a while.</p></li>
+<li><p><strong>song_age</strong> – The maximum score boost for songs related to the date they
+were added to the database. NOTE: I don’t remember if they get mex score
+if they are <em>recent</em> or if they are <em>old</em>. Needs to be clarified.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Randomness<span class="colon">:</span></dt>
+<dd class="field-even"><p>A score modifier adding a dash of randomness to the overall
+score.</p>
+</dd>
+<dt class="field-odd">Max_random_duration<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Don’t return songs with a longer duration than this
+value (in seconds).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="wickedjukebox.core.smartfind.smart_random_with_users">
+<span class="sig-prename descclassname"><span class="pre">wickedjukebox.core.smartfind.</span></span><span class="sig-name descname"><span class="pre">smart_random_with_users</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">never_played</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_rating</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_played</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proofoflife_timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">song_age</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_random_duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_active_users</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Query</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#wickedjukebox.core.smartfind.smart_random_with_users" title="Permalink to this definition">#</a></dt>
+<dd><p>song.id
+song.localpath
+score =</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>seconds since last played (capped of at lp_cutoff) divided by lp_cutoff multiplied by “last-played” scoring weight</p></li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
 </section>
 <section id="module-wickedjukebox.core">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-wickedjukebox.core" title="Permalink to this heading">#</a></h2>
@@ -289,7 +409,26 @@
             <ul>
 <li><a class="reference internal" href="#">wickedjukebox.core package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#wickedjukebox-core-smartfind-module">wickedjukebox.core.smartfind module</a></li>
+<li><a class="reference internal" href="#module-wickedjukebox.core.smartfind">wickedjukebox.core.smartfind module</a><ul>
+<li><a class="reference internal" href="#wickedjukebox.core.smartfind.LAST_PLAYED_CUTOFF"><code class="docutils literal notranslate"><span class="pre">LAST_PLAYED_CUTOFF</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.core.smartfind.SONG_AGE_CUTOFF"><code class="docutils literal notranslate"><span class="pre">SONG_AGE_CUTOFF</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.core.smartfind.ScoringConfig"><code class="docutils literal notranslate"><span class="pre">ScoringConfig</span></code></a><ul>
+<li><a class="reference internal" href="#wickedjukebox.core.smartfind.ScoringConfig.LAST_PLAYED"><code class="docutils literal notranslate"><span class="pre">ScoringConfig.LAST_PLAYED</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.core.smartfind.ScoringConfig.MAX_DURATION"><code class="docutils literal notranslate"><span class="pre">ScoringConfig.MAX_DURATION</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.core.smartfind.ScoringConfig.NEVER_PLAYED"><code class="docutils literal notranslate"><span class="pre">ScoringConfig.NEVER_PLAYED</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.core.smartfind.ScoringConfig.PROOF_OF_LIFE_TIMEOUT"><code class="docutils literal notranslate"><span class="pre">ScoringConfig.PROOF_OF_LIFE_TIMEOUT</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.core.smartfind.ScoringConfig.RANDOMNESS"><code class="docutils literal notranslate"><span class="pre">ScoringConfig.RANDOMNESS</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.core.smartfind.ScoringConfig.SONG_AGE"><code class="docutils literal notranslate"><span class="pre">ScoringConfig.SONG_AGE</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.core.smartfind.ScoringConfig.USER_RATING"><code class="docutils literal notranslate"><span class="pre">ScoringConfig.USER_RATING</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#wickedjukebox.core.smartfind.find_song"><code class="docutils literal notranslate"><span class="pre">find_song()</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.core.smartfind.get_standing_query"><code class="docutils literal notranslate"><span class="pre">get_standing_query()</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.core.smartfind.score_expression"><code class="docutils literal notranslate"><span class="pre">score_expression()</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.core.smartfind.smart_random_no_users"><code class="docutils literal notranslate"><span class="pre">smart_random_no_users()</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.core.smartfind.smart_random_with_users"><code class="docutils literal notranslate"><span class="pre">smart_random_with_users()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#module-wickedjukebox.core">Module contents</a></li>
 </ul>
 </li>
