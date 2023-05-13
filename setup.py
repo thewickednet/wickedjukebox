@@ -25,7 +25,7 @@ setup(
         "pymysql",
         "python-mpd2",
         "requests",
-        "sqlalchemy",
+        "sqlalchemy < 2.0",
     ],
     extras_require={
         "dev": [
