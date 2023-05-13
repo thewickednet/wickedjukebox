@@ -279,13 +279,12 @@ the jukebox will not play anything.</p>
 <span class="c1">; If the MPD library root path is different from the root path of the jukebox</span>
 <span class="c1">; (f.ex. when running MPD inside docker), set &quot;path_map&quot; to</span>
 <span class="c1">; &lt;jukebox_path&gt;:&lt;mpd_path&gt;</span>
-<span class="na">path_map</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/path/to/mp3s:/var/lib/mpd/music</span>
+<span class="na">path_map</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{{sample_data_folder}}:/var/lib/mpd/music</span>
 
 <span class="k">[channel:wicked:ipc]</span>
 <span class="c1">; The Inter-Process Call mechanism used to communicate from the frontend to the</span>
 <span class="c1">; backend</span>
-<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">fs</span>
-<span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">ipc</span>
+<span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">db</span>
 
 <span class="k">[channel:wicked:autoplay]</span>
 <span class="c1">; The model used to select a new song when nothing is queued.</span>
