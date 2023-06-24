@@ -16,6 +16,9 @@ license = {text = "BSD-3-Clause"}
 classifiers = []
 dependencies = [
     "django",
+    "django-extensions",
+    "django-countries",
+    "sorl-thumbnail",
 ]
 
 [project.scripts]
@@ -23,6 +26,7 @@ wjb = "wickedjukebox.manage:main"
 
 [project.optional-dependencies]
 dev = [
+    "django-debug-toolbar",
 ]
 
 [tool.black]
