@@ -1,13 +1,27 @@
+import json
 from dataclasses import dataclass
-from multiprocessing import Process, Queue
+from datetime import datetime
+from multiprocessing import Queue
 
 
 @dataclass
 class QueueMessage:
+    """
+    The model used for messages which are sent between the web and daemon process.
+    """
+
     message: str
+
+    def to_json(self) -> str:
+        now = datetime.now().isoformat()
+        return json.dumps({"now": now, "message": self.message})
 
 
 @dataclass
 class ProcessInfo:
-    queue: "Queue[QueueMessage]"
-    process: Process
+    """
+    Queue information for the daemon process.
+    """
+
+    to_daemon: "Queue[QueueMessage]"
+    to_web: "Queue[QueueMessage]"

@@ -1,10 +1,16 @@
 import atexit
 from multiprocessing import Process, Queue
+from os.path import exists
+from time import sleep
 
 from wickedjukebox.daemon.model import ProcessInfo, QueueMessage
 
 
 def cleanup(process: Process):
+    """
+    Generate a cleanup function for the process.
+    """
+
     def callback():
         print("Cleaning up")
         try:
@@ -16,22 +22,36 @@ def cleanup(process: Process):
     return callback
 
 
-def process(queue: "Queue[QueueMessage]") -> None:
-    print("Starting process")
+def process(
+    to_daemon: "Queue[QueueMessage]", to_web: "Queue[QueueMessage]"
+) -> None:
+    """
+    A dummy implementation of the daemon process.
+    """
     while True:
-        print("Waiting for queue")
         try:
-            item = queue.get()
+            while True:
+                if exists("/tmp/foo"):
+                    with open("/tmp/foo") as f:
+                        msg = f.read()
+                        to_web.put(QueueMessage(msg))
+                sleep(1)
+            # item = to_daemon.get()
+            # updated = QueueMessage(f"Updated: {item.message}")
         except KeyboardInterrupt:
             print("Keyboard interrupt")
             break
-        print(f"Got item from queue: {item}")
 
 
 def start_process() -> ProcessInfo:
-    queue: "Queue[QueueMessage]" = Queue()
-    p = Process(target=process, args=(queue,))
+    """
+    Start the daemon process and return a ProcessInfo object. The ProcessInfo
+    object contains references to the Queues used to communicate with the daemon
+    process.
+    """
+    to_daemon: "Queue[QueueMessage]" = Queue()
+    to_web: "Queue[QueueMessage]" = Queue()
+    p = Process(target=process, args=(to_daemon, to_web))
     p.start()
-    print("running")
     atexit.register(cleanup(p))
-    return ProcessInfo(queue=queue, process=p)
+    return ProcessInfo(to_daemon, to_web)
