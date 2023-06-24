@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wickedjukebox"
+version = "2023.06.24"
+authors = [
+    {name = "Michel Albert", email = "michel@albert.lu"},
+    {name = "Yves Thommes", email = "ythommes@gmail.com"},
+]
+description = "The Wicked Jukebox"
+readme = "README.rst"
+requires-python = ">=3.7"
+license = {text = "BSD-3-Clause"}
+classifiers = []
+dependencies = [
+    "django",
+]
+
+[project.scripts]
+wjb = "wickedjukebox.manage:main"
+
+[project.optional-dependencies]
+dev = [
+]
+
+[tool.black]
+line_length = 80
+
+[tool.isort]
+profile = "black"
+force_grid_wrap = 0
+include_trailing_comma = true
+line_length = 80
+multi_line_output = 3
+use_parentheses = true
+virtual_env = "env"
+
+[tool.pylint.format]
+max-line-length = "80"
+
+[tool.yamlfix]
+line_length = 80
+sequence_style = "block_style"
