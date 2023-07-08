@@ -27,7 +27,9 @@ SECRET_KEY = (
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# "backend" is added to the allowed hosts to allow the CI-pipeline to access the
+# service.
+ALLOWED_HOSTS = ["backend"]
 
 
 # Application definition
