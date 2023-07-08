@@ -10,4 +10,4 @@ jobs:
         with:
           push: false
           tags: |
-            wickedjukebox/ci-build
+            thewickednet.lu/wickedjukebox:ci-build
