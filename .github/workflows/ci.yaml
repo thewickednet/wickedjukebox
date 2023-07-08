@@ -1,0 +1,13 @@
+---
+name: CI
+on: push
+jobs:
+  build-container:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build Docker image
+        uses: docker/build-push-action@v4.1.1
+        with:
+          push: false
+          tags: |
+            wickedjukebox/ci-build:${GITHUB_SHA}
