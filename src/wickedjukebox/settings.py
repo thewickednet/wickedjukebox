@@ -29,7 +29,7 @@ DEBUG = True
 
 # "backend" is added to the allowed hosts to allow the CI-pipeline to access the
 # service.
-ALLOWED_HOSTS = ["backend"]
+ALLOWED_HOSTS = ["backend", "localhost"]
 
 
 # Application definition
