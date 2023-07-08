@@ -43,7 +43,7 @@ jobs:
       - build-and-push-image
     services:
       backend:
-        image: docker.pkg.github.com/${{ github.repository }}/wickedjukebox:ci-build
+        image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.GITHUB_REF }}
         ports:
           - "8000:8000"
     steps:
