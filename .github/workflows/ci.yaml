@@ -39,6 +39,7 @@ jobs:
 
   check-container:
     runs-on: ubuntu-latest
+    container: ubuntu
     needs:
       - build-and-push-image
     services:
@@ -47,8 +48,6 @@ jobs:
         ports:
           - "8000:8000"
     steps:
-      - name: Show Containers
-        run: docker ps
       - name: Request root-URL
         run: |
           curl -iv http://backend:8000/
