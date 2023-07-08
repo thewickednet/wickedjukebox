@@ -51,4 +51,4 @@ jobs:
         run: docker ps
       - name: Request root-URL
         run: |
-          curl http://localhost:8000/
+          curl -iv http://backend:8000/
