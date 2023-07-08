@@ -11,13 +11,10 @@ jobs:
           push: false
           tags: |
             thewickednet.lu/wickedjukebox:ci-build
+      - name: Run Docker container as a service
+        run: docker run -d --rm -p 8000:8000 --name backend-container thewickednet.lu/wickedjukebox:ci-build
   check-container:
     runs-on: ubuntu-latest
-    services:
-      backend:
-        image: thewickednet.lu/wickedjukebox:ci-build
-        ports:
-          - "8000:8000"
     needs:
       - build-container
     steps:
