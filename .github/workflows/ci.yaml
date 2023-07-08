@@ -18,6 +18,8 @@ jobs:
     needs:
       - build-container
     steps:
+      - name: Show Containers
+        run: docker ps
       - name: Request root-URL
         run: |
           curl http://localhost:8000/
