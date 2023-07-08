@@ -48,6 +48,8 @@ jobs:
         ports:
           - "8000:8000"
     steps:
+      - name: Provide cUrl
+        run: apt-get update && apt-get install -y curl
       - name: Request root-URL
         run: |
           curl -iv http://backend:8000/
