@@ -18,6 +18,8 @@ jobs:
         image: thewickednet.lu/wickedjukebox:ci-build
         ports:
           - "8000:8000"
+    needs:
+      - build-container
     steps:
       - name: Request root-URL
         run: |
