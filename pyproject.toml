@@ -16,8 +16,9 @@ license = {text = "BSD-3-Clause"}
 classifiers = []
 dependencies = [
     "django",
-    "django-extensions",
     "django-countries",
+    "django-extensions",
+    "pillow",
     "sorl-thumbnail",
 ]
 
