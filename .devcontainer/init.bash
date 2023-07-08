@@ -1,6 +1,10 @@
 #!/bin/bash
 
 set -xe
+echo 'export PATH=~/.local/bin:${PATH}' >> ~/.bashrc
+source ~/.bashrc
+
+export PATH=~/.local/bin:${PATH}
 
 pip install -U pip
 pip install pipx
