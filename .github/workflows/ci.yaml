@@ -11,3 +11,14 @@ jobs:
           push: false
           tags: |
             thewickednet.lu/wickedjukebox:ci-build
+  check-container:
+    runs-on: ubuntu-latest
+    services:
+      backend:
+        image: thewickednet.lu/wickedjukebox:ci-build
+        ports:
+          - "8000:8000"
+    steps:
+      - name: Request root-URL
+        run: |
+          curl http://localhost:8000/
