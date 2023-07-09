@@ -5,6 +5,7 @@ from typing import Iterable
 from django.apps import apps
 
 from wickedjukebox.core.apps import CoreConfig
+from wickedjukebox.daemon.main import start_process
 from wickedjukebox.daemon.model import QueueMessage
 
 LOG = logging.getLogger(__name__)
@@ -18,6 +19,16 @@ class Bridge:
     daemon process. It also provides a simple way to consume messages from the
     daemon process.
     """
+
+    @staticmethod
+    def restart_subprocess(appname: str) -> None:
+        config: CoreConfig = apps.get_app_config(appname)
+        config.daemon.process.join(timeout=10)
+        if config.daemon.process.exitcode is None:
+            LOG.error("Subprocess did not stop. Will not blindly restart")
+        else:
+            LOG.info("Restarting the daemon process")
+            start_process(config.daemon.to_daemon, config.daemon.to_web)
 
     @staticmethod
     def send_message(appname: str, message: QueueMessage) -> None:

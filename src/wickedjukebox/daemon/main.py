@@ -3,6 +3,7 @@ import logging
 from multiprocessing import Process, Queue
 from queue import Empty
 from time import sleep
+from typing import Optional
 
 from wickedjukebox.daemon.model import ProcessInfo, QueueMessage
 
@@ -36,31 +37,31 @@ def process(
     while keep_running:
         try:
             # Daemon "tick"
-            msg = to_daemon.get(timeout=10)
-            LOG.error("Daemon has received the message %r", msg)
+            msg = to_daemon.get()
+            LOG.debug("Daemon has received the message %r", msg)
             if msg.message == "exit":
                 keep_running = False
             else:
                 LOG.debug(
                     "Message %r is currently not supported by the daemon", msg
                 )
-        except Empty:
-            LOG.debug("No message on queue")
-            sleep(1)
         except KeyboardInterrupt:
             LOG.debug("Keyboard interrupt")
             keep_running = False
 
 
-def start_process() -> ProcessInfo:
+def start_process(
+    to_daemon: Optional["Queue[QueueMessage]"] = None,
+    to_web: Optional["Queue[QueueMessage]"] = None,
+) -> ProcessInfo:
     """
     Start the daemon process and return a ProcessInfo object. The ProcessInfo
     object contains references to the Queues used to communicate with the daemon
     process.
     """
-    to_daemon: "Queue[QueueMessage]" = Queue()
-    to_web: "Queue[QueueMessage]" = Queue()
-    p = Process(target=process, args=(to_daemon, to_web), daemon=True)
-    p.start()
-    atexit.register(cleanup(p, to_daemon))
-    return ProcessInfo(to_daemon, to_web)
+    to_daemon = to_daemon or Queue()
+    to_web = to_daemon or Queue()
+    proc = Process(target=process, args=(to_daemon, to_web), daemon=True)
+    proc.start()
+    atexit.register(cleanup(proc, to_daemon))
+    return ProcessInfo(to_daemon, to_web, proc)

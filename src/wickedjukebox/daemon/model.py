@@ -1,7 +1,7 @@
 import json
 from dataclasses import dataclass
 from datetime import datetime
-from multiprocessing import Queue
+from multiprocessing import Process, Queue
 
 
 @dataclass
@@ -25,3 +25,4 @@ class ProcessInfo:
 
     to_daemon: "Queue[QueueMessage]"
     to_web: "Queue[QueueMessage]"
+    process: Process
