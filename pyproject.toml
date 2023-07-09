@@ -20,6 +20,7 @@ dependencies = [
     "django-extensions",
     "pillow",
     "sorl-thumbnail",
+    "gouge >= 2.0",
 ]
 
 [project.scripts]

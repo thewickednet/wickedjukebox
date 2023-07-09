@@ -141,9 +141,18 @@ AUTH_USER_MODEL = "core.User"
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "formatters": {
+        "gouge": {
+            "()": "gouge.colourcli.Simple",
+            "show_exc": True,
+            "show_threads": True,
+            "show_pid": True,
+        }
+    },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
+            "formatter": "gouge",
         }
     },
     "root": {"handlers": ["console"], "level": "DEBUG"},
