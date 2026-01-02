@@ -1,6 +1,7 @@
 """
 This module contains implementations for user-based queuing systems.
 """
+
 import logging
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional, Set
@@ -23,6 +24,7 @@ class AbstractQueue(ABC):
         self._channel_name = channel_name
         self._config = config or Config()
         self._log = logging.getLogger(qualname(self))
+        self.last_dequeued_user_id: Optional[int] = None
 
     def configure(self, cfg: Dict[str, Any]) -> None:
         """
@@ -70,7 +72,9 @@ class DatabaseQueue(AbstractQueue):
             queue_item = QueueItem.next(session, self._channel_name)  # type: ignore
             if not queue_item:
                 self._log.debug("No item on queue at position 0")
+                self.last_dequeued_user_id = None
                 return ""
+            self.last_dequeued_user_id = queue_item.user_id  # type: ignore
             QueueItem.advance(session, self._channel_name)  # type: ignore
             session.commit()  # type: ignore
             self._log.debug("Dequeued %r", queue_item.song)  # type: ignore

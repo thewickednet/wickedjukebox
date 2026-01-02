@@ -15,7 +15,7 @@ from wickedjukebox.logutil import qualname
 from wickedjukebox.model.db.library import Song
 from wickedjukebox.model.db.playback import Channel as DbChannel
 from wickedjukebox.model.db.sameta import Session
-from wickedjukebox.model.db.stats import ChannelStat
+from wickedjukebox.model.db.stats import ChannelStat, UserSongStat
 
 LOG = logging.getLogger(__name__)
 
@@ -43,6 +43,7 @@ class Channel:
         self.ticks = 0
         self.keep_running = True
         self._log = logging.getLogger(qualname(self))
+        self._queued_songs = {}  # Maps filename -> user_id for queued songs
 
     def _log_skip_stats(self) -> None:
         filename = self.player.current_song
@@ -101,12 +102,27 @@ class Channel:
             stat = ChannelStat.by_song(session, song, channel)
             stat.lastPlayed = datetime.now()
             stat.played = (stat.played + 1) if stat.played else 1  # type: ignore
+
+            # Track user-queued song statistics
+            user_id = self._queued_songs.get(filename)
+            if user_id is not None:
+                user_song_stat = UserSongStat(
+                    user_id=user_id, song_id=song.id, when=datetime.now()
+                )
+                session.add(user_song_stat)
+                # Remove from tracking dict after recording
+                del self._queued_songs[filename]
+
             session.commit()
 
     def _enqueue(self) -> None:
         next_song = self.queue.dequeue() or self.random.pick()
         if next_song:
             self.player.enqueue(next_song, is_jingle=False)
+            # Track user_id for queued songs
+            user_id = getattr(self.queue, "last_dequeued_user_id", None)
+            if user_id is not None:
+                self._queued_songs[next_song] = user_id
 
     def tick(self) -> None:
         self._log.debug("tick")
