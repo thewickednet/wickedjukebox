@@ -129,6 +129,7 @@ class Channel:
         if next_song:
             self.player.enqueue(next_song, is_jingle=False)
             # Track user_id for queued songs
+            # Using getattr for backward compatibility with mocked queues in tests
             user_id = getattr(self.queue, "last_dequeued_user_id", None)
             if user_id is not None:
                 self._queued_songs[next_song] = user_id
