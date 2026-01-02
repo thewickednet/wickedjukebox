@@ -43,9 +43,7 @@ class Channel:
         self.ticks = 0
         self.keep_running = True
         self._log = logging.getLogger(qualname(self))
-        self._queued_songs: Dict[str, int] = (
-            {}
-        )  # Maps filename -> user_id for queued songs
+        self._queued_songs: Dict[str, int] = {}  # Maps filename -> user_id
 
     def _cleanup_queued_song(self, filename: str) -> None:
         """Remove a song from the tracking dictionary if present."""
@@ -120,8 +118,9 @@ class Channel:
                     user_id=user_id, song_id=song.id, when=datetime.now()
                 )
                 session.add(user_song_stat)
-                # Remove from tracking dict after recording
-                self._cleanup_queued_song(filename)
+
+            # Clean up tracking dict to prevent memory leaks
+            self._cleanup_queued_song(filename)
 
             session.commit()
 
