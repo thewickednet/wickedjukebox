@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from time import sleep
-from typing import Optional
+from typing import Dict, Optional
 
 from sqlalchemy.orm import Session as TSession
 
@@ -43,7 +43,9 @@ class Channel:
         self.ticks = 0
         self.keep_running = True
         self._log = logging.getLogger(qualname(self))
-        self._queued_songs = {}  # Maps filename -> user_id for queued songs
+        self._queued_songs: Dict[str, int] = (
+            {}
+        )  # Maps filename -> user_id for queued songs
 
     def _log_skip_stats(self) -> None:
         filename = self.player.current_song
@@ -73,6 +75,10 @@ class Channel:
             stat = ChannelStat.by_song(session, song, channel)
             stat.skipped = (stat.skipped + 1) if stat.skipped else 1  # type: ignore
             session.commit()
+
+        # Clean up tracking dict to prevent memory leak
+        if filename in self._queued_songs:
+            del self._queued_songs[filename]
 
     def _commit_song_to_history(self) -> None:
         filename = self.player.current_song
