@@ -47,6 +47,11 @@ class Channel:
             {}
         )  # Maps filename -> user_id for queued songs
 
+    def _cleanup_queued_song(self, filename: str) -> None:
+        """Remove a song from the tracking dictionary if present."""
+        if filename in self._queued_songs:
+            del self._queued_songs[filename]
+
     def _log_skip_stats(self) -> None:
         filename = self.player.current_song
         if filename == "":
@@ -77,8 +82,7 @@ class Channel:
             session.commit()
 
         # Clean up tracking dict to prevent memory leak
-        if filename in self._queued_songs:
-            del self._queued_songs[filename]
+        self._cleanup_queued_song(filename)
 
     def _commit_song_to_history(self) -> None:
         filename = self.player.current_song
@@ -117,7 +121,7 @@ class Channel:
                 )
                 session.add(user_song_stat)
                 # Remove from tracking dict after recording
-                del self._queued_songs[filename]
+                self._cleanup_queued_song(filename)
 
             session.commit()
 
