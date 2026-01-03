@@ -1,23 +1,23 @@
 <!doctype html>
-<html class="no-js" lang="en">
-  <head><meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="wickedjukebox.cli package" href="wickedjukebox.cli.html" /><link rel="prev" title="wickedjukebox" href="modules.html" />
+<html class="no-js" lang="en" data-content_root="../../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html"><link rel="next" title="wickedjukebox.cli package" href="wickedjukebox.cli.html"><link rel="prev" title="wickedjukebox" href="modules.html">
 
-    <!-- Generated with Sphinx 6.2.1 and Furo 2023.03.27 -->
+    <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
         <title>wickedjukebox package - wickedjukebox documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
     
     
 
 
 <style>
   body {
-    --color-code-background: #f8f8f8;
-  --color-code-foreground: black;
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
   
   }
   @media not print {
@@ -68,7 +68,7 @@
   <symbol id="svg-sun" viewBox="0 0 24 24">
     <title>Light mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
       <circle cx="12" cy="12" r="5"></circle>
       <line x1="12" y1="1" x2="12" y2="3"></line>
       <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -83,34 +83,73 @@
   <symbol id="svg-moon" viewBox="0 0 24 24">
     <title>Dark mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
       <path stroke="none" d="M0 0h24v24H0z" fill="none" />
       <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
     </svg>
   </symbol>
-  <symbol id="svg-sun-half" viewBox="0 0 24 24">
-    <title>Auto light/dark mode</title>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M13 12h5" />
-      <path d="M13 15h4" />
-      <path d="M13 18h1" />
-      <path d="M13 9h4" />
-      <path d="M13 6h1" />
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
     </svg>
   </symbol>
 </svg>
 
-<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
-<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
-<label class="overlay sidebar-overlay" for="__navigation">
-  <div class="visually-hidden">Hide navigation sidebar</div>
-</label>
-<label class="overlay toc-overlay" for="__toc">
-  <div class="visually-hidden">Hide table of contents sidebar</div>
-</label>
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
 
 
 
@@ -118,8 +157,7 @@
   <header class="mobile-header">
     <div class="header-left">
       <label class="nav-overlay-icon" for="__navigation">
-        <div class="visually-hidden">Toggle site navigation sidebar</div>
-        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
       </label>
     </div>
     <div class="header-center">
@@ -127,16 +165,15 @@
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
-        <button class="theme-toggle">
-          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
           <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
       <label class="toc-overlay-icon toc-header-icon" for="__toc">
-        <div class="visually-hidden">Toggle table of contents sidebar</div>
-        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
       </label>
     </div>
   </header>
@@ -144,7 +181,6 @@
     <div class="sidebar-container">
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
-  
   
   <span class="sidebar-brand-text">wickedjukebox  documentation</span>
   
@@ -157,7 +193,7 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../configuration.html">Configuration</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../configuration.html">Configuration</a><input aria-label="Toggle navigation of Configuration" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../modules/autoplay.html">Autoplay Modules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../modules/ipc.html">IPC Modules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../modules/jingle.html">Jingle Modules</a></li>
@@ -171,12 +207,12 @@
 <p class="caption" role="heading"><span class="caption-text">Appendix:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../mpd-in-docker.html">MPD Inside Docker</a></li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="modules.html">API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2 current has-children current-page"><a class="current reference internal" href="#">wickedjukebox package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="modules.html">API</a><input aria-label="Toggle navigation of API" checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2 current has-children current-page"><a class="current reference internal" href="#">wickedjukebox package</a><input aria-label="Toggle navigation of wickedjukebox package" checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="wickedjukebox.cli.html">wickedjukebox.cli package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="wickedjukebox.component.html">wickedjukebox.component package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="wickedjukebox.core.html">wickedjukebox.core package</a></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="wickedjukebox.model.html">wickedjukebox.model package</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="wickedjukebox.model.html">wickedjukebox.model package</a><input aria-label="Toggle navigation of wickedjukebox.model package" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="wickedjukebox.model.db.html">wickedjukebox.model.db package</a></li>
 </ul>
 </li>
@@ -204,25 +240,29 @@
           <span>Back to top</span>
         </a>
         <div class="content-icon-container">
-          
+          <div class="view-this-page">
+  <a class="muted-link" href="../../_sources/appendix/api/wickedjukebox.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
 <div class="theme-toggle-container theme-toggle-content">
-            <button class="theme-toggle">
-              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
               <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
           <label class="toc-overlay-icon toc-content-icon" for="__toc">
-            <div class="visually-hidden">Toggle table of contents sidebar</div>
-            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
           </label>
         </div>
-        <article role="main">
+        <article role="main" id="furo-main-content">
           <section id="wickedjukebox-package">
-<h1>wickedjukebox package<a class="headerlink" href="#wickedjukebox-package" title="Permalink to this heading">#</a></h1>
+<h1>wickedjukebox package<a class="headerlink" href="#wickedjukebox-package" title="Link to this heading">¶</a></h1>
 <section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading">#</a></h2>
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="wickedjukebox.cli.html">wickedjukebox.cli package</a><ul>
@@ -518,38 +558,38 @@
 </div>
 </section>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">#</a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
 </section>
 <section id="module-wickedjukebox.channel">
-<span id="wickedjukebox-channel-module"></span><h2>wickedjukebox.channel module<a class="headerlink" href="#module-wickedjukebox.channel" title="Permalink to this heading">#</a></h2>
+<span id="wickedjukebox-channel-module"></span><h2>wickedjukebox.channel module<a class="headerlink" href="#module-wickedjukebox.channel" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="wickedjukebox.channel.Channel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.channel.</span></span><span class="sig-name descname"><span class="pre">Channel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tick_interval_s:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autoplay:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queue:</span> <span class="pre">~wickedjukebox.component.queue.AbstractQueue</span> <span class="pre">=</span> <span class="pre">&lt;wickedjukebox.component.queue.NullQueue&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random:</span> <span class="pre">~wickedjukebox.component.random.AbstractRandom</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">player:</span> <span class="pre">~wickedjukebox.component.player.AbstractPlayer</span> <span class="pre">=</span> <span class="pre">&lt;wickedjukebox.component.player.NullPlayer&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ipc:</span> <span class="pre">~wickedjukebox.component.ipc.AbstractIPC</span> <span class="pre">=</span> <span class="pre">&lt;wickedjukebox.component.ipc.NullIPC&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jingle:</span> <span class="pre">~wickedjukebox.component.jingle.AbstractJingle</span> <span class="pre">=</span> <span class="pre">&lt;wickedjukebox.component.jingle.NullJingle&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.channel.Channel" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.channel.</span></span><span class="sig-name descname"><span class="pre">Channel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tick_interval_s:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autoplay:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queue:</span> <span class="pre">~wickedjukebox.component.queue.AbstractQueue</span> <span class="pre">=</span> <span class="pre">&lt;wickedjukebox.component.queue.NullQueue&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random:</span> <span class="pre">~wickedjukebox.component.random.AbstractRandom</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">player:</span> <span class="pre">~wickedjukebox.component.player.AbstractPlayer</span> <span class="pre">=</span> <span class="pre">&lt;wickedjukebox.component.player.NullPlayer&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ipc:</span> <span class="pre">~wickedjukebox.component.ipc.AbstractIPC</span> <span class="pre">=</span> <span class="pre">&lt;wickedjukebox.component.ipc.NullIPC&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jingle:</span> <span class="pre">~wickedjukebox.component.jingle.AbstractJingle</span> <span class="pre">=</span> <span class="pre">&lt;wickedjukebox.component.jingle.NullJingle&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.channel.Channel" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="wickedjukebox.channel.Channel.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wickedjukebox.channel.Channel.run" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wickedjukebox.channel.Channel.run" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wickedjukebox.channel.Channel.tick">
-<span class="sig-name descname"><span class="pre">tick</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wickedjukebox.channel.Channel.tick" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">tick</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wickedjukebox.channel.Channel.tick" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 </section>
 <section id="module-wickedjukebox.config">
-<span id="wickedjukebox-config-module"></span><h2>wickedjukebox.config module<a class="headerlink" href="#module-wickedjukebox.config" title="Permalink to this heading">#</a></h2>
+<span id="wickedjukebox-config-module"></span><h2>wickedjukebox.config module<a class="headerlink" href="#module-wickedjukebox.config" title="Link to this heading">¶</a></h2>
 <p>This module contains helpers for application configuration</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="wickedjukebox.config.Config">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.config.</span></span><span class="sig-name descname"><span class="pre">Config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConfigParser</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.config.Config" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.config.</span></span><span class="sig-name descname"><span class="pre">Config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConfigParser</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.config.Config" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>The Config class provides an abstraction around config-file values</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="wickedjukebox.config.Config.dictify">
-<span class="sig-name descname"><span class="pre">dictify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#wickedjukebox.config.ConfigKeys" title="wickedjukebox.config.ConfigKeys"><span class="pre">ConfigKeys</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.config.Config.dictify" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">dictify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#wickedjukebox.config.ConfigKeys" title="wickedjukebox.config.ConfigKeys"><span class="pre">ConfigKeys</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.config.Config.dictify" title="Link to this definition">¶</a></dt>
 <dd><p>Convert a given section to a simple Python dictionary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -565,19 +605,19 @@ is detectd, raise a ConfigError</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wickedjukebox.config.Config.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">key:</span> <span class="pre">~wickedjukebox.config.ConfigKeys,</span> <span class="pre">fallback:</span> <span class="pre">~wickedjukebox.config.TFallback</span> <span class="pre">|</span> <span class="pre">~wickedjukebox.config.Sentinel</span> <span class="pre">=</span> <span class="pre">&lt;wickedjukebox.config.Sentinel</span> <span class="pre">object&gt;,</span> <span class="pre">channel:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">converter:</span> <span class="pre">~typing.Callable[[str],</span> <span class="pre">~wickedjukebox.config.TFallback]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">Config.&lt;lambda&gt;&gt;</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TFallback</span></span></span><a class="headerlink" href="#wickedjukebox.config.Config.get" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">key:</span> <span class="pre">~wickedjukebox.config.ConfigKeys,</span> <span class="pre">fallback:</span> <span class="pre">~wickedjukebox.config.TFallback</span> <span class="pre">|</span> <span class="pre">~wickedjukebox.config.Sentinel</span> <span class="pre">=</span> <span class="pre">&lt;wickedjukebox.config.Sentinel</span> <span class="pre">object&gt;,</span> <span class="pre">channel:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">converter:</span> <span class="pre">~typing.Callable[[str],</span> <span class="pre">~wickedjukebox.config.TFallback]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">Config.&lt;lambda&gt;&gt;</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TFallback</span></span></span><a class="headerlink" href="#wickedjukebox.config.Config.get" title="Link to this definition">¶</a></dt>
 <dd><p>Retrieve a config-value for a given config-key</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wickedjukebox.config.Config.get_section">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#wickedjukebox.config.ConfigOption" title="wickedjukebox.config.ConfigOption"><span class="pre">ConfigOption</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.config.Config.get_section" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#wickedjukebox.config.ConfigOption" title="wickedjukebox.config.ConfigOption"><span class="pre">ConfigOption</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.config.Config.get_section" title="Link to this definition">¶</a></dt>
 <dd><p>Get the section linked to a given config-option for a given channel.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wickedjukebox.config.Config.load_config">
-<span class="sig-name descname"><span class="pre">load_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ConfigParser</span></span></span><a class="headerlink" href="#wickedjukebox.config.Config.load_config" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ConfigParser</span></span></span><a class="headerlink" href="#wickedjukebox.config.Config.load_config" title="Link to this definition">¶</a></dt>
 <dd><p>Loads the application config.</p>
 </dd></dl>
 
@@ -585,45 +625,45 @@ is detectd, raise a ConfigError</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="wickedjukebox.config.ConfigKeys">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.config.</span></span><span class="sig-name descname"><span class="pre">ConfigKeys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.config.ConfigKeys" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.config.</span></span><span class="sig-name descname"><span class="pre">ConfigKeys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.config.ConfigKeys" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
 <p>A well-defined list of config-values in the config-file with the sections
 they are expected to be in.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wickedjukebox.config.ConfigKeys.AUTOPLAY">
-<span class="sig-name descname"><span class="pre">AUTOPLAY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">ConfigOption(scope=&lt;ConfigScope.CHANNEL:</span> <span class="pre">'channel'&gt;,</span> <span class="pre">section='autoplay',</span> <span class="pre">subsection='type')</span></em><a class="headerlink" href="#wickedjukebox.config.ConfigKeys.AUTOPLAY" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">AUTOPLAY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(ConfigScope.CHANNEL,</span> <span class="pre">'autoplay',</span> <span class="pre">'type')</span></em><a class="headerlink" href="#wickedjukebox.config.ConfigKeys.AUTOPLAY" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wickedjukebox.config.ConfigKeys.DSN">
-<span class="sig-name descname"><span class="pre">DSN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">ConfigOption(scope=&lt;ConfigScope.CORE:</span> <span class="pre">'core'&gt;,</span> <span class="pre">section='',</span> <span class="pre">subsection='dsn')</span></em><a class="headerlink" href="#wickedjukebox.config.ConfigKeys.DSN" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">DSN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(ConfigScope.CORE,</span> <span class="pre">'',</span> <span class="pre">'dsn')</span></em><a class="headerlink" href="#wickedjukebox.config.ConfigKeys.DSN" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wickedjukebox.config.ConfigKeys.IPC">
-<span class="sig-name descname"><span class="pre">IPC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">ConfigOption(scope=&lt;ConfigScope.CHANNEL:</span> <span class="pre">'channel'&gt;,</span> <span class="pre">section='ipc',</span> <span class="pre">subsection='type')</span></em><a class="headerlink" href="#wickedjukebox.config.ConfigKeys.IPC" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">IPC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(ConfigScope.CHANNEL,</span> <span class="pre">'ipc',</span> <span class="pre">'type')</span></em><a class="headerlink" href="#wickedjukebox.config.ConfigKeys.IPC" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wickedjukebox.config.ConfigKeys.JINGLE">
-<span class="sig-name descname"><span class="pre">JINGLE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">ConfigOption(scope=&lt;ConfigScope.CHANNEL:</span> <span class="pre">'channel'&gt;,</span> <span class="pre">section='jingle',</span> <span class="pre">subsection='type')</span></em><a class="headerlink" href="#wickedjukebox.config.ConfigKeys.JINGLE" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">JINGLE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(ConfigScope.CHANNEL,</span> <span class="pre">'jingle',</span> <span class="pre">'type')</span></em><a class="headerlink" href="#wickedjukebox.config.ConfigKeys.JINGLE" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wickedjukebox.config.ConfigKeys.PLAYER">
-<span class="sig-name descname"><span class="pre">PLAYER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">ConfigOption(scope=&lt;ConfigScope.CHANNEL:</span> <span class="pre">'channel'&gt;,</span> <span class="pre">section='player',</span> <span class="pre">subsection='type')</span></em><a class="headerlink" href="#wickedjukebox.config.ConfigKeys.PLAYER" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">PLAYER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(ConfigScope.CHANNEL,</span> <span class="pre">'player',</span> <span class="pre">'type')</span></em><a class="headerlink" href="#wickedjukebox.config.ConfigKeys.PLAYER" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wickedjukebox.config.ConfigKeys.QUEUE">
-<span class="sig-name descname"><span class="pre">QUEUE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">ConfigOption(scope=&lt;ConfigScope.CHANNEL:</span> <span class="pre">'channel'&gt;,</span> <span class="pre">section='queue',</span> <span class="pre">subsection='type')</span></em><a class="headerlink" href="#wickedjukebox.config.ConfigKeys.QUEUE" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">QUEUE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(ConfigScope.CHANNEL,</span> <span class="pre">'queue',</span> <span class="pre">'type')</span></em><a class="headerlink" href="#wickedjukebox.config.ConfigKeys.QUEUE" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="wickedjukebox.config.ConfigOption">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.config.</span></span><span class="sig-name descname"><span class="pre">ConfigOption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scope</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#wickedjukebox.config.ConfigScope" title="wickedjukebox.config.ConfigScope"><span class="pre">ConfigScope</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">section</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subsection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.config.ConfigOption" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.config.</span></span><span class="sig-name descname"><span class="pre">ConfigOption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scope</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#wickedjukebox.config.ConfigScope" title="wickedjukebox.config.ConfigScope"><span class="pre">ConfigScope</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">section</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subsection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.config.ConfigOption" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></p>
 <p>A helper class to define where a configuration value can be found</p>
 <p>This allows defining section headers with more meta-information like
@@ -632,19 +672,19 @@ with the name “test-channel” in subsection “player” is located in the
 ini-section: <code class="docutils literal notranslate"><span class="pre">[channel:test-channel:player]</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wickedjukebox.config.ConfigOption.scope">
-<span class="sig-name descname"><span class="pre">scope</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#wickedjukebox.config.ConfigScope" title="wickedjukebox.config.ConfigScope"><span class="pre">ConfigScope</span></a></em><a class="headerlink" href="#wickedjukebox.config.ConfigOption.scope" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">scope</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#wickedjukebox.config.ConfigScope" title="wickedjukebox.config.ConfigScope"><span class="pre">ConfigScope</span></a></em><a class="headerlink" href="#wickedjukebox.config.ConfigOption.scope" title="Link to this definition">¶</a></dt>
 <dd><p>How ‘global’ a value is</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wickedjukebox.config.ConfigOption.section">
-<span class="sig-name descname"><span class="pre">section</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wickedjukebox.config.ConfigOption.section" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">section</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wickedjukebox.config.ConfigOption.section" title="Link to this definition">¶</a></dt>
 <dd><p>The section in which to find the option</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wickedjukebox.config.ConfigOption.subsection">
-<span class="sig-name descname"><span class="pre">subsection</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wickedjukebox.config.ConfigOption.subsection" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">subsection</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#wickedjukebox.config.ConfigOption.subsection" title="Link to this definition">¶</a></dt>
 <dd><p>The subsection is defined as part of the section-name</p>
 </dd></dl>
 
@@ -652,19 +692,19 @@ ini-section: <code class="docutils literal notranslate"><span class="pre">[chann
 
 <dl class="py class">
 <dt class="sig sig-object py" id="wickedjukebox.config.ConfigScope">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.config.</span></span><span class="sig-name descname"><span class="pre">ConfigScope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.config.ConfigScope" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.config.</span></span><span class="sig-name descname"><span class="pre">ConfigScope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.config.ConfigScope" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
 <p>Possible “scopes” for config values. Each scope has slightly different
 semantics on how to find the appropriate section/option.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wickedjukebox.config.ConfigScope.CHANNEL">
-<span class="sig-name descname"><span class="pre">CHANNEL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'channel'</span></em><a class="headerlink" href="#wickedjukebox.config.ConfigScope.CHANNEL" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">CHANNEL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'channel'</span></em><a class="headerlink" href="#wickedjukebox.config.ConfigScope.CHANNEL" title="Link to this definition">¶</a></dt>
 <dd><p>Channel values are in the [channel:&lt;channel-name&gt;…] section</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wickedjukebox.config.ConfigScope.CORE">
-<span class="sig-name descname"><span class="pre">CORE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'core'</span></em><a class="headerlink" href="#wickedjukebox.config.ConfigScope.CORE" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">CORE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'core'</span></em><a class="headerlink" href="#wickedjukebox.config.ConfigScope.CORE" title="Link to this definition">¶</a></dt>
 <dd><p>Core values are in the [core] section</p>
 </dd></dl>
 
@@ -672,24 +712,24 @@ semantics on how to find the appropriate section/option.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="wickedjukebox.config.Sentinel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.config.</span></span><span class="sig-name descname"><span class="pre">Sentinel</span></span><a class="headerlink" href="#wickedjukebox.config.Sentinel" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.config.</span></span><span class="sig-name descname"><span class="pre">Sentinel</span></span><a class="headerlink" href="#wickedjukebox.config.Sentinel" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Helper class to type-check “unset” variables.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="wickedjukebox.config.default_config">
-<span class="sig-prename descclassname"><span class="pre">wickedjukebox.config.</span></span><span class="sig-name descname"><span class="pre">default_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.config.default_config" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">wickedjukebox.config.</span></span><span class="sig-name descname"><span class="pre">default_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.config.default_config" title="Link to this definition">¶</a></dt>
 <dd><p>Return a default config lookup-result</p>
 </dd></dl>
 
 </section>
 <section id="module-wickedjukebox.exc">
-<span id="wickedjukebox-exc-module"></span><h2>wickedjukebox.exc module<a class="headerlink" href="#module-wickedjukebox.exc" title="Permalink to this heading">#</a></h2>
+<span id="wickedjukebox-exc-module"></span><h2>wickedjukebox.exc module<a class="headerlink" href="#module-wickedjukebox.exc" title="Link to this heading">¶</a></h2>
 <p>This module contains exceptions for the wickedjukebox package</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="wickedjukebox.exc.ConfigError">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.exc.</span></span><span class="sig-name descname"><span class="pre">ConfigError</span></span><a class="headerlink" href="#wickedjukebox.exc.ConfigError" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.exc.</span></span><span class="sig-name descname"><span class="pre">ConfigError</span></span><a class="headerlink" href="#wickedjukebox.exc.ConfigError" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#wickedjukebox.exc.WickedJukeboxException" title="wickedjukebox.exc.WickedJukeboxException"><code class="xref py py-class docutils literal notranslate"><span class="pre">WickedJukeboxException</span></code></a></p>
 <p>An error which is raised if something is broken in the application config
 and we cannot continue</p>
@@ -697,18 +737,18 @@ and we cannot continue</p>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="wickedjukebox.exc.WickedJukeboxException">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.exc.</span></span><span class="sig-name descname"><span class="pre">WickedJukeboxException</span></span><a class="headerlink" href="#wickedjukebox.exc.WickedJukeboxException" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.exc.</span></span><span class="sig-name descname"><span class="pre">WickedJukeboxException</span></span><a class="headerlink" href="#wickedjukebox.exc.WickedJukeboxException" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>The parent exception for errors originating from the wickedjukebox code-base</p>
 </dd></dl>
 
 </section>
 <section id="module-wickedjukebox.logutil">
-<span id="wickedjukebox-logutil-module"></span><h2>wickedjukebox.logutil module<a class="headerlink" href="#module-wickedjukebox.logutil" title="Permalink to this heading">#</a></h2>
+<span id="wickedjukebox-logutil-module"></span><h2>wickedjukebox.logutil module<a class="headerlink" href="#module-wickedjukebox.logutil" title="Link to this heading">¶</a></h2>
 <p>This module contains some helpers that come in handy during logging</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="wickedjukebox.logutil.caller_source">
-<span class="sig-prename descclassname"><span class="pre">wickedjukebox.logutil.</span></span><span class="sig-name descname"><span class="pre">caller_source</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.logutil.caller_source" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">wickedjukebox.logutil.</span></span><span class="sig-name descname"><span class="pre">caller_source</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.logutil.caller_source" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the source line from the stack-frame <em>before</em> the call of
 <em>caller_source</em>.</p>
 <p>For example, if the stack is something like this:</p>
@@ -723,31 +763,31 @@ and we cannot continue</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="wickedjukebox.logutil.qualname">
-<span class="sig-prename descclassname"><span class="pre">wickedjukebox.logutil.</span></span><span class="sig-name descname"><span class="pre">qualname</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#wickedjukebox.logutil.qualname" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">wickedjukebox.logutil.</span></span><span class="sig-name descname"><span class="pre">qualname</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#wickedjukebox.logutil.qualname" title="Link to this definition">¶</a></dt>
 <dd><p>Returns a qualified name for an object instance class.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="wickedjukebox.logutil.qualname_repr">
-<span class="sig-prename descclassname"><span class="pre">wickedjukebox.logutil.</span></span><span class="sig-name descname"><span class="pre">qualname_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_T</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">_T</span></span></span><a class="headerlink" href="#wickedjukebox.logutil.qualname_repr" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">wickedjukebox.logutil.</span></span><span class="sig-name descname"><span class="pre">qualname_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_T</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">_T</span></span></span><a class="headerlink" href="#wickedjukebox.logutil.qualname_repr" title="Link to this definition">¶</a></dt>
 <dd><p>Adds a simple __repr__ to a class returning the qualified name of the class</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="wickedjukebox.logutil.setup_logging">
-<span class="sig-prename descclassname"><span class="pre">wickedjukebox.logutil.</span></span><span class="sig-name descname"><span class="pre">setup_logging</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbosity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wickedjukebox.logutil.setup_logging" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">wickedjukebox.logutil.</span></span><span class="sig-name descname"><span class="pre">setup_logging</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbosity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wickedjukebox.logutil.setup_logging" title="Link to this definition">¶</a></dt>
 <dd><p>Configure logging for the application for a given verbosity level</p>
 </dd></dl>
 
 </section>
 <section id="module-wickedjukebox.scanner">
-<span id="wickedjukebox-scanner-module"></span><h2>wickedjukebox.scanner module<a class="headerlink" href="#module-wickedjukebox.scanner" title="Permalink to this heading">#</a></h2>
+<span id="wickedjukebox-scanner-module"></span><h2>wickedjukebox.scanner module<a class="headerlink" href="#module-wickedjukebox.scanner" title="Link to this heading">¶</a></h2>
 <p>Audio file scanner module</p>
 <p>This module contains everything needed to scan a directory of audio files an
 store the metadata in the jukebox database</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="wickedjukebox.scanner.collect_files">
-<span class="sig-prename descclassname"><span class="pre">wickedjukebox.scanner.</span></span><span class="sig-name descname"><span class="pre">collect_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path:</span> <span class="pre">~pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">~typing.TextIO</span> <span class="pre">=</span> <span class="pre">&lt;_io.TextIOWrapper</span> <span class="pre">name='&lt;stdout&gt;'</span> <span class="pre">mode='w'</span> <span class="pre">encoding='utf-8'&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#wickedjukebox.scanner.collect_files" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">wickedjukebox.scanner.</span></span><span class="sig-name descname"><span class="pre">collect_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path:</span> <span class="pre">~pathlib.Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">~typing.TextIO</span> <span class="pre">=</span> <span class="pre">&lt;_io.TextIOWrapper</span> <span class="pre">name='&lt;stdout&gt;'</span> <span class="pre">mode='w'</span> <span class="pre">encoding='utf-8'&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#wickedjukebox.scanner.collect_files" title="Link to this definition">¶</a></dt>
 <dd><p>Generate a list of valid audio-files.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -761,27 +801,27 @@ store the metadata in the jukebox database</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="wickedjukebox.scanner.is_valid_audio_file">
-<span class="sig-prename descclassname"><span class="pre">wickedjukebox.scanner.</span></span><span class="sig-name descname"><span class="pre">is_valid_audio_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#wickedjukebox.scanner.is_valid_audio_file" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">wickedjukebox.scanner.</span></span><span class="sig-name descname"><span class="pre">is_valid_audio_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#wickedjukebox.scanner.is_valid_audio_file" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="wickedjukebox.scanner.process">
-<span class="sig-prename descclassname"><span class="pre">wickedjukebox.scanner.</span></span><span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wickedjukebox.scanner.process" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">wickedjukebox.scanner.</span></span><span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wickedjukebox.scanner.process" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="wickedjukebox.scanner.process_files">
-<span class="sig-prename descclassname"><span class="pre">wickedjukebox.scanner.</span></span><span class="sig-name descname"><span class="pre">process_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">files:</span> <span class="pre">~typing.List[~pathlib.Path],</span> <span class="pre">stream:</span> <span class="pre">~typing.TextIO</span> <span class="pre">=</span> <span class="pre">&lt;_io.TextIOWrapper</span> <span class="pre">name='&lt;stdout&gt;'</span> <span class="pre">mode='w'</span> <span class="pre">encoding='utf-8'&gt;</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wickedjukebox.scanner.process_files" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">wickedjukebox.scanner.</span></span><span class="sig-name descname"><span class="pre">process_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">files:</span> <span class="pre">~typing.List[~pathlib.Path],</span> <span class="pre">stream:</span> <span class="pre">~typing.TextIO</span> <span class="pre">=</span> <span class="pre">&lt;_io.TextIOWrapper</span> <span class="pre">name='&lt;stdout&gt;'</span> <span class="pre">mode='w'</span> <span class="pre">encoding='utf-8'&gt;</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wickedjukebox.scanner.process_files" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="wickedjukebox.scanner.scan">
-<span class="sig-prename descclassname"><span class="pre">wickedjukebox.scanner.</span></span><span class="sig-name descname"><span class="pre">scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">~typing.TextIO</span> <span class="pre">=</span> <span class="pre">&lt;_io.TextIOWrapper</span> <span class="pre">name='&lt;stdout&gt;'</span> <span class="pre">mode='w'</span> <span class="pre">encoding='utf-8'&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wickedjukebox.scanner.scan" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">wickedjukebox.scanner.</span></span><span class="sig-name descname"><span class="pre">scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream:</span> <span class="pre">~typing.TextIO</span> <span class="pre">=</span> <span class="pre">&lt;_io.TextIOWrapper</span> <span class="pre">name='&lt;stdout&gt;'</span> <span class="pre">mode='w'</span> <span class="pre">encoding='utf-8'&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#wickedjukebox.scanner.scan" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </section>
 <section id="module-wickedjukebox">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-wickedjukebox" title="Permalink to this heading">#</a></h2>
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-wickedjukebox" title="Link to this heading">¶</a></h2>
 </section>
 </section>
 
@@ -915,9 +955,9 @@ store the metadata in the jukebox database</p>
       
     </aside>
   </div>
-</div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/scripts/furo.js"></script>
+</div><script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
     </body>
 </html>
