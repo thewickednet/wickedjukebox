@@ -1,6 +1,7 @@
 """
 This module contains implementations for the underlying player backends
 """
+
 import logging
 from abc import ABC, abstractmethod
 from math import floor

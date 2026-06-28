@@ -15,7 +15,6 @@
 This module contains DB definitions for tables used in application logging
 """
 
-
 from sqlalchemy import Column, DateTime, String, Table, Text, text
 
 from .sameta import Base

@@ -14,6 +14,7 @@
 """
 This module contains DB definitions for tables used to steer the music playback
 """
+
 import logging
 from datetime import datetime
 from os.path import basename

@@ -5,6 +5,7 @@
 """
 Methods to convert a simplified filter string into an SQL query
 """
+
 import logging
 
 import ply.lex

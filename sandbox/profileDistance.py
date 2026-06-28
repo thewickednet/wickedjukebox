@@ -106,15 +106,12 @@ def test():
 
 
 def usage():
-    print(
-        """
+    print("""
 Usage:
    %s <user_id> <user_id>
 
 Compute profile similarity between two users (given by user_id)
-"""
-        % sys.argv[0]
-    )
+""" % sys.argv[0])
 
 
 if __name__ == "__main__":

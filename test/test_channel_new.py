@@ -2,6 +2,7 @@
 This module contains high-level tests for a new "channel" architecture (as of
 2021)
 """
+
 from unittest.mock import call, create_autospec
 
 from wickedjukebox.channel import Channel

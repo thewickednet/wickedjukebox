@@ -1,6 +1,7 @@
 """
 This module contains implementations for jingle-handling
 """
+
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path

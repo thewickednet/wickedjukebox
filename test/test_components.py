@@ -3,6 +3,7 @@
 This file contains test to verify the construction of the various modular
 jukebox components.
 """
+
 from configparser import ConfigParser
 from pathlib import Path
 from typing import Generator
@@ -34,12 +35,10 @@ def test_get_autoplay(fake_config: Config):
     """
     Without config we should get a null-instance
     """
-    fake_config.config.read_string(  # type: ignore
-        """
+    fake_config.config.read_string("""
         [channel:test-channel:autoplay]
         type = null
-        """
-    )
+        """)  # type: ignore
     player = comp.get_autoplay(fake_config, "test-channel")
     assert isinstance(player, NullRandom)
 
@@ -48,13 +47,11 @@ def test_get_autoplay_afr(fake_config: Config):
     """
     We should be able to construct the allfiles-random mode
     """
-    fake_config.config.read_string(  # type: ignore
-        """
+    fake_config.config.read_string("""
         [channel:test-channel:autoplay]
         type = allfiles_random
         root = example
-        """
-    )
+        """)  # type: ignore
     player = comp.get_autoplay(fake_config, "test-channel")
     assert isinstance(player, AllFilesRandom)
     assert player.root == "example"
@@ -64,8 +61,7 @@ def test_get_autoplay_smart(fake_config: Config):
     """
     We should be able to construct the smart-random mode
     """
-    fake_config.config.read_string(  # type: ignore
-        """
+    fake_config.config.read_string("""
         [database]
         dsn = sqlite://
 
@@ -78,8 +74,7 @@ def test_get_autoplay_smart(fake_config: Config):
         weight_randomness = 1
         weight_song_age = 1
         weight_user_rating = 4
-        """
-    )
+        """)  # type: ignore
     with patch("wickedjukebox.component.random.SmartPrefetchThread"):
         player = comp.get_autoplay(fake_config, "test-channel")
     assert isinstance(player, SmartPrefetch)
@@ -89,12 +84,10 @@ def test_get_player(fake_config: Config):
     """
     Without config we should get a null-instance
     """
-    fake_config.config.read_string(  # type: ignore
-        """
+    fake_config.config.read_string("""
         [channel:test-channel:player]
         type = null
-        """
-    )
+        """)  # type: ignore
     player = comp.get_player(fake_config, "test-channel")
     assert isinstance(player, NullPlayer)
 
@@ -104,15 +97,13 @@ def test_get_player_mpd(fake_config: Config):
     If the jukebox is configured to use mpd as backend we should get an
     appropriate player
     """
-    fake_config.config.read_string(  # type: ignore
-        """
+    fake_config.config.read_string("""
         [channel:test-channel:player]
         type = mpd
         host = 127.0.0.1
         port = 6600
         path_map = test/data/local_path:container_path
-        """
-    )
+        """)  # type: ignore
     player = comp.get_player(fake_config, "test-channel")
     assert isinstance(player, MpdPlayer)
 

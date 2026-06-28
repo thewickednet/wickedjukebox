@@ -4,6 +4,7 @@ This module contains implementations for inter-process calls.
 IPC modules allow external applications to trigger certain behaviour in the
 jukebox like skipping the currently running song for example.
 """
+
 import logging
 from abc import ABC, abstractmethod
 from enum import Enum

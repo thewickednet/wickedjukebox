@@ -1,6 +1,7 @@
 """
 This module contains for the new (2021) MPD implementation
 """
+
 # pylint: disable=redefined-outer-name
 
 from typing import Tuple

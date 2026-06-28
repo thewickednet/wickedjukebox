@@ -2,6 +2,7 @@
 This module contains an entry point to run a "smart" query to find the next best
 song taking channel statistics into account.
 """
+
 import logging
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Mapping, Optional
@@ -157,7 +158,6 @@ def smart_random_with_users(
     max_random_duration: int,
     num_active_users: int,
 ) -> "Query[Tuple[int, str, float]]":
-
     """
     song.id
     song.localpath

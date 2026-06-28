@@ -242,8 +242,7 @@ def main(argv: List[str], stream=stdout) -> int:
         print(
             """Usage:
          %s <filename>
-      """
-            % argv[0],
+      """ % argv[0],
             file=stream,
         )
         return 9

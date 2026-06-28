@@ -4,6 +4,7 @@ wickedjukebox.
 
 Modular components define behaviour that can be changed via the config file.
 """
+
 import logging
 from typing import Any, Callable, Mapping, Type, TypeVar
 

@@ -955,9 +955,7 @@ def upgrade():
     define_tables(Base)
     metadata.create_all()
 
-    op.execute(
-        dedent(
-            """\
+    op.execute(dedent("""\
         CREATE VIEW `history` AS
         select
             `s`.`id` AS `song_id`,
@@ -972,9 +970,7 @@ def upgrade():
             join `artist` `a` on (`a`.`id` = `s`.`artist_id`)
         )
         order by `rel`.`lastPlayed` desc ;
-        """
-        )
-    )
+        """))
 
 
 def downgrade():

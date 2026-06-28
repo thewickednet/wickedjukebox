@@ -15,6 +15,7 @@
 This module contains DB definitions for tables related to core application
 settings.
 """
+
 from typing import Optional
 
 from sqlalchemy import (

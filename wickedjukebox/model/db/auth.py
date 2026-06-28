@@ -14,6 +14,7 @@
 """
 This module contains DB definitions for user authentication & authorisation
 """
+
 from base64 import b64encode
 from datetime import datetime
 from os import urandom  # TODO Use more secure function

@@ -74,7 +74,9 @@ def upgrade():
         "song", sa.Column("replaygain_written", sa.DateTime(), nullable=True)
     )
     op.add_column("song", sa.Column("asin", sa.String(32), nullable=True))
-    op.add_column("song", sa.Column("acoustid_id", sa.String(32), nullable=True))
+    op.add_column(
+        "song", sa.Column("acoustid_id", sa.String(32), nullable=True)
+    )
     op.add_column(
         "song",
         sa.Column(
@@ -160,7 +162,9 @@ def downgrade():
         type_=sa.String(14),
         existing_nullable=True,
     )
-    op.add_column("song", sa.Column("lastfm_mbid", sa.String(255), nullable=True))
+    op.add_column(
+        "song", sa.Column("lastfm_mbid", sa.String(255), nullable=True)
+    )
     op.drop_column("song", "mbid")
     op.drop_column("song", "acoustid_fingerprint")
     op.drop_column("song", "acoustid_id")

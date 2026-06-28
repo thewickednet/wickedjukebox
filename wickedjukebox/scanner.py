@@ -6,7 +6,6 @@ This module contains everything needed to scan a directory of audio files an
 store the metadata in the jukebox database
 """
 
-
 import logging
 from pathlib import Path
 from sys import stdout

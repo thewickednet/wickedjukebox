@@ -1,6 +1,7 @@
 """
 This module contains implementations for "random" queues.
 """
+
 import logging
 import time
 from abc import ABC, abstractmethod

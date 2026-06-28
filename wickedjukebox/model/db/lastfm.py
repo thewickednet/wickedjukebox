@@ -15,7 +15,6 @@
 This module contains DB definitions for tables related to LastFM interaction
 """
 
-
 from sqlalchemy import DateTime, Index, Integer
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import Column, ForeignKeyConstraint
