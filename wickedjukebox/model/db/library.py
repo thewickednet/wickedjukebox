@@ -32,6 +32,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    SmallInteger,
     String,
     Table,
     Text,
@@ -59,6 +60,7 @@ class Genre(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(128), unique=True)
+    slug = Column(String(50), unique=True)
     added = Column(DateTime, nullable=False)
 
     def __init__(self, name):
@@ -102,14 +104,16 @@ class Artist(Base):
     __tablename__ = "artist"
 
     id = Column(Integer, primary_key=True)
+    slug = Column(String(50), unique=True)
     name = Column(String(128), unique=True)
     country = Column(String(16))
     summary = Column(Text())
     bio = Column(Text())
     website = Column(String(255))
     wikipage = Column(String(255))
-    lastfm_mbid = Column(String(64))
+    mbid = Column(String(32))  # MusicBrainz ID (UUID, stored as char(32))
     lastfm_url = Column(String(255))
+    founded_year = Column(SmallInteger)
     added = Column(DateTime)
     photo = Column(String(255))
 
@@ -137,19 +141,21 @@ class Album(Base):
         Index("type", "type", unique=False),
     )
     id = Column(Integer, primary_key=True)
+    slug = Column(String(50), unique=True)
     artist_id = Column(
         Integer,
         ForeignKey("artist.id", ondelete="CASCADE", onupdate="CASCADE"),
         nullable=False,
     )
     name = Column(String(128), index=True)
+    disc_no = Column(SmallInteger, nullable=False, server_default=text("1"))
     release_date = Column(Date)
     added = Column(DateTime, nullable=False)
     downloaded = Column(Integer, nullable=False, server_default=text("0"))
     type = Column(String(32), server_default=text("'album'"))
     path = Column(String(255), nullable=False, unique=True)
     coverart = Column(String(255))
-    lastfm_mbid = Column(String(255))
+    mbid = Column(String(32))  # MusicBrainz ID (UUID, stored as char(32))
     lastfm_url = Column(String(255))
 
     artist = relationship("Artist", backref="albums")
@@ -196,10 +202,15 @@ class Song(Base):
     )
 
     id = Column(Integer, primary_key=True)
+    slug = Column(String(50), unique=True)
     artist_id = Column(Integer, nullable=False)
     album_id = Column(Integer)
+    # Another song on the same album that plays as this song's intro. The
+    # canonical schema deliberately omits the DB-level FK (db_constraint=False).
+    intro_id = Column(Integer, unique=True)
     track_no = Column(Integer)
-    title = Column(String(128))
+    disc_no = Column(SmallInteger, nullable=False, server_default=text("1"))
+    title = Column(String(255))
     duration = Column(Float(asdecimal=True))
     year = Column(Integer)
     localpath = Column(String(255), nullable=False, unique=True)
@@ -207,14 +218,26 @@ class Song(Base):
     lastScanned = Column(DateTime)
     bitrate = Column(Integer)
     filesize = Column(Integer)
-    checksum = Column(String(14))
+    checksum = Column(String(64))
     lyrics = Column(Text())
+    lyrics_synced = Column(Text(), nullable=False, server_default=text("''"))
+    # JSON array of ~1000 peaks (0-100); NULL = not computed
+    waveform = Column(Text())
     broken = Column(Boolean, server_default=text("0"))
     dirty = Column(Boolean, server_default=text("0"))
     added = Column(DateTime, nullable=False)
     available = Column(Boolean, server_default=text("1"))
     coverart = Column(String(255))
-    lastfm_mbid = Column(String(255))
+    bpm = Column(SmallInteger)  # beats per minute
+    musical_key = Column(String(8))  # canonical notation, e.g. Am, Db
+    loudness = Column(Float)  # integrated loudness, LUFS (EBU R128)
+    true_peak = Column(Float)  # true peak, dBTP
+    crest_factor = Column(Float)  # peak-to-RMS crest factor, dB
+    replaygain_written = Column(DateTime)  # when RG tags written; NULL=pending
+    asin = Column(String(32))
+    acoustid_id = Column(String(32))  # AcoustID (UUID, stored as char(32))
+    acoustid_fingerprint = Column(Text(), nullable=False, default="")
+    mbid = Column(String(32))  # MusicBrainz ID (UUID, stored as char(32))
     lastfm_url = Column(String(255))
 
     album = relationship("Album")
@@ -355,7 +378,9 @@ class Playlist(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, nullable=False)
     name = Column(String(32), nullable=False)
+    slug = Column(String(50), unique=True)
     probability = Column(Float)
+    public = Column(Boolean, nullable=False, server_default=text("0"))
 
 
 class PlaylistHasSong(Base):
@@ -363,6 +388,8 @@ class PlaylistHasSong(Base):
 
     playlist_id = Column(Integer, primary_key=True, nullable=False)
     song_id = Column(Integer, primary_key=True, nullable=False)
+    position = Column(Integer)
+    added = Column(DateTime)
 
 
 class SongHasTag(Base):

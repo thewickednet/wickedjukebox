@@ -15,7 +15,9 @@ class Event(Base):
 
     id = Column(Integer, primary_key=True)
     title = Column(String(255), nullable=False)
+    slug = Column(String(50), unique=True)
     startdate = Column(DateTime, nullable=False)
     enddate = Column(DateTime, nullable=False)
     lat = Column(Float)
     lon = Column(Float)
+    photo = Column(String(100))

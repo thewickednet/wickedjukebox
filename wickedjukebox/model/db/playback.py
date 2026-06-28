@@ -57,6 +57,7 @@ class Channel(Base):
     ping = Column(DateTime)
     active = Column(Boolean, nullable=False, server_default=text("0"))
     status = Column(Integer)
+    owner_id = Column(Integer)  # FK users.id (ON DELETE SET NULL); owning user
 
     def __init__(self, name, backend, *args, **kwargs):
         super().__init__(*args, **kwargs)
