@@ -49,7 +49,6 @@ def parse_args() -> Namespace:
 
 
 def make_channel(channel_name: str) -> Optional[Channel]:
-
     config = Config()
     player = get_player(config, channel_name)
     autoplay = get_autoplay(config, channel_name)

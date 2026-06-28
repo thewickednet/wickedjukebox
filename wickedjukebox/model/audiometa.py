@@ -119,7 +119,6 @@ class AudioMeta(dict):
 
 class MP3Meta(AudioMeta):
     def decode_text(self, data):
-
         if isinstance(data.text[0], ID3TimeStamp):
             text = "".join([x.text for x in data.text])
         else:
@@ -242,7 +241,8 @@ def main(argv: List[str], stream=stdout) -> int:
         print(
             """Usage:
          %s <filename>
-      """ % argv[0],
+      """
+            % argv[0],
             file=stream,
         )
         return 9

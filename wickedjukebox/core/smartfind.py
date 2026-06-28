@@ -217,7 +217,6 @@ def find_song(
     proofoflife_timeout = scoring_config[ScoringConfig.PROOF_OF_LIFE_TIMEOUT]
 
     if is_mysql:
-
         num_active_users = (
             session.query(User.id)
             .filter(

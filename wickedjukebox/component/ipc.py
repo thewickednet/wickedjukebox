@@ -215,7 +215,6 @@ class DBIPC(AbstractIPC):
             raise ConfigError("No DSN available for DB-IPC")
 
     def get(self, key: Command) -> Optional[Any]:  # pragma: no cover
-
         skip_state = False
         with Session() as session:  # type: ignore
             query = session.query(Channel)  # type: ignore
@@ -231,7 +230,6 @@ class DBIPC(AbstractIPC):
     def set(
         self, key: Command, value: Any
     ) -> Optional[Any]:  # pragma: no cover
-
         skip_state = False
         with Session() as session:  # type: ignore
             query = session.query(Channel)  # type: ignore
