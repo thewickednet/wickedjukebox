@@ -142,7 +142,6 @@ def smart_random_no_users(
         .join(ChannelStat, isouter=True)
     )
     query = query.filter(Song.duration < max_random_duration)
-    query = query.filter(Song.duration < max_random_duration)
     query = query.order_by(text("score DESC"))  # type: ignore
     return query  # type: ignore
 
@@ -188,7 +187,6 @@ def smart_random_with_users(
     )
     query = query.filter(Song.duration < max_random_duration)
     query = query.filter(func.ifnull(hates_query.c.count, 0) == 0)
-    query = query.filter(Song.duration < max_random_duration)
     query = query.order_by(text("score DESC"))  # type: ignore
     return query  # type: ignore
 
@@ -254,6 +252,7 @@ def find_song(
         )
 
     query = query.filter(not_(Song.broken))  # type: ignore
+    query = query.filter(not_(Song.exclude_from_random))  # type: ignore
     query = DynamicPlaylist.apply_to(query)  # type: ignore
     query = query.limit(10)  # type: ignore
     query = query.offset(0)  # type: ignore

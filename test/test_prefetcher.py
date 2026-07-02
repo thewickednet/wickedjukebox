@@ -72,3 +72,27 @@ def test_exclude_from_random_defaults_to_false(
     dbsession.refresh(song)
     assert song.exclude_from_random is not None
     assert not song.exclude_from_random
+
+
+def test_find_song_skips_excluded(
+    dbsession: Session, default_data: Dict[str, Any]
+):
+    """
+    A song flagged exclude_from_random must never be returned by find_song.
+    With the only song excluded, find_song must return None.
+    """
+    default_data["default_song"].exclude_from_random = True
+    dbsession.flush()
+    assert find_song(dbsession, SCORING_CONFIG, True) is None
+
+
+def test_find_song_respects_max_duration(
+    dbsession: Session, default_data: Dict[str, Any]
+):
+    """
+    find_song must not return a song longer than MAX_DURATION. With the only
+    song over the cap, find_song must return None.
+    """
+    default_data["default_song"].duration = 900  # > 600 (SCORING_CONFIG cap)
+    dbsession.flush()
+    assert find_song(dbsession, SCORING_CONFIG, True) is None
