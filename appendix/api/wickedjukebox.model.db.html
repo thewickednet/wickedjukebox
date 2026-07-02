@@ -1144,6 +1144,11 @@ gathering of people with start- and end-date).</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.exclude_from_random">
+<span class="sig-name descname"><span class="pre">exclude_from_random</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.exclude_from_random" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.filesize">
 <span class="sig-name descname"><span class="pre">filesize</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.filesize" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1200,8 +1205,11 @@ gathering of people with start- and end-date).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.random">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">random</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#wickedjukebox.model.db.library.Song" title="wickedjukebox.model.db.library.Song"><span class="pre">Song</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.random" title="Link to this definition">¶</a></dt>
-<dd><p>Retrieve a song from the database using the local filename as key</p>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">random</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#wickedjukebox.model.db.library.Song" title="wickedjukebox.model.db.library.Song"><span class="pre">Song</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.random" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve a random song eligible for autoplay.</p>
+<p>Songs flagged <code class="docutils literal notranslate"><span class="pre">broken</span></code> or <code class="docutils literal notranslate"><span class="pre">exclude_from_random</span></code> are never
+returned. When <em>max_duration</em> is given, songs longer than that many
+seconds are also excluded. Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> if nothing qualifies.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -2600,6 +2608,7 @@ settings.</p>
 <li><a class="reference internal" href="#wickedjukebox.model.db.library.Song.disc_no"><code class="docutils literal notranslate"><span class="pre">Song.disc_no</span></code></a></li>
 <li><a class="reference internal" href="#wickedjukebox.model.db.library.Song.downloaded"><code class="docutils literal notranslate"><span class="pre">Song.downloaded</span></code></a></li>
 <li><a class="reference internal" href="#wickedjukebox.model.db.library.Song.duration"><code class="docutils literal notranslate"><span class="pre">Song.duration</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.library.Song.exclude_from_random"><code class="docutils literal notranslate"><span class="pre">Song.exclude_from_random</span></code></a></li>
 <li><a class="reference internal" href="#wickedjukebox.model.db.library.Song.filesize"><code class="docutils literal notranslate"><span class="pre">Song.filesize</span></code></a></li>
 <li><a class="reference internal" href="#wickedjukebox.model.db.library.Song.id"><code class="docutils literal notranslate"><span class="pre">Song.id</span></code></a></li>
 <li><a class="reference internal" href="#wickedjukebox.model.db.library.Song.intro_id"><code class="docutils literal notranslate"><span class="pre">Song.intro_id</span></code></a></li>
