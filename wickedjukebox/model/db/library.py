@@ -37,6 +37,7 @@ from sqlalchemy import (
     Table,
     Text,
     func,
+    not_,
     text,
 )
 from sqlalchemy.orm import Session as TSession
@@ -282,13 +283,23 @@ class Song(Base):
         return song
 
     @staticmethod
-    def random(session: TSession) -> Optional["Song"]:
+    def random(
+        session: TSession, max_duration: Optional[int] = None
+    ) -> Optional["Song"]:
         """
-        Retrieve a song from the database using the local filename as key
+        Retrieve a random song eligible for autoplay.
+
+        Songs flagged ``broken`` or ``exclude_from_random`` are never
+        returned. When *max_duration* is given, songs longer than that many
+        seconds are also excluded. Returns ``None`` if nothing qualifies.
         """
-        query = session.query(Song).order_by(func.rand())
-        song = query.first()
-        return song
+        query = session.query(Song)
+        query = query.filter(not_(Song.broken))
+        query = query.filter(not_(Song.exclude_from_random))
+        if max_duration is not None:
+            query = query.filter(Song.duration < max_duration)
+        query = query.order_by(func.rand())
+        return query.first()
 
     def update_metadata(self) -> None:
         """

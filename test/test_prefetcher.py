@@ -96,3 +96,28 @@ def test_find_song_respects_max_duration(
     default_data["default_song"].duration = 900  # > 600 (SCORING_CONFIG cap)
     dbsession.flush()
     assert find_song(dbsession, SCORING_CONFIG, True) is None
+
+
+def test_random_skips_excluded(
+    dbsession: Session, default_data: Dict[str, Any]
+):
+    """Song.random must not return an exclude_from_random song."""
+    default_data["default_song"].exclude_from_random = True
+    dbsession.flush()
+    assert Song.random(dbsession) is None
+
+
+def test_random_skips_broken(dbsession: Session, default_data: Dict[str, Any]):
+    """Song.random must not return a broken song."""
+    default_data["default_song"].broken = True
+    dbsession.flush()
+    assert Song.random(dbsession) is None
+
+
+def test_random_respects_max_duration(
+    dbsession: Session, default_data: Dict[str, Any]
+):
+    """Song.random must not return a song longer than max_duration."""
+    default_data["default_song"].duration = 900
+    dbsession.flush()
+    assert Song.random(dbsession, max_duration=600) is None
