@@ -158,8 +158,8 @@ class SmartPrefetchThread(Thread):
         with Session() as session:  # type: ignore
             # We use a "naive" random first so we have something quickly. The
             # "smart" query is much slower.
-            song = Song.random(
-                session,  # type: ignore
+            song = Song.random(  # type: ignore
+                session,
                 self.scoring_config[ScoringConfig.MAX_DURATION],
             )
             if song is None:

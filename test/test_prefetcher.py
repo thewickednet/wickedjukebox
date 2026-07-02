@@ -121,3 +121,15 @@ def test_random_respects_max_duration(
     default_data["default_song"].duration = 900
     dbsession.flush()
     assert Song.random(dbsession, max_duration=600) is None
+
+
+def test_random_returns_eligible_under_max_duration(
+    dbsession: Session, default_data: Dict[str, Any]
+):
+    """
+    Song.random must still return an eligible song whose duration is under
+    the cap (default_song duration is 300 < 600).
+    """
+    song = Song.random(dbsession, max_duration=600)
+    assert song is not None
+    assert song.id == default_data["default_song"].id
