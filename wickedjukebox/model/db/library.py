@@ -184,6 +184,7 @@ class Song(Base):
         Index("album_id", "album_id", unique=False),
         Index("artist_id", "artist_id", unique=False),
         Index("broken", "broken", unique=False),
+        Index("exclude_from_random", "exclude_from_random", unique=False),
         Index("title", "title", unique=False),
         ForeignKeyConstraint(
             ["artist_id"],
@@ -224,6 +225,9 @@ class Song(Base):
     # JSON array of ~1000 peaks (0-100); NULL = not computed
     waveform = Column(Text())
     broken = Column(Boolean, server_default=text("0"))
+    exclude_from_random = Column(
+        Boolean, nullable=False, server_default=text("0")
+    )
     dirty = Column(Boolean, server_default=text("0"))
     added = Column(DateTime, nullable=False)
     available = Column(Boolean, server_default=text("1"))

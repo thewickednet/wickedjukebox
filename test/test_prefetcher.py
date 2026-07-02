@@ -59,3 +59,16 @@ def test_smart_random_with_users(
     song = find_song(dbsession, SCORING_CONFIG, True)
     assert song is not None
     assert song.title == default_data["default_song"].title
+
+
+def test_exclude_from_random_defaults_to_false(
+    dbsession: Session, default_data: Dict[str, Any]
+):
+    """
+    A freshly-inserted song must default to NOT excluded (server_default 0),
+    and the column must be non-nullable.
+    """
+    song = default_data["default_song"]
+    dbsession.refresh(song)
+    assert song.exclude_from_random is not None
+    assert not song.exclude_from_random
