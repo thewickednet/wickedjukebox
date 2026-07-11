@@ -52,9 +52,16 @@ the file, so they must exist on disk):
 
 - Same-name albums on TWO artists + a scan of a file in one of their dirs → path-first
   reuses the right one; no `MultipleResultsFound`.
-- Same artist + same name in a NEW directory → a second Album row is created with
-  `path=dirname` (the Weezer case).
-- Drifted album (row path ≠ file dir, same artist+name) → fallback reuses it.
+- Same artist + same name as TWO existing rows with different paths (the state the
+  djukebox upload importer creates for e.g. Weezer's self-titled releases) → a scan in
+  either directory links to that directory's own album; the releases are never merged and
+  nothing crashes (the Weezer case).
+- Drifted album (row path ≠ file dir, same artist+name, path lookup misses) → the
+  artist-scoped name fallback reuses it; no duplicate row is created. (This is the
+  deliberate flip side of the "wrong release for a brand-new dir" limitation above: from
+  (artist, name, unknown dir) alone the two cases are indistinguishable, and reuse is
+  right for the 27 drifted albums that exist today, while new releases normally arrive
+  through the djukebox importer with correct paths.)
 - Fresh artist + fresh album → created with `path=dirname`.
 - Direct finder tests: `by_path` hit/miss; `by_artist_and_name` picks lowest id among
   duplicates and returns None for an unflushed artist.
