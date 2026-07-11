@@ -285,6 +285,13 @@ successfully configured.</p>
 
 </dd></dl>
 
+<dl class="py data">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">wickedjukebox.component.random.</span></span><span class="sig-name descname"><span class="pre">MOOD_SAMPLE_SIZE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">50</span></em></dt>
+<dd><p>How many glob candidates a single pick may probe against the mood window
+before giving up and playing the first sample anyway (never silent).</p>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.component.random.</span></span><span class="sig-name descname"><span class="pre">NullRandom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../appendix/api/wickedjukebox.html#wickedjukebox.config.Config" title="wickedjukebox.config.Config"><span class="pre">Config</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span></dt>
@@ -310,6 +317,9 @@ persistent state of songs.</p>
 <p>As the query can take a long time to execute, one result will always be
 prefetched ahead of time. So the <em>exact</em> calculation is always off by one
 “play”.</p>
+<p>The same one-pick lag applies to the channel’s mood window
+(<code class="docutils literal notranslate"><span class="pre">channel.mood_low</span></code>/<code class="docutils literal notranslate"><span class="pre">mood_high</span></code>): a threshold change from the web UI
+can take effect one song late, because one pick is already buffered.</p>
 <div class="literal-block-wrapper docutils container" id="id3">
 <div class="code-block-caption"><span class="caption-text">Configuration Example</span><a class="headerlink" href="#id3" title="Link to this code">¶</a></div>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[channel:example:autoplay]</span>

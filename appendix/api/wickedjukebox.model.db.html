@@ -735,9 +735,28 @@ gathering of people with start- and end-date).</p>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Album.by_name">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#wickedjukebox.model.db.library.Album" title="wickedjukebox.model.db.library.Album"><span class="pre">Album</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Album.by_name" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Album.by_artist_and_name">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">by_artist_and_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">artist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#wickedjukebox.model.db.library.Artist" title="wickedjukebox.model.db.library.Artist"><span class="pre">Artist</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#wickedjukebox.model.db.library.Album" title="wickedjukebox.model.db.library.Album"><span class="pre">Album</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Album.by_artist_and_name" title="Link to this definition">¶</a></dt>
+<dd><p>Artist-scoped name fallback for directories the DB does not know
+(an album whose <code class="docutils literal notranslate"><span class="pre">path</span></code> drifted, e.g. after a move on disk).</p>
+<p>Album names are not unique — not even per artist — so this picks
+the lowest id deterministically instead of raising. Known
+limitation: for a genuinely NEW directory holding a same-named
+release by the same artist this reuses the older release; new
+releases normally arrive through the djukebox importer, which
+creates correctly-pathed rows that <code class="docutils literal notranslate"><span class="pre">by_path</span></code> then resolves.
+Returns None for an unflushed artist (it cannot own albums yet).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Album.by_path">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">by_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#wickedjukebox.model.db.library.Album" title="wickedjukebox.model.db.library.Album"><span class="pre">Album</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Album.by_path" title="Link to this definition">¶</a></dt>
+<dd><p>Resolve an album by its directory path (UNIQUE column).</p>
+<p>This is the primary scanner lookup: one directory is one album, and
+the scanner writes <code class="docutils literal notranslate"><span class="pre">path</span> <span class="pre">=</span> <span class="pre">dirname(localpath)</span></code> on creation, so
+every well-formed tree resolves here — including same-named albums
+(different artists, or different releases by the same artist).</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wickedjukebox.model.db.library.Album.coverart">
@@ -1199,17 +1218,26 @@ gathering of people with start- and end-date).</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.mood_score">
+<span class="sig-name descname"><span class="pre">mood_score</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.mood_score" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.musical_key">
 <span class="sig-name descname"><span class="pre">musical_key</span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.musical_key" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="wickedjukebox.model.db.library.Song.random">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">random</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#wickedjukebox.model.db.library.Song" title="wickedjukebox.model.db.library.Song"><span class="pre">Song</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.random" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">random</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_duration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mood_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#wickedjukebox.model.db.library.Song" title="wickedjukebox.model.db.library.Song"><span class="pre">Song</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#wickedjukebox.model.db.library.Song.random" title="Link to this definition">¶</a></dt>
 <dd><p>Retrieve a random song eligible for autoplay.</p>
 <p>Songs flagged <code class="docutils literal notranslate"><span class="pre">broken</span></code> or <code class="docutils literal notranslate"><span class="pre">exclude_from_random</span></code> are never
 returned. When <em>max_duration</em> is given, songs longer than that many
-seconds are also excluded. Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> if nothing qualifies.</p>
+seconds are also excluded. When <em>mood_range</em> is given, only songs
+whose <code class="docutils literal notranslate"><span class="pre">mood_score</span></code> is NULL (not yet analyzed) or inside the window
+qualify — unless nothing does, in which case the window is dropped
+so a pick never comes up empty. Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> if nothing
+qualifies at all.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1430,6 +1458,27 @@ seconds are also excluded. Returns <code class="docutils literal notranslate"><s
 <dt class="sig sig-object py" id="wickedjukebox.model.db.playback.Channel.id">
 <span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.Channel.id" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.Channel.mood_high">
+<span class="sig-name descname"><span class="pre">mood_high</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.Channel.mood_high" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.Channel.mood_low">
+<span class="sig-name descname"><span class="pre">mood_low</span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.Channel.mood_low" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wickedjukebox.model.db.playback.Channel.mood_range">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mood_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#wickedjukebox.model.db.playback.Channel.mood_range" title="Link to this definition">¶</a></dt>
+<dd><p>The live randomizer mood window for the named channel.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">(low,</span> <span class="pre">high)</span></code> when both thresholds are set (apply as
+<code class="docutils literal notranslate"><span class="pre">mood_score</span> <span class="pre">IS</span> <span class="pre">NULL</span> <span class="pre">OR</span> <span class="pre">mood_score</span> <span class="pre">BETWEEN</span> <span class="pre">low</span> <span class="pre">AND</span> <span class="pre">high</span></code> — see the
+djukebox integration contract), or <code class="docutils literal notranslate"><span class="pre">None</span></code> when filtering is off or
+the channel is unknown. Read this fresh on every pick so threshold
+changes from the web UI apply immediately.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wickedjukebox.model.db.playback.Channel.name">
@@ -2512,7 +2561,8 @@ settings.</p>
 <li><a class="reference internal" href="#wickedjukebox.model.db.library.Album.added"><code class="docutils literal notranslate"><span class="pre">Album.added</span></code></a></li>
 <li><a class="reference internal" href="#wickedjukebox.model.db.library.Album.artist"><code class="docutils literal notranslate"><span class="pre">Album.artist</span></code></a></li>
 <li><a class="reference internal" href="#wickedjukebox.model.db.library.Album.artist_id"><code class="docutils literal notranslate"><span class="pre">Album.artist_id</span></code></a></li>
-<li><a class="reference internal" href="#wickedjukebox.model.db.library.Album.by_name"><code class="docutils literal notranslate"><span class="pre">Album.by_name()</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.library.Album.by_artist_and_name"><code class="docutils literal notranslate"><span class="pre">Album.by_artist_and_name()</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.library.Album.by_path"><code class="docutils literal notranslate"><span class="pre">Album.by_path()</span></code></a></li>
 <li><a class="reference internal" href="#wickedjukebox.model.db.library.Album.coverart"><code class="docutils literal notranslate"><span class="pre">Album.coverart</span></code></a></li>
 <li><a class="reference internal" href="#wickedjukebox.model.db.library.Album.disc_no"><code class="docutils literal notranslate"><span class="pre">Album.disc_no</span></code></a></li>
 <li><a class="reference internal" href="#wickedjukebox.model.db.library.Album.downloaded"><code class="docutils literal notranslate"><span class="pre">Album.downloaded</span></code></a></li>
@@ -2619,6 +2669,7 @@ settings.</p>
 <li><a class="reference internal" href="#wickedjukebox.model.db.library.Song.lyrics"><code class="docutils literal notranslate"><span class="pre">Song.lyrics</span></code></a></li>
 <li><a class="reference internal" href="#wickedjukebox.model.db.library.Song.lyrics_synced"><code class="docutils literal notranslate"><span class="pre">Song.lyrics_synced</span></code></a></li>
 <li><a class="reference internal" href="#wickedjukebox.model.db.library.Song.mbid"><code class="docutils literal notranslate"><span class="pre">Song.mbid</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.library.Song.mood_score"><code class="docutils literal notranslate"><span class="pre">Song.mood_score</span></code></a></li>
 <li><a class="reference internal" href="#wickedjukebox.model.db.library.Song.musical_key"><code class="docutils literal notranslate"><span class="pre">Song.musical_key</span></code></a></li>
 <li><a class="reference internal" href="#wickedjukebox.model.db.library.Song.random"><code class="docutils literal notranslate"><span class="pre">Song.random()</span></code></a></li>
 <li><a class="reference internal" href="#wickedjukebox.model.db.library.Song.replaygain_written"><code class="docutils literal notranslate"><span class="pre">Song.replaygain_written</span></code></a></li>
@@ -2676,6 +2727,9 @@ settings.</p>
 <li><a class="reference internal" href="#wickedjukebox.model.db.playback.Channel.backend_params"><code class="docutils literal notranslate"><span class="pre">Channel.backend_params</span></code></a></li>
 <li><a class="reference internal" href="#wickedjukebox.model.db.playback.Channel.by_name"><code class="docutils literal notranslate"><span class="pre">Channel.by_name()</span></code></a></li>
 <li><a class="reference internal" href="#wickedjukebox.model.db.playback.Channel.id"><code class="docutils literal notranslate"><span class="pre">Channel.id</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.playback.Channel.mood_high"><code class="docutils literal notranslate"><span class="pre">Channel.mood_high</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.playback.Channel.mood_low"><code class="docutils literal notranslate"><span class="pre">Channel.mood_low</span></code></a></li>
+<li><a class="reference internal" href="#wickedjukebox.model.db.playback.Channel.mood_range"><code class="docutils literal notranslate"><span class="pre">Channel.mood_range()</span></code></a></li>
 <li><a class="reference internal" href="#wickedjukebox.model.db.playback.Channel.name"><code class="docutils literal notranslate"><span class="pre">Channel.name</span></code></a></li>
 <li><a class="reference internal" href="#wickedjukebox.model.db.playback.Channel.owner_id"><code class="docutils literal notranslate"><span class="pre">Channel.owner_id</span></code></a></li>
 <li><a class="reference internal" href="#wickedjukebox.model.db.playback.Channel.ping"><code class="docutils literal notranslate"><span class="pre">Channel.ping</span></code></a></li>
