@@ -172,12 +172,45 @@ class Album(Base):
         return f"<Album {self.id} name={repr(self.name)}>"
 
     @staticmethod
-    def by_name(
-        name: str, session: Optional[TSession] = None
+    def by_path(
+        path: str, session: Optional[TSession] = None
     ) -> Optional["Album"]:
-        session: TSession = session or Session()
-        album = session.query(Album).filter_by(name=name).one_or_none()
-        return album
+        """
+        Resolve an album by its directory path (UNIQUE column).
+
+        This is the primary scanner lookup: one directory is one album, and
+        the scanner writes ``path = dirname(localpath)`` on creation, so
+        every well-formed tree resolves here — including same-named albums
+        (different artists, or different releases by the same artist).
+        """
+        session = session or Session()
+        return session.query(Album).filter_by(path=path).one_or_none()
+
+    @staticmethod
+    def by_artist_and_name(
+        artist: "Artist", name: str, session: Optional[TSession] = None
+    ) -> Optional["Album"]:
+        """
+        Artist-scoped name fallback for directories the DB does not know
+        (an album whose ``path`` drifted, e.g. after a move on disk).
+
+        Album names are not unique — not even per artist — so this picks
+        the lowest id deterministically instead of raising. Known
+        limitation: for a genuinely NEW directory holding a same-named
+        release by the same artist this reuses the older release; new
+        releases normally arrive through the djukebox importer, which
+        creates correctly-pathed rows that ``by_path`` then resolves.
+        Returns None for an unflushed artist (it cannot own albums yet).
+        """
+        if artist.id is None:
+            return None
+        session = session or Session()
+        return (
+            session.query(Album)
+            .filter_by(artist_id=artist.id, name=name)
+            .order_by(Album.id)
+            .first()
+        )
 
 
 class Song(Base):
@@ -343,8 +376,10 @@ class Song(Base):
             artist = Artist(audiometa["artist"])
         self.artist = artist
 
-        album = Album.by_name(audiometa["album"])
-        if not album:
+        album = Album.by_path(dirname_)
+        if album is None:
+            album = Album.by_artist_and_name(artist, audiometa["album"])
+        if album is None:
             album = Album(
                 audiometa["album"],
                 artist,
