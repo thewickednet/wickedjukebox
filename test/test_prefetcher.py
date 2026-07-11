@@ -167,3 +167,113 @@ def test_channel_mood_range_active(
     default_data["default_channel"].mood_high = 90
     dbsession.flush()
     assert Channel.mood_range(dbsession, "test-channel") == (10, 90)
+
+
+def _add_song(
+    dbsession: Session,
+    default_data: Dict[str, Any],
+    localpath: str,
+    mood_score,
+):
+    """Insert a second eligible song with the given mood score."""
+    song = Song(localpath=localpath)
+    song.artist = default_data["default_artist"]
+    song.album = default_data["default_album"]
+    song.title = localpath
+    song.duration = 300
+    song.mood_score = mood_score
+    dbsession.add(song)
+    dbsession.flush()
+    return song
+
+
+def _window(dbsession: Session, default_data: Dict[str, Any], low, high):
+    default_data["default_channel"].mood_low = low
+    default_data["default_channel"].mood_high = high
+    dbsession.flush()
+
+
+def test_find_song_mood_filters_out_of_range(
+    dbsession: Session, default_data: Dict[str, Any]
+):
+    """With an active window, only in-range songs are candidates."""
+    default_data["default_song"].mood_score = 95
+    in_range = _add_song(dbsession, default_data, "in-range.mp3", 50)
+    _window(dbsession, default_data, 20, 80)
+    song = find_song(
+        dbsession, SCORING_CONFIG, True, channel_name="test-channel"
+    )
+    assert song is not None
+    assert song.id == in_range.id
+
+
+def test_find_song_mood_null_passes(
+    dbsession: Session, default_data: Dict[str, Any]
+):
+    """A song without a mood score always passes an active window."""
+    _window(dbsession, default_data, 20, 80)
+    song = find_song(
+        dbsession, SCORING_CONFIG, True, channel_name="test-channel"
+    )
+    assert song is not None
+
+
+def test_find_song_mood_fallback_never_silent(
+    dbsession: Session, default_data: Dict[str, Any]
+):
+    """All songs outside the window: fall back to an unfiltered pick."""
+    default_data["default_song"].mood_score = 95
+    _window(dbsession, default_data, 20, 80)
+    song = find_song(
+        dbsession, SCORING_CONFIG, True, channel_name="test-channel"
+    )
+    assert song is not None
+    assert song.id == default_data["default_song"].id
+
+
+def test_find_song_without_channel_does_not_filter(
+    dbsession: Session, default_data: Dict[str, Any]
+):
+    """No channel_name (legacy callers): mood filtering is off."""
+    default_data["default_song"].mood_score = 95
+    _window(dbsession, default_data, 20, 80)
+    song = find_song(dbsession, SCORING_CONFIG, True)
+    assert song is not None
+
+
+def test_random_mood_filters_out_of_range(
+    dbsession: Session, default_data: Dict[str, Any]
+):
+    default_data["default_song"].mood_score = 95
+    in_range = _add_song(dbsession, default_data, "in-range2.mp3", 50)
+    dbsession.flush()
+    song = Song.random(dbsession, mood_range=(20, 80))
+    assert song is not None
+    assert song.id == in_range.id
+
+
+def test_random_mood_null_passes(
+    dbsession: Session, default_data: Dict[str, Any]
+):
+    song = Song.random(dbsession, mood_range=(20, 80))
+    assert song is not None
+    assert song.id == default_data["default_song"].id
+
+
+def test_random_mood_fallback_never_silent(
+    dbsession: Session, default_data: Dict[str, Any]
+):
+    default_data["default_song"].mood_score = 95
+    dbsession.flush()
+    song = Song.random(dbsession, mood_range=(20, 80))
+    assert song is not None
+    assert song.id == default_data["default_song"].id
+
+
+def test_random_no_mood_range_unfiltered(
+    dbsession: Session, default_data: Dict[str, Any]
+):
+    default_data["default_song"].mood_score = 95
+    dbsession.flush()
+    song = Song.random(dbsession)
+    assert song is not None

@@ -11,11 +11,11 @@ import sqlalchemy.orm as orm
 from sqlalchemy.orm.query import Query
 from sqlalchemy.sql import func
 from sqlalchemy.sql.elements import not_
-from sqlalchemy.sql.expression import and_, text
+from sqlalchemy.sql.expression import and_, or_, text
 
 from wickedjukebox.model.db.auth import User
 from wickedjukebox.model.db.library import Song, UserSongStanding
-from wickedjukebox.model.db.playback import DynamicPlaylist
+from wickedjukebox.model.db.playback import Channel, DynamicPlaylist
 from wickedjukebox.model.db.settings import Setting
 from wickedjukebox.model.db.stats import ChannelStat
 
@@ -195,6 +195,7 @@ def find_song(
     session: orm.Session,
     scoring_config: Mapping[ScoringConfig, int],
     is_mysql: bool,
+    channel_name: Optional[str] = None,
 ) -> Optional[Song]:
     # pylint: disable=too-many-statements, too-many-locals
     #
@@ -254,9 +255,29 @@ def find_song(
     query = query.filter(not_(Song.broken))  # type: ignore
     query = query.filter(not_(Song.exclude_from_random))  # type: ignore
     query = DynamicPlaylist.apply_to(query)  # type: ignore
+    unfiltered_query = query
+    mood_range = (
+        Channel.mood_range(session, channel_name) if channel_name else None
+    )
+    if mood_range is not None:
+        low, high = mood_range
+        query = query.filter(
+            or_(
+                Song.mood_score.is_(None),
+                Song.mood_score.between(low, high),
+            )
+        )
     query = query.limit(10)  # type: ignore
     query = query.offset(0)  # type: ignore
     candidate = query.first()
+
+    if candidate is None and mood_range is not None:
+        LOG.info(
+            "No candidates inside mood range %r; falling back to an "
+            "unfiltered pick",
+            mood_range,
+        )
+        candidate = unfiltered_query.limit(10).offset(0).first()
 
     if candidate is None:
         return None

@@ -16,6 +16,7 @@ from wickedjukebox.config import Config, ConfigKeys
 from wickedjukebox.core.smartfind import ScoringConfig, find_song
 from wickedjukebox.logutil import qualname, qualname_repr
 from wickedjukebox.model.db.library import Song
+from wickedjukebox.model.db.playback import Channel
 from wickedjukebox.model.db.sameta import Session
 
 
@@ -158,9 +159,11 @@ class SmartPrefetchThread(Thread):
         with Session() as session:  # type: ignore
             # We use a "naive" random first so we have something quickly. The
             # "smart" query is much slower.
+            mood_range = Channel.mood_range(session, self.channel_name)
             song = Song.random(  # type: ignore
                 session,
                 self.scoring_config[ScoringConfig.MAX_DURATION],
+                mood_range=mood_range,
             )
             if song is None:
                 self._log.error(
@@ -187,6 +190,7 @@ class SmartPrefetchThread(Thread):
                     session,  # type: ignore
                     self.scoring_config,
                     is_mysql,
+                    channel_name=self.channel_name,
                 )
             if song is None:
                 self._log.error(
@@ -209,6 +213,10 @@ class SmartPrefetch(AbstractRandom):
     As the query can take a long time to execute, one result will always be
     prefetched ahead of time. So the *exact* calculation is always off by one
     "play".
+
+    The same one-pick lag applies to the channel's mood window
+    (``channel.mood_low``/``mood_high``): a threshold change from the web UI
+    can take effect one song late, because one pick is already buffered.
 
     .. code-block:: ini
         :caption: Configuration Example

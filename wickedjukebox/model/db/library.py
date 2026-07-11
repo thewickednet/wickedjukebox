@@ -20,7 +20,7 @@ import logging
 from datetime import datetime
 from os import stat
 from os.path import dirname
-from typing import Optional
+from typing import Optional, Tuple
 
 from sqlalchemy import (
     Boolean,
@@ -38,6 +38,7 @@ from sqlalchemy import (
     Text,
     func,
     not_,
+    or_,
     text,
 )
 from sqlalchemy.orm import Session as TSession
@@ -241,7 +242,8 @@ class Song(Base):
     replaygain_written = Column(DateTime)  # when RG tags written; NULL=pending
     # Composite energy score 0-100 (chill -> intense) computed by djukebox
     # from bpm/loudness/crest_factor; NULL = not yet analyzed. Read-only for
-    # the daemon (see docs/superpowers/specs/2026-07-11-mood-range-filter-…).
+    # the daemon (see docs/superpowers/specs/2026-07-11-mood-range-filter-
+    # design.md).
     mood_score = Column(SmallInteger)
     asin = Column(String(32))
     acoustid_id = Column(String(32))  # AcoustID (UUID, stored as char(32))
@@ -288,22 +290,39 @@ class Song(Base):
 
     @staticmethod
     def random(
-        session: TSession, max_duration: Optional[int] = None
+        session: TSession,
+        max_duration: Optional[int] = None,
+        mood_range: Optional[Tuple[int, int]] = None,
     ) -> Optional["Song"]:
         """
         Retrieve a random song eligible for autoplay.
 
         Songs flagged ``broken`` or ``exclude_from_random`` are never
         returned. When *max_duration* is given, songs longer than that many
-        seconds are also excluded. Returns ``None`` if nothing qualifies.
+        seconds are also excluded. When *mood_range* is given, only songs
+        whose ``mood_score`` is NULL (not yet analyzed) or inside the window
+        qualify — unless nothing does, in which case the window is dropped
+        so a pick never comes up empty. Returns ``None`` if nothing
+        qualifies at all.
         """
         query = session.query(Song)
         query = query.filter(not_(Song.broken))
         query = query.filter(not_(Song.exclude_from_random))
         if max_duration is not None:
             query = query.filter(Song.duration < max_duration)
-        query = query.order_by(func.rand())
-        return query.first()
+        unfiltered_query = query
+        if mood_range is not None:
+            low, high = mood_range
+            query = query.filter(
+                or_(
+                    Song.mood_score.is_(None),
+                    Song.mood_score.between(low, high),
+                )
+            )
+        song = query.order_by(func.rand()).first()
+        if song is None and mood_range is not None:
+            song = unfiltered_query.order_by(func.rand()).first()
+        return song
 
     def update_metadata(self) -> None:
         """
