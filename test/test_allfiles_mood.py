@@ -98,10 +98,12 @@ def test_all_out_of_range_falls_back(
 def test_db_unavailable_falls_back(
     tmp_path, dbsession, default_data: Dict[str, Any]
 ):
-    """The unbound global Session must degrade to an unfiltered pick."""
+    """A DB failure must degrade to an unfiltered pick (never silent)."""
     (tmp_path / "a.mp3").write_bytes(b"")
-    # Deliberately NOT patching rnd.Session: the module-global scoped
-    # session has no bind in the test process, so the DB probe raises and
-    # the picker must swallow it.
-    result = _picker(tmp_path).pick()
+
+    def _raise():
+        raise RuntimeError("db down")
+
+    with patch.object(rnd, "Session", _raise):
+        result = _picker(tmp_path).pick()
     assert result == str((tmp_path / "a.mp3").resolve())

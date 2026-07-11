@@ -187,6 +187,7 @@ class Song(Base):
         Index("artist_id", "artist_id", unique=False),
         Index("broken", "broken", unique=False),
         Index("exclude_from_random", "exclude_from_random", unique=False),
+        Index("song_mood_score_idx", "mood_score", unique=False),
         Index("title", "title", unique=False),
         ForeignKeyConstraint(
             ["artist_id"],
