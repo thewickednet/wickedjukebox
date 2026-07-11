@@ -547,7 +547,7 @@ from wickedjukebox.model.db.playback import Channel
 - [ ] **Step 6: Run the tests**
 
 Run: `~/.virtualenvs/wickedjukebox/bin/pytest test/test_prefetcher.py test/test_random_new.py test/test_components.py -q`
-Expected: **all pass** (24 in test_prefetcher: 12 old + 4 Task 1 + 8 new; plus the
+Expected: **all pass** (22 in test_prefetcher: 10 old + 4 Task 1 + 8 new; plus the
 random/component neighbors).
 
 - [ ] **Step 7: Format + commit**
