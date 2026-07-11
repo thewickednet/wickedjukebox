@@ -8,9 +8,9 @@ from abc import ABC, abstractmethod
 from os.path import abspath
 from pathlib import Path
 from queue import Queue
-from random import choice
+from random import sample
 from threading import Thread
-from typing import Any, Dict, Mapping, Optional, Set
+from typing import Any, Dict, List, Mapping, Optional, Set
 
 from wickedjukebox.config import Config, ConfigKeys
 from wickedjukebox.core.smartfind import ScoringConfig, find_song
@@ -18,6 +18,10 @@ from wickedjukebox.logutil import qualname, qualname_repr
 from wickedjukebox.model.db.library import Song
 from wickedjukebox.model.db.playback import Channel
 from wickedjukebox.model.db.sameta import Session
+
+#: How many glob candidates a single pick may probe against the mood window
+#: before giving up and playing the first sample anyway (never silent).
+MOOD_SAMPLE_SIZE = 50
 
 
 @qualname_repr
@@ -115,7 +119,8 @@ class AllFilesRandom(AbstractRandom):
                 self.root,
             )
             return ""
-        pick = choice(candidates)
+        samples = sample(candidates, min(MOOD_SAMPLE_SIZE, len(candidates)))
+        pick = self._apply_mood_filter(samples)
         output = str(pick.resolve())
         self._log.debug(
             "Picked %r as random file from all files in %r",
@@ -123,6 +128,41 @@ class AllFilesRandom(AbstractRandom):
             pth.resolve(),
         )
         return output
+
+    def _apply_mood_filter(self, samples: "List[Path]") -> Path:
+        """
+        Return the first sampled file inside the channel's mood window.
+
+        Best-effort by design: files unknown to the DB and songs without a
+        mood score always pass, an exhausted sample falls back to the first
+        sample, and ANY database trouble degrades to an unfiltered pick —
+        this picker must keep working without a DB (see the integration
+        contract: never go silent). The window is read fresh on every pick.
+        """
+        try:
+            with Session() as session:  # type: ignore
+                mood_range = Channel.mood_range(session, self.channel_name)
+                if mood_range is None:
+                    return samples[0]
+                low, high = mood_range
+                for candidate in samples:
+                    song = Song.by_filename(session, str(candidate.absolute()))
+                    if (
+                        song is None
+                        or song.mood_score is None
+                        or low <= song.mood_score <= high
+                    ):
+                        return candidate
+                self._log.info(
+                    "No sampled file inside mood range %r; picking "
+                    "unfiltered",
+                    mood_range,
+                )
+        except Exception:  # pylint: disable=broad-except
+            self._log.warning(
+                "Mood filter unavailable; picking unfiltered", exc_info=True
+            )
+        return samples[0]
 
 
 class SmartPrefetchThread(Thread):
