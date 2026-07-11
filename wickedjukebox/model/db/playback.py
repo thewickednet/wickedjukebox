@@ -18,7 +18,7 @@ This module contains DB definitions for tables used to steer the music playback
 import logging
 from datetime import datetime
 from os.path import basename
-from typing import Optional
+from typing import Optional, Tuple
 
 from sqlalchemy import (
     Boolean,
@@ -27,6 +27,7 @@ from sqlalchemy import (
     Float,
     Index,
     Integer,
+    SmallInteger,
     String,
     Text,
     and_,
@@ -59,6 +60,10 @@ class Channel(Base):
     active = Column(Boolean, nullable=False, server_default=text("0"))
     status = Column(Integer)
     owner_id = Column(Integer)  # FK users.id (ON DELETE SET NULL); owning user
+    # Randomizer mood window (0-100), written by the djukebox web UI. Both
+    # NULL = mood filtering off. Read fresh per pick via Channel.mood_range.
+    mood_low = Column(SmallInteger)
+    mood_high = Column(SmallInteger)
 
     def __init__(self, name, backend, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -72,6 +77,26 @@ class Channel(Base):
     def by_name(session: TSession, name: str) -> Optional["Channel"]:
         channel = session.query(Channel).filter_by(name=name).one_or_none()
         return channel
+
+    @staticmethod
+    def mood_range(session: TSession, name: str) -> Optional[Tuple[int, int]]:
+        """
+        The live randomizer mood window for the named channel.
+
+        Returns ``(low, high)`` when both thresholds are set (apply as
+        ``mood_score IS NULL OR mood_score BETWEEN low AND high`` — see the
+        djukebox integration contract), or ``None`` when filtering is off or
+        the channel is unknown. Read this fresh on every pick so threshold
+        changes from the web UI apply immediately.
+        """
+        channel = Channel.by_name(session, name)
+        if (
+            channel is None
+            or channel.mood_low is None
+            or channel.mood_high is None
+        ):
+            return None
+        return (channel.mood_low, channel.mood_high)
 
 
 class State(Base):

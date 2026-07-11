@@ -239,6 +239,10 @@ class Song(Base):
     true_peak = Column(Float)  # true peak, dBTP
     crest_factor = Column(Float)  # peak-to-RMS crest factor, dB
     replaygain_written = Column(DateTime)  # when RG tags written; NULL=pending
+    # Composite energy score 0-100 (chill -> intense) computed by djukebox
+    # from bpm/loudness/crest_factor; NULL = not yet analyzed. Read-only for
+    # the daemon (see docs/superpowers/specs/2026-07-11-mood-range-filter-…).
+    mood_score = Column(SmallInteger)
     asin = Column(String(32))
     acoustid_id = Column(String(32))  # AcoustID (UUID, stored as char(32))
     acoustid_fingerprint = Column(Text(), nullable=False, default="")

@@ -14,6 +14,7 @@ from wickedjukebox.config import Config
 from wickedjukebox.core.smartfind import ScoringConfig, find_song
 from wickedjukebox.model.db.auth import User
 from wickedjukebox.model.db.library import Song
+from wickedjukebox.model.db.playback import Channel
 
 SCORING_CONFIG = {
     ScoringConfig.USER_RATING: 4,
@@ -133,3 +134,36 @@ def test_random_returns_eligible_under_max_duration(
     song = Song.random(dbsession, max_duration=600)
     assert song is not None
     assert song.id == default_data["default_song"].id
+
+
+def test_channel_mood_range_unknown_channel(
+    dbsession: Session, default_data: Dict[str, Any]
+):
+    """An unknown channel name means no filtering."""
+    assert Channel.mood_range(dbsession, "no-such-channel") is None
+
+
+def test_channel_mood_range_off(
+    dbsession: Session, default_data: Dict[str, Any]
+):
+    """Both thresholds NULL (the default) means filtering is off."""
+    assert Channel.mood_range(dbsession, "test-channel") is None
+
+
+def test_channel_mood_range_half_set(
+    dbsession: Session, default_data: Dict[str, Any]
+):
+    """A half-set window (only one threshold) is treated as off."""
+    default_data["default_channel"].mood_low = 10
+    dbsession.flush()
+    assert Channel.mood_range(dbsession, "test-channel") is None
+
+
+def test_channel_mood_range_active(
+    dbsession: Session, default_data: Dict[str, Any]
+):
+    """Both thresholds set: the window is returned as a tuple."""
+    default_data["default_channel"].mood_low = 10
+    default_data["default_channel"].mood_high = 90
+    dbsession.flush()
+    assert Channel.mood_range(dbsession, "test-channel") == (10, 90)
