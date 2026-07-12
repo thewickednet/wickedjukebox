@@ -77,7 +77,6 @@ def test_get_autoplay_smart(fake_config: Config):
         weight_last_played = 10
         weight_never_played = 4
         weight_randomness = 1
-        weight_song_age = 1
         weight_user_rating = 4
         """
     )  # type: ignore
