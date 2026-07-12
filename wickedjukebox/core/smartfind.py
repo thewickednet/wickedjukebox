@@ -276,7 +276,12 @@ def find_song(
 
     query = query.filter(not_(Song.broken))  # type: ignore
     query = query.filter(not_(Song.exclude_from_random))  # type: ignore
-    query = DynamicPlaylist.apply_to(query)  # type: ignore
+    dp_channel = (
+        Channel.by_name(session, channel_name) if channel_name else None
+    )
+    query = DynamicPlaylist.apply_to(  # type: ignore
+        query, dp_channel.id if dp_channel else None
+    )
     unfiltered_query = query
     mood_range = (
         Channel.mood_range(session, channel_name) if channel_name else None

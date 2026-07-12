@@ -450,6 +450,49 @@ def test_recency_and_never_played_scores(
     assert scores[recent.id] < -9  # ~ -10 recency penalty
 
 
+def _add_dynamic_playlist(dbsession, channel_id, query, group_id=1):
+    from wickedjukebox.model.db.playback import DynamicPlaylist
+
+    dpl = DynamicPlaylist()
+    dpl.channel_id = channel_id
+    dpl.group_id = group_id
+    dpl.probability = 1.0
+    dpl.query = query
+    dbsession.add(dpl)
+    dbsession.flush()
+    return dpl
+
+
+def test_dynamic_playlist_scoped_to_channel(
+    dbsession: Session, default_data: Dict[str, Any]
+):
+    """A playlist bound to one channel must not filter another scope's picks."""
+    ch = default_data["default_channel"]
+    _add_dynamic_playlist(dbsession, ch.id, 'artist is "zzz_nomatch"')
+    # its own channel: the match-nothing playlist applies -> no pick
+    assert (
+        find_song(dbsession, SCORING_CONFIG, True, channel_name="test-channel")
+        is None
+    )
+    # no channel: the playlist must NOT apply -> a pick is returned
+    assert find_song(dbsession, SCORING_CONFIG, True) is not None
+
+
+def test_dynamic_playlist_applies_for_its_channel(
+    dbsession: Session, default_data: Dict[str, Any]
+):
+    """A matching playlist bound to the channel keeps matching songs eligible."""
+    ch = default_data["default_channel"]
+    _add_dynamic_playlist(
+        dbsession, ch.id, 'artist is "Tool"'
+    )  # default artist
+    song = find_song(
+        dbsession, SCORING_CONFIG, True, channel_name="test-channel"
+    )
+    assert song is not None
+    assert song.id == default_data["default_song"].id
+
+
 def test_song_added_does_not_affect_score(
     dbsession: Session, default_data: Dict[str, Any]
 ):

@@ -288,14 +288,18 @@ class DynamicPlaylist(Base):
         return "<DynamicPlaylist %s>" % (self.id)
 
     @staticmethod
-    def apply_to(query: Query) -> Query:
+    def apply_to(query: Query, channel_id: Optional[int]) -> Query:
         """
-        Modify *query* by applying additional filters based on a "dynamic
-        playlist"
+        Modify *query* by applying the active dynamic playlist **of the given
+        channel** (``group_id > 0``). With no channel (``channel_id is None``)
+        or no active playlist for it, *query* is returned unchanged.
         """
+        if channel_id is None:
+            return query
         # TODO An issue with table-aliasing causes cartesian products.
         #      Investigate where this comes from.
         sel = select([DynamicPlaylist.query])
+        sel = sel.where(DynamicPlaylist.channel_id == channel_id)
         sel = sel.where(DynamicPlaylist.group_id > 0)
         sel = sel.order_by("group_id")
         res = sel.execute().fetchall()
