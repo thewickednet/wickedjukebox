@@ -107,6 +107,7 @@ class Artist(Base):
 
     id = Column(Integer, primary_key=True)
     slug = Column(String(50), unique=True)
+    # keep-list: daemon-required UNIQUE Django under-declares (Artist.by_name)
     name = Column(String(128), unique=True)
     country = Column(String(16))
     summary = Column(Text())
@@ -151,6 +152,7 @@ class Album(Base):
     added = Column(DateTime, nullable=False)
     downloaded = Column(Integer, nullable=False, server_default=text("0"))
     type = Column(String(32), server_default=text("'album'"))
+    # keep-list: daemon-required UNIQUE Django under-declares (Album.by_path)
     path = Column(String(255), nullable=False, unique=True)
     coverart = Column(String(255))
     mbid = Column(String(32))  # MusicBrainz ID (UUID, stored as char(32))

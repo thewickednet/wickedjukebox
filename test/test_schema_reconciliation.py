@@ -53,6 +53,13 @@ def test_album_indexes_reconciled(dbsession):
     assert ("path",) in _unique_colsets(insp, "album")
 
 
+def test_artist_name_unique_kept(dbsession):
+    insp = inspect(dbsession.get_bind())
+    # keep-list: artist.name UNIQUE is daemon-required (Artist.by_name uses
+    # .one_or_none()); Django under-declares it, so guard against re-drift.
+    assert ("name",) in _unique_colsets(insp, "artist")
+
+
 def test_channel_song_data_indexes_reconciled(dbsession):
     insp = inspect(dbsession.get_bind())
     # redundant single channel_id gone; composite (channel_id, song_id) kept
@@ -60,6 +67,12 @@ def test_channel_song_data_indexes_reconciled(dbsession):
     assert ("channel_id", "song_id") in _unique_colsets(
         insp, "channel_song_data"
     )
+
+
+def test_song_pk_is_autoincrement(dbsession):
+    insp = inspect(dbsession.get_bind())
+    id_col = next(c for c in insp.get_columns("song") if c["name"] == "id")
+    assert id_col.get("autoincrement") is True
 
 
 def test_queue_and_setting_indexes_reconciled(dbsession):
