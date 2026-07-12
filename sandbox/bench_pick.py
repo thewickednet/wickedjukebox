@@ -34,6 +34,7 @@ Needs a MySQL driver (pymysql or mysqlclient); the jukebox venv already has one.
 Run it with the jukebox's Python so the driver is available, e.g.
   /path/to/jukebox/env/bin/python bench_pick.py --dsn ...
 """
+
 import argparse
 import logging
 import os
@@ -95,8 +96,13 @@ def connect(dsn):
         import pymysql
 
         conn = pymysql.connect(
-            host=host, port=port, user=user, password=password,
-            database=db, charset="utf8mb4", autocommit=False,
+            host=host,
+            port=port,
+            user=user,
+            password=password,
+            database=db,
+            charset="utf8mb4",
+            autocommit=False,
         )
         return conn, "pymysql"
     except ImportError:
@@ -207,8 +213,11 @@ def main():
     cur = conn.cursor()
 
     params = {
-        "lpc": LP_CUTOFF, "agec": AGE_CUTOFF,
-        "w_lp": 10, "w_age": 1, "w_rand": 1,
+        "lpc": LP_CUTOFF,
+        "agec": AGE_CUTOFF,
+        "w_lp": 10,
+        "w_age": 1,
+        "w_rand": 1,
         "maxd": args.max_duration,
     }
 
@@ -234,31 +243,42 @@ def main():
         print("=" * 78)
         print(f"driver={driver}  server={version}")
         print(f"innodb_buffer_pool_size = {int(bp)/1024/1024:.0f} MiB")
-        print(f"songs={songs}  id_range={minid}..{maxid}  "
-              f"channel_song_data={csd}  active_users_now={active}")
-        print(f"runs={args.runs} (median = warm cache)   max_duration={args.max_duration}")
+        print(
+            f"songs={songs}  id_range={minid}..{maxid}  "
+            f"channel_song_data={csd}  active_users_now={active}"
+        )
+        print(
+            f"runs={args.runs} (median = warm cache)   max_duration={args.max_duration}"
+        )
         print("=" * 78)
 
         # per-channel scans ------------------------------------------------------
-        cur.execute(
-            "SELECT name, mood_low, mood_high FROM channel ORDER BY id"
-        )
+        cur.execute("SELECT name, mood_low, mood_high FROM channel ORDER BY id")
         channels = cur.fetchall()
-        print("\n### current smart-scan, per channel (honoring its mood window) ###")
+        print(
+            "\n### current smart-scan, per channel (honoring its mood window) ###"
+        )
         for name, mlo, mhi in channels:
             mood = mlo is not None and mhi is not None
             p = dict(params)
             if mood:
                 p["mlo"], p["mhi"] = mlo, mhi
             sql = build_scan(cols, csd_cols, mood, None)
-            label = f"channel={name!r} mood={mlo}..{mhi}" if mood else \
-                    f"channel={name!r} mood=off"
+            label = (
+                f"channel={name!r} mood={mlo}..{mhi}"
+                if mood
+                else f"channel={name!r} mood=off"
+            )
             print(f"  {label:38s} {fmt(time_query(cur, sql, p, args.runs))}")
 
         # no-channel full scan (worst case) -------------------------------------
         sql_full = build_scan(cols, csd_cols, False, None)
-        print("\n### current smart-scan, no mood window (full-table worst case) ###")
-        print(f"  {'no channel':38s} {fmt(time_query(cur, sql_full, params, args.runs))}")
+        print(
+            "\n### current smart-scan, no mood window (full-table worst case) ###"
+        )
+        print(
+            f"  {'no channel':38s} {fmt(time_query(cur, sql_full, params, args.runs))}"
+        )
         cur.execute("EXPLAIN " + sql_full, params)
         print("  EXPLAIN:")
         for r in cur.fetchall():
@@ -267,22 +287,31 @@ def main():
         # candidate-pool prototype ----------------------------------------------
         import random
 
-        print("\n### candidate-pool prototype (proposed optimization, no mood) ###")
+        print(
+            "\n### candidate-pool prototype (proposed optimization, no mood) ###"
+        )
         for k in [int(x) for x in args.pool.split(",") if x.strip()]:
             pool = [random.randint(minid, maxid) for _ in range(k * 3)]
             sqlp = build_scan(cols, csd_cols, False, pool)
-            print(f"  pool k={k:<6d}{'':27s}"
-                  f"{fmt(time_query(cur, sqlp, params, args.runs))}")
+            print(
+                f"  pool k={k:<6d}{'':27s}"
+                f"{fmt(time_query(cur, sqlp, params, args.runs))}"
+            )
 
         # optional: time the REAL find_song if the package imports cleanly ------
         try:
-            from wickedjukebox.model.db.sameta import connect as wj_connect, Session
+            from wickedjukebox.model.db.sameta import (
+                connect as wj_connect,
+                Session,
+            )
             from wickedjukebox.core.smartfind import find_song, ScoringConfig
 
             wj_connect(dsn)
             sc = {
-                ScoringConfig.USER_RATING: 4, ScoringConfig.LAST_PLAYED: 10,
-                ScoringConfig.SONG_AGE: 1, ScoringConfig.NEVER_PLAYED: 4,
+                ScoringConfig.USER_RATING: 4,
+                ScoringConfig.LAST_PLAYED: 10,
+                ScoringConfig.SONG_AGE: 1,
+                ScoringConfig.NEVER_PLAYED: 4,
                 ScoringConfig.RANDOMNESS: 1,
                 ScoringConfig.MAX_DURATION: args.max_duration,
                 ScoringConfig.PROOF_OF_LIFE_TIMEOUT: 120,
@@ -297,9 +326,13 @@ def main():
                     ts.append((time.perf_counter() - t0) * 1000)
                     s.close()
                 ts.sort()
-                print(f"  find_song channel={name!r:20s} median={statistics.median(ts):8.1f}ms  min={ts[0]:8.1f}  max={ts[-1]:8.1f}")
+                print(
+                    f"  find_song channel={name!r:20s} median={statistics.median(ts):8.1f}ms  min={ts[0]:8.1f}  max={ts[-1]:8.1f}"
+                )
         except Exception as exc:  # noqa
-            print(f"\n(real find_song cross-check skipped: {type(exc).__name__}: {exc})")
+            print(
+                f"\n(real find_song cross-check skipped: {type(exc).__name__}: {exc})"
+            )
 
         print("\nDone. (read-only; rolling back any implicit transaction)")
     finally:
