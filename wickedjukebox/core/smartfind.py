@@ -107,8 +107,9 @@ def smart_random_no_users(
     consider channel statistics.
 
     :param never_played: A score bonus for songs that have never been played.
-    :param last_played: The maximum score boost for songs that have not been
-        played in a while.
+    :param last_played: The maximum recency *penalty* applied to a just-played
+        song, decaying linearly to 0 by ``LAST_PLAYED_CUTOFF`` (never-played
+        songs incur no penalty).
     :randomness: A score modifier adding a dash of randomness to the overall
         score.
     :max_random_duration: Don't return songs with a longer duration than this
@@ -142,10 +143,11 @@ def smart_random_with_users(
     num_active_users: int,
 ) -> "Query[Tuple[int, str, float]]":
     """
-    song.id
-    song.localpath
-    score =
-        - seconds since last played (capped of at lp_cutoff) divided by lp_cutoff multiplied by "last-played" scoring weight
+    Like :func:`smart_random_no_users`, but also factors in the ratings of
+    currently-listening users: songs "loved" by active users get a score boost
+    (``loves / num_active_users * user_rating``) and songs "hated" by any active
+    user are filtered out. The base score is the same recency penalty +
+    never-played bonus + randomness as the no-users variant.
     """
 
     loves_query = get_standing_query(
