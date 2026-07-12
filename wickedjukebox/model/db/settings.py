@@ -31,6 +31,7 @@ from sqlalchemy import (
     Text,
     text,
 )
+from sqlalchemy.dialects.mysql import LONGTEXT
 from sqlalchemy.orm import Session as TSession
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import ForeignKeyConstraint
@@ -61,7 +62,7 @@ class Setting(Base):
     )
     id = Column(Integer, nullable=False, primary_key=True)
     var = Column(String(32), nullable=False)
-    value = Column(Text())
+    value = Column(Text().with_variant(LONGTEXT(), "mysql"))
     channel_id = Column(
         Integer,
         nullable=False,

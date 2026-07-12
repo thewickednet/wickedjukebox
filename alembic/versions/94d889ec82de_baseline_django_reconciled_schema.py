@@ -16,6 +16,7 @@ down_revision = None
 from textwrap import dedent
 
 import sqlalchemy as sa
+from sqlalchemy.dialects import mysql
 
 from alembic import op
 
@@ -730,7 +731,7 @@ def upgrade():
         "setting",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("var", sa.String(length=32), nullable=False),
-        sa.Column("value", sa.Text(), nullable=True),
+        sa.Column("value", mysql.LONGTEXT(), nullable=True),
         sa.Column(
             "channel_id",
             sa.Integer(),
