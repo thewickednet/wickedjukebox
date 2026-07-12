@@ -348,9 +348,6 @@ can take effect one song late, because one pick is already buffered.</p>
 <span class="c1">; Positively impacts songs that have never been played</span>
 <span class="na">weight_never_played</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4</span>
 
-<span class="c1">; Positively affects songs that have been long in the DB</span>
-<span class="na">weight_song_age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
-
 <span class="c1">; Positively affects songs that have been &quot;liked&quot; by users (only for</span>
 <span class="c1">; those users that are actively listening)</span>
 <span class="na">weight_user_rating</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4</span>
@@ -362,7 +359,7 @@ can take effect one song late, because one pick is already buffered.</p>
 </div>
 <dl class="py attribute">
 <dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">CONFIG_KEYS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'max_duration',</span> <span class="pre">'proofoflife_timeout',</span> <span class="pre">'weight_last_played',</span> <span class="pre">'weight_never_played',</span> <span class="pre">'weight_randomness',</span> <span class="pre">'weight_song_age',</span> <span class="pre">'weight_user_rating'}</span></em></dt>
+<span class="sig-name descname"><span class="pre">CONFIG_KEYS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'max_duration',</span> <span class="pre">'proofoflife_timeout',</span> <span class="pre">'weight_last_played',</span> <span class="pre">'weight_never_played',</span> <span class="pre">'weight_randomness',</span> <span class="pre">'weight_user_rating'}</span></em></dt>
 <dd><p>The names of the config-keys that this instance requires to be
 successfully configured.</p>
 </dd></dl>
