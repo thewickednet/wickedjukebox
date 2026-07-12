@@ -11,6 +11,7 @@ from typing import Any, Dict
 from sqlalchemy.orm.session import Session
 
 from wickedjukebox.config import Config
+from wickedjukebox.core import smartfind
 from wickedjukebox.core.smartfind import ScoringConfig, find_song
 from wickedjukebox.model.db.auth import User
 from wickedjukebox.model.db.library import Song
@@ -277,3 +278,68 @@ def test_random_no_mood_range_unfiltered(
     dbsession.flush()
     song = Song.random(dbsession)
     assert song is not None
+
+
+def _pool_cfg(size):
+    return {**SCORING_CONFIG, ScoringConfig.CANDIDATE_POOL_SIZE: size}
+
+
+def test_find_song_pool_returns_song(
+    dbsession: Session, default_data: Dict[str, Any]
+):
+    """With pooling on and no mood window, a pick is still returned."""
+    song = find_song(dbsession, _pool_cfg(500), True)
+    assert song is not None
+    assert song.id == default_data["default_song"].id
+
+
+def test_find_song_pool_disabled_is_unchanged(
+    dbsession: Session, default_data: Dict[str, Any]
+):
+    """pool size 0 -> original behavior (returns the eligible song)."""
+    song = find_song(dbsession, _pool_cfg(0), True)
+    assert song is not None
+    assert song.id == default_data["default_song"].id
+
+
+def test_find_song_pool_never_silent_on_pool_miss(
+    dbsession: Session, default_data: Dict[str, Any], monkeypatch
+):
+    """If the random pool matches nothing, fall through to the full pick."""
+    monkeypatch.setattr(smartfind, "_random_id_pool", lambda *a, **k: [10**9])
+    song = find_song(dbsession, _pool_cfg(500), True)
+    assert song is not None
+    assert song.id == default_data["default_song"].id
+
+
+def test_pool_used_when_mood_off(
+    dbsession: Session, default_data: Dict[str, Any], monkeypatch
+):
+    """No mood window -> the pool path runs."""
+    calls = []
+    real = smartfind._random_id_pool
+    monkeypatch.setattr(
+        smartfind,
+        "_random_id_pool",
+        lambda s, n: calls.append(n) or real(s, n),
+    )
+    find_song(dbsession, _pool_cfg(500), True)  # no channel_name -> mood off
+    assert calls, "pool should be drawn when no mood window is active"
+
+
+def test_pool_skipped_when_mood_active(
+    dbsession: Session, default_data: Dict[str, Any], monkeypatch
+):
+    """An active mood window bounds the scan already -> pool path is skipped."""
+    default_data["default_channel"].mood_low = 10
+    default_data["default_channel"].mood_high = 90
+    dbsession.flush()
+    calls = []
+    monkeypatch.setattr(
+        smartfind, "_random_id_pool", lambda *a, **k: calls.append(1) or []
+    )
+    song = find_song(
+        dbsession, _pool_cfg(500), True, channel_name="test-channel"
+    )
+    assert song is not None
+    assert calls == [], "pool must not be drawn when a mood window is active"

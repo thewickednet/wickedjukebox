@@ -4,8 +4,9 @@ song taking channel statistics into account.
 """
 
 import logging
+import random
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Mapping, Optional
+from typing import TYPE_CHECKING, Any, List, Mapping, Optional
 
 import sqlalchemy.orm as orm
 from sqlalchemy.orm.query import Query
@@ -46,6 +47,9 @@ class ScoringConfig(Enum):
     RANDOMNESS = "randomness"
     MAX_DURATION = "max_duration"
     PROOF_OF_LIFE_TIMEOUT = "proof_of_life"
+    #: 0 (or absent) = disabled (score the whole table). >0 = score only a
+    #: random pool of this many candidate ids (fast, flat with library size).
+    CANDIDATE_POOL_SIZE = "candidate_pool_size"
 
 
 def get_standing_query(
@@ -191,6 +195,46 @@ def smart_random_with_users(
     return query  # type: ignore
 
 
+def _random_id_pool(session: orm.Session, size: int) -> List[int]:
+    """
+    Return up to *size* distinct random song ids drawn uniformly from the
+    ``[MIN(id), MAX(id)]`` range (two indexed lookups; effectively free). The
+    caller scores only these ids instead of the whole table. Id gaps and later
+    filters trim the set slightly, which is fine.
+    """
+    min_id, max_id = session.query(func.min(Song.id), func.max(Song.id)).one()
+    if min_id is None or max_id is None:
+        return []
+    if min_id >= max_id:
+        return [int(min_id)]
+    return list({random.randint(min_id, max_id) for _ in range(size)})
+
+
+def _finalize(session: orm.Session, candidate: Any) -> Optional[Song]:
+    """
+    Turn a scored candidate row into a Song (closing the session), mirroring the
+    original find_song tail. Returns None when there is no usable candidate.
+    """
+    if candidate is None:
+        return None
+    try:
+        if not candidate.score:
+            # no users are online!
+            session.close()
+            return None
+        out = (candidate.id, candidate.localpath, float(candidate.score))
+        LOG.info("Selected song (%d, %s) via smartget. Score was %4.3f", *out)
+        selected_song = session.query(Song).filter(Song.id == out[0]).first()
+        session.close()
+        return selected_song
+    except IndexError:
+        LOG.warning(
+            "No song returned from query. Is the database empty?", exc_info=True
+        )
+        session.close()
+        return None
+
+
 def find_song(
     session: orm.Session,
     scoring_config: Mapping[ScoringConfig, int],
@@ -259,6 +303,26 @@ def find_song(
     mood_range = (
         Channel.mood_range(session, channel_name) if channel_name else None
     )
+
+    # Candidate-pool fast-path: when no mood window bounds the scan and pooling
+    # is enabled, score only a bounded random id-pool instead of the whole
+    # table (O(pool) instead of O(N)). If the pool yields a song, use it;
+    # otherwise fall through to the unchanged full-table behaviour so a pick is
+    # never silent. When a mood window IS active it already bounds the scan via
+    # the mood index, so that path is left untouched.
+    pool_size = scoring_config.get(ScoringConfig.CANDIDATE_POOL_SIZE, 0)
+    if pool_size and mood_range is None:
+        pool = _random_id_pool(session, pool_size)
+        if pool:
+            pooled_candidate = (
+                unfiltered_query.filter(Song.id.in_(pool))  # type: ignore
+                .limit(10)
+                .offset(0)
+                .first()
+            )
+            if pooled_candidate is not None:
+                return _finalize(session, pooled_candidate)
+
     if mood_range is not None:
         low, high = mood_range
         query = query.filter(
@@ -279,22 +343,4 @@ def find_song(
         )
         candidate = unfiltered_query.limit(10).offset(0).first()
 
-    if candidate is None:
-        return None
-
-    try:
-        if not candidate.score:
-            # no users are online!
-            session.close()
-            return None
-        out = (candidate.id, candidate.localpath, float(candidate.score))
-        LOG.info("Selected song (%d, %s) via smartget. Score was %4.3f", *out)
-        selected_song = session.query(Song).filter(Song.id == out[0]).first()
-        session.close()
-        return selected_song
-    except IndexError:
-        LOG.warning(
-            "No song returned from query. Is the database empty?", exc_info=True
-        )
-        session.close()
-        return None
+    return _finalize(session, candidate)
