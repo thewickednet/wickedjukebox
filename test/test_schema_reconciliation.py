@@ -1,3 +1,4 @@
+# type: ignore
 # pylint: skip-file
 """Assert the daemon's built schema matches the django-reconciled index set.
 
