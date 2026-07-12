@@ -311,7 +311,7 @@ def find_song(
     # never silent. When a mood window IS active it already bounds the scan via
     # the mood index, so that path is left untouched.
     pool_size = scoring_config.get(ScoringConfig.CANDIDATE_POOL_SIZE, 0)
-    if pool_size and mood_range is None:
+    if pool_size > 0 and mood_range is None:
         pool = _random_id_pool(session, pool_size)
         if pool:
             pooled_candidate = (

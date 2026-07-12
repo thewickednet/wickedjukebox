@@ -193,3 +193,8 @@ unnecessary).
 - `Song.random` (quick startup pick) still does `ORDER BY RAND()`; unchanged (runs once
   per channel start).
 - `DynamicPlaylist.apply_to` still throws + logs on every pick (pre-existing, separate).
+- The pool samples uniformly over `[MIN(id), MAX(id)]`, so it assumes **reasonably
+  dense** song ids. If ids are very sparse or a single outlier inflates `MAX(id)`,
+  most drawn ids miss real rows → the pool matches nothing → it correctly falls
+  through to the full scan (no crash, just no speedup). Auto-increment ids are
+  normally dense, so this is fine in practice.

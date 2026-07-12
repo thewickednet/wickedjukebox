@@ -313,6 +313,22 @@ def test_find_song_pool_never_silent_on_pool_miss(
     assert song.id == default_data["default_song"].id
 
 
+def test_find_song_pool_restricts_to_sampled_ids(
+    dbsession: Session, default_data: Dict[str, Any], monkeypatch
+):
+    """The pool restricts scoring to the sampled ids (multi-row proof)."""
+    _add_song(dbsession, default_data, "other-pool.mp3", None)
+    target = _add_song(dbsession, default_data, "target-pool.mp3", None)
+    dbsession.flush()
+    # force the pool to contain ONLY the target's id
+    monkeypatch.setattr(
+        smartfind, "_random_id_pool", lambda *a, **k: [target.id]
+    )
+    song = find_song(dbsession, _pool_cfg(500), True)  # no channel -> mood off
+    assert song is not None
+    assert song.id == target.id  # default_song and "other" are excluded
+
+
 def test_pool_used_when_mood_off(
     dbsession: Session, default_data: Dict[str, Any], monkeypatch
 ):

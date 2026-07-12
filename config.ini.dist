@@ -48,6 +48,7 @@ weight_user_rating = 4
 ; Bound the smart-random scan to a random pool of this many candidate songs
 ; (fast, flat with library size). 0 or omitted = disabled (whole-table scan).
 ; Only applies when the channel has no active mood window.
+; A few hundred is plenty; keep it modest, there is no hard upper clamp.
 candidate_pool_size = 0
 
 [channel:wicked:queue]

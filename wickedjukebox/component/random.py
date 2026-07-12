@@ -270,6 +270,7 @@ class SmartPrefetch(AbstractRandom):
         ; Bound the "smart random" scan to a random pool of this many candidate
         ; songs (fast + flat as the library grows). 0 or omitted = disabled
         ; (score the whole table). Only applies when no mood window is active.
+        ; A few hundred is plenty; keep it modest, there is no hard upper clamp.
         candidate_pool_size = 500
 
         ; Consider users that have been offline since this amount of seconds to
