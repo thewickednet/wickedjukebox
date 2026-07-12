@@ -28,12 +28,6 @@ LOG = logging.getLogger(__name__)
 #: A song gains the maximum "last-played" score boost after this many seconds
 LAST_PLAYED_CUTOFF = 7 * 24 * 60 * 60
 
-#: A song gains a boost related to its age in the DB. This value defines a
-#: relative point in time when it received the maximum value. TODO: Whether this
-#: is based on recency or primacy needs to be digested from the source-code and
-#: clarified.
-SONG_AGE_CUTOFF = 14 * 24 * 60 * 60
-
 
 class ScoringConfig(Enum):
     """
@@ -42,7 +36,6 @@ class ScoringConfig(Enum):
 
     USER_RATING = "user_rating"
     LAST_PLAYED = "last_played"
-    SONG_AGE = "song_age"
     NEVER_PLAYED = "never_played"
     RANDOMNESS = "randomness"
     MAX_DURATION = "max_duration"
@@ -84,28 +77,20 @@ def get_standing_query(
     return query
 
 
-def score_expression(
-    last_played: int, never_played: int, song_age: int, randomness: float
-):
+def score_expression(last_played: int, never_played: int, randomness: float):
     """
-    Generates a column-expression that calculates the scoring for a song without
-    taking into account user-statistics.
+    Column-expression scoring a song without user statistics:
+      - recency penalty (recently-played scores lower; never-played: no penalty)
+      - never-played bonus
+      - randomness
     """
     return (
         0
         - func.ifnull(
             ChannelStat.last_played_parametric(LAST_PLAYED_CUTOFF, last_played),
-            LAST_PLAYED_CUTOFF,
-        )
-        + func.if_(ChannelStat.lastPlayed is None, never_played, 0)
-        + func.ifnull(
-            func.if_(
-                (func.now() - Song.added) < SONG_AGE_CUTOFF,
-                (func.now() - Song.added) / SONG_AGE_CUTOFF * song_age,
-                0,
-            ),
             0,
         )
+        + func.if_(ChannelStat.lastPlayed.is_(None), never_played, 0)
         + ((func.rand() * randomness * 2) - randomness)
     )
 
@@ -114,7 +99,6 @@ def smart_random_no_users(
     session,
     never_played: int,
     last_played: int,
-    song_age: int,
     randomness: float,
     max_random_duration: int,
 ):
@@ -125,9 +109,6 @@ def smart_random_no_users(
     :param never_played: A score bonus for songs that have never been played.
     :param last_played: The maximum score boost for songs that have not been
         played in a while.
-    :param song_age: The maximum score boost for songs related to the date they
-        were added to the database. NOTE: I don't remember if they get mex score
-        if they are *recent* or if they are *old*. Needs to be clarified.
     :randomness: A score modifier adding a dash of randomness to the overall
         score.
     :max_random_duration: Don't return songs with a longer duration than this
@@ -138,9 +119,9 @@ def smart_random_no_users(
         session.query(
             Song.id,
             Song.localpath,
-            score_expression(
-                last_played, never_played, song_age, randomness
-            ).label("score"),
+            score_expression(last_played, never_played, randomness).label(
+                "score"
+            ),
         )
         .select_from(Song)
         .join(ChannelStat, isouter=True)
@@ -157,7 +138,6 @@ def smart_random_with_users(
     last_played: int,
     proofoflife_timeout: int,
     randomness: float,
-    song_age: int,
     max_random_duration: int,
     num_active_users: int,
 ) -> "Query[Tuple[int, str, float]]":
@@ -178,7 +158,6 @@ def smart_random_with_users(
     score = score_expression(
         last_played,
         never_played,
-        song_age,
         randomness,
     ) + (func.ifnull(loves_query.c.count, 0) / num_active_users * user_rating)
 
@@ -253,7 +232,6 @@ def find_song(
     # setup song scoring coefficients
     user_rating = scoring_config[ScoringConfig.USER_RATING]
     last_played = scoring_config[ScoringConfig.LAST_PLAYED]
-    song_age = scoring_config[ScoringConfig.SONG_AGE]
     never_played = scoring_config[ScoringConfig.NEVER_PLAYED]
     randomness = scoring_config[ScoringConfig.RANDOMNESS]
     max_random_duration = scoring_config[ScoringConfig.MAX_DURATION]
@@ -275,7 +253,6 @@ def find_song(
                 session,
                 never_played,
                 last_played,
-                song_age,
                 randomness,
                 max_random_duration,
             )
@@ -287,7 +264,6 @@ def find_song(
                 last_played,
                 proofoflife_timeout,
                 randomness,
-                song_age,
                 max_random_duration,
                 num_active_users,
             )

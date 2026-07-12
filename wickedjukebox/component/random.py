@@ -287,9 +287,6 @@ class SmartPrefetch(AbstractRandom):
         ; Positively impacts songs that have never been played
         weight_never_played = 4
 
-        ; Positively affects songs that have been long in the DB
-        weight_song_age = 1
-
         ; Positively affects songs that have been "liked" by users (only for
         ; those users that are actively listening)
         weight_user_rating = 4
@@ -304,7 +301,6 @@ class SmartPrefetch(AbstractRandom):
         "weight_last_played",
         "weight_never_played",
         "weight_randomness",
-        "weight_song_age",
         "weight_user_rating",
     }
 
@@ -322,7 +318,6 @@ class SmartPrefetch(AbstractRandom):
             ScoringConfig.LAST_PLAYED: int(cfg["weight_last_played"]),
             ScoringConfig.NEVER_PLAYED: int(cfg["weight_never_played"]),
             ScoringConfig.RANDOMNESS: int(cfg["weight_randomness"]),
-            ScoringConfig.SONG_AGE: int(cfg["weight_song_age"]),
             ScoringConfig.USER_RATING: int(cfg["weight_user_rating"]),
             ScoringConfig.CANDIDATE_POOL_SIZE: self._config.get(
                 ConfigKeys.CANDIDATE_POOL_SIZE,

@@ -42,7 +42,6 @@ proofoflife_timeout = 120
 weight_last_played = 10
 weight_never_played = 4
 weight_randomness = 1
-weight_song_age = 1
 weight_user_rating = 4
 
 ; Bound the smart-random scan to a random pool of this many candidate songs

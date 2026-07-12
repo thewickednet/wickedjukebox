@@ -144,27 +144,26 @@ class ChannelStat(Base):
 
     @hybrid_method
     def last_played_parametric(self, lp_cutoff, weight) -> float:
+        """
+        Recency penalty: ``weight`` right after playing, decaying linearly to 0
+        by ``lp_cutoff`` seconds. Never-played (``lastPlayed`` is None) -> 0.
+        """
         if self.lastPlayed is None:
-            return 1.0
+            return 0.0
         from datetime import datetime
 
-        return (
-            min(lp_cutoff, (datetime.now() - self.lastPlayed).total_seconds)
-            / lp_cutoff
-            * weight
-        )
+        age = (datetime.now() - self.lastPlayed).total_seconds()
+        return (1 - min(age, lp_cutoff) / lp_cutoff) * weight
 
     @last_played_parametric.expression
     def last_played_parametric(cls, lp_cutoff, weight):
         from sqlalchemy import func
 
-        return (
-            func.ifnull(
-                func.least(lp_cutoff, (func.now() - cls.lastPlayed)), lp_cutoff
-            )
-            / lp_cutoff
-            * cls.lastPlayed
+        # seconds since last play; NULL for never-played (caller maps to 0)
+        age = func.unix_timestamp(func.now()) - func.unix_timestamp(
+            cls.lastPlayed
         )
+        return (1 - func.least(age, lp_cutoff) / lp_cutoff) * weight
 
     @staticmethod
     def by_song(

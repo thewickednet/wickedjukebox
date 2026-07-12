@@ -6,7 +6,7 @@ songs.
 """
 
 from configparser import ConfigParser
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Dict
 
 from sqlalchemy.orm.session import Session
@@ -17,11 +17,11 @@ from wickedjukebox.core.smartfind import ScoringConfig, find_song
 from wickedjukebox.model.db.auth import User
 from wickedjukebox.model.db.library import Song
 from wickedjukebox.model.db.playback import Channel
+from wickedjukebox.model.db.stats import ChannelStat
 
 SCORING_CONFIG = {
     ScoringConfig.USER_RATING: 4,
     ScoringConfig.LAST_PLAYED: 4,
-    ScoringConfig.SONG_AGE: 4,
     ScoringConfig.NEVER_PLAYED: 4,
     ScoringConfig.RANDOMNESS: 4,
     ScoringConfig.MAX_DURATION: 600,
@@ -388,3 +388,85 @@ def test_candidate_pool_size_optional_read():
         )
         == 500
     )
+
+
+def _mark_played(dbsession, default_data, song, when):
+    stat = ChannelStat(
+        song_id=song.id, channel_id=default_data["default_channel"].id
+    )
+    stat.lastPlayed = when
+    dbsession.add(stat)
+    dbsession.flush()
+    return stat
+
+
+def test_find_song_favors_never_played_over_recent(
+    dbsession: Session, default_data: Dict[str, Any]
+):
+    """A never-played song must outrank a just-played one."""
+    _mark_played(
+        dbsession, default_data, default_data["default_song"], datetime.now()
+    )
+    never = _add_song(dbsession, default_data, "never.mp3", None)
+    cfg = {
+        ScoringConfig.USER_RATING: 4,
+        ScoringConfig.LAST_PLAYED: 10,
+        ScoringConfig.NEVER_PLAYED: 4,
+        ScoringConfig.RANDOMNESS: 0,
+        ScoringConfig.MAX_DURATION: 600,
+        ScoringConfig.PROOF_OF_LIFE_TIMEOUT: 120,
+    }
+    song = find_song(dbsession, cfg, True)  # no channel -> mood off
+    assert song is not None
+    assert song.id == never.id
+
+
+def test_recency_and_never_played_scores(
+    dbsession: Session, default_data: Dict[str, Any]
+):
+    """randomness=0 -> deterministic: recent < long-idle < never-played."""
+    from wickedjukebox.core.smartfind import smart_random_no_users
+
+    recent = default_data["default_song"]
+    _mark_played(dbsession, default_data, recent, datetime.now())
+    idle = _add_song(dbsession, default_data, "idle.mp3", None)
+    _mark_played(
+        dbsession, default_data, idle, datetime.now() - timedelta(days=8)
+    )
+    never = _add_song(dbsession, default_data, "never2.mp3", None)
+    q = smart_random_no_users(
+        dbsession,
+        never_played=4,
+        last_played=10,
+        randomness=0,
+        max_random_duration=600,
+    )
+    scores = {row.id: float(row.score) for row in q.all()}
+    assert scores[recent.id] < scores[idle.id] < scores[never.id]
+    assert (
+        abs(scores[idle.id]) < 1e-6
+    )  # played > cutoff ago: 0 penalty, no bonus
+    assert abs(scores[never.id] - 4.0) < 1e-6  # never-played bonus
+    assert scores[recent.id] < -9  # ~ -10 recency penalty
+
+
+def test_song_added_does_not_affect_score(
+    dbsession: Session, default_data: Dict[str, Any]
+):
+    """Song age no longer influences the score."""
+    from wickedjukebox.core.smartfind import smart_random_no_users
+
+    old = _add_song(dbsession, default_data, "old.mp3", None)
+    new = _add_song(dbsession, default_data, "new.mp3", None)
+    old.added = datetime.now() - timedelta(days=100)
+    new.added = datetime.now()
+    dbsession.flush()
+    q = smart_random_no_users(
+        dbsession,
+        never_played=0,
+        last_played=10,
+        randomness=0,
+        max_random_duration=600,
+    )
+    scores = {row.id: float(row.score) for row in q.all()}
+    assert abs(scores[old.id] - scores[new.id]) < 1e-6
