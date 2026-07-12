@@ -89,6 +89,9 @@ class ConfigKeys(Enum):
     IPC = ConfigOption(ConfigScope.CHANNEL, "ipc", "type")
     QUEUE = ConfigOption(ConfigScope.CHANNEL, "queue", "type")
     JINGLE = ConfigOption(ConfigScope.CHANNEL, "jingle", "type")
+    CANDIDATE_POOL_SIZE = ConfigOption(
+        ConfigScope.CHANNEL, "autoplay", "candidate_pool_size"
+    )
 
     def __str__(self) -> str:
         return (

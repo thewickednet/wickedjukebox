@@ -267,6 +267,11 @@ class SmartPrefetch(AbstractRandom):
         ; No songs longer than this amount of seconds is returned
         max_duration = 600
 
+        ; Bound the "smart random" scan to a random pool of this many candidate
+        ; songs (fast + flat as the library grows). 0 or omitted = disabled
+        ; (score the whole table). Only applies when no mood window is active.
+        candidate_pool_size = 500
+
         ; Consider users that have been offline since this amount of seconds to
         ; be "inactive"
         proofoflife_timeout = 120
@@ -318,6 +323,12 @@ class SmartPrefetch(AbstractRandom):
             ScoringConfig.RANDOMNESS: int(cfg["weight_randomness"]),
             ScoringConfig.SONG_AGE: int(cfg["weight_song_age"]),
             ScoringConfig.USER_RATING: int(cfg["weight_user_rating"]),
+            ScoringConfig.CANDIDATE_POOL_SIZE: self._config.get(
+                ConfigKeys.CANDIDATE_POOL_SIZE,
+                fallback=0,
+                channel=self.channel_name,
+                converter=int,
+            ),
         }
         self._prefetcher = SmartPrefetchThread(
             self._config, self.channel_name, self.queue, self.scoring_config

@@ -45,6 +45,11 @@ weight_randomness = 1
 weight_song_age = 1
 weight_user_rating = 4
 
+; Bound the smart-random scan to a random pool of this many candidate songs
+; (fast, flat with library size). 0 or omitted = disabled (whole-table scan).
+; Only applies when the channel has no active mood window.
+candidate_pool_size = 0
+
 [channel:wicked:queue]
 ; The model used to pick songs from a queue
 type = db

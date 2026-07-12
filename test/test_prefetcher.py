@@ -5,12 +5,13 @@ This module contains unit-tests for the DB dialog between the application and
 songs.
 """
 
+from configparser import ConfigParser
 from datetime import datetime
 from typing import Any, Dict
 
 from sqlalchemy.orm.session import Session
 
-from wickedjukebox.config import Config
+from wickedjukebox.config import Config, ConfigKeys
 from wickedjukebox.core import smartfind
 from wickedjukebox.core.smartfind import ScoringConfig, find_song
 from wickedjukebox.model.db.auth import User
@@ -343,3 +344,31 @@ def test_pool_skipped_when_mood_active(
     )
     assert song is not None
     assert calls == [], "pool must not be drawn when a mood window is active"
+
+
+def test_candidate_pool_size_optional_read():
+    """Approach (b): the key is read with a fallback, so a section without it
+    still yields 0 (no ConfigError), and a set value parses as int."""
+    cp = ConfigParser()
+    cp.add_section("channel:test:autoplay")
+    cp.set("channel:test:autoplay", "type", "smart_prefetch")
+    cfg = Config(cp)
+    assert (
+        cfg.get(
+            ConfigKeys.CANDIDATE_POOL_SIZE,
+            fallback=0,
+            channel="test",
+            converter=int,
+        )
+        == 0
+    )
+    cp.set("channel:test:autoplay", "candidate_pool_size", "500")
+    assert (
+        cfg.get(
+            ConfigKeys.CANDIDATE_POOL_SIZE,
+            fallback=0,
+            channel="test",
+            converter=int,
+        )
+        == 500
+    )
