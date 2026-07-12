@@ -310,7 +310,6 @@ def main():
             sc = {
                 ScoringConfig.USER_RATING: 4,
                 ScoringConfig.LAST_PLAYED: 10,
-                ScoringConfig.SONG_AGE: 1,
                 ScoringConfig.NEVER_PLAYED: 4,
                 ScoringConfig.RANDOMNESS: 1,
                 ScoringConfig.MAX_DURATION: args.max_duration,
