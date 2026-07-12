@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html"><link rel="next" title="wickedjukebox.model package" href="wickedjukebox.model.html"><link rel="prev" title="wickedjukebox.component package" href="wickedjukebox.component.html">
 
-    <!-- Generated with Sphinx 8.1.3 and Furo 2025.12.19 -->
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
         <title>wickedjukebox.core package - wickedjukebox documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
@@ -270,50 +270,50 @@
 song taking channel statistics into account.</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="wickedjukebox.core.smartfind.LAST_PLAYED_CUTOFF">
-<span class="sig-prename descclassname"><span class="pre">wickedjukebox.core.smartfind.</span></span><span class="sig-name descname"><span class="pre">LAST_PLAYED_CUTOFF</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">604800</span></em><a class="headerlink" href="#wickedjukebox.core.smartfind.LAST_PLAYED_CUTOFF" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">wickedjukebox.core.smartfind.</span></span><span class="sig-name descname"><span class="pre">LAST_PLAYED_CUTOFF</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">604800</span></span><a class="headerlink" href="#wickedjukebox.core.smartfind.LAST_PLAYED_CUTOFF" title="Link to this definition">¶</a></dt>
 <dd><p>A song gains the maximum “last-played” score boost after this many seconds</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="wickedjukebox.core.smartfind.ScoringConfig">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wickedjukebox.core.smartfind.</span></span><span class="sig-name descname"><span class="pre">ScoringConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">wickedjukebox.core.smartfind.</span></span><span class="sig-name descname"><span class="pre">ScoringConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
 <p>Possible configuration values to influence the scoring query</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wickedjukebox.core.smartfind.ScoringConfig.CANDIDATE_POOL_SIZE">
-<span class="sig-name descname"><span class="pre">CANDIDATE_POOL_SIZE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'candidate_pool_size'</span></em><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig.CANDIDATE_POOL_SIZE" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">CANDIDATE_POOL_SIZE</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'candidate_pool_size'</span></span><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig.CANDIDATE_POOL_SIZE" title="Link to this definition">¶</a></dt>
 <dd><p>0 (or absent) = disabled (score the whole table). &gt;0 = score only a
 random pool of this many candidate ids (fast, flat with library size).</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wickedjukebox.core.smartfind.ScoringConfig.LAST_PLAYED">
-<span class="sig-name descname"><span class="pre">LAST_PLAYED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'last_played'</span></em><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig.LAST_PLAYED" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">LAST_PLAYED</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'last_played'</span></span><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig.LAST_PLAYED" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wickedjukebox.core.smartfind.ScoringConfig.MAX_DURATION">
-<span class="sig-name descname"><span class="pre">MAX_DURATION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'max_duration'</span></em><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig.MAX_DURATION" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">MAX_DURATION</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'max_duration'</span></span><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig.MAX_DURATION" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wickedjukebox.core.smartfind.ScoringConfig.NEVER_PLAYED">
-<span class="sig-name descname"><span class="pre">NEVER_PLAYED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'never_played'</span></em><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig.NEVER_PLAYED" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">NEVER_PLAYED</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'never_played'</span></span><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig.NEVER_PLAYED" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wickedjukebox.core.smartfind.ScoringConfig.PROOF_OF_LIFE_TIMEOUT">
-<span class="sig-name descname"><span class="pre">PROOF_OF_LIFE_TIMEOUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'proof_of_life'</span></em><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig.PROOF_OF_LIFE_TIMEOUT" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">PROOF_OF_LIFE_TIMEOUT</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'proof_of_life'</span></span><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig.PROOF_OF_LIFE_TIMEOUT" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wickedjukebox.core.smartfind.ScoringConfig.RANDOMNESS">
-<span class="sig-name descname"><span class="pre">RANDOMNESS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'randomness'</span></em><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig.RANDOMNESS" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">RANDOMNESS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'randomness'</span></span><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig.RANDOMNESS" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="wickedjukebox.core.smartfind.ScoringConfig.USER_RATING">
-<span class="sig-name descname"><span class="pre">USER_RATING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'user_rating'</span></em><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig.USER_RATING" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">USER_RATING</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'user_rating'</span></span><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig.USER_RATING" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -475,8 +475,8 @@ never-played bonus + randomness as the no-users variant.</p>
     </aside>
   </div>
 </div><script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
     </body>
 </html>

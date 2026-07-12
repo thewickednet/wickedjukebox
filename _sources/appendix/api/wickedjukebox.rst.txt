@@ -21,45 +21,45 @@ wickedjukebox.channel module
 
 .. automodule:: wickedjukebox.channel
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 wickedjukebox.config module
 ---------------------------
 
 .. automodule:: wickedjukebox.config
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 wickedjukebox.exc module
 ------------------------
 
 .. automodule:: wickedjukebox.exc
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 wickedjukebox.logutil module
 ----------------------------
 
 .. automodule:: wickedjukebox.logutil
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 wickedjukebox.scanner module
 ----------------------------
 
 .. automodule:: wickedjukebox.scanner
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: wickedjukebox
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

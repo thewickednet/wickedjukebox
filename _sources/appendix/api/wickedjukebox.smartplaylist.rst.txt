@@ -9,13 +9,13 @@ wickedjukebox.smartplaylist.parser module
 
 .. automodule:: wickedjukebox.smartplaylist.parser
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: wickedjukebox.smartplaylist
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

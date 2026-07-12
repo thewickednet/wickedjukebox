@@ -17,13 +17,13 @@ wickedjukebox.model.audiometa module
 
 .. automodule:: wickedjukebox.model.audiometa
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: wickedjukebox.model
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

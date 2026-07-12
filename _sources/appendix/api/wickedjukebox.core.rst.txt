@@ -9,13 +9,13 @@ wickedjukebox.core.smartfind module
 
 .. automodule:: wickedjukebox.core.smartfind
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: wickedjukebox.core
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

@@ -9,85 +9,85 @@ wickedjukebox.model.db.auth module
 
 .. automodule:: wickedjukebox.model.db.auth
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 wickedjukebox.model.db.events module
 ------------------------------------
 
 .. automodule:: wickedjukebox.model.db.events
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 wickedjukebox.model.db.lastfm module
 ------------------------------------
 
 .. automodule:: wickedjukebox.model.db.lastfm
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 wickedjukebox.model.db.library module
 -------------------------------------
 
 .. automodule:: wickedjukebox.model.db.library
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 wickedjukebox.model.db.logging module
 -------------------------------------
 
 .. automodule:: wickedjukebox.model.db.logging
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 wickedjukebox.model.db.playback module
 --------------------------------------
 
 .. automodule:: wickedjukebox.model.db.playback
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 wickedjukebox.model.db.sameta module
 ------------------------------------
 
 .. automodule:: wickedjukebox.model.db.sameta
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 wickedjukebox.model.db.settings module
 --------------------------------------
 
 .. automodule:: wickedjukebox.model.db.settings
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 wickedjukebox.model.db.stats module
 -----------------------------------
 
 .. automodule:: wickedjukebox.model.db.stats
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 wickedjukebox.model.db.webui module
 -----------------------------------
 
 .. automodule:: wickedjukebox.model.db.webui
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: wickedjukebox.model.db
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

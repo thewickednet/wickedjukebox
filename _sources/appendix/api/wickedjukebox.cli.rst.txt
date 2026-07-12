@@ -9,21 +9,21 @@ wickedjukebox.cli.jukebox\_admin module
 
 .. automodule:: wickedjukebox.cli.jukebox_admin
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 wickedjukebox.cli.run\_channel module
 -------------------------------------
 
 .. automodule:: wickedjukebox.cli.run_channel
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: wickedjukebox.cli
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
