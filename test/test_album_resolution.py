@@ -30,8 +30,9 @@ def _audiometa(artist_name, album_name):
 def _scan(dbsession, path, artist_name, album_name):
     """Run update_metadata for a (real) file with patched tag metadata."""
     song = Song(localpath=str(path))
-    with patch("wickedjukebox.model.db.library.MetaFactory") as factory, patch(
-        "wickedjukebox.model.db.library.Session", lambda: dbsession
+    with (
+        patch("wickedjukebox.model.db.library.MetaFactory") as factory,
+        patch("wickedjukebox.model.db.library.Session", lambda: dbsession),
     ):
         factory.create.return_value = _audiometa(artist_name, album_name)
         song.update_metadata()

@@ -24,9 +24,10 @@ def test_process_new():
     Scanning a song from a file should be called if the song does not exist in
     the database
     """
-    with patch("wickedjukebox.scanner.Song") as Song, patch(
-        "wickedjukebox.scanner.Session"
-    ) as Session:
+    with (
+        patch("wickedjukebox.scanner.Song") as Song,
+        patch("wickedjukebox.scanner.Session") as Session,
+    ):
         song = Mock(localpath="/path/to/mp3s/file.mp3")
         Song.by_filename.return_value = None  # type: ignore
         Song.return_value = song
@@ -49,15 +50,17 @@ def test_process_invalid_file():
     """
     Scanning a non-supported file should be a no-op
     """
-    with patch("wickedjukebox.scanner.Song") as Song, patch(
-        "wickedjukebox.scanner.Session"
+    with (
+        patch("wickedjukebox.scanner.Song") as Song,
+        patch("wickedjukebox.scanner.Session"),
     ):
         scanner.process(Path("/path/to/mp3s/file.txt"))
 
 
 def test_process_files(dbsession):
     stdout = StringIO()
-    with patch("wickedjukebox.scanner.ChargingBar"), patch(
-        "wickedjukebox.scanner.process"
+    with (
+        patch("wickedjukebox.scanner.ChargingBar"),
+        patch("wickedjukebox.scanner.process"),
     ):
         scanner.process_files(["file1", "file2"], stdout)

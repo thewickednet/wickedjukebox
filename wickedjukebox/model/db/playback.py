@@ -310,15 +310,18 @@ class DynamicPlaylist(Base):
                     # Outer joins keep songs with a NULL album_id eligible, and
                     # explicit onclauses avoid the cartesian product noted above.
                     from wickedjukebox.model.db.library import (
-                                            Album,
-                                            Artist,
-                                            Song,
-                                        )
+                        Album,
+                        Artist,
+                        Song,
+                    )
+
                     query = query.outerjoin(Artist, Artist.id == Song.artist_id)
                     query = query.outerjoin(Album, Album.id == Song.album_id)
                     # TODO: prevent SQL injections (already somewhat safe due to
                     # lexx/yacc parsing)
-                    query = query.where(text("(" + parse_query(dpl["query"]) + ")"))
+                    query = query.where(
+                        text("(" + parse_query(dpl["query"]) + ")")
+                    )
                 break  # only one query will be parsed. for now.... this is a big TODO
                 # as it triggers an unexpected behaviour (bug). i.e.: Why the
                 # heck does it only activate one playlist?!?

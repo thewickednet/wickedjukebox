@@ -1104,9 +1104,7 @@ def upgrade():
     # autogenerate cannot see or emit it. Recreated verbatim (same
     # definition as the old initial-stamp migration) so the squash
     # preserves it.
-    op.execute(
-        dedent(
-            """\
+    op.execute(dedent("""\
         CREATE VIEW `history` AS
         select
             `s`.`id` AS `song_id`,
@@ -1121,9 +1119,7 @@ def upgrade():
             join `artist` `a` on (`a`.`id` = `s`.`artist_id`)
         )
         order by `rel`.`lastPlayed` desc ;
-        """
-        )
-    )
+        """))
 
 
 def downgrade():

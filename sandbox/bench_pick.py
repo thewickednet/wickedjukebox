@@ -300,11 +300,11 @@ def main():
 
         # optional: time the REAL find_song if the package imports cleanly ------
         try:
+            from wickedjukebox.core.smartfind import ScoringConfig, find_song
             from wickedjukebox.model.db.sameta import (
-                connect as wj_connect,
                 Session,
             )
-            from wickedjukebox.core.smartfind import find_song, ScoringConfig
+            from wickedjukebox.model.db.sameta import connect as wj_connect
 
             wj_connect(dsn)
             sc = {
