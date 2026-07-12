@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Wicked Jukebox is a multi-channel music jukebox backend (v3 rewrite, package version `3.0.0a7`). A "channel" is a long-running process that plays music through a pluggable player backend (currently MPD), picking songs via configurable autoplay/queue strategies and committing playback statistics to a MariaDB/MySQL database. Targets Python 3.10 and is pinned to **SQLAlchemy < 2.0**.
+Wicked Jukebox is a multi-channel music jukebox backend (v3 rewrite, package version `3.0.0a7`). A "channel" is a long-running process that plays music through a pluggable player backend (currently MPD), picking songs via configurable autoplay/queue strategies and committing playback statistics to a MariaDB/MySQL database. Targets Python 3.13 (`python_requires>=3.13`) and is pinned to **SQLAlchemy < 2.0**.
 
 ## Development Setup
 
@@ -46,7 +46,7 @@ fab test --autorun        # re-run on file changes via entr
 ./env/bin/pytest test/test_components.py::test_name   # run a single test (DB must already be up & migrated)
 ```
 
-CI (`.github/workflows/ci.yaml`, Python 3.10) runs `pre-commit run --all`, then provisions MariaDB, configures the ini files, runs `alembic upgrade head`, and runs `pytest`.
+CI (`.github/workflows/ci.yaml`, Python 3.13) runs `pre-commit run --all`, then provisions MariaDB, configures the ini files, runs `alembic upgrade head`, and runs `pytest`.
 
 ## Linting & Formatting
 
