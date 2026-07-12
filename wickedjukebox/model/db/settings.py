@@ -61,7 +61,7 @@ class Setting(Base):
     )
     id = Column(Integer, nullable=False, primary_key=True)
     var = Column(String(32), nullable=False)
-    value = Column(String())
+    value = Column(Text())
     channel_id = Column(
         Integer,
         nullable=False,
