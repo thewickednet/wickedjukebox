@@ -137,11 +137,7 @@ class Artist(Base):
 
 class Album(Base):
     __tablename__ = "album"
-    __table_args__ = (
-        Index("artist_id", "artist_id", unique=False),
-        Index("name", "name", unique=False),
-        Index("type", "type", unique=False),
-    )
+    __table_args__ = (Index("artist_id", "artist_id", unique=False),)
     id = Column(Integer, primary_key=True)
     slug = Column(String(50), unique=True)
     artist_id = Column(
@@ -149,7 +145,7 @@ class Album(Base):
         ForeignKey("artist.id", ondelete="CASCADE", onupdate="CASCADE"),
         nullable=False,
     )
-    name = Column(String(128), index=True)
+    name = Column(String(128))
     disc_no = Column(SmallInteger, nullable=False, server_default=text("1"))
     release_date = Column(Date)
     added = Column(DateTime, nullable=False)
@@ -215,13 +211,19 @@ class Album(Base):
 
 class Song(Base):
     __tablename__ = "song"
+    # NOTE (django-reconciliation, 2026-07-12): index set is aligned to
+    # djukebox's authoritative Django schema. Intentional daemon-side
+    # deviations that Django under-declares are KEPT on purpose — do not
+    # "fix" them back toward Django:
+    #   * UNIQUE(localpath)  -> Song.by_filename / scanner upsert rely on it
+    #   * UNIQUE(slug), UNIQUE(intro_id), AUTO_INCREMENT id
+    # Django has the (available, broken) composite but no single-column
+    # broken / title / exclude_from_random indexes (low-cardinality, unused).
     __table_args__ = (
         Index("album_id", "album_id", unique=False),
         Index("artist_id", "artist_id", unique=False),
-        Index("broken", "broken", unique=False),
-        Index("exclude_from_random", "exclude_from_random", unique=False),
+        Index("song_avail_broken_idx", "available", "broken", unique=False),
         Index("song_mood_score_idx", "mood_score", unique=False),
-        Index("title", "title", unique=False),
         ForeignKeyConstraint(
             ["artist_id"],
             ["artist.id"],

@@ -118,7 +118,6 @@ class ChannelStat(Base):
     __table_args__ = (
         Index("channel_id_2", "channel_id", "song_id", unique=True),
         Index("song_id", "song_id", unique=False),
-        Index("channel_id", "channel_id", unique=False),
     )
 
     id = Column(Integer, primary_key=True)

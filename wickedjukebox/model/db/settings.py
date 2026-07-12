@@ -41,7 +41,6 @@ from .sameta import Base
 class Setting(Base):
     __tablename__ = "setting"
     __table_args__ = (
-        Index("var", "var", unique=False),
         Index("channel_id", "channel_id", unique=False),
         Index("user_id", "user_id", unique=False),
         Index("var_2", "var", "channel_id", "user_id", unique=True),

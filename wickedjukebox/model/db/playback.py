@@ -198,7 +198,6 @@ class QueueItem(Base):
     __tablename__ = "queue"
     __table_args__ = (
         Index("channel_id", "channel_id", unique=False),
-        Index("position", "position", unique=False),
         Index("song_id", "song_id", unique=False),
         Index("user_id", "user_id", unique=False),
         ForeignKeyConstraint(
