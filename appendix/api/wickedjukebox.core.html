@@ -289,6 +289,13 @@ clarified.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
 <p>Possible configuration values to influence the scoring query</p>
 <dl class="py attribute">
+<dt class="sig sig-object py" id="wickedjukebox.core.smartfind.ScoringConfig.CANDIDATE_POOL_SIZE">
+<span class="sig-name descname"><span class="pre">CANDIDATE_POOL_SIZE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'candidate_pool_size'</span></em><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig.CANDIDATE_POOL_SIZE" title="Link to this definition">¶</a></dt>
+<dd><p>0 (or absent) = disabled (score the whole table). &gt;0 = score only a
+random pool of this many candidate ids (fast, flat with library size).</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="wickedjukebox.core.smartfind.ScoringConfig.LAST_PLAYED">
 <span class="sig-name descname"><span class="pre">LAST_PLAYED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'last_played'</span></em><a class="headerlink" href="#wickedjukebox.core.smartfind.ScoringConfig.LAST_PLAYED" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -453,6 +460,7 @@ score =</p>
 <li><a class="reference internal" href="#wickedjukebox.core.smartfind.LAST_PLAYED_CUTOFF"><code class="docutils literal notranslate"><span class="pre">LAST_PLAYED_CUTOFF</span></code></a></li>
 <li><a class="reference internal" href="#wickedjukebox.core.smartfind.SONG_AGE_CUTOFF"><code class="docutils literal notranslate"><span class="pre">SONG_AGE_CUTOFF</span></code></a></li>
 <li><a class="reference internal" href="#wickedjukebox.core.smartfind.ScoringConfig"><code class="docutils literal notranslate"><span class="pre">ScoringConfig</span></code></a><ul>
+<li><a class="reference internal" href="#wickedjukebox.core.smartfind.ScoringConfig.CANDIDATE_POOL_SIZE"><code class="docutils literal notranslate"><span class="pre">ScoringConfig.CANDIDATE_POOL_SIZE</span></code></a></li>
 <li><a class="reference internal" href="#wickedjukebox.core.smartfind.ScoringConfig.LAST_PLAYED"><code class="docutils literal notranslate"><span class="pre">ScoringConfig.LAST_PLAYED</span></code></a></li>
 <li><a class="reference internal" href="#wickedjukebox.core.smartfind.ScoringConfig.MAX_DURATION"><code class="docutils literal notranslate"><span class="pre">ScoringConfig.MAX_DURATION</span></code></a></li>
 <li><a class="reference internal" href="#wickedjukebox.core.smartfind.ScoringConfig.NEVER_PLAYED"><code class="docutils literal notranslate"><span class="pre">ScoringConfig.NEVER_PLAYED</span></code></a></li>

@@ -337,6 +337,12 @@ the jukebox will not play anything.</p>
 <span class="na">weight_song_age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
 <span class="na">weight_user_rating</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4</span>
 
+<span class="c1">; Bound the smart-random scan to a random pool of this many candidate songs</span>
+<span class="c1">; (fast, flat with library size). 0 or omitted = disabled (whole-table scan).</span>
+<span class="c1">; Only applies when the channel has no active mood window.</span>
+<span class="c1">; A few hundred is plenty; keep it modest, there is no hard upper clamp.</span>
+<span class="na">candidate_pool_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0</span>
+
 <span class="k">[channel:wicked:queue]</span>
 <span class="c1">; The model used to pick songs from a queue</span>
 <span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">db</span>

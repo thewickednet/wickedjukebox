@@ -1049,6 +1049,12 @@ can take effect one song late, because one pick is already buffered.</p>
 <span class="c1">; No songs longer than this amount of seconds is returned</span>
 <span class="na">max_duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">600</span>
 
+<span class="c1">; Bound the &quot;smart random&quot; scan to a random pool of this many candidate</span>
+<span class="c1">; songs (fast + flat as the library grows). 0 or omitted = disabled</span>
+<span class="c1">; (score the whole table). Only applies when no mood window is active.</span>
+<span class="c1">; A few hundred is plenty; keep it modest, there is no hard upper clamp.</span>
+<span class="na">candidate_pool_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">500</span>
+
 <span class="c1">; Consider users that have been offline since this amount of seconds to</span>
 <span class="c1">; be &quot;inactive&quot;</span>
 <span class="na">proofoflife_timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">120</span>
